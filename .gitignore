@@ -20,3 +20,8 @@ build/
 *.pem
 npm-debug.log*
 .vercel
+
+# local browser test artifacts
+.playwright-mcp/
+conectar-android-*.png
+conectar-iphone-*.png
