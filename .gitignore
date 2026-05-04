@@ -23,5 +23,6 @@ npm-debug.log*
 
 # local browser test artifacts
 .playwright-mcp/
+.playwright-cli/
 conectar-android-*.png
 conectar-iphone-*.png
