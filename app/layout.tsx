@@ -1,47 +1,31 @@
-import type { Metadata } from 'next'
-import { Paytone_One, Poppins } from 'next/font/google'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
-const paytone = Paytone_One({
-  weight: '400',
-  variable: '--font-paytone',
-  subsets: ['latin'],
-  display: 'swap',
-})
-
-const poppins = Poppins({
-  weight: ['400', '500', '600'],
-  variable: '--font-poppins',
-  subsets: ['latin'],
-  display: 'swap',
-})
-
 export const metadata: Metadata = {
-  title: 'Pasito — Caminá y ganá premios',
-  description: 'La app que te premia por caminar. Acumulá pasos y canjealos por descuentos y regalos en comercios cerca tuyo.',
+  title: 'Pasito — Caminá, juntá Pasitos y ganá premios',
+  description: 'La red que convierte tus pasos en premios en comercios cerca tuyo.',
   icons: {
     icon: '/icon.png',
     apple: '/icon.png',
   },
   openGraph: {
-    title: 'Pasito — Caminá y ganá premios',
-    description: 'La app que te premia por caminar. Próximamente en Argentina.',
+    title: 'Pasito — Caminá, juntá Pasitos y ganá premios',
+    description: 'La red que convierte tus pasos en premios en comercios cerca tuyo.',
     type: 'website',
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    viewportFit: 'cover',
-  },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body className={`${paytone.variable} ${poppins.variable}`}>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   )
 }

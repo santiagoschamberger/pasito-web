@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-display: var(--font-paytone);
-  --font-sans: var(--font-poppins);
+  --font-display: "Arial Black", "Impact", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --color-green: #0C6B45;
   --color-yellow: #EEFA7A;
 }
@@ -23,12 +23,12 @@
   }
   body {
     min-height: 100%;
-    font-family: var(--font-poppins), system-ui, sans-serif;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background: #0C6B45;
     color: #fff;
     -webkit-font-smoothing: antialiased;
   }
   .font-display {
-    font-family: var(--font-paytone), system-ui, sans-serif;
+    font-family: "Arial Black", "Impact", ui-sans-serif, system-ui, sans-serif;
   }
 }
