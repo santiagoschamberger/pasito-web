@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import { ConnectAndroidGuide } from './ConnectAndroidGuide'
 
 export const metadata: Metadata = {
-  title: 'Conectar pasos a Pasito',
+  title: 'Pasito Android',
   description:
-    'Guía paso a paso para conectar una app de pasos con Pasito en Android o iPhone.',
+    'Guía rápida para resetear permisos de Health Connect y revisar pasos en Pasito Android.',
 }
 
 export default function ConectarAndroidPage() {

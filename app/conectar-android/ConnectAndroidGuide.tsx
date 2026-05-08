@@ -11,60 +11,25 @@ import {
   ChevronLeft,
   CircleAlert,
   ExternalLink,
-  Footprints,
   HeartPulse,
-  Instagram,
-  Settings,
+  RefreshCcw,
   ShieldCheck,
-  Smartphone,
-  Store,
-  Watch,
 } from 'lucide-react'
 
-type Platform = 'android' | 'ios'
-type Device = 'samsung' | 'xiaomi' | 'motorola' | 'pixel' | 'other'
-type SourceApp =
-  | 'apple-health'
-  | 'samsung-health'
-  | 'mi-fitness'
-  | 'google-fit'
-  | 'garmin-fitbit'
-  | 'other'
-type PasitoCheck = 'works' | 'not-yet'
-type InstalledAnswer = 'yes' | 'no'
+type Issue = 'after-update' | 'never-counted' | 'still-not-working'
 type StepId =
-  | 'platform'
-  | 'ios-intro'
-  | 'ios-source'
-  | 'ios-health'
-  | 'ios-source-connect'
-  | 'ios-pasito-permissions'
-  | 'ios-test'
-  | 'ios-updates'
-  | 'android-intro'
-  | 'device'
-  | 'source'
-  | 'android-required-apps'
-  | 'pasito-check'
-  | 'pasito-install'
-  | 'health-connect-check'
-  | 'health-connect-install'
-  | 'source-check'
-  | 'source-install'
-  | 'source-connect'
-  | 'health-data'
-  | 'pasito-permissions'
-  | 'pasito-test'
-  | 'battery'
-  | 'updates'
-  | 'google-fit-fallback'
-  | 'contact'
+  | 'issue'
+  | 'reset-permissions'
+  | 'health-connect'
+  | 'battery-pasito'
+  | 'battery-source'
+  | 'test'
   | 'done'
 
 type Choice<T extends string> = {
   id: T
   label: string
-  detail?: string
+  detail: string
   icon: LucideIcon
 }
 
@@ -75,293 +40,51 @@ type ActionLink = {
 
 const HEALTH_CONNECT_URL =
   'https://play.google.com/store/apps/details?id=com.google.android.apps.healthdata'
-const PASITO_PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=ar.pasito.pasito'
-const GOOGLE_FIT_PLAY_STORE_URL =
-  'https://play.google.com/store/apps/details?id=com.google.android.apps.fitness'
-const APPLE_HEALTH_URL = 'https://apps.apple.com/app/apple-health/id1242545199'
-const GARMIN_CONNECT_APP_STORE_URL = 'https://apps.apple.com/app/garmin-connect/id583446403'
-const INSTAGRAM_URL = 'https://www.instagram.com/pasito.app/'
 
-const platformOptions: Choice<Platform>[] = [
+const issueOptions: Choice<Issue>[] = [
   {
-    id: 'android',
-    label: 'Android',
-    icon: Smartphone,
+    id: 'after-update',
+    label: 'Se desconectó',
+    detail: 'Pasó después de actualizar Pasito.',
+    icon: RefreshCcw,
   },
   {
-    id: 'ios',
-    label: 'iPhone',
-    icon: CircleAlert,
-  },
-]
-
-const deviceOptions: Choice<Device>[] = [
-  {
-    id: 'samsung',
-    label: 'Samsung',
-    icon: Watch,
-  },
-  {
-    id: 'xiaomi',
-    label: 'Xiaomi / Redmi',
-    detail: 'POCO / HyperOS',
-    icon: Settings,
-  },
-  {
-    id: 'motorola',
-    label: 'Motorola',
-    icon: Smartphone,
-  },
-  {
-    id: 'pixel',
-    label: 'Pixel',
-    icon: ShieldCheck,
-  },
-  {
-    id: 'other',
-    label: 'Otro Android',
-    icon: Smartphone,
-  },
-]
-
-const sourceOptions: Choice<SourceApp>[] = [
-  {
-    id: 'samsung-health',
-    label: 'Samsung Health',
+    id: 'never-counted',
+    label: 'Nunca contó',
+    detail: 'Pasito nunca sumó pasos.',
     icon: HeartPulse,
   },
   {
-    id: 'mi-fitness',
-    label: 'Mi Fitness / Zepp Life',
-    detail: 'Xiaomi / Redmi',
-    icon: Footprints,
-  },
-  {
-    id: 'google-fit',
-    label: 'Google Fit',
-    icon: Footprints,
-  },
-  {
-    id: 'garmin-fitbit',
-    label: 'Garmin / Fitbit',
-    icon: Watch,
-  },
-  {
-    id: 'other',
-    label: 'Otra app',
-    icon: HeartPulse,
+    id: 'still-not-working',
+    label: 'Sigue sin contar',
+    detail: 'Ya revisaste permisos.',
+    icon: BatteryCharging,
   },
 ]
 
-const iosSourceOptions: Choice<SourceApp>[] = [
-  {
-    id: 'apple-health',
-    label: 'iPhone / Apple Watch',
-    icon: Smartphone,
-  },
-  {
-    id: 'garmin-fitbit',
-    label: 'Garmin',
-    icon: Watch,
-  },
-  {
-    id: 'other',
-    label: 'Otra app',
-    icon: HeartPulse,
-  },
-]
-
-const pasitoCheckOptions: Choice<PasitoCheck>[] = [
-  {
-    id: 'works',
-    label: 'Sí, ya ve pasos',
-    icon: Check,
-  },
-  {
-    id: 'not-yet',
-    label: 'Todavía no',
-    icon: CircleAlert,
-  },
-]
-
-const installedOptions: Choice<InstalledAnswer>[] = [
-  {
-    id: 'yes',
-    label: 'Sí, ya la tengo',
-    icon: Check,
-  },
-  {
-    id: 'no',
-    label: 'No, instalar',
-    icon: Store,
-  },
-]
-
-function sourceLabel(source: SourceApp | null) {
-  if (source === 'apple-health') return 'Apple Salud'
-  if (source === 'samsung-health') return 'Samsung Health'
-  if (source === 'mi-fitness') return 'Mi Fitness / Zepp Life'
-  if (source === 'google-fit') return 'Google Fit'
-  if (source === 'garmin-fitbit') return 'Garmin/Fitbit'
-  if (source === 'other') return 'tu app de pasos'
-  return 'tu app de pasos'
-}
-
-function iosSourceLabel(source: SourceApp | null) {
-  if (source === 'garmin-fitbit') return 'Garmin Connect'
-  if (source === 'other') return 'tu app de pasos'
-  return 'Apple Salud'
-}
-
-function sourceStoreLinks(source: SourceApp | null): ActionLink[] {
-  if (source === 'samsung-health') {
-    return [
-      {
-        label: 'Abrir Samsung Health',
-        href: 'https://play.google.com/store/apps/details?id=com.sec.android.app.shealth',
-      },
-    ]
+function getStepOrder(issue: Issue | null): StepId[] {
+  if (issue === 'after-update') {
+    return ['issue', 'reset-permissions', 'test', 'battery-pasito', 'battery-source', 'done']
   }
 
-  if (source === 'google-fit') {
-    return [
-      {
-        label: 'Abrir Google Fit',
-        href: 'https://play.google.com/store/apps/details?id=com.google.android.apps.fitness',
-      },
-      {
-        label: 'Abrir Fitbit',
-        href: 'https://play.google.com/store/apps/details?id=com.fitbit.FitbitMobile',
-      },
-    ]
+  if (issue === 'never-counted') {
+    return ['issue', 'health-connect', 'reset-permissions', 'test', 'battery-pasito', 'battery-source', 'done']
   }
 
-  if (source === 'mi-fitness') {
-    return [
-      {
-        label: 'Buscar Mi Fitness',
-        href: 'https://play.google.com/store/search?q=Mi%20Fitness&c=apps',
-      },
-      {
-        label: 'Buscar Zepp Life',
-        href: 'https://play.google.com/store/search?q=Zepp%20Life&c=apps',
-      },
-    ]
+  if (issue === 'still-not-working') {
+    return ['issue', 'battery-pasito', 'battery-source', 'test', 'done']
   }
 
-  if (source === 'garmin-fitbit') {
-    return [
-      {
-        label: 'Abrir Garmin',
-        href: 'https://play.google.com/store/apps/details?id=com.garmin.android.apps.connectmobile',
-      },
-      {
-        label: 'Abrir Fitbit',
-        href: 'https://play.google.com/store/apps/details?id=com.fitbit.FitbitMobile',
-      },
-    ]
-  }
-
-  return [
-    {
-      label: 'Buscar en Play Store',
-      href: 'https://play.google.com/store/search?q=contador%20de%20pasos&c=apps',
-    },
-  ]
-}
-
-function getStepOrder({
-  platform,
-  device,
-  source,
-  pasitoInstalled,
-  healthConnectInstalled,
-  sourceInstalled,
-}: {
-  platform: Platform | null
-  device: Device | null
-  source: SourceApp | null
-  pasitoInstalled: InstalledAnswer | null
-  healthConnectInstalled: InstalledAnswer | null
-  sourceInstalled: InstalledAnswer | null
-}): StepId[] {
-  if (platform === 'ios') {
-    const iosSteps: StepId[] = [
-      'platform',
-      'ios-intro',
-      'ios-source',
-    ]
-
-    if (source && source !== 'apple-health') {
-      iosSteps.push('ios-source-connect')
-    }
-
-    iosSteps.push(
-      'ios-health',
-      'ios-pasito-permissions',
-      'ios-test',
-      'ios-updates',
-      'contact',
-      'done',
-    )
-
-    return iosSteps
-  }
-
-  return [
-    'platform',
-    'android-intro',
-    'device',
-    'source',
-    'android-required-apps',
-    'pasito-check',
-    ...(pasitoInstalled === 'no' ? (['pasito-install'] as StepId[]) : []),
-    'health-connect-check',
-    ...(healthConnectInstalled === 'no' ? (['health-connect-install'] as StepId[]) : []),
-    'source-check',
-    ...(sourceInstalled === 'no' ? (['source-install'] as StepId[]) : []),
-    'source-connect',
-    'health-data',
-    'pasito-permissions',
-    'pasito-test',
-    'battery',
-    'updates',
-    ...(device === 'samsung' || source === 'samsung-health'
-      ? (['google-fit-fallback'] as StepId[])
-      : []),
-    'contact',
-    'done',
-  ]
+  return ['issue']
 }
 
 export function ConnectAndroidGuide() {
-  const [platform, setPlatform] = useState<Platform | null>(null)
-  const [device, setDevice] = useState<Device | null>(null)
-  const [source, setSource] = useState<SourceApp | null>(null)
-  const [pasitoCheck, setPasitoCheck] = useState<PasitoCheck | null>(null)
-  const [pasitoInstalled, setPasitoInstalled] = useState<InstalledAnswer | null>(null)
-  const [healthConnectInstalled, setHealthConnectInstalled] = useState<InstalledAnswer | null>(null)
-  const [sourceInstalled, setSourceInstalled] = useState<InstalledAnswer | null>(null)
-
-  const steps = useMemo(
-    () =>
-      getStepOrder({
-        platform,
-        device,
-        source,
-        pasitoInstalled,
-        healthConnectInstalled,
-        sourceInstalled,
-      }),
-    [platform, device, source, pasitoInstalled, healthConnectInstalled, sourceInstalled],
-  )
+  const [issue, setIssue] = useState<Issue | null>(null)
   const [stepIndex, setStepIndex] = useState(0)
+
+  const steps = useMemo(() => getStepOrder(issue), [issue])
   const stepId = steps[Math.min(stepIndex, steps.length - 1)]
   const progress = Math.round(((stepIndex + 1) / steps.length) * 100)
-  const progressLabel = `Paso ${stepIndex + 1}`
-  const sourceName = sourceLabel(source)
-  const iosSourceName = iosSourceLabel(source)
-  const sourceLinks = sourceStoreLinks(source)
 
   const goNext = () => {
     setStepIndex((current) => Math.min(current + 1, steps.length - 1))
@@ -371,81 +94,14 @@ export function ConnectAndroidGuide() {
     setStepIndex((current) => Math.max(current - 1, 0))
   }
 
-  const goTo = (target: StepId) => {
-    const targetIndex = steps.indexOf(target)
-    if (targetIndex >= 0) {
-      setStepIndex(targetIndex)
-    }
-  }
-
   const reset = () => {
-    setPlatform(null)
-    setDevice(null)
-    setSource(null)
-    setPasitoCheck(null)
-    setPasitoInstalled(null)
-    setHealthConnectInstalled(null)
-    setSourceInstalled(null)
+    setIssue(null)
     setStepIndex(0)
   }
 
-  const choosePlatform = (value: Platform) => {
-    setPlatform(value)
-    setDevice(null)
-    setSource(null)
-    setPasitoCheck(null)
-    setPasitoInstalled(null)
-    setHealthConnectInstalled(null)
-    setSourceInstalled(null)
+  const chooseIssue = (value: Issue) => {
+    setIssue(value)
     setStepIndex(1)
-  }
-
-  const chooseDevice = (value: Device) => {
-    setDevice(value)
-    setPasitoCheck(null)
-    setPasitoInstalled(null)
-    setHealthConnectInstalled(null)
-    setSourceInstalled(null)
-    if (value === 'samsung') {
-      setSource('samsung-health')
-    } else if (value === 'xiaomi') {
-      setSource('mi-fitness')
-    }
-    goNext()
-  }
-
-  const chooseSource = (value: SourceApp) => {
-    setSource(value)
-    setPasitoCheck(null)
-    setPasitoInstalled(null)
-    setHealthConnectInstalled(null)
-    setSourceInstalled(null)
-    goNext()
-  }
-
-  const choosePasitoInstalled = (value: InstalledAnswer) => {
-    setPasitoInstalled(value)
-    goNext()
-  }
-
-  const chooseHealthConnectInstalled = (value: InstalledAnswer) => {
-    setHealthConnectInstalled(value)
-    goNext()
-  }
-
-  const chooseSourceInstalled = (value: InstalledAnswer) => {
-    setSourceInstalled(value)
-    goNext()
-  }
-
-  const choosePasitoCheck = (value: PasitoCheck) => {
-    setPasitoCheck(value)
-    if (value === 'works') {
-      goTo('done')
-      return
-    }
-
-    goNext()
   }
 
   return (
@@ -483,7 +139,7 @@ export function ConnectAndroidGuide() {
 
           <div className="mt-3">
             <div className="mb-2 flex items-center justify-between text-xs font-bold text-[#49715E]">
-              <span>{progressLabel}</span>
+              <span>Paso {stepIndex + 1}</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-[#DDE7D9]">
               <div
@@ -495,277 +151,47 @@ export function ConnectAndroidGuide() {
         </header>
 
         <section className="flex flex-1 flex-col px-4 pb-[calc(env(safe-area-inset-bottom)+92px)] pt-4">
-          {stepId === 'platform' && (
+          {stepId === 'issue' && (
             <ChoiceStep
-              title="¿Qué celular tenés?"
-              options={platformOptions}
-              value={platform}
-              onChoose={choosePlatform}
+              title="Pasito Android"
+              lead="Elegí qué te está pasando con los pasos."
+              options={issueOptions}
+              value={issue}
+              onChoose={chooseIssue}
             />
           )}
 
-          {stepId === 'ios-intro' && (
+          {stepId === 'reset-permissions' && (
+            <ActionStep
+              icon={RefreshCcw}
+              title="Resetear permisos"
+              lead="Sacá y volvé a dar permisos para conectar las apps de nuevo."
+              bullets={[
+                'Abrí Health Connect.',
+                'Entrá en Apps conectadas o Permisos de apps.',
+                'Abrí cada app: Pasito, Samsung Health, Mi Fitness, Google Fit o tu app de pasos.',
+                'Sacale todos los permisos.',
+                'Si aparece, tocá "Borrar los datos de esta app en Health Connect".',
+                'Volvé a entrar a cada app y activá los permisos otra vez.',
+              ]}
+              primaryLabel="Ya reseteé permisos"
+              onPrimary={goNext}
+            />
+          )}
+
+          {stepId === 'health-connect' && (
             <ActionStep
               icon={ShieldCheck}
-              title="Cómo se conecta"
-              lead="En iPhone, Pasito lee pasos desde Apple Salud."
+              title="Revisar Health Connect"
+              lead="Pasito lee los pasos desde Health Connect. Si ahí no hay datos, Pasito no puede leer nada."
               bullets={[
-                'iPhone guarda pasos en Apple Salud.',
-                'Garmin también puede mandar pasos a Apple Salud.',
-                'Pasito necesita permiso para leerlos.',
-              ]}
-              primaryLabel="Empezar"
-              onPrimary={goNext}
-            />
-          )}
-
-          {stepId === 'ios-source' && (
-            <ChoiceStep
-              title="¿Cuál es tu app de pasos?"
-              lead="Elegí la app que muestra tus pasos."
-              options={iosSourceOptions}
-              value={source}
-              onChoose={chooseSource}
-            />
-          )}
-
-          {stepId === 'ios-health' && (
-            <ActionStep
-              icon={HeartPulse}
-              title="Revisar Apple Salud"
-              lead="Primero confirmá que Salud tiene pasos."
-              bullets={[
-                'Abrí la app Salud.',
-                'Tocá Buscar.',
-                'Entrá en Actividad > Pasos.',
-                'Si ves pasos, vamos bien.',
-              ]}
-              links={[
-                {
-                  label: 'Abrir Apple Salud',
-                  href: APPLE_HEALTH_URL,
-                },
-              ]}
-              primaryLabel="Veo pasos"
-              onPrimary={goNext}
-            />
-          )}
-
-          {stepId === 'ios-source-connect' && (
-            <ActionStep
-              icon={source === 'garmin-fitbit' ? Watch : HeartPulse}
-              title={
-                source === 'garmin-fitbit'
-                  ? 'Garmin con Apple Salud'
-                  : source === 'other'
-                    ? 'App con Apple Salud'
-                    : 'Pasos en Apple Salud'
-              }
-              lead={
-                source === 'garmin-fitbit'
-                  ? 'Garmin tiene que enviar pasos a Salud.'
-                  : source === 'other'
-                    ? 'Tu app tiene que compartir pasos con Salud.'
-                    : 'Si Salud ya tiene pasos, seguí.'
-              }
-              bullets={
-                source === 'garmin-fitbit'
-                  ? [
-                      'Abrí Garmin Connect.',
-                      'Tocá Más > Ajustes.',
-                      'Entrá en Apps conectadas.',
-                      'Tocá Apple Salud.',
-                      'Permití Pasos.',
-                    ]
-                  : source === 'other'
-                    ? [
-                        `Abrí ${iosSourceName}.`,
-                        'Entrá en Ajustes.',
-                        'Buscá Apple Salud.',
-                        'Activá compartir Pasos.',
-                      ]
-                    : [
-                        'Mantené Salud con pasos visibles.',
-                        'Si usás Apple Watch, esperá que sincronice.',
-                        'Después dale permiso a Pasito.',
-                      ]
-              }
-              links={
-                source === 'garmin-fitbit'
-                  ? [
-                      {
-                        label: 'Abrir Garmin Connect',
-                        href: GARMIN_CONNECT_APP_STORE_URL,
-                      },
-                    ]
-                  : undefined
-              }
-              primaryLabel={source === 'apple-health' ? 'Seguir' : 'Ya lo conecté'}
-              onPrimary={goNext}
-            />
-          )}
-
-          {stepId === 'ios-pasito-permissions' && (
-            <ActionStep
-              icon={ShieldCheck}
-              title="Dar permiso a Pasito"
-              lead="Pasito necesita leer pasos de Apple Salud."
-              bullets={[
-                'Abrí la app Salud.',
-                'Tocá tu foto o perfil.',
-                'Entrá en Apps y servicios.',
-                'Tocá Pasito.',
-                'Activá Pasos.',
-              ]}
-              primaryLabel="Permiso listo"
-              onPrimary={goNext}
-            />
-          )}
-
-          {stepId === 'ios-test' && (
-            <ChoiceStep
-              title="¿Pasito ya ve pasos?"
-              lead="Abrí Pasito y mirá si ya aparecen tus pasos."
-              options={pasitoCheckOptions}
-              value={pasitoCheck}
-              onChoose={choosePasitoCheck}
-            />
-          )}
-
-          {stepId === 'ios-updates' && (
-            <ActionStep
-              icon={Store}
-              title="Actualizar y abrir apps"
-              lead="Último intento antes de soporte."
-              bullets={[
-                'Actualizá Pasito.',
-                source === 'garmin-fitbit' ? 'Actualizá Garmin Connect.' : 'Actualizá tu app de pasos.',
-                source === 'garmin-fitbit'
-                  ? 'Abrí Garmin Connect y esperá que sincronice.'
-                  : 'Abrí Salud y tu app de pasos.',
-                'Volvé a abrir Pasito.',
-              ]}
-              links={
-                source === 'garmin-fitbit'
-                  ? [
-                      {
-                        label: 'Abrir Garmin Connect',
-                        href: GARMIN_CONNECT_APP_STORE_URL,
-                      },
-                    ]
-                  : [
-                      {
-                        label: 'Abrir Apple Salud',
-                        href: APPLE_HEALTH_URL,
-                      },
-                    ]
-              }
-              primaryLabel="Ya actualicé"
-              onPrimary={goNext}
-            />
-          )}
-
-          {stepId === 'android-intro' && (
-            <ActionStep
-              icon={ShieldCheck}
-              title="En Android son 3 apps"
-              lead="Para que Pasito sume pasos, necesitás tener estas tres."
-              bullets={[
-                'Pasito.',
-                'Health Connect.',
-                'La app que cuenta tus pasos.',
-              ]}
-              primaryLabel="Revisarlas"
-              onPrimary={goNext}
-            />
-          )}
-
-          {stepId === 'device' && (
-            <ChoiceStep
-              title="¿Qué Android tenés?"
-              options={deviceOptions}
-              value={device}
-              onChoose={chooseDevice}
-            />
-          )}
-
-          {stepId === 'source' && (
-            <ChoiceStep
-              title="¿Cuál es tu app de pasos?"
-              lead="Es la app del celular o reloj que cuenta tus pasos."
-              options={sourceOptions}
-              value={source}
-              onChoose={chooseSource}
-            />
-          )}
-
-          {stepId === 'android-required-apps' && (
-            <ActionStep
-              icon={ShieldCheck}
-              title="Necesitás estas 3"
-              lead="Las tres tienen que estar instaladas."
-              bullets={[
-                'Pasito.',
-                'Health Connect.',
-                sourceName,
-              ]}
-              primaryLabel="Chequear una por una"
-              onPrimary={goNext}
-            />
-          )}
-
-          {stepId === 'pasito-check' && (
-            <ChoiceStep
-              title="¿Tenés Pasito?"
-              lead="Primero confirmá que Pasito esté instalado."
-              options={installedOptions}
-              value={pasitoInstalled}
-              onChoose={choosePasitoInstalled}
-            />
-          )}
-
-          {stepId === 'pasito-install' && (
-            <ActionStep
-              icon={Store}
-              title="Instalar Pasito"
-              lead="Abrí Play Store y revisá Pasito."
-              bullets={[
-                'Tocá Abrir en Play Store.',
-                'Si dice Instalar, instalalo.',
-                'Si dice Actualizar, actualizalo.',
-                'Si dice Abrir, está listo.',
-              ]}
-              links={[
-                {
-                  label: 'Abrir Pasito',
-                  href: PASITO_PLAY_STORE_URL,
-                },
-              ]}
-              primaryLabel="Ya lo tengo"
-              onPrimary={goNext}
-            />
-          )}
-
-          {stepId === 'health-connect-check' && (
-            <ChoiceStep
-              title="¿Tenés Health Connect?"
-              lead="Es la app de Android que conecta los pasos."
-              options={installedOptions}
-              value={healthConnectInstalled}
-              onChoose={chooseHealthConnectInstalled}
-            />
-          )}
-
-          {stepId === 'health-connect-install' && (
-            <ActionStep
-              icon={Store}
-              title="Instalar Health Connect"
-              lead="Abrí Play Store y revisalo."
-              bullets={[
-                'Tocá Abrir en Play Store.',
-                'Si dice Instalar, instalalo.',
-                'Si dice Actualizar, actualizalo.',
-                'Si dice Abrir, está listo.',
+                'Asegurate de tener Health Connect instalado.',
+                'Entrá a Health Connect.',
+                'Revisá que Pasito tenga permiso.',
+                'Revisá que tu app de pasos tenga permiso: Samsung Health, Mi Fitness, Google Fit u otra.',
+                'Entrá en Datos y acceso.',
+                'Fijate si aparecen datos de Pasos.',
+                'Si dice "No hay datos disponibles", reseteá permisos en el próximo paso.',
               ]}
               links={[
                 {
@@ -773,221 +199,72 @@ export function ConnectAndroidGuide() {
                   href: HEALTH_CONNECT_URL,
                 },
               ]}
-              primaryLabel="Ya lo tengo"
+              primaryLabel="Seguir"
               onPrimary={goNext}
             />
           )}
 
-          {stepId === 'source-check' && (
-            <ChoiceStep
-              title={`¿Tenés ${sourceName}?`}
-              lead="Esta es la app que cuenta tus pasos."
-              options={installedOptions}
-              value={sourceInstalled}
-              onChoose={chooseSourceInstalled}
-            />
-          )}
-
-          {stepId === 'source-install' && (
-            <ActionStep
-              icon={HeartPulse}
-              title={`Instalar ${sourceName}`}
-              lead="Abrí Play Store y revisá la app de pasos."
-              bullets={[
-                sourceLinks.length > 0 ? 'Abrí el link de abajo.' : 'Buscala en Play Store.',
-                'Si dice Instalar, instalala.',
-                'Si dice Actualizar, actualizala.',
-                device === 'samsung'
-                  ? 'Samsung: revisá Galaxy Store también.'
-                  : 'Cuando esté lista, volvé acá.',
-              ]}
-              links={sourceLinks}
-              primaryLabel="Ya la tengo"
-              onPrimary={goNext}
-            />
-          )}
-
-          {stepId === 'source-connect' && (
-            <ActionStep
-              icon={HeartPulse}
-              title={`${sourceName} con Health Connect`}
-              lead={`${sourceName} tiene que mandar pasos.`}
-              bullets={
-                source === 'samsung-health' || device === 'samsung'
-                  ? [
-                      'Abrí Samsung Health.',
-                      'Tocá los 3 puntitos.',
-                      'Entrá en Ajustes.',
-                      'Tocá Health Connect.',
-                      'Tocá Comenzar y permití Pasos.',
-                    ]
-                  : [
-                      `Abrí ${sourceName}.`,
-                      'Entrá en Ajustes.',
-                      'Buscá Health Connect.',
-                      'Activá compartir Pasos.',
-                    ]
-              }
-              primaryLabel="Ya lo conecté"
-              onPrimary={goNext}
-            />
-          )}
-
-          {stepId === 'health-data' && (
-            <ActionStep
-              icon={Footprints}
-              title="¿Llegan los pasos?"
-              lead="Ahora mirá dentro de Health Connect."
-              bullets={[
-                'Abrí Ajustes > Health Connect.',
-                'Entrá en Datos y acceso.',
-                'Tocá Pasos.',
-                `Deberías ver ${sourceName}.`,
-              ]}
-              primaryLabel="Sí, veo pasos"
-              onPrimary={goNext}
-              secondaryLabel="No veo pasos"
-              onSecondary={() => goTo('source-connect')}
-            />
-          )}
-
-          {stepId === 'pasito-permissions' && (
-            <ActionStep
-              icon={ShieldCheck}
-              title="Dar permiso a Pasito"
-              lead="Pasito necesita leer pasos."
-              bullets={[
-                'Ajustes > Health Connect.',
-                'Permisos de apps > Pasito.',
-                'Activá Pasos o Actividad.',
-                'Si aparece Leer, activalo.',
-              ]}
-              primaryLabel="Permiso listo"
-              onPrimary={goNext}
-            />
-          )}
-
-          {stepId === 'pasito-test' && (
-            <ChoiceStep
-              title="¿Pasito ya ve pasos?"
-              lead="Abrí Pasito y mirá si ya aparecen tus pasos."
-              options={pasitoCheckOptions}
-              value={pasitoCheck}
-              onChoose={choosePasitoCheck}
-            />
-          )}
-
-          {stepId === 'battery' && (
+          {stepId === 'battery-pasito' && (
             <ActionStep
               icon={BatteryCharging}
-              title="Revisar batería"
-              lead="Android puede dormir las apps."
+              title="Batería de Pasito"
+              lead="Algunos celulares bloquean apps en segundo plano."
               bullets={[
-                'Ajustes > Apps > Pasito.',
-                'Batería > No restringido.',
-                `Repetí con ${sourceName}.`,
-                device === 'xiaomi' ? 'Xiaomi: activá Autoinicio.' : 'No elijas Restringido.',
+                'Abrí Ajustes.',
+                'Entrá en Aplicaciones.',
+                'Buscá Pasito.',
+                'Entrá en Batería.',
+                'Seleccioná No restringido.',
               ]}
-              primaryLabel="Ya lo hice"
+              primaryLabel="Listo"
               onPrimary={goNext}
             />
           )}
 
-          {stepId === 'updates' && (
+          {stepId === 'battery-source' && (
             <ActionStep
-              icon={Store}
-              title="Actualizar todo"
-              lead={
-                device === 'samsung' || source === 'samsung-health'
-                  ? 'Primero probemos actualizar.'
-                  : 'Último intento antes de soporte.'
-              }
+              icon={BatteryCharging}
+              title="Batería de la app de pasos"
+              lead="Hacé lo mismo con la app que cuenta tus pasos."
               bullets={[
-                'Actualizá Health Connect.',
-                `Actualizá ${sourceName}.`,
-                'Actualizá Pasito.',
-                device === 'samsung' ? 'Samsung: revisá Galaxy Store.' : 'Cerrá y abrí las apps.',
+                'Abrí Ajustes.',
+                'Entrá en Aplicaciones.',
+                'Buscá Samsung Health, Mi Fitness, Google Fit o tu app de pasos.',
+                'Entrá en Batería.',
+                'Seleccioná No restringido.',
               ]}
-              links={[
-                {
-                  label: 'Abrir Health Connect',
-                  href: HEALTH_CONNECT_URL,
-                },
-                {
-                  label: 'Abrir Pasito',
-                  href: PASITO_PLAY_STORE_URL,
-                },
-              ]}
-              primaryLabel="Ya actualicé"
+              primaryLabel="Listo"
               onPrimary={goNext}
             />
           )}
 
-          {stepId === 'google-fit-fallback' && (
+          {stepId === 'test' && (
             <ActionStep
-              icon={Footprints}
-              title="Probá Google Fit"
-              lead="Si Samsung Health no suma, Google Fit suele funcionar mejor."
+              icon={Check}
+              title="Probá otra vez"
+              lead="Después de los permisos, probá si vuelve a contar."
               bullets={[
-                'Instalá Google Fit.',
-                'Abrilo y dejá que cuente tus pasos.',
-                'Conectalo con Health Connect.',
-                'Después volvé a Pasito.',
+                'Caminá unos pasos.',
+                'Abrí Pasito.',
+                'Cerrá y volvé a abrir la app.',
+                'Mirá si empieza a contar.',
               ]}
-              links={[
-                {
-                  label: 'Abrir Google Fit',
-                  href: GOOGLE_FIT_PLAY_STORE_URL,
-                },
-              ]}
-              primaryLabel="Ya probé Google Fit"
-              onPrimary={goNext}
-            />
-          )}
-
-          {stepId === 'contact' && (
-            <ActionStep
-              icon={Instagram}
-              title="Si todavía no suma"
-              lead="Mandanos el caso por Instagram."
-              bullets={[
-                platform === 'ios' ? 'Modelo de iPhone.' : 'Marca del celular.',
-                `App de pasos: ${platform === 'ios' ? iosSourceName : sourceName}.`,
-                'Captura de la pantalla de Pasito.',
-              ]}
-              links={[
-                {
-                  label: 'Abrir Instagram',
-                  href: INSTAGRAM_URL,
-                },
-              ]}
-              primaryLabel="Terminar"
+              primaryLabel="Seguir"
               onPrimary={goNext}
             />
           )}
 
           {stepId === 'done' && (
             <ActionStep
-              icon={Check}
-              title="Listo"
-              lead={
-                pasitoCheck === 'works'
-                  ? 'Si Pasito ve pasos, quedó bien.'
-                  : 'Ya hiciste todos los chequeos.'
-              }
-              bullets={
-                platform === 'ios'
-                  ? [
-                      'Apple Salud tiene pasos.',
-                      `${iosSourceName} conectado.`,
-                      'Pasito con permiso.',
-                    ]
-                  : [
-                      'Health Connect instalado.',
-                      `${sourceName} conectado.`,
-                      'Pasito con permiso.',
-                    ]
-              }
+              icon={CircleAlert}
+              title="Si sigue igual"
+              lead="Ya hiciste los chequeos principales de Android."
+              bullets={[
+                'Health Connect instalado y con permisos.',
+                'Pasito con permiso para leer pasos.',
+                'La app de pasos con permiso para compartir pasos.',
+                'Batería en No restringido para ambas apps.',
+              ]}
               primaryLabel="Hacer otra revisión"
               onPrimary={reset}
             />
@@ -1014,14 +291,12 @@ export function ConnectAndroidGuide() {
 function ChoiceStep<T extends string>({
   title,
   lead,
-  note,
   options,
   value,
   onChoose,
 }: {
   title: string
-  lead?: string
-  note?: string
+  lead: string
   options: Choice<T>[]
   value: T | null
   onChoose: (value: T) => void
@@ -1041,7 +316,7 @@ function ChoiceStep<T extends string>({
               type="button"
               aria-pressed={selected}
               onClick={() => onChoose(option.id)}
-              className={`flex min-h-[60px] w-full items-center gap-3 rounded-lg border p-3 text-left transition ${
+              className={`flex min-h-[66px] w-full items-center gap-3 rounded-lg border p-3 text-left transition ${
                 selected
                   ? 'border-[#0C6B45] bg-[#E9F8D9]'
                   : 'border-[#D8E2D4] bg-white active:scale-[0.99]'
@@ -1056,22 +331,14 @@ function ChoiceStep<T extends string>({
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-black text-[#143628]">{option.label}</span>
-                {option.detail && (
-                  <span className="mt-0.5 block text-[11px] font-semibold leading-4 text-[#5B766B]">
-                    {option.detail}
-                  </span>
-                )}
+                <span className="mt-0.5 block text-[11px] font-semibold leading-4 text-[#5B766B]">
+                  {option.detail}
+                </span>
               </span>
             </button>
           )
         })}
       </div>
-
-      {note && (
-        <div className="mt-4 rounded-xl border border-[#E6B74A]/35 bg-[#FFF8E6] p-3 text-xs font-bold leading-5 text-[#6F5518]">
-          {note}
-        </div>
-      )}
     </div>
   )
 }
@@ -1084,30 +351,18 @@ function ActionStep({
   links,
   primaryLabel,
   onPrimary,
-  secondaryLabel,
-  onSecondary,
-  warning,
 }: {
   icon: LucideIcon
   title: string
-  lead?: string
+  lead: string
   bullets: string[]
   links?: ActionLink[]
   primaryLabel: string
   onPrimary: () => void
-  secondaryLabel?: string
-  onSecondary?: () => void
-  warning?: string
 }) {
   return (
     <div className="flex flex-1 flex-col">
       <StepIntro title={title} lead={lead} icon={Icon} />
-
-      {warning && (
-        <div className="mt-3 rounded-lg border border-[#E6B74A]/35 bg-[#FFF8E6] p-3 text-xs font-bold leading-5 text-[#6F5518]">
-          {warning}
-        </div>
-      )}
 
       <div className="mt-4 rounded-lg border border-[#D8E2D4] bg-white p-3">
         <div className="space-y-2.5">
@@ -1146,16 +401,6 @@ function ActionStep({
       >
         {primaryLabel}
       </button>
-
-      {secondaryLabel && onSecondary && (
-        <button
-          type="button"
-          onClick={onSecondary}
-          className="mt-2 flex min-h-11 w-full items-center justify-center rounded-lg border border-[#D8E2D4] bg-white px-5 text-sm font-black text-[#0C6B45] active:scale-[0.99]"
-        >
-          {secondaryLabel}
-        </button>
-      )}
     </div>
   )
 }
@@ -1166,7 +411,7 @@ function StepIntro({
   icon: Icon,
 }: {
   title: string
-  lead?: string
+  lead: string
   icon?: LucideIcon
 }) {
   return (
@@ -1177,7 +422,7 @@ function StepIntro({
         </div>
       )}
       <h1 className="text-[20px] font-black leading-[1.15] text-[#0C6B45]">{title}</h1>
-      {lead && <p className="mt-2 text-[13px] font-semibold leading-5 text-[#426255]">{lead}</p>}
+      <p className="mt-2 text-[13px] font-semibold leading-5 text-[#426255]">{lead}</p>
     </div>
   )
 }
