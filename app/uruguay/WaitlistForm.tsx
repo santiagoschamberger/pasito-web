@@ -1,9 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { ArrowRight, CheckCircle2, Loader2 } from 'lucide-react'
 
 export function WaitlistForm() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
@@ -31,6 +33,7 @@ export function WaitlistForm() {
       }
 
       setStatus('success')
+      router.refresh()
     } catch {
       setErrorMsg('Sin conexión. Intentá de nuevo.')
       setStatus('error')

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { Footprints, Gift, MapPin } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
 import { WaitlistForm } from './WaitlistForm'
 
 export const metadata: Metadata = {
@@ -8,8 +9,35 @@ export const metadata: Metadata = {
   description: 'Anotate en la waitlist de Pasito Uruguay.',
 }
 
-export default function UruguayPage() {
-  const totalPersonas = 600
+export const revalidate = 0
+
+const URUGUAY_WAITLIST_BASE = 600
+const URUGUAY_WAITLIST_STARTED_AT = '2026-05-24T21:42:44Z'
+
+async function getUruguayWaitlistCount() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return URUGUAY_WAITLIST_BASE
+  }
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+  )
+  const { count, error } = await supabase
+    .from('waitlist')
+    .select('*', { count: 'exact', head: true })
+    .gte('created_at', URUGUAY_WAITLIST_STARTED_AT)
+
+  if (error) {
+    console.error('Uruguay waitlist count error:', error)
+    return URUGUAY_WAITLIST_BASE
+  }
+
+  return URUGUAY_WAITLIST_BASE + (count ?? 0)
+}
+
+export default async function UruguayPage() {
+  const totalPersonas = await getUruguayWaitlistCount()
 
   return (
     <main

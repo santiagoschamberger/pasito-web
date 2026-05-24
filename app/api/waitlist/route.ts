@@ -104,5 +104,6 @@ export async function POST(req: NextRequest) {
   }
 
   revalidatePath('/')
+  revalidatePath('/uruguay')
   return NextResponse.json({ ok: true })
 }
