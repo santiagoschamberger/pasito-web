@@ -42,7 +42,7 @@ export default async function UruguayPage() {
   return (
     <main
       className="h-[100dvh] flex flex-col overflow-hidden"
-      style={{ background: 'linear-gradient(160deg, #0C6B45 0%, #084d32 100%)' }}
+      style={{ background: '#2E6097' }}
     >
       <div
         className="absolute inset-0 pointer-events-none"
