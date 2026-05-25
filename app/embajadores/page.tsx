@@ -486,21 +486,12 @@ export default function EmbajadoresPage() {
       <section className="relative overflow-hidden bg-[#0C6B45] py-16 text-white md:py-20">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url(/fondo.png)', backgroundSize: 620 }} />
         <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-6">
-          <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div className="grid gap-10 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
             <div>
               <SectionLabel tone="yellow">Qué locales buscamos</SectionLabel>
-              <h2 className="mt-5 text-4xl leading-[1.02] sm:text-5xl lg:text-6xl" style={{ fontFamily: 'var(--font-paytone)', letterSpacing: 0 }}>
+              <h2 className="mt-5 max-w-xl text-4xl leading-[1.02] sm:text-5xl" style={{ fontFamily: 'var(--font-paytone)', letterSpacing: 0 }}>
                 Comercios con atención al público y un premio gratis real.
               </h2>
-              <p className="mt-6 max-w-xl text-lg leading-8 text-white/72">
-                Buscamos locales que puedan recibir personas y entregar un beneficio claro sin fricción.
-              </p>
-              <div className="mt-8 max-w-xl rounded-xl bg-[#EEFA7A] p-5 text-[#0C6B45] shadow-[0_18px_46px_rgba(0,0,0,0.14)]">
-                <p className="text-xs font-bold uppercase">Condición para entrar</p>
-                <p className="mt-2 text-lg font-bold leading-7">
-                  Ofrecer un premio gratis real para usuarios de Pasito, con stock y condiciones claras.
-                </p>
-              </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
