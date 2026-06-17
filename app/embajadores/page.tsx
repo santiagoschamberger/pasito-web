@@ -26,7 +26,7 @@ import {
 } from 'lucide-react'
 import { AmbassadorLeadForm } from './AmbassadorLeadForm'
 
-const WHATSAPP_NUMBER = '541164136048'
+const WHATSAPP_NUMBER = '5491136491620'
 const WHATSAPP_MESSAGE = 'Hola, quiero ser Embajador Pasito.'
 const WA_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`
 

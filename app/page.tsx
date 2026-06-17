@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 const VIDEO_URL = '/bg-video.mp4'
 const BRAND = '#5D3415'
 
@@ -82,6 +84,17 @@ export default function Page() {
             <GooglePlayButton />
           </div>
         </section>
+
+        <footer className="px-5 pb-5 text-center sm:pb-7">
+          <nav aria-label="Legal" className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] font-medium sm:text-xs" style={{ color: BRAND }}>
+            <Link href="/privacidad" className="underline-offset-4 hover:underline">
+              Política de privacidad
+            </Link>
+            <Link href="/terminos" className="underline-offset-4 hover:underline">
+              Términos y condiciones
+            </Link>
+          </nav>
+        </footer>
       </div>
     </main>
   )
