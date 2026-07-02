@@ -93,7 +93,7 @@ export default function Page() {
             <Link href="/terminos" className="underline-offset-4 hover:underline">
               Términos y condiciones
             </Link>
-            <Link href="/terminos/decathlon" className="underline-offset-4 hover:underline">
+            <Link href="/terminos/clv" className="underline-offset-4 hover:underline">
               Términos y condiciones desafío Cuan Lejos Voy
             </Link>
           </nav>
