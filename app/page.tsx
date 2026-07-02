@@ -94,7 +94,7 @@ export default function Page() {
               Términos y condiciones
             </Link>
             <Link href="/terminos/decathlon" className="underline-offset-4 hover:underline">
-              Términos Desafío Decathlon
+              Términos y condiciones desafío Cuan Lejos Voy
             </Link>
           </nav>
         </footer>

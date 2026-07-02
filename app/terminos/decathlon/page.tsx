@@ -10,11 +10,11 @@ const termsFilePath = path.join(
 )
 
 export const metadata = {
-  title: 'Desafío Decathlon - Términos y Condiciones — Pasito',
-  description: 'Términos y condiciones del desafío Decathlon x Pasito',
+  title: 'Términos y condiciones desafío Cuan Lejos Voy — Pasito',
+  description: 'Términos y condiciones del desafío Cuan Lejos Voy x Pasito',
 }
 
-export default async function DecathlonTermsPage() {
+export default async function CuanLejosVoyTermsPage() {
   const termsContent = await readFile(termsFilePath, 'utf8')
 
   return (
