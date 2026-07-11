@@ -6,12 +6,11 @@ import styles from './tienda.module.css'
 
 /* ────────────────────────────────────────────────────────────────────────
  * Config — todo lo editable en un solo lugar.
- * El public key es publicable (seguro en el cliente). Se puede sobreescribir
- * con NEXT_PUBLIC_REBILL_PUBLIC_KEY sin tocar este archivo.
+ * El public key es publicable (seguro en el cliente) y se configura por entorno
+ * con NEXT_PUBLIC_REBILL_PUBLIC_KEY.
  * OJO: PRICE / SHIPPING / CURRENCY deben coincidir con app/api/orders/route.ts
  * ──────────────────────────────────────────────────────────────────────── */
-const REBILL_PUBLIC_KEY =
-  process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY || 'pk_78eab16ffa844db3a04578121b630063'
+const REBILL_PUBLIC_KEY = process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY ?? ''
 
 // Loader de los web components de Rebill vía CDN (no toca package.json).
 const REBILL_SDK_SRC = 'https://unpkg.com/rebill@1.17.28/dist/rebill/rebill.esm.js'
@@ -113,6 +112,7 @@ let rebillSDKPromise: Promise<void> | null = null
 
 function loadRebillSDK(): Promise<void> {
   if (typeof document === 'undefined') return Promise.resolve()
+  if (!REBILL_PUBLIC_KEY) return Promise.reject(new Error('Falta configurar la clave publica de Rebill.'))
   if (customElements.get('rebill-checkout')) return Promise.resolve()
   if (rebillSDKPromise) return rebillSDKPromise
 
