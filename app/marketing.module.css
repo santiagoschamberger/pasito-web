@@ -849,7 +849,15 @@
   .benefitWide { grid-column: 1 / -1; }
   .comparisonGrid,.plansGrid { grid-template-columns: 1fr; }
   .planCard { min-height: auto; }
-  .brandRow { grid-auto-columns: 160px; justify-content: start; }
+  .brandRow {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    justify-content: stretch;
+    overflow-x: visible;
+    overscroll-behavior-inline: auto;
+    scroll-snap-type: none;
+  }
   .enterpriseHeroTitle { font-size: 58px; line-height: 62px; }
   .enterpriseHeroArt { margin: 12px auto 0; }
   .brandsHero .heroInner { grid-template-columns: 1fr; }
@@ -962,7 +970,12 @@
   .comparisonGrid { margin-top: 44px; }
   .plansGrid { margin-top: 48px; }
   .compareDetails { padding-top: 88px; }
-  .brandRow { grid-auto-columns: 132px; gap: 12px; }
+  .brandRow { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .brandRow .brandTile:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    width: calc((100% - 12px) / 2);
+    justify-self: center;
+  }
   .brandTile { height: 66px; }
   .brandLogo { max-width: 82%; max-height: 42px; }
   .enterpriseHeroTitle { font-size: 46px; line-height: 48px; letter-spacing: -1.6px; }
