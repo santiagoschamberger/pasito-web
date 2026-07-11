@@ -27,8 +27,8 @@ export function MarketingNav({ active = 'home' }: { active?: 'home' | 'comercios
   const isEnterprise = active === 'empresas'
   const isBrands = active === 'marcas'
   const isMerch = active === 'merch'
-  const callToAction = isCommerce ? PARTNERS_URL : isEnterprise ? ENTERPRISE_WHATSAPP_URL : isBrands ? BRANDS_WHATSAPP_URL : APP_STORE_URL
-  const callToActionLabel = isCommerce ? 'Sumá tu comercio' : isEnterprise ? 'Activemos tu organización' : isBrands ? 'Reservá tu activación' : 'Descargala gratis'
+  const callToAction = active === 'home' || isCommerce ? PARTNERS_URL : isEnterprise ? ENTERPRISE_WHATSAPP_URL : isBrands ? BRANDS_WHATSAPP_URL : APP_STORE_URL
+  const callToActionLabel = active === 'home' ? 'Sumar mi comercio' : isCommerce ? 'Sumá tu comercio' : isEnterprise ? 'Activemos tu organización' : isBrands ? 'Reservá tu activación' : 'Descargala gratis'
 
   return (
     <nav className={styles.navbar} aria-label="Navegación principal">
