@@ -1,7 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import OpenInAppButton from './OpenInAppButton'
 import { fetchRecentChallenges } from './challenges-data'
 
 const appStoreUrl =
@@ -89,11 +88,6 @@ export default async function ChallengesPage() {
         ) : null}
 
         <div className="w-full grid gap-3 pt-1">
-          <OpenInAppButton
-            appPath="/challenges"
-            appStoreUrl={appStoreUrl}
-            playStoreUrl={playStoreUrl}
-          />
           <div className="grid grid-cols-2 gap-3">
             <a
               href={appStoreUrl}

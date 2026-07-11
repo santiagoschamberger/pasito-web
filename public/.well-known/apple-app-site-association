@@ -11,6 +11,14 @@
           {
             "/": "/i/*",
             "comment": "Referral invite links"
+          },
+          {
+            "/": "/challenges",
+            "comment": "Challenges list"
+          },
+          {
+            "/": "/challenges/*",
+            "comment": "Challenge detail + winners"
           }
         ]
       }

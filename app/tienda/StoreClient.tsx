@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import styles from './tienda.module.css'
+
 /* ────────────────────────────────────────────────────────────────────────
  * Config — todo lo editable en un solo lugar.
  * El public key es publicable (seguro en el cliente). Se puede sobreescribir
@@ -84,6 +86,15 @@ const money = (n: number) =>
     maximumFractionDigits: 0,
   }).format(n)
 
+function rebillErrorMessage(detail: unknown) {
+  const statusDetail = String((detail as { data?: { result?: { statusDetail?: string } } })?.data?.result?.statusDetail ?? '')
+  if (statusDetail === 'card_declined') return 'La tarjeta fue rechazada. Probá con otro medio de pago.'
+  if (statusDetail === 'insufficient_funds') return 'No hay fondos suficientes para completar el pago.'
+  if (statusDetail === 'expired_card') return 'La tarjeta está vencida. Probá con otra tarjeta.'
+  if (statusDetail === 'invalid_card') return 'Revisá los datos de la tarjeta e intentá nuevamente.'
+  return 'No se pudo procesar el pago. Revisá los datos e intentá nuevamente.'
+}
+
 // Estilos aplicados dentro del shadow DOM del checkout de Rebill.
 const CHECKOUT_CSS = `
   .rebill-submit-button {
@@ -98,14 +109,41 @@ const CHECKOUT_CSS = `
 // y el logo → checkout de una sola columna, limpio y sin recortes.
 const CHECKOUT_DISPLAY = JSON.stringify({ checkoutSummary: false, logo: false })
 
-function loadRebillSDK() {
-  if (typeof document === 'undefined') return
-  if (document.querySelector('script[data-rebill-sdk]')) return
-  const s = document.createElement('script')
-  s.type = 'module'
-  s.src = REBILL_SDK_SRC
-  s.setAttribute('data-rebill-sdk', '')
-  document.head.appendChild(s)
+let rebillSDKPromise: Promise<void> | null = null
+
+function loadRebillSDK(): Promise<void> {
+  if (typeof document === 'undefined') return Promise.resolve()
+  if (customElements.get('rebill-checkout')) return Promise.resolve()
+  if (rebillSDKPromise) return rebillSDKPromise
+
+  rebillSDKPromise = new Promise((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>('script[data-rebill-sdk]')
+    const script = existing ?? document.createElement('script')
+
+    const finishLoading = () => {
+      customElements.whenDefined('rebill-checkout').then(() => resolve()).catch(reject)
+    }
+    const failLoading = () => {
+      rebillSDKPromise = null
+      reject(new Error('No se pudo cargar el checkout de Rebill.'))
+    }
+
+    script.addEventListener('load', finishLoading, { once: true })
+    script.addEventListener('error', failLoading, { once: true })
+
+    if (!existing) {
+      script.type = 'module'
+      script.src = REBILL_SDK_SRC
+      script.setAttribute('data-rebill-sdk', '')
+      document.head.appendChild(script)
+      return
+    }
+
+    // El script puede haber cargado entre el primer chequeo y los listeners.
+    if (customElements.get('rebill-checkout')) finishLoading()
+  })
+
+  return rebillSDKPromise
 }
 
 function Tshirt({ base }: { base: Base }) {
@@ -172,38 +210,93 @@ function CheckoutFrame({
   instantProduct,
   onSuccess,
   onError,
+  onReady,
+  isReady,
 }: {
   instantProduct: Record<string, unknown>
   onSuccess: (detail: unknown) => void
   onError: (detail: unknown) => void
+  onReady: () => void
+  isReady: boolean
 }) {
   const hostRef = useRef<HTMLDivElement>(null)
   const key = JSON.stringify(instantProduct)
+  const [loadError, setLoadError] = useState(false)
 
   useEffect(() => {
     const host = hostRef.current
     if (!host) return
 
-    const el = document.createElement('rebill-checkout')
-    el.setAttribute('public-key', REBILL_PUBLIC_KEY)
-    el.setAttribute('instant-product', key)
-    el.setAttribute('css', CHECKOUT_CSS)
-    el.setAttribute('display', CHECKOUT_DISPLAY)
+    let active = true
+    let el: HTMLElement | null = null
+    let handleSuccess: ((e: Event) => void) | null = null
+    let handleError: ((e: Event) => void) | null = null
+    let handleReady: (() => void) | null = null
+    let readyFallback: number | null = null
+    let hasReportedReady = false
 
-    const handleSuccess = (e: Event) => onSuccess((e as CustomEvent).detail)
-    const handleError = (e: Event) => onError((e as CustomEvent).detail)
-    el.addEventListener('success', handleSuccess)
-    el.addEventListener('error', handleError)
+    setLoadError(false)
+    loadRebillSDK()
+      .then(() => {
+        if (!active) return
 
-    host.appendChild(el)
+        el = document.createElement('rebill-checkout')
+        el.setAttribute('public-key', REBILL_PUBLIC_KEY)
+        el.setAttribute('instant-product', key)
+        el.setAttribute('css', CHECKOUT_CSS)
+        el.setAttribute('display', CHECKOUT_DISPLAY)
+        el.setAttribute('language', 'es')
+
+        handleSuccess = (e: Event) => onSuccess((e as CustomEvent).detail)
+        handleError = (e: Event) => onError((e as CustomEvent).detail)
+        const reportReady = () => {
+          if (hasReportedReady) return
+          hasReportedReady = true
+          if (readyFallback) window.clearTimeout(readyFallback)
+          onReady()
+        }
+        handleReady = reportReady
+        el.addEventListener('success', handleSuccess)
+        el.addEventListener('error', handleError)
+        el.addEventListener('ready', handleReady)
+        host.appendChild(el)
+        // Algunas versiones previas del componente no emiten `ready` aunque
+        // el formulario ya esté visible. El fallback evita que el estado de
+        // carga quede bloqueado, sin alterar los eventos de pago de Rebill.
+        readyFallback = window.setTimeout(reportReady, 3500)
+      })
+      .catch(() => {
+        if (active) setLoadError(true)
+      })
+
     return () => {
-      el.removeEventListener('success', handleSuccess)
-      el.removeEventListener('error', handleError)
-      el.remove()
+      active = false
+      if (el && handleSuccess) el.removeEventListener('success', handleSuccess)
+      if (el && handleError) el.removeEventListener('error', handleError)
+      if (el && handleReady) el.removeEventListener('ready', handleReady)
+      if (readyFallback) window.clearTimeout(readyFallback)
+      el?.remove()
     }
-  }, [key, onSuccess, onError])
+  }, [key, onSuccess, onError, onReady])
 
-  return <div ref={hostRef} className="min-h-[320px]" />
+  if (loadError) {
+    return <p className="rounded-2xl px-4 py-3 text-sm" style={{ background: '#FDECEC', color: '#B42318' }}>No pudimos cargar el checkout seguro. Probá de nuevo en unos segundos.</p>
+  }
+
+  return (
+    <div className={styles.checkoutFrame} aria-busy={!isReady}>
+      <div className={styles.checkoutHost} ref={hostRef} />
+      {!isReady && (
+        <div className={styles.checkoutLoading} role="status" aria-live="polite">
+          <span className={styles.checkoutSpinner} aria-hidden="true" />
+          <span>
+            <strong>Preparando pago seguro</strong>
+            <small>Conectando con Rebill. Puede tardar unos segundos.</small>
+          </span>
+        </div>
+      )}
+    </div>
+  )
 }
 
 /** Swatch circular de color base. */
@@ -243,11 +336,13 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
   const [qty, setQty] = useState(1)
   const [delivery, setDelivery] = useState<Delivery>('retiro')
   const [open, setOpen] = useState(false)
-  const [done, setDone] = useState<{ paymentId?: string } | null>(null)
-  const [errored, setErrored] = useState(false)
+  const [done, setDone] = useState<{ paymentId?: string; needsSupport?: boolean } | null>(null)
+  const [checkoutReady, setCheckoutReady] = useState(false)
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
+  const [registeringOrder, setRegisteringOrder] = useState(false)
 
   useEffect(() => {
-    loadRebillSDK()
+    loadRebillSDK().catch(() => undefined)
   }, [])
 
   const available = stockFor(stock, base.id, size)
@@ -274,22 +369,30 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
 
   const openCheckout = useCallback(() => {
     setDone(null)
-    setErrored(false)
-    loadRebillSDK()
+    setCheckoutReady(false)
+    setCheckoutError(null)
+    setRegisteringOrder(false)
+    loadRebillSDK().catch(() => undefined)
     setOpen(true)
   }, [])
 
   const closeCheckout = useCallback(() => setOpen(false), [])
 
-  // Al confirmarse el pago: mostramos éxito y registramos la orden en el server,
-  // que verifica el pago con Rebill y descuenta stock (idempotente).
+  // El SDK sólo inicia el flujo. Recién mostramos el éxito cuando el servidor
+  // confirma el pago con Rebill y descuenta el stock de forma idempotente.
   const handleSuccess = useCallback(
-    (detail: unknown) => {
+    async (detail: unknown) => {
       const d = detail as { data?: { result?: { paymentId?: string } } }
       const paymentId = d?.data?.result?.paymentId
-      setDone({ paymentId })
-      if (paymentId) {
-        fetch('/api/orders', {
+      if (!paymentId) {
+        setCheckoutError('El pago se inició, pero no recibimos su identificador. Escribinos para confirmarlo.')
+        return
+      }
+
+      setRegisteringOrder(true)
+      setCheckoutError(null)
+      try {
+        const response = await fetch('/api/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -300,13 +403,23 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
             qty,
             delivery,
           }),
-        }).catch((err) => console.error('[tienda] Error registrando orden:', err))
+        })
+        if (!response.ok) throw new Error('No se pudo confirmar la orden.')
+        setDone({ paymentId })
+      } catch {
+        // El pago puede estar aprobado aunque la acreditación o el descuento de
+        // stock todavía requieran revisión. No reabrimos el checkout para evitar
+        // que la persona intente pagar dos veces.
+        setDone({ paymentId, needsSupport: true })
+      } finally {
+        setRegisteringOrder(false)
       }
     },
     [base, size, qty, delivery],
   )
 
-  const handleError = useCallback(() => setErrored(true), [])
+  const handleError = useCallback((detail: unknown) => setCheckoutError(rebillErrorMessage(detail)), [])
+  const handleCheckoutReady = useCallback(() => setCheckoutReady(true), [])
 
   const variantText = `Remera ${base.label} · estampa ${base.print.label}`
   const deliveryLabel = delivery === 'retiro' ? 'Retiro en Palermo' : 'Envío a domicilio'
@@ -335,7 +448,7 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
   /* ── Vista de checkout a pantalla completa ── */
   if (open) {
     return (
-      <div className="mx-auto w-full max-w-xl px-5 py-6 md:py-10">
+      <div className={`${styles.storeCheckout} mx-auto w-full max-w-xl px-5 py-6 md:py-10`}>
         <button
           type="button"
           onClick={closeCheckout}
@@ -390,14 +503,11 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
                 <path d="M20 6 9 17l-5-5" />
               </svg>
             </div>
-            <div className="font-display text-2xl" style={{ color: '#1B1B1B' }}>
-              ¡Gracias por tu compra!
-            </div>
+            <div className="font-display text-2xl" style={{ color: '#1B1B1B' }}>{done.needsSupport ? 'Pago recibido' : '¡Gracias por tu compra!'}</div>
             <p className="mx-auto mt-2 max-w-sm text-sm" style={{ color: '#5B5B54' }}>
-              Te enviamos la confirmación por email.{' '}
-              {delivery === 'retiro'
-                ? 'Coordinamos el retiro en Palermo.'
-                : 'Coordinamos el envío a tu domicilio.'}
+              {done.needsSupport
+                ? 'Estamos terminando de verificar la acreditación y te contactaremos por email. No hace falta que vuelvas a pagar.'
+                : <>Te enviamos la confirmación por email. {delivery === 'retiro' ? 'Coordinamos el retiro en Palermo.' : 'Coordinamos el envío a tu domicilio.'}</>}
             </p>
             {done.paymentId && (
               <p className="mt-3 text-[11px]" style={{ color: '#B4B4AC' }}>
@@ -415,12 +525,13 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
           </div>
         ) : (
           <div className="mt-6">
-            {errored && (
+            {checkoutError && (
               <div className="mb-4 rounded-xl px-4 py-3 text-sm" style={{ background: '#FDECEC', color: '#B42318' }}>
-                No se pudo procesar el pago. Revisá los datos e intentá de nuevo.
+                {checkoutError}
               </div>
             )}
-            <CheckoutFrame instantProduct={instantProduct} onSuccess={handleSuccess} onError={handleError} />
+            {registeringOrder && <div className="mb-4 rounded-xl px-4 py-3 text-sm" style={{ background: '#F4EFE9', color: '#006D42' }}>Confirmando pago y reservando tu talle…</div>}
+            <CheckoutFrame instantProduct={instantProduct} onSuccess={handleSuccess} onError={handleError} onReady={handleCheckoutReady} isReady={checkoutReady} />
           </div>
         )}
       </div>
@@ -428,11 +539,11 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-5xl gap-8 px-5 py-8 md:grid-cols-2 md:gap-14 md:py-16">
+    <div className={`${styles.storeGrid} mx-auto grid w-full max-w-5xl gap-8 px-5 py-8 md:grid-cols-2 md:gap-14 md:py-16`}>
       {/* Preview */}
-      <div className="flex flex-col gap-3">
+      <div className={`${styles.storeGallery} flex flex-col gap-3`}>
         <div
-          className="relative aspect-square w-full overflow-hidden rounded-3xl transition-colors duration-500"
+          className={`${styles.storeGalleryMain} relative aspect-square w-full overflow-hidden rounded-3xl transition-colors duration-500`}
           style={{ background: previewBg, border: '1px solid #ECECE4' }}
         >
           <ShirtVisual base={base} src={base.images?.[imgIdx]} />
@@ -470,7 +581,7 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
       </div>
 
       {/* Detalle + selección */}
-      <div className="flex flex-col justify-center">
+      <div className={`${styles.storeDetails} flex flex-col justify-center`}>
         <p className="text-[13px] font-medium uppercase tracking-wide" style={{ color: '#0C6B45' }}>
           Remera oversize · algodón premium
         </p>

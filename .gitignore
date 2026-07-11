@@ -20,9 +20,15 @@ build/
 *.pem
 npm-debug.log*
 .vercel
+*.tsbuildinfo
+
+# supabase local CLI artifacts
+supabase/.temp/
 
 # local browser test artifacts
 .playwright-mcp/
 .playwright-cli/
 conectar-android-*.png
 conectar-iphone-*.png
+pasito-mobile-local*.png
+tmp/

@@ -58,7 +58,7 @@ export default function ContactoPage() {
       />
 
       <nav className="relative border-b border-white/10">
-        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-5 h-16 flex items-center justify-between sm:px-6">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-sm font-semibold hover:opacity-70 transition-opacity text-white"
@@ -76,7 +76,7 @@ export default function ContactoPage() {
         </div>
       </nav>
 
-      <main className="relative max-w-2xl mx-auto px-6 py-16">
+      <main className="relative max-w-2xl mx-auto px-5 py-16 sm:px-6">
         <div className="text-center mb-12">
           <div
             className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
@@ -259,7 +259,7 @@ export default function ContactoPage() {
       </main>
 
       <footer className="relative border-t border-white/10 py-10 mt-16">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+        <div className="max-w-4xl mx-auto px-5 text-center sm:px-6">
           <p className="text-sm" style={{ color: 'rgba(255,255,255,0.3)' }}>
             © {new Date().getFullYear()} Pasito. Todos los derechos reservados.
           </p>

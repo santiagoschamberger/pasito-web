@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 @font-face {
   font-family: "Paytone One";
@@ -40,11 +44,60 @@
   src: url("/fonts/poppins-700-latin.woff2") format("woff2");
 }
 
+/* Pasito Design System tokens → shadcn CSS variables.
+   Copied from pasito-dashboard (docs/design-system.md). */
 @theme inline {
   --font-display: "Paytone One", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
   --color-green: #0C6B45;
   --color-yellow: #EEFA7A;
+
+  /* Design system 2026 (Figma "Design system para pantallas 2") */
+  --color-pasito-green: #006D42;
+  --color-pasito-dark: #004027;
+  --color-pasito-lime: #EBFA61;
+  --color-pasito-cream: #FCF7F0;
+  --color-pasito-stroke: #EFECE6;
+  --color-pasito-ink: #102A1E;
+  --color-pasito-gray: #595959;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  /* radius scale — toned down per design feedback */
+  --radius-sm: 0.375rem;   /* 6px — inputs, small elements */
+  --radius-md: 0.5rem;     /* 8px — buttons, badges */
+  --radius-lg: 0.75rem;    /* 12px — cards */
+  --radius-xl: 1rem;       /* 16px — larger cards */
+  --radius-2xl: 1.5rem;    /* 24px — pills only */
 }
 
 :root {
@@ -52,6 +105,126 @@
   --yellow: #EEFA7A;
   --font-paytone: "Paytone One", ui-sans-serif, system-ui, sans-serif;
   --font-poppins: "Poppins", ui-sans-serif, system-ui, sans-serif;
+
+  /* Pasito palette mapped to shadcn semantic tokens */
+  --background: oklch(0.99 0 0);            /* #F5F5F0 off-white */
+  --foreground: oklch(0.28 0.05 37);        /* #442920 brown */
+
+  --card: oklch(1 0 0);                     /* #FFFFFF */
+  --card-foreground: oklch(0.28 0.05 37);   /* #442920 */
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.28 0.05 37);
+
+  --primary: oklch(0.38 0.1 162);           /* #0C6B45 dark green */
+  --primary-foreground: oklch(1 0 0);       /* white */
+
+  --secondary: oklch(0.95 0.07 105);        /* #EEFA7A yellow-green (light tint) */
+  --secondary-foreground: oklch(0.28 0.05 37);
+
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.5 0 0);
+
+  --accent: oklch(0.95 0.12 105);           /* #EEFA7A yellow-green */
+  --accent-foreground: oklch(0 0 0);        /* black on accent */
+
+  --destructive: oklch(0.52 0.19 32);       /* #C74015 error red-brown */
+
+  --border: oklch(0.91 0 0);
+  --input: oklch(0.91 0 0);
+  --ring: oklch(0.38 0.1 162);              /* primary green for focus rings */
+
+  /* Charts — use primary green + accent yellow as main colors */
+  --chart-1: oklch(0.38 0.1 162);          /* green */
+  --chart-2: oklch(0.95 0.12 105);         /* yellow */
+  --chart-3: oklch(0.52 0.08 162);         /* mid green */
+  --chart-4: oklch(0.28 0.05 37);          /* brown */
+  --chart-5: oklch(0.65 0.05 162);         /* light green */
+  --chart-soldout: oklch(0.72 0.13 18);    /* soft rose — "sold out" days */
+
+  --radius: 0.5rem;
+
+  /* Sidebar uses primary green */
+  --sidebar: oklch(0.38 0.1 162);
+  --sidebar-foreground: oklch(1 0 0);
+  --sidebar-primary: oklch(0.95 0.12 105);
+  --sidebar-primary-foreground: oklch(0 0 0);
+  --sidebar-accent: oklch(0.32 0.09 162);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(0.32 0.09 162);
+  --sidebar-ring: oklch(0.95 0.12 105);
+}
+
+/* Dashboard legacy tokens + helper classes (from pasito-dashboard).
+   Scope any dashboard-style screen with the .pasito-dashboard class. */
+.pasito-dashboard {
+  --dashboard-page: var(--background);
+  --dashboard-surface: var(--card);
+  --dashboard-surface-soft: var(--accent);
+  --dashboard-surface-muted: var(--muted);
+  --dashboard-text: var(--foreground);
+  --dashboard-text-muted: var(--muted-foreground);
+  --dashboard-text-subtle: var(--muted-foreground);
+  --dashboard-border: var(--border);
+  --dashboard-border-soft: var(--border);
+  --dashboard-brand: var(--primary);
+  --dashboard-brand-hover: var(--primary);
+  --dashboard-warning: #C49A2D;
+  --dashboard-warning-text: #806113;
+  --dashboard-warning-surface: #FBF8EE;
+  --dashboard-critical: var(--destructive);
+  --dashboard-critical-surface: #FFF6F4;
+  --dashboard-ok-surface: var(--accent);
+  --dashboard-radius-control: var(--radius-sm);
+  --dashboard-radius-card: var(--radius-lg);
+}
+
+.pasito-dashboard .dashboard-surface {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.pasito-dashboard .dashboard-control {
+  border-radius: var(--radius-sm);
+}
+
+.pasito-dashboard .dashboard-label {
+  color: var(--muted-foreground);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.pasito-dashboard .dashboard-page-title {
+  color: var(--foreground);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 36px;
+  letter-spacing: -0.02em;
+}
+
+.pasito-dashboard .dashboard-section-title {
+  color: var(--foreground);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: 0;
+}
+
+.pasito-dashboard .dashboard-card-title {
+  color: var(--foreground);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.pasito-dashboard .dashboard-helper {
+  color: var(--muted-foreground);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
 }
 
 @layer base {
@@ -59,6 +232,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    @apply border-border outline-ring/50;
   }
   html {
     height: 100%;
@@ -102,6 +276,49 @@
   .animate-fade-rise,
   .animate-fade-rise-delay,
   .animate-fade-rise-delay-2 {
+    animation: none;
+  }
+}
+
+/* Home: banda de stats en loop infinito */
+.animate-marquee {
+  animation: marquee 32s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Home: manifiesto con reveal atado al scroll (progressive enhancement) */
+@supports (animation-timeline: view()) {
+  .manifesto-line {
+    animation: manifesto-reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 30% cover 42%;
+  }
+}
+
+@keyframes manifesto-reveal {
+  from {
+    opacity: 0.14;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+  .manifesto-line {
     animation: none;
   }
 }

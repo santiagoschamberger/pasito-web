@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
+import { MarketingNav, PressSection } from '@/components/marketing/Marketing'
 import { StoreClient } from './StoreClient'
+import marketingStyles from '../marketing.module.css'
+import styles from './tienda.module.css'
 
 export const metadata: Metadata = {
   title: 'Tienda Pasito — Remera oficial',
@@ -37,22 +40,15 @@ export default async function TiendaPage() {
   const stock = await getStock()
 
   return (
-    <main className="flex min-h-[100dvh] flex-col" style={{ background: '#FFFFFF', color: '#1B1B1B' }}>
-      <header className="flex items-center justify-between px-5 py-4 sm:px-8">
-        <Link href="/" aria-label="Pasito">
-          <img src="/logoverde.png" alt="Pasito" className="h-6 w-auto sm:h-7" />
-        </Link>
-        <span className="text-xs font-medium uppercase tracking-wide" style={{ color: '#0C6B45' }}>
-          Tienda
-        </span>
-      </header>
+    <main className={`${styles.storePage} ${marketingStyles.page}`}>
+      <MarketingNav active="merch" />
 
-      <div className="flex-1">
-        <StoreClient stock={stock} />
-      </div>
+      <StoreClient stock={stock} />
 
-      <footer className="px-5 pb-6 pt-4 text-center">
-        <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] font-medium" style={{ color: '#9A9A92' }}>
+      <PressSection />
+
+      <footer className={styles.storeFooter}>
+        <nav>
           <Link href="/privacidad" className="underline-offset-4 hover:underline">
             Política de privacidad
           </Link>

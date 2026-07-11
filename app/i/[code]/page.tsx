@@ -1,7 +1,11 @@
 import Image from 'next/image'
 import type { Metadata } from 'next'
 import ReferralRedirect from './ReferralRedirect'
-import { buildReferralInviteUrl, normalizeReferralCode } from './referral-link'
+import {
+  buildReferralInviteUrl,
+  buildReferralPlayStoreUrl,
+  normalizeReferralCode,
+} from './referral-link'
 
 type PageProps = {
   params: Promise<{ code: string }>
@@ -46,6 +50,10 @@ export default async function ReferralInvitePage({ params }: PageProps) {
   const { code } = await params
   const cleanCode = normalizeReferralCode(code)
   const inviteUrl = buildReferralInviteUrl(cleanCode)
+  const referralPlayStoreUrl = buildReferralPlayStoreUrl(
+    cleanCode,
+    playStoreUrl,
+  )
 
   return (
     <main
@@ -73,7 +81,7 @@ export default async function ReferralInvitePage({ params }: PageProps) {
           code={cleanCode}
           inviteUrl={inviteUrl}
           appStoreUrl={appStoreUrl}
-          playStoreUrl={playStoreUrl}
+          playStoreUrl={referralPlayStoreUrl}
         />
       </div>
     </main>

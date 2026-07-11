@@ -1,104 +1,209 @@
-import Link from 'next/link'
+import type { Metadata } from 'next'
+import Image from 'next/image'
 
-const VIDEO_URL = '/bg-video.mp4'
-const BRAND = '#5D3415'
+import styles from './marketing.module.css'
+import {
+  BrandRow,
+  FinalCta,
+  MarketingFooter,
+  MarketingNav,
+  NumberedOverline,
+  RulesList,
+  StatsBand,
+  StoreButtons,
+} from '@/components/marketing/Marketing'
+import { MarketingMotion } from '@/components/marketing/MarketingMotion'
+import { formatRoundedMarketingMetric, getMarketingMetrics } from '@/lib/marketing-metrics'
 
-function AppStoreButton() {
-  return (
-    <a
-      href="https://apps.apple.com/app/id6760863724"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex min-w-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-white px-3 py-3 shadow-md transition-transform duration-200 hover:scale-[1.03] sm:gap-4 sm:px-7 sm:py-4"
-    >
-      <svg viewBox="0 0 24 24" className="h-6 w-6 shrink-0 sm:h-8 sm:w-8" style={{ fill: BRAND }} xmlns="http://www.w3.org/2000/svg">
-        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.15-2.18 1.37-2.15 3.91.03 3.02 2.65 4.03 2.68 4.04l-.08.17zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-      </svg>
-      <div className="text-left leading-tight">
-        <div className="text-[10px] sm:text-xs" style={{ color: `${BRAND}99` }}>
-          Descargar en el
-        </div>
-        <div className="text-sm font-medium sm:text-base" style={{ color: BRAND }}>
-          App Store
-        </div>
-      </div>
-    </a>
-  )
+export const metadata: Metadata = {
+  title: 'Pasito — Moverte cambia todo.',
+  description: 'Pasito te da una razón para salir de casa todos los días: caminás, descubrís tu ciudad y cada paso suma.',
+  openGraph: {
+    title: 'Pasito — Moverte cambia todo.',
+    description: 'Pasito te da una razón para salir de casa todos los días: caminás, descubrís tu ciudad y cada paso suma.',
+    type: 'website',
+  },
 }
 
-function GooglePlayButton() {
+const STEPS = [
+  { title: 'Salí a moverte.', body: 'La app cuenta tus pasos automáticamente desde tu teléfono.' },
+  { title: 'Ganá Pasitos.', body: 'Tu movimiento se convierte en moneda.' },
+  { title: 'Abrí el mapa.', body: 'Descubrí cafés, clases y experiencias cerca tuyo que no conocías.' },
+  { title: 'Canjeá y disfrutá.', body: 'Cada canje es una excusa para conocer un lugar nuevo.' },
+  { title: 'Sumate a desafíos.', body: 'Miles de personas moviéndose juntas. La constancia en grupo es más fácil.' },
+]
+
+const HEALTH_BENEFITS = [
+  {
+    tag: '7.000 pasos',
+    title: 'Vivís más.',
+    body: 'Dar alrededor de 7.000 pasos por día se asoció con un 50–70% menos de riesgo de mortalidad frente a una vida más sedentaria.',
+    source: 'JAMA Network Open, 2021',
+    href: 'https://pubmed.ncbi.nlm.nih.gov/34477847/',
+  },
+  {
+    tag: '2,5 horas',
+    title: 'Tu cabeza lo nota.',
+    body: 'Caminar a paso ligero unas 2,5 horas por semana se asocia con un 25% menos de riesgo de depresión.',
+    source: 'JAMA Psychiatry, 2022',
+    href: 'https://pubmed.ncbi.nlm.nih.gov/35416941/',
+  },
+  {
+    tag: '30 minutos',
+    title: 'Tu corazón también.',
+    body: '30 minutos de caminata diaria ayudan a reducir el riesgo de enfermedad cardiovascular y a controlar presión, peso y glucosa.',
+    source: 'Organización Mundial de la Salud',
+    href: 'https://www.who.int/news-room/fact-sheets/detail/physical-activity',
+  },
+  {
+    tag: '150 min/semana',
+    title: 'Y no hace falta ser atleta.',
+    body: 'La OMS recomienda 150 minutos de actividad moderada por semana. Caminar cuenta. Pasear al perro cuenta. Bajarte una parada antes cuenta.',
+    source: 'OMS, actividad física',
+    href: 'https://www.who.int/news-room/fact-sheets/detail/physical-activity',
+  },
+]
+
+const RULES = [
+  'Tus pasos se convierten en Pasitos automáticamente. No tenés que hacer nada.',
+  'Los premios son 100% canjeables: nadie te obliga a comprar algo extra.',
+  'El canje es presencial: lo confirmás en el local, en el momento.',
+  'Podés canjear en el mismo local una vez cada 15 días.',
+  'Cada local define su cupo diario: si dice “sin stock por hoy”, mañana hay más.',
+  'Las capturas de pantalla no valen como canje. La magia pasa en vivo.',
+]
+
+const FAQS = [
+  { q: '¿Cuánto cuesta?', a: 'Nada. Pasito es y va a ser gratis para las personas.' },
+  { q: '¿Cómo cuenta mis pasos?', a: 'Se conecta con Apple Salud o Google Health Connect y suma tus pasos automáticamente, sin gastar batería de más.' },
+  { q: '¿Qué puedo canjear?', a: 'Cafés, comidas, clases, experiencias, descuentos y productos en +800 lugares. Cada canje es una excusa para salir y conocer algo nuevo.' },
+  { q: '¿Tengo que comprar algo para canjear?', a: 'No. Los premios se canjean solo con Pasitos. Si querés sumar algo más, eso lo pagás como siempre.' },
+  { q: '¿Vale caminar en cualquier lado?', a: 'Sí. En la calle, en la cinta, en el shopping. Si te movés, cuenta.' },
+]
+
+export default async function HomePage() {
+  const metrics = await getMarketingMetrics()
+  const totalUsers = formatRoundedMarketingMetric(metrics.totalUsers, 10_000)
+  const newUsersPerDay = formatRoundedMarketingMetric(metrics.newUsersLast24Hours, 1_000)
+  const stats = [
+    { value: totalUsers, label: 'personas ya caminan con Pasito' },
+    { value: '388.000', label: 'usuarios activos diarios' },
+    { value: '+800', label: 'lugares para descubrir' },
+    { value: 'App #1', label: 'en Argentina y Uruguay' },
+  ]
+
   return (
-    <a
-      href="https://play.google.com/store/apps/details?id=ar.pasito.pasito&hl=es"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex min-w-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-white px-3 py-3 shadow-md transition-transform duration-200 hover:scale-[1.03] sm:gap-4 sm:px-7 sm:py-4"
-    >
-      <svg viewBox="0 0 24 24" className="h-6 w-6 shrink-0 sm:h-8 sm:w-8" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3.18 23.76c.37.2.8.22 1.2.06l12.15-7.02-2.76-2.76-10.59 9.72z" fill="#EA4335" />
-        <path d="M22.29 10.62L19.7 9.1l-3.13 3.13 3.13 3.13 2.62-1.52c.75-.43.75-1.69-.03-2.22z" fill="#FBBC05" />
-        <path d="M1.54.75C1.2 1.12 1 1.67 1 2.38v19.24c0 .71.2 1.26.55 1.63l.09.08 10.78-10.78v-.25L1.63.67l-.09.08z" fill="#4285F4" />
-        <path d="M16.57 12.23l-4.15-4.15-11 11.68c.38.4.96.43 1.56.1l13.59-7.63z" fill="#34A853" />
-      </svg>
-      <div className="text-left leading-tight">
-        <div className="text-[10px] sm:text-xs" style={{ color: `${BRAND}99` }}>
-          Disponible en
-        </div>
-        <div className="text-sm font-medium sm:text-base" style={{ color: BRAND }}>
-          Google Play
-        </div>
-      </div>
-    </a>
-  )
-}
+    <main className={styles.page} data-marketing-page>
+      <MarketingMotion />
+      <MarketingNav />
 
-export default function Page() {
-  return (
-    <main className="relative h-[100svh] w-full overflow-hidden">
-      <video className="absolute inset-0 z-0 h-full w-full object-cover" src={VIDEO_URL} autoPlay loop muted playsInline />
-
-      <div className="absolute inset-0 z-[1] bg-white/15" />
-
-      <div className="relative z-[2] flex h-full min-h-0 flex-col">
-        <div className="flex justify-center px-8 py-4 sm:py-6">
-          <img src="/logoverde.png" alt="Pasito" className="h-6 w-auto sm:h-8" />
-        </div>
-
-        <section className="flex min-h-0 flex-1 flex-col items-center justify-start px-5 pt-8 text-center sm:px-6 sm:pt-24">
-          <h1
-            className="animate-fade-rise font-display max-w-[22rem] text-[2.35rem] font-normal leading-[1.04] sm:max-w-5xl sm:text-6xl sm:leading-[1.1] lg:text-6xl"
-            style={{
-              letterSpacing: 0,
-              color: BRAND,
-            }}
-          >
-            El movimiento que genera movimiento.
-          </h1>
-
-          <p className="animate-fade-rise-delay mt-5 max-w-[22rem] text-[13px] leading-5 sm:mt-6 sm:max-w-4xl sm:text-base sm:leading-relaxed" style={{ color: BRAND }}>
-            Pasito transforma cada caminata en una oportunidad para descubrir, conectar y crear hábitos más saludables. Porque moverse no es solo sumar pasos: es abrir la puerta a lugares nuevos, recompensas reales y pequeñas cosas que pueden cambiar tu día.
-          </p>
-
-          <div className="animate-fade-rise-delay-2 mt-7 grid w-full max-w-[22rem] grid-cols-2 gap-2 sm:mt-10 sm:flex sm:max-w-none sm:flex-wrap sm:items-center sm:justify-center sm:gap-4">
-            <AppStoreButton />
-            <GooglePlayButton />
+      <header className={styles.hero}>
+        <div className={styles.heroInner}>
+          <div>
+            <h1 className={styles.heroTitle}>Caminando pasan <span className={styles.accent}>cosas lindas.</span></h1>
+            <p className={styles.heroText}>Pasito te da una razón para salir de casa todos los días: caminás, descubrís tu ciudad, vivís experiencias. Y de paso, cada paso suma.</p>
+            <StoreButtons />
+            <p className={styles.heroNote}>Gratis, para siempre. Sin tarjeta, sin trampas.</p>
           </div>
-        </section>
+          <div className={styles.heroArt}>
+            <div className={styles.heroTilt} data-hero-tilt>
+              <Image className={styles.heroPhone} src="/marketing/hero-share.png" alt="App Pasito: hoy hiciste 10.423 pasos" width={1392} height={2880} sizes="(max-width: 640px) 86vw, 420px" priority unoptimized />
+            </div>
+          </div>
+        </div>
+        <StatsBand stats={stats} />
+      </header>
 
-        <footer className="px-5 pb-5 text-center sm:pb-7">
-          <nav aria-label="Legal" className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] font-medium sm:text-xs" style={{ color: BRAND }}>
-            <Link href="/privacidad" className="underline-offset-4 hover:underline">
-              Política de privacidad
-            </Link>
-            <Link href="/terminos" className="underline-offset-4 hover:underline">
-              Términos y condiciones
-            </Link>
-            <Link href="/terminos/clv" className="underline-offset-4 hover:underline">
-              Términos y condiciones desafío Cuan Lejos Voy
-            </Link>
-          </nav>
-        </footer>
-      </div>
+      <section className={styles.manifestoSection}>
+        <div className={`${styles.container} ${styles.manifesto}`}>
+          <p className={styles.manifestoLead}>No se trata de los premios.</p>
+          <p className={styles.manifestoBody}>Se trata de lo que pasa cuando salís: el aire, el barrio, la cabeza que se despeja, el café que no conocías, la gente que camina con vos.</p>
+          <div className={styles.manifestoStack}>
+            <span>Los premios son la excusa.</span>
+            <span>El hábito es el premio.</span>
+          </div>
+          <p className={styles.manifestoClose}>Salí. Hacé que pase. <span className={styles.highlight}>La ciudad es toda tuya.</span></p>
+        </div>
+      </section>
+
+      <section className={`${styles.container} ${styles.healthSection}`}>
+        <div className={styles.healthHeading}>
+          <div>
+            <NumberedOverline number="01">Por qué caminar</NumberedOverline>
+            <h2 className={styles.sectionTitle}>Caminar es el hábito más subestimado del mundo.</h2>
+          </div>
+          <p>El problema nunca fue saber que caminar hace bien. Es empezar — y sostenerlo. Para eso existe Pasito.</p>
+        </div>
+        <div className={styles.healthGrid}>
+          {HEALTH_BENEFITS.map((benefit) => (
+            <article className={styles.healthCard} key={benefit.title}>
+              <span>{benefit.tag}</span>
+              <h3>{benefit.title}</h3>
+              <p>{benefit.body}</p>
+              <a href={benefit.href} target="_blank" rel="noreferrer">Fuente: {benefit.source}</a>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.warmSection}>
+        <div className={`${styles.container} ${styles.warmInner}`}>
+          <NumberedOverline number="02">Cómo funciona</NumberedOverline>
+          <h2 className={styles.sectionTitle}>Así de simple.</h2>
+          <div className={styles.stepsGrid}>
+            {STEPS.map((step, index) => (
+              <article className={`${styles.stepCard} ${index === STEPS.length - 1 ? styles.stepCardDark : ''}`} key={step.title}>
+                <span className={styles.stepNumber}>{index + 1}</span>
+                <h3 className={styles.stepTitle}>{step.title}</h3>
+                <p className={styles.stepBody}>{step.body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className={`${styles.container} ${styles.twoCol}`}>
+        <div>
+          <NumberedOverline number="03">Dónde estamos</NumberedOverline>
+          <h2 className={styles.sectionTitle}>Ya estamos en 2 países. Y recién empezamos.</h2>
+          <p className={styles.sectionBody}>Fuerte en CABA, Gran Buenos Aires y Montevideo, creciendo en Córdoba, Santa Fe y más ciudades. {newUsersPerDay} personas nuevas se suman cada día.</p>
+        </div>
+        <div className={styles.cityCloud}>
+          {['CABA', 'GBA', 'Montevideo'].map((city) => <span className={styles.city} key={city}>{city}</span>)}
+          {['Córdoba', 'Santa Fe', 'Canelones'].map((city) => <span className={`${styles.city} ${styles.cityNext}`} key={city}>{city}</span>)}
+          <span className={`${styles.city} ${styles.citySoon}`}>tu ciudad, pronto</span>
+        </div>
+      </section>
+
+      <section className={styles.darkSection}>
+        <div className={`${styles.container} ${styles.darkInner} ${styles.centered}`}>
+          <NumberedOverline number="04" light>Desafíos</NumberedOverline>
+          <h2 className={`${styles.sectionTitle} ${styles.homeChallengeTitle}`}>Moverse en grupo es otra cosa.</h2>
+          <p className={`${styles.sectionBody} ${styles.centeredBody}`}>Cada semana hay desafíos donde miles de personas caminan por un mismo objetivo, con premios de marcas como Disney, Decathlon, KFC y Wendy&apos;s. No competís contra otros: te sumás a una ola.</p>
+          <p className={styles.challengeStat}>El 47% de los usuarios aumentó su actividad física desde que tiene Pasito.</p>
+          <BrandRow />
+        </div>
+      </section>
+
+      <section className={`${styles.container} ${styles.twoCol} ${styles.rules}`}>
+        <h2 className={`${styles.sectionTitle} ${styles.sectionTitleSmall}`}>Reglas claras,<br />premios reales.</h2>
+        <RulesList rules={RULES} />
+      </section>
+
+      <section className={`${styles.container} ${styles.faqSection}`}>
+        <h2 className={`${styles.sectionTitle} ${styles.sectionTitleSmall}`}>Preguntas frecuentes</h2>
+        <div className={styles.faqGrid}>
+          {FAQS.map((faq) => (
+            <article key={faq.q}>
+              <h3 className={styles.faqQuestion}>{faq.q}</h3>
+              <p className={styles.faqAnswer}>{faq.a}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <FinalCta title={<>Salí a caminar. Tu ciudad hace el resto.</>} storePrompt="Descargá Pasito gratis" />
+      <MarketingFooter />
     </main>
   )
 }

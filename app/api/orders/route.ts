@@ -8,6 +8,7 @@ const PRICE = 35000
 const SHIPPING = 2000
 const CURRENCY = 'ARS'
 const BASES = ['blanca', 'negra'] as const
+const PRINTS = ['verde', 'blanca'] as const
 const SIZES = ['S', 'M', 'L', 'XL'] as const
 const DELIVERIES = ['retiro', 'envio'] as const
 const REBILL_API = 'https://api.rebill.com/v3'
@@ -96,6 +97,7 @@ export async function POST(req: NextRequest) {
   if (
     !paymentId ||
     !BASES.includes(base as (typeof BASES)[number]) ||
+    !PRINTS.includes(print as (typeof PRINTS)[number]) ||
     !SIZES.includes(size as (typeof SIZES)[number]) ||
     !DELIVERIES.includes(delivery as (typeof DELIVERIES)[number]) ||
     !Number.isInteger(qty) ||
@@ -103,6 +105,11 @@ export async function POST(req: NextRequest) {
     qty > 10
   ) {
     return NextResponse.json({ error: 'Datos de la orden inválidos.' }, { status: 400 })
+  }
+
+  const expectedPrint = base === 'blanca' ? 'verde' : 'blanca'
+  if (print !== expectedPrint) {
+    return NextResponse.json({ error: 'La variante seleccionada no es válida.' }, { status: 400 })
   }
 
   if (!process.env.REBILL_SECRET_KEY) {
@@ -115,6 +122,7 @@ export async function POST(req: NextRequest) {
     status?: string
     amount?: number | string
     currency?: string
+    metadata?: Record<string, unknown>
     customer?: { email?: string; firstName?: string; lastName?: string }
   }
   try {
@@ -140,6 +148,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'El monto del pago no coincide.' }, { status: 400 })
   }
 
+  // El checkout de Tienda envía la variante en metadata. Si Rebill la devuelve,
+  // validamos que el pago corresponda al producto que la persona eligió.
+  const metadata = pay.metadata
+  if (
+    metadata &&
+    ((metadata.base && metadata.base !== base) ||
+      (metadata.print && metadata.print !== print) ||
+      (metadata.size && metadata.size !== size) ||
+      (metadata.qty && String(metadata.qty) !== String(qty)) ||
+      (metadata.delivery && metadata.delivery !== delivery))
+  ) {
+    return NextResponse.json({ error: 'El pago no coincide con la selección de la tienda.' }, { status: 400 })
+  }
+
   const email = pay.customer?.email ?? null
   const customerName =
     [pay.customer?.firstName, pay.customer?.lastName].filter(Boolean).join(' ') || null
@@ -161,6 +183,13 @@ export async function POST(req: NextRequest) {
   if (error) {
     console.error('[orders] Error confirmando orden:', error)
     return NextResponse.json({ error: 'No se pudo registrar la orden.' }, { status: 500 })
+  }
+
+  if (result === 'insufficient_stock') {
+    return NextResponse.json(
+      { error: 'El pago fue recibido, pero necesitamos confirmar la disponibilidad del talle elegido.', result },
+      { status: 409 },
+    )
   }
 
   const variant = `Remera ${base === 'blanca' ? 'Blanca' : 'Negra'} · estampa ${

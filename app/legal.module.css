@@ -1,0 +1,81 @@
+@font-face {
+  font-family: "Pasito Bricolage";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("/fonts/pasito-bricolage.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Pasito Google Sans Flex";
+  font-style: normal;
+  font-weight: 1 1000;
+  font-display: swap;
+  src: url("/fonts/pasito-google-sans-flex.woff2") format("woff2");
+}
+
+.page {
+  --ink: #153426;
+  --green: #006d42;
+  --muted: #657267;
+  --line: #e6ebe6;
+  min-height: 100vh;
+  background: #fbfcfa;
+  color: var(--ink);
+  font-family: "Pasito Google Sans Flex", system-ui, sans-serif;
+}
+
+.page a { text-decoration: none; }
+.navbar { border-bottom: 1px solid var(--line); background: rgb(255 255 255 / 90%); backdrop-filter: blur(12px); }
+.navInner { display: flex; align-items: center; justify-content: space-between; width: min(1120px, calc(100% - 48px)); height: 68px; margin: 0 auto; }
+.logo { display: flex; }
+.backLink { display: inline-flex; align-items: center; gap: 8px; color: var(--green); font-size: 14px; font-weight: 700; }
+.backLink:hover { color: #004027; }
+.main { width: min(1120px, calc(100% - 48px)); margin: 0 auto; }
+.hero { max-width: 760px; padding: 88px 0 62px; }
+.eyebrow { display: block; margin-bottom: 18px; color: var(--green); font-size: 12px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+.hero h1 { max-width: 700px; margin: 0; color: #004027; font-family: "Pasito Bricolage", system-ui, sans-serif; font-size: clamp(45px, 6vw, 76px); font-weight: 800; line-height: .96; letter-spacing: -2.6px; text-wrap: balance; }
+.hero p { max-width: 610px; margin: 24px 0 0; color: var(--muted); font-size: 18px; line-height: 1.55; }
+.updatedAt { display: inline-flex; margin-top: 26px; padding: 8px 12px; border-radius: 999px; background: #ebfa61; color: #1e432e; font-size: 13px; font-weight: 750; }
+.documentGrid { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 58px; align-items: start; padding-bottom: 96px; }
+.aside { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 12px; padding-top: 26px; }
+.aside > span { margin-bottom: 4px; color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+.aside a { color: #5d6b61; font-size: 14px; font-weight: 650; line-height: 1.35; }
+.aside a:hover { color: var(--green); }
+.document { padding: 46px 56px 58px; border: 1px solid var(--line); border-radius: 28px; background: #fff; box-shadow: 0 18px 56px rgb(0 64 39 / 5%); }
+.document :global(section) { margin: 0 0 42px !important; }
+.document :global(section:last-child) { margin-bottom: 0 !important; }
+.document :global(h2), .legalDocument h2 { margin: 0 0 15px !important; color: #006d42 !important; font-family: "Pasito Bricolage", system-ui, sans-serif; font-size: 25px !important; font-weight: 750 !important; line-height: 1.12; letter-spacing: -.5px; }
+.document :global(h3) { margin: 29px 0 11px !important; color: #153426 !important; font-family: "Pasito Bricolage", system-ui, sans-serif; font-size: 18px !important; font-weight: 750 !important; line-height: 1.2; }
+.document :global(p), .legalDocument p { margin: 0 0 15px !important; color: #455149 !important; font-size: 16px !important; line-height: 1.68 !important; }
+.document :global(ul) { margin: 0 0 17px !important; padding-left: 23px !important; color: #455149 !important; }
+.document :global(li) { margin: 7px 0 !important; font-size: 16px !important; line-height: 1.55 !important; }
+.document :global(a) { color: var(--green) !important; text-decoration: underline !important; text-decoration-color: #b8dbab !important; text-underline-offset: 3px; }
+.document :global(.mt-16) { margin-top: 48px !important; }
+.document :global(.border-t) { border-color: var(--line) !important; }
+.document :global(.inline-flex) { color: var(--green) !important; }
+.legalDocument p { margin-bottom: 20px !important; }
+.legalDocument h2 { margin: 42px 0 16px !important; }
+.legalDocument h2:first-of-type { margin-top: 12px !important; }
+.documentTitle { margin: 0 0 38px !important; color: #004027 !important; font-family: "Pasito Bricolage", system-ui, sans-serif; font-size: 30px !important; font-weight: 800; line-height: 1.1 !important; letter-spacing: -.8px; }
+.lastUpdated { margin-top: 40px !important; padding-top: 22px; border-top: 1px solid var(--line); color: var(--muted) !important; font-size: 14px !important; font-weight: 650; }
+.footer { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; width: min(1120px, calc(100% - 48px)); margin: 0 auto; padding: 32px 0 42px; border-top: 1px solid var(--line); }
+.footer p { margin: 13px 0 0; color: var(--muted); font-size: 13px; }
+.footerLinks { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 18px; }
+.footerLinks a { color: #526158; font-size: 13px; font-weight: 700; }
+.footerLinks a:hover { color: var(--green); }
+
+@media (max-width: 760px) {
+  .navInner,.main,.footer { width: min(100% - 40px, 1120px); }
+  .hero { padding: 62px 0 42px; }
+  .hero h1 { font-size: 48px; letter-spacing: -1.7px; }
+  .hero p { font-size: 17px; }
+  .documentGrid { display: block; padding-bottom: 64px; }
+  .aside { position: static; flex-direction: row; flex-wrap: wrap; gap: 10px 16px; margin-bottom: 24px; padding: 0; }
+  .aside > span { width: 100%; }
+  .document { padding: 32px 24px 38px; border-radius: 22px; }
+  .document :global(h2),.legalDocument h2 { font-size: 23px !important; }
+  .document :global(p),.legalDocument p,.document :global(li) { font-size: 15px !important; }
+  .footer { display: block; padding-top: 28px; }
+  .footerLinks { justify-content: flex-start; margin-top: 24px; }
+}

@@ -1,6 +1,5 @@
 import Image from 'next/image'
 import type { Metadata } from 'next'
-import OpenInAppButton from '../OpenInAppButton'
 import {
   fetchChallengeWithWinners,
   type ChallengeWinner,
@@ -53,7 +52,6 @@ export default async function ChallengeDetailPage({ params }: PageProps) {
   const { id } = await params
   const challengeId = cleanId(id)
   const challenge = await fetchChallengeWithWinners(challengeId)
-  const appPath = `/challenges/${challengeId}`
 
   const hasWinners =
     !!challenge &&
@@ -102,11 +100,6 @@ export default async function ChallengeDetailPage({ params }: PageProps) {
         ) : null}
 
         <div className="w-full grid gap-3 pt-1">
-          <OpenInAppButton
-            appPath={appPath}
-            appStoreUrl={appStoreUrl}
-            playStoreUrl={playStoreUrl}
-          />
           <div className="grid grid-cols-2 gap-3">
             <a
               href={appStoreUrl}

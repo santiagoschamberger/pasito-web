@@ -10,6 +10,18 @@ export function buildReferralInviteUrl(code: string): string {
   )}`
 }
 
+export function buildReferralPlayStoreUrl(
+  code: string,
+  baseUrl: string,
+): string {
+  const url = new URL(baseUrl)
+  url.searchParams.set(
+    'referrer',
+    `pasito_referral_code=${normalizeReferralCode(code)}`,
+  )
+  return url.toString()
+}
+
 export function buildReferralAndroidIntentUrl(
   code: string,
   fallbackUrl: string,

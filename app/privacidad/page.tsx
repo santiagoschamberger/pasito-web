@@ -1,5 +1,4 @@
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { LegalLayout } from '@/components/legal/LegalLayout'
 
 export const metadata = {
   title: 'Política de Privacidad — Pasito',
@@ -8,31 +7,12 @@ export const metadata = {
 
 export default function PrivacidadPage() {
   return (
-    <div className="min-h-screen bg-white">
-      <nav className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold hover:opacity-70 transition-opacity"
-            style={{ color: '#0C6B45' }}
-          >
-            <ArrowLeft size={18} />
-            Volver
-          </Link>
-        </div>
-      </nav>
-
-      <main className="max-w-4xl mx-auto px-6 py-16">
-        <h1
-          className="text-4xl md:text-5xl mb-4 font-display"
-          style={{ color: '#0C6B45' }}
-        >
-          Política de Privacidad
-        </h1>
-        <p className="text-gray-600 mb-12">
-          Versión 1.1 · Vigente desde el 25 de marzo de 2026
-        </p>
-
+    <LegalLayout
+      eyebrow="Pasito / Legal"
+      title="Política de privacidad"
+      description="Cómo cuidamos y usamos la información necesaria para que Pasito funcione para vos."
+      updatedAt="Versión 1.4 · Vigente desde el 11 de julio de 2026"
+    >
         <div className="prose prose-lg max-w-none space-y-8">
           <section>
             <h2 className="text-2xl font-bold mb-4" style={{ color: '#0C6B45' }}>
@@ -45,7 +25,7 @@ export default function PrivacidadPage() {
               Al registrarte y utilizar la Aplicación, aceptás esta Política de Privacidad. Si no estás de acuerdo con alguno de sus términos, por favor no uses la Aplicación.
             </p>
             <p className="text-gray-700 leading-relaxed">
-              Esta política cumple con la Ley N.° 25.326 de Protección de los Datos Personales de la República Argentina y su Decreto Reglamentario N.° 1558/2001, así como con los requisitos de privacidad de Apple App Store y Google Play Store.
+              Esta política se rige por la Ley N.° 25.326 de Protección de los Datos Personales de la República Argentina y su Decreto Reglamentario N.° 1558/2001, y por la Ley N.° 18.331 de Protección de Datos Personales y Acción de Habeas Data de la República Oriental del Uruguay y su Decreto Reglamentario N.° 414/009, según el país donde uses Pasito. También contempla los requisitos de privacidad de Apple App Store y Google Play Store. Para usuarios ubicados en España o en la Unión Europea, se reconocen los derechos y garantías aplicables bajo el Reglamento General de Protección de Datos (RGPD/GDPR), en la medida que corresponda.
             </p>
           </section>
 
@@ -78,14 +58,14 @@ export default function PrivacidadPage() {
               <li>Edad (para verificar que cumplís con la edad mínima requerida).</li>
               <li>Intereses seleccionados voluntariamente durante la configuración del perfil.</li>
               <li>Meta diaria de pasos configurada por el usuario.</li>
-              <li>Barrio o zona de la Ciudad de Buenos Aires que el usuario selecciona.</li>
+              <li>País, provincia, departamento, barrio o zona que el usuario selecciona, según el mercado donde use la Aplicación.</li>
             </ul>
 
             <h3 className="text-xl font-semibold mb-3 mt-6" style={{ color: '#0C6B45' }}>
               3.2 Datos de salud y actividad física
             </h3>
             <p className="text-gray-700 leading-relaxed mb-4">
-              La Aplicación solicita acceso de solo lectura al conteo de pasos diarios almacenado en Apple HealthKit (iOS) o Google Health Connect (Android). Esta información se utiliza exclusivamente para:
+              La Aplicación solicita acceso de solo lectura al conteo de pasos diarios almacenado en Apple HealthKit (iOS), Google Health Connect (Android) o el sensor de pasos nativo de Android cuando esté habilitado. Esta información se utiliza exclusivamente para:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-gray-700">
               <li>Calcular los Pasitos ganados cada día.</li>
@@ -135,6 +115,8 @@ export default function PrivacidadPage() {
             </p>
             <ul className="list-disc pl-6 space-y-2 text-gray-700">
               <li>Tokens de notificaciones push (Firebase Cloud Messaging) vinculados a tu cuenta, si activás las notificaciones.</li>
+              <li>Versión instalada de la app, plataforma, estado de permisos, eventos básicos de uso y diagnóstico, necesarios para operar, medir estabilidad y mejorar la experiencia.</li>
+              <li>Identificador técnico del dispositivo, datos de integridad, lecturas del sensor de pasos nativo de Android y telemetría de sincronización de pasos, necesarios para prevenir fraude, evitar duplicaciones y corregir errores de conteo.</li>
               <li>Datos técnicos mínimos necesarios para autenticarte, sincronizar tus pasos y operar la app de forma segura.</li>
             </ul>
 
@@ -164,7 +146,8 @@ export default function PrivacidadPage() {
               <li>Garantizar la seguridad y prevenir el fraude.</li>
               <li>Enviar notificaciones push relacionadas con el servicio.</li>
               <li>Mostrarte comercios adheridos cercanos a tu posición y ordenar las recomendaciones por distancia cuando abrís el mapa.</li>
-              <li>Cumplir con obligaciones legales aplicables en la República Argentina.</li>
+              <li>Medir estabilidad, errores, rendimiento y uso básico de la Aplicación mediante servicios de analítica y diagnóstico.</li>
+              <li>Cumplir con las obligaciones legales aplicables en la República Argentina, la República Oriental del Uruguay y, cuando corresponda, en otros países donde la Aplicación esté disponible.</li>
             </ul>
             <p className="text-gray-700 leading-relaxed mt-4">
               Pasito no realiza marketing directo, no cede datos a anunciantes y no utiliza los datos para perfilado publicitario de ningún tipo.
@@ -184,6 +167,8 @@ export default function PrivacidadPage() {
             <ul className="list-disc pl-6 space-y-2 text-gray-700">
               <li>Supabase – Base de datos y autenticación (EE.UU.)</li>
               <li>Firebase (Google) – Notificaciones push (EE.UU.)</li>
+              <li>Firebase Analytics – Analítica de uso de la Aplicación (EE.UU.)</li>
+              <li>Firebase Crashlytics – Diagnóstico de fallos y estabilidad (EE.UU.)</li>
               <li>Google Maps Platform – Mapas y visualización de comercios cercanos (EE.UU.)</li>
               <li>Apple – Autenticación via Sign in with Apple (EE.UU.)</li>
               <li>Google – Autenticación via Google Sign-In (EE.UU.)</li>
@@ -198,7 +183,7 @@ export default function PrivacidadPage() {
               6. Datos de Salud – Declaración Especial
             </h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              Pasito accede a los datos de pasos almacenados en Apple HealthKit (iOS) o Google Health Connect (Android) únicamente bajo las siguientes condiciones:
+              Pasito accede a los datos de pasos almacenados en Apple HealthKit (iOS), Google Health Connect (Android) o al contador técnico del sensor de pasos nativo de Android únicamente bajo las siguientes condiciones:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-gray-700">
               <li><strong>Acceso de solo lectura:</strong> la Aplicación nunca escribe ni modifica datos en HealthKit ni Health Connect.</li>
@@ -227,7 +212,7 @@ export default function PrivacidadPage() {
               8. Derechos del Usuario (ARCO)
             </h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              De acuerdo con la Ley 25.326, tenés los siguientes derechos sobre tus datos personales:
+              De acuerdo con la Ley 25.326 de Argentina y la Ley 18.331 de Uruguay, según corresponda, tenés los siguientes derechos sobre tus datos personales:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-gray-700">
               <li><strong>Acceso:</strong> podés solicitar qué datos personales tuyos tenemos almacenados.</li>
@@ -235,6 +220,9 @@ export default function PrivacidadPage() {
               <li><strong>Cancelación / Supresión:</strong> podés solicitar la eliminación de tu cuenta y tus datos. También podés hacerlo desde la pantalla de perfil dentro de la Aplicación.</li>
               <li><strong>Oposición:</strong> podés oponerte al tratamiento de tus datos para determinadas finalidades.</li>
             </ul>
+            <p className="text-gray-700 leading-relaxed mt-4">
+              Si residís en España o en la Unión Europea, también podés ejercer los derechos de portabilidad, limitación del tratamiento, oposición en los casos previstos por el Reglamento General de Protección de Datos, y presentar un reclamo ante la autoridad de control competente.
+            </p>
             <p className="text-gray-700 leading-relaxed mt-4">
               Para ejercer cualquiera de estos derechos, escribinos a{' '}
               <a href="mailto:contacto@pasito.app" className="font-semibold" style={{ color: '#0C6B45' }}>
@@ -246,6 +234,12 @@ export default function PrivacidadPage() {
               La Agencia de Acceso a la Información Pública (AAIP) es el organismo de control de la Ley 25.326. Si considerás que tus derechos no fueron atendidos, podés presentar una denuncia en{' '}
               <a href="https://www.argentina.gob.ar/aaip" target="_blank" rel="noopener noreferrer" className="font-semibold" style={{ color: '#0C6B45' }}>
                 www.argentina.gob.ar/aaip
+              </a>.
+            </p>
+            <p className="text-gray-700 leading-relaxed mt-4">
+              En Uruguay, la Unidad Reguladora y de Control de Datos Personales (URCDP) es el órgano de control de la Ley 18.331. Podés conocer sus canales de orientación y denuncia en{' '}
+              <a href="https://www.gub.uy/unidad-reguladora-control-datos-personales/" target="_blank" rel="noopener noreferrer" className="font-semibold" style={{ color: '#0C6B45' }}>
+                gub.uy/urcdp
               </a>.
             </p>
           </section>
@@ -314,25 +308,6 @@ export default function PrivacidadPage() {
           </section>
         </div>
 
-        <div className="mt-16 pt-8 border-t border-gray-200">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold hover:opacity-70 transition-opacity"
-            style={{ color: '#0C6B45' }}
-          >
-            <ArrowLeft size={18} />
-            Volver
-          </Link>
-        </div>
-      </main>
-
-      <footer className="border-t border-gray-200 py-10 mt-16">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <p className="text-sm text-gray-600">
-            © {new Date().getFullYear()} Pasito. Todos los derechos reservados.
-          </p>
-        </div>
-      </footer>
-    </div>
+    </LegalLayout>
   )
 }

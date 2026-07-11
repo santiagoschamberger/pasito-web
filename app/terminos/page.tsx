@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { LegalDocument } from '@/components/legal/LegalDocument'
+import { LegalLayout } from '@/components/legal/LegalLayout'
 
 const termsFilePath = path.join(
   process.cwd(),
@@ -18,42 +18,13 @@ export default async function TerminosPage() {
   const termsContent = await readFile(termsFilePath, 'utf8')
 
   return (
-    <div className="min-h-screen bg-white">
-      <nav className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold hover:opacity-70 transition-opacity"
-            style={{ color: '#0C6B45' }}
-          >
-            <ArrowLeft size={18} />
-            Volver
-          </Link>
-        </div>
-      </nav>
-
-      <main className="max-w-4xl mx-auto px-6 py-16">
-        <pre className="whitespace-pre-wrap break-words font-sans text-base leading-7 text-gray-700">{termsContent}</pre>
-
-        <div className="mt-16 pt-8 border-t border-gray-200">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold hover:opacity-70 transition-opacity"
-            style={{ color: '#0C6B45' }}
-          >
-            <ArrowLeft size={18} />
-            Volver
-          </Link>
-        </div>
-      </main>
-
-      <footer className="border-t border-gray-200 py-10 mt-16">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <p className="text-sm text-gray-600">
-            © {new Date().getFullYear()} Pasito. Todos los derechos reservados.
-          </p>
-        </div>
-      </footer>
-    </div>
+    <LegalLayout
+      eyebrow="Pasito / Legal"
+      title="Términos y condiciones"
+      description="Las reglas que hacen que la experiencia de Pasito sea clara, justa y segura para todas las personas."
+      updatedAt="Última actualización: junio de 2026"
+    >
+      <LegalDocument content={termsContent} />
+    </LegalLayout>
   )
 }
