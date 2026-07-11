@@ -7,6 +7,7 @@ import styles from '@/app/marketing.module.css'
 export const APP_STORE_URL = 'https://apps.apple.com/ar/app/pasito/id6760863724'
 export const GOOGLE_PLAY_URL = 'https://play.google.com/store/apps/details?id=ar.pasito.pasito&hl=es'
 export const PARTNERS_URL = 'https://partners.pasito.app'
+export const PARTNERS_REGISTER_URL = 'https://partners.pasito.app/register'
 export const WHATSAPP_URL = 'https://wa.me/5491136491620?text=Hola%2C%20quiero%20sumar%20mi%20local%20a%20Pasito.'
 export const ENTERPRISE_WHATSAPP_URL = 'https://wa.me/5491136491620?text=Hola%2C%20quiero%20activar%20Pasito%20Empresa%20en%20mi%20organizaci%C3%B3n.'
 export const BRANDS_WHATSAPP_URL = 'https://wa.me/5491136491620?text=Hola%2C%20quiero%20reservar%20una%20activaci%C3%B3n%20de%20marca%20en%20Pasito.'
@@ -27,8 +28,13 @@ export function MarketingNav({ active = 'home' }: { active?: 'home' | 'comercios
   const isEnterprise = active === 'empresas'
   const isBrands = active === 'marcas'
   const isMerch = active === 'merch'
-  const callToAction = active === 'home' || isCommerce ? PARTNERS_URL : isEnterprise ? ENTERPRISE_WHATSAPP_URL : isBrands ? BRANDS_WHATSAPP_URL : APP_STORE_URL
-  const callToActionLabel = active === 'home' ? 'Sumar mi comercio' : isCommerce ? 'Sumá tu comercio' : isEnterprise ? 'Activemos tu organización' : isBrands ? 'Reservá tu activación' : 'Descargala gratis'
+  const contextualLink = isCommerce
+    ? { href: '#planes', label: 'Ver planes' }
+    : isEnterprise
+      ? { href: '#como-funciona', label: 'Cómo funciona' }
+      : isBrands
+        ? { href: '#formatos', label: 'Ver formatos' }
+        : null
 
   return (
     <nav className={styles.navbar} aria-label="Navegación principal">
@@ -43,18 +49,43 @@ export function MarketingNav({ active = 'home' }: { active?: 'home' | 'comercios
           <Link className={`${styles.navLink} ${isMerch ? styles.navLinkActive : ''}`} href="/tienda">Merch</Link>
         </div>
         <div className={styles.navActions}>
-          {isCommerce && <a className={styles.navTextButton} href="#planes">Ver planes</a>}
-          {isEnterprise && <a className={styles.navTextButton} href="#como-funciona">Cómo funciona</a>}
-          {isBrands && <a className={styles.navTextButton} href="#formatos">Ver formatos</a>}
+          {contextualLink && <a className={styles.navTextButton} href={contextualLink.href}>{contextualLink.label}</a>}
           <a
-            className={`${styles.pinkButton} ${styles.navCta}`}
-            href={callToAction}
+            className={styles.navLogin}
+            href={PARTNERS_URL}
             target="_blank"
             rel="noopener noreferrer"
           >
-            {callToActionLabel}
+            Iniciar sesión
+          </a>
+          <a
+            className={`${styles.pinkButton} ${styles.navCta}`}
+            href={PARTNERS_REGISTER_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Sumar mi comercio
           </a>
         </div>
+        <details className={styles.mobileNav}>
+          <summary className={styles.mobileNavToggle} aria-label="Abrir menú de navegación">
+            <span>Menú</span>
+            <span className={styles.mobileNavIcon} aria-hidden="true"><i /><i /></span>
+          </summary>
+          <div className={styles.mobileNavPanel}>
+            <div className={styles.mobileNavLinks}>
+              <Link className={`${styles.mobileNavLink} ${isCommerce ? styles.mobileNavLinkActive : ''}`} href="/comercios">Comercios</Link>
+              <Link className={`${styles.mobileNavLink} ${isBrands ? styles.mobileNavLinkActive : ''}`} href="/marcas">Marcas</Link>
+              <Link className={`${styles.mobileNavLink} ${isEnterprise ? styles.mobileNavLinkActive : ''}`} href="/empresas">Empresas</Link>
+              <Link className={`${styles.mobileNavLink} ${isMerch ? styles.mobileNavLinkActive : ''}`} href="/tienda">Merch</Link>
+              {contextualLink && <a className={styles.mobileNavContext} href={contextualLink.href}>{contextualLink.label}</a>}
+            </div>
+            <div className={styles.mobileNavActions}>
+              <a className={styles.mobileNavLogin} href={PARTNERS_URL} target="_blank" rel="noopener noreferrer">Iniciar sesión</a>
+              <a className={`${styles.pinkButton} ${styles.mobileNavRegister}`} href={PARTNERS_REGISTER_URL} target="_blank" rel="noopener noreferrer">Sumar mi comercio</a>
+            </div>
+          </div>
+        </details>
       </div>
     </nav>
   )
@@ -165,7 +196,7 @@ export function FinalCta({ commerce = false, title, storePrompt }: { commerce?: 
           <>
             <p className={styles.finalText}>Vos ofrecés la experiencia. Nosotros acercamos a las personas.</p>
             <div className={styles.finalActions}>
-              <a className={`${styles.pinkButton} ${styles.heroPrimary}`} href={PARTNERS_URL} target="_blank" rel="noopener noreferrer">
+              <a className={`${styles.pinkButton} ${styles.heroPrimary}`} href={PARTNERS_REGISTER_URL} target="_blank" rel="noopener noreferrer">
                 Sumá tu comercio <ArrowRight size={18} />
               </a>
             </div>

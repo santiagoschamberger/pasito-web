@@ -13,7 +13,7 @@ import {
   PhoneFan,
   RulesList,
   StatsBand,
-  PARTNERS_URL,
+  PARTNERS_REGISTER_URL,
 } from '@/components/marketing/Marketing'
 import { MarketingMotion } from '@/components/marketing/MarketingMotion'
 import { formatRoundedMarketingMetric, getMarketingMetrics } from '@/lib/marketing-metrics'
@@ -130,7 +130,7 @@ export default async function ComerciosPage() {
             <h1 className={`${styles.heroTitle} ${styles.heroTitleCommerce}`}>Convertimos el<br /><span className={styles.accent}>movimiento</span> en<br /><span className={styles.commerceTitleLine}><span className={styles.accent}>clientes</span> para tu local.</span></h1>
             <p className={`${styles.heroText} ${styles.heroTextCommerce}`}><span className={styles.commerceTextLine}>Una nueva plataforma de visibilidad para dar a conocer tu comercio</span><span className={styles.commerceTextLine}> y conectarlo con personas activas que buscan experiencias reales.</span></p>
             <div className={styles.heroButtons}>
-              <a className={`${styles.pinkButton} ${styles.heroPrimary}`} href={PARTNERS_URL} target="_blank" rel="noopener noreferrer">Sumá tu comercio <ArrowRight size={18} /></a>
+              <a className={`${styles.pinkButton} ${styles.heroPrimary}`} href={PARTNERS_REGISTER_URL} target="_blank" rel="noopener noreferrer">Sumá tu comercio <ArrowRight size={18} /></a>
               <a className={styles.outlineButton} href="#planes">Ver planes</a>
             </div>
           </div>
@@ -235,7 +235,7 @@ export default async function ComerciosPage() {
               <div className={styles.planFeatures}>
                 {plan.features.map((feature, index) => <div className={styles.planFeature} key={index}><CheckIcon size={17} /><span>{feature}</span></div>)}
               </div>
-              <a className={styles.planAction} href={PARTNERS_URL} target="_blank" rel="noopener noreferrer">{plan.action}</a>
+              <a className={styles.planAction} href={PARTNERS_REGISTER_URL} target="_blank" rel="noopener noreferrer">{plan.action}</a>
             </article>
           ))}
         </div>
