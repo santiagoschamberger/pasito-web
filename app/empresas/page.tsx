@@ -131,7 +131,7 @@ export default async function EmpresasPage() {
         <div className={styles.stats} aria-label="Pasito Empresas en números">
           <div className={styles.stat}><span className={styles.statValue}>{totalUsers}</span><span className={styles.statLabel}>personas ya usan Pasito</span></div>
           <div className={styles.stat}><span className={styles.statValue}>{newUsers}</span><span className={styles.statLabel}>personas nuevas en las últimas 24 h</span></div>
-          <div className={styles.stat}><span className={styles.statValue}>+800</span><span className={styles.statLabel}>comercios para sumar beneficios</span></div>
+          <div className={styles.stat}><span className={styles.statValue}>{formatRoundedMarketingMetric(metrics.totalPartners, 100)}</span><span className={styles.statLabel}>comercios para sumar beneficios</span></div>
           <div className={styles.stat}><span className={styles.statValue}>USD 3</span><span className={styles.statLabel}>por persona activa / mes</span></div>
         </div>
       </header>

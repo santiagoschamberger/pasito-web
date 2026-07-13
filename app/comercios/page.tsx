@@ -5,7 +5,6 @@ import { ArrowRight, Flame, Settings2, Users } from 'lucide-react'
 import styles from '../marketing.module.css'
 import {
   BrandRow,
-  CheckIcon,
   FinalCta,
   MarketingFooter,
   MarketingNav,
@@ -17,6 +16,7 @@ import {
 } from '@/components/marketing/Marketing'
 import { MarketingMotion } from '@/components/marketing/MarketingMotion'
 import { formatRoundedMarketingMetric, getMarketingMetrics } from '@/lib/marketing-metrics'
+import { PricingPlans } from './PricingPlans'
 
 export const metadata: Metadata = {
   title: 'Pasito para comercios — Convertimos movimiento en clientes',
@@ -27,67 +27,6 @@ export const metadata: Metadata = {
     type: 'website',
   },
 }
-
-const PLANS = [
-  {
-    name: 'Starter',
-    price: 'Gratis',
-    lead: 'Conseguí nuevos clientes sin costo.',
-    features: [
-      <>Aparecés en el mapa de Pasito</>,
-      <><strong>Único requisito:</strong> publicás un premio gratuito con mínimo 5 canjes por día para los usuarios</>,
-      <>Podés sumar descuentos</>,
-    ],
-    action: 'Empezá gratis',
-  },
-  {
-    name: 'Ventas',
-    price: '$69.000',
-    period: '/mes',
-    lead: 'Convertí las visitas en ventas.',
-    extra: 'Todo lo de Starter, más:',
-    featured: true,
-    features: [
-      <><strong>No regalás nada:</strong> podés trabajar solo con descuentos y premios con compra extra</>,
-      <>Sellos e insignias de tu local</>,
-      <>Recompensas por visitas recurrentes</>,
-      <>Configuración avanzada de beneficios</>,
-      <>Próximamente: Club del comercio, tu programa de fidelización</>,
-      <>Próximamente: campañas y notificaciones segmentadas</>,
-    ],
-    action: 'Activar Ventas',
-  },
-  {
-    name: 'Destacado',
-    price: '$190.000',
-    period: '/mes',
-    lead: 'Sé la primera opción de tu zona.',
-    extra: 'Todo lo de Ventas, más:',
-    features: [
-      <>Pin destacado en el mapa</>,
-      <>Aparecés primero en las búsquedas</>,
-      <>Branding destacado de tu comercio</>,
-    ],
-    action: 'Quiero destacarme',
-  },
-]
-
-const TABLE_ROWS = [
-  ['Precio', 'Gratis', '$69.000/mes', '$190.000/mes'],
-  ['Ideal para', 'Darse a conocer', 'Vender y fidelizar', 'Dominar tu zona'],
-  ['Aparece en el mapa', '✓', '✓', '⭐ Destacado'],
-  ['Premios gratuitos', '✓ (mín. 5/día)', 'Opcional', 'Opcional'],
-  ['Descuentos', '✓', '✓', '✓'],
-  ['Premios con compra', '—', '✓', '✓'],
-  ['Sellos e insignias', '—', '✓', '✓'],
-  ['Recompensas por visitas recurrentes', '—', '✓', '✓'],
-  ['Configuración avanzada', '—', '✓', '✓'],
-  ['Pin destacado en el mapa', '—', '—', '✓'],
-  ['Primero en búsquedas', '—', '—', '✓'],
-  ['Branding destacado', '—', '—', '✓'],
-  ['Club del comercio (próximamente)', '—', '✓', '✓'],
-  ['Campañas segmentadas (próximamente)', '—', '✓', '✓'],
-]
 
 const RULES = [
   'El canje es presencial y se valida con tu código.',
@@ -114,7 +53,7 @@ export default async function ComerciosPage() {
   const metrics = await getMarketingMetrics()
   const stats = [
     { value: formatRoundedMarketingMetric(metrics.totalUsers, 10_000), label: 'usuarios' },
-    { value: '+800', label: 'comercios activos' },
+    { value: formatRoundedMarketingMetric(metrics.totalPartners, 100), label: 'comercios para descubrir' },
     { value: formatRoundedMarketingMetric(metrics.newUsersLast24Hours, 1_000), label: 'usuarios nuevos por día' },
     { value: '+15M', label: 'impresiones por mes' },
   ]
@@ -224,33 +163,8 @@ export default async function ComerciosPage() {
       <section id="planes" className={`${styles.container} ${styles.plans}`}>
         <h2 className={`${styles.sectionTitle} ${styles.sectionTitleSmall}`}>Tres formas de crecer con Pasito.</h2>
         <p className={styles.faqAnswer}>Empezá gratis. Escalá cuando quieras.</p>
-        <div className={styles.plansGrid}>
-          {PLANS.map((plan) => (
-            <article className={`${styles.planCard} ${plan.featured ? styles.planFeatured : ''}`} key={plan.name}>
-              {plan.featured && <span className={`${styles.overline} ${styles.planBadge}`}>El más elegido</span>}
-              <span className={styles.overline} style={{ color: plan.featured ? 'rgba(255,255,255,.65)' : '#7c7c65' }}>{plan.name}</span>
-              <div className={styles.planPrice}>{plan.price}{plan.period && <span className={styles.perMonth}>{plan.period}</span>}</div>
-              <p className={styles.planLead}>{plan.lead}</p>
-              {plan.extra && <p className={styles.planExtra}>{plan.extra}</p>}
-              <div className={styles.planFeatures}>
-                {plan.features.map((feature, index) => <div className={styles.planFeature} key={index}><CheckIcon size={17} /><span>{feature}</span></div>)}
-              </div>
-              <a className={styles.planAction} href={PARTNERS_REGISTER_URL} target="_blank" rel="noopener noreferrer">{plan.action}</a>
-            </article>
-          ))}
-        </div>
-        <p className={styles.plansNote}>Sin permanencia. Cambiás de plan cuando quieras.</p>
+        <PricingPlans />
       </section>
-
-      <details className={`${styles.container} ${styles.compareDetails}`}>
-        <summary><span className={styles.compareSummaryTitle}>Comparación completa</span><span className={styles.compareLabel} /></summary>
-        <div className={styles.tableWrap}>
-          <table className={styles.compareTable}>
-            <thead><tr><th /><th>Starter</th><th>Ventas</th><th>Destacado</th></tr></thead>
-            <tbody>{TABLE_ROWS.map((row) => <tr key={row[0]}>{row.map((cell, index) => <td key={`${row[0]}-${index}`}>{cell}</td>)}</tr>)}</tbody>
-          </table>
-        </div>
-      </details>
 
       <section className={`${styles.container} ${styles.twoCol} ${styles.rules}`}>
         <h2 className={`${styles.sectionTitle} ${styles.sectionTitleSmall}`}>Reglas simples.<br />Sin letra chica.</h2>

@@ -88,7 +88,7 @@ export default async function HomePage() {
   const stats = [
     { value: totalUsers, label: 'personas ya caminan con Pasito' },
     { value: '388.000', label: 'usuarios activos diarios' },
-    { value: '+800', label: 'lugares para descubrir' },
+    { value: formatRoundedMarketingMetric(metrics.totalPartners, 100), label: 'comercios para descubrir' },
     { value: 'App #1', label: 'en Argentina y Uruguay' },
   ]
 
