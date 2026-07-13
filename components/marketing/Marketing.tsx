@@ -13,14 +13,67 @@ export const ENTERPRISE_WHATSAPP_URL = 'https://wa.me/5491136491620?text=Hola%2C
 export const BRANDS_WHATSAPP_URL = 'https://wa.me/5491136491620?text=Hola%2C%20quiero%20reservar%20una%20activaci%C3%B3n%20de%20marca%20en%20Pasito.'
 export const DISNEY_LOGO_URL = 'https://upload.wikimedia.org/wikipedia/commons/c/ce/Disney.svg'
 
-const PRESS_LOGOS = [
-  { name: 'LA NACION', src: '/marketing/press/la-nacion.svg', width: 715, height: 75 },
-  { name: 'Infobae', src: '/marketing/press/infobae.svg', width: 512, height: 122 },
-  { name: 'Telefe', src: '/marketing/press/telefe.svg', width: 390, height: 60 },
-  { name: 'El Observador', src: '/marketing/press/el-observador.svg', width: 500, height: 73 },
-  { name: 'iProfesional', src: '/marketing/press/iprofesional.jpg', width: 1548, height: 158 },
-  { name: 'iProUP', src: '/marketing/press/iproup.svg', width: 123, height: 40 },
-  { name: 'Solo Noticias', src: '/marketing/press/solo-noticias.png', width: 1085, height: 525 },
+type PressLogo = {
+  name: string
+  src: string
+  href: string
+  width: number
+  height: number
+  remote?: boolean
+}
+
+const PRESS_LOGOS: PressLogo[] = [
+  {
+    name: 'LA NACION',
+    src: '/marketing/press/la-nacion.svg',
+    href: 'https://www.lanacion.com.ar/lifestyle/tiene-26-anos-y-creo-la-app-argentina-furor-que-da-premios-por-caminar-en-tres-dias-se-sumaron-50-nid06052026/',
+    width: 715,
+    height: 75,
+  },
+  {
+    name: 'Infobae',
+    src: '/marketing/press/infobae.svg',
+    href: 'https://www.infobae.com/tendencias/2026/05/18/caminar-y-sumar-puntos-como-funciona-la-app-que-permite-canjear-pasos-por-productos-en-buenos-aires/',
+    width: 512,
+    height: 122,
+  },
+  {
+    name: 'iProfesional',
+    src: '/marketing/press/iprofesional.jpg',
+    href: 'https://www.iprofesional.com/tecnologia/454430-pasito-app-argentina-premia-caminar-cafes-comidas',
+    width: 1548,
+    height: 158,
+  },
+  {
+    name: 'El Destape',
+    src: 'https://www.eldestapeweb.com/img/estructura/logo.png',
+    href: 'https://www.eldestapeweb.com/sociedad/pasito-lanzan-una-aplicacion-que-te-regala-comida-y-entradas-para-el-cine-solo-por-caminar-202655182940',
+    width: 330,
+    height: 94,
+    remote: true,
+  },
+  {
+    name: 'El Observador',
+    src: '/marketing/press/el-observador.svg',
+    href: 'https://www.elobservador.com.uy/cafe-y-negocios/pasito-asi-funciona-la-app-argentina-que-da-premios-caminar-desembarco-uruguay-y-ya-suma-mas-20000-usuarios-n6048026',
+    width: 500,
+    height: 73,
+  },
+  {
+    name: 'Telefe Noticias',
+    src: '/marketing/press/telefe.svg',
+    href: 'https://noticias.mitelefe.com/informes-especiales/pasito-la-app-que-premia-con-cafes-y-comidas-a-los-que-caminan-pid2552189',
+    width: 390,
+    height: 60,
+  },
+  {
+    name: 'Empre.AR',
+    src: 'https://empre.ar/wp-content/uploads/2025/05/Diseno-sin-titulo-16.png',
+    href: 'https://empre.ar/podcast/pasito-la-app-que-paga-por-caminar/',
+    width: 146,
+    height: 70,
+    remote: true,
+  },
 ]
 
 export function MarketingNav({ active = 'home' }: { active?: 'home' | 'comercios' | 'empresas' | 'marcas' | 'merch' }) {
@@ -217,14 +270,23 @@ export function PressSection() {
     <section className={styles.pressSection} aria-labelledby="press-heading">
       <div className={`${styles.container} ${styles.pressInner}`}>
         <div className={styles.pressHeading}>
-          <h2 id="press-heading">Pasito también <span>hace noticia.</span></h2>
+          <h2 id="press-heading">Pasito en las <span>noticias</span></h2>
           <p>Medios de Argentina y Uruguay ya contaron cómo estamos convirtiendo movimiento en bienestar, experiencias y comercio.</p>
         </div>
         <div className={styles.pressLogos} aria-label="Medios que hablaron de Pasito">
           {PRESS_LOGOS.map((logo) => (
-            <div className={styles.pressLogo} key={logo.name}>
-              <Image src={logo.src} alt={logo.name} width={logo.width} height={logo.height} unoptimized />
-            </div>
+            <a
+              className={styles.pressLogo}
+              href={logo.href}
+              key={logo.name}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Leer la nota de ${logo.name} sobre Pasito`}
+            >
+              {logo.remote
+                ? <img src={logo.src} alt={logo.name} width={logo.width} height={logo.height} loading="lazy" decoding="async" />
+                : <Image src={logo.src} alt={logo.name} width={logo.width} height={logo.height} unoptimized />}
+            </a>
           ))}
         </div>
       </div>

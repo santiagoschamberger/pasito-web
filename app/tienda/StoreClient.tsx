@@ -20,6 +20,14 @@ const PRICE = 35000 // ⬅️ precio unitario
 const SHIPPING = 2000 // ⬅️ costo de envío a domicilio
 const CURRENCY = 'ARS' // ARS | USD | BRL | CLP | COP | MXN
 
+// Referencias de los productos persistentes en Rebill. El checkout sigue
+// usando instant-product porque el total depende de cantidad + entrega, pero
+// guardamos la referencia correcta en cada pago para poder reconciliarlo.
+const REBILL_PRODUCT_REFERENCE = {
+  retiro: 'prd_936db4129964428d9377bda54608d012',
+  envio: 'prd_916d9bf2683e40b4abf1c2a9c94e3145',
+} as const
+
 const SIZES = ['S', 'M', 'L', 'XL'] as const
 type Size = (typeof SIZES)[number]
 
@@ -64,11 +72,9 @@ const DELIVERY_OPTIONS: { id: Delivery; label: string; note: string; cost: numbe
 
 type StockMap = Record<string, Record<string, number>>
 
-// Stock por defecto (fallback si no se pudo leer el stock real de Supabase).
-const DEFAULT_STOCK: StockMap = {
-  blanca: { S: 24, M: 23, L: 23, XL: 23 },
-  negra: { S: 24, M: 23, L: 23, XL: 23 },
-}
+// Si Supabase no responde, no inventamos disponibilidad ni dejamos avanzar al
+// pago. El stock comunicado siempre tiene que ser el stock real.
+const EMPTY_STOCK: StockMap = {}
 
 const MAX_PER_ORDER = 10
 
@@ -195,7 +201,11 @@ function ShirtVisual({ base, src }: { base: Base; src?: string }) {
       <img
         src={image}
         alt={`Remera ${base.label} con estampa ${base.print.label}`}
-        className="h-full w-full object-cover"
+        className={styles.productImage}
+        loading="eager"
+        decoding="async"
+        fetchPriority="high"
+        draggable={false}
       />
     )
   }
@@ -329,10 +339,12 @@ function Swatch({
   )
 }
 
-export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
+export function StoreClient({ stock }: { stock?: StockMap }) {
+  const inventory = stock ?? EMPTY_STOCK
+  const inventoryKnown = stock !== undefined
   const [base, setBase] = useState<Base>(BASES[0])
   const [imgIdx, setImgIdx] = useState(0)
-  const [size, setSize] = useState<Size>(() => firstAvailableSize(stock, BASES[0].id))
+  const [size, setSize] = useState<Size>(() => firstAvailableSize(inventory, BASES[0].id))
   const [qty, setQty] = useState(1)
   const [delivery, setDelivery] = useState<Delivery>('retiro')
   const [open, setOpen] = useState(false)
@@ -345,9 +357,10 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
     loadRebillSDK().catch(() => undefined)
   }, [])
 
-  const available = stockFor(stock, base.id, size)
-  const soldOut = available <= 0
-  const maxQty = Math.max(1, Math.min(MAX_PER_ORDER, available))
+  const available = inventoryKnown ? stockFor(inventory, base.id, size) : null
+  const soldOut = available !== null && available <= 0
+  const canBuy = available !== null && available > 0
+  const maxQty = available === null ? 1 : Math.max(1, Math.min(MAX_PER_ORDER, available))
   const shippingCost = delivery === 'envio' ? SHIPPING : 0
   const subtotal = PRICE * qty
   const total = subtotal + shippingCost
@@ -356,10 +369,10 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
     (b: Base) => {
       setBase(b)
       setImgIdx(0)
-      setSize(firstAvailableSize(stock, b.id))
+      setSize(firstAvailableSize(inventory, b.id))
       setQty(1)
     },
-    [stock],
+    [inventory],
   )
 
   const selectSize = useCallback((s: Size) => {
@@ -368,13 +381,14 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
   }, [])
 
   const openCheckout = useCallback(() => {
+    if (!canBuy) return
     setDone(null)
     setCheckoutReady(false)
     setCheckoutError(null)
     setRegisteringOrder(false)
     loadRebillSDK().catch(() => undefined)
     setOpen(true)
-  }, [])
+  }, [canBuy])
 
   const closeCheckout = useCallback(() => setOpen(false), [])
 
@@ -435,6 +449,7 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
     amount: total, // incluye envío si corresponde
     currency: CURRENCY,
     metadata: {
+      catalogProductId: REBILL_PRODUCT_REFERENCE[delivery],
       base: base.id,
       print: base.print.id,
       size,
@@ -443,7 +458,8 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
     },
   }
 
-  const previewBg = base.dark ? '#F1F1EC' : '#F4F4EF'
+  // Fondo neutro, alineado con los mockups, visible durante la carga.
+  const previewBg = base.dark ? '#E9EBEA' : '#E6E9E8'
 
   /* ── Vista de checkout a pantalla completa ── */
   if (open) {
@@ -547,12 +563,6 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
           style={{ background: previewBg, border: '1px solid #ECECE4' }}
         >
           <ShirtVisual base={base} src={base.images?.[imgIdx]} />
-          <span
-            className="absolute left-4 top-4 rounded-full px-3 py-1 text-[11px] font-semibold"
-            style={{ background: '#EEFA7A', color: '#0C6B45' }}
-          >
-            Edición Pasito
-          </span>
         </div>
 
         {base.images && base.images.length > 1 && (
@@ -572,7 +582,14 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
                     border: selected ? '1.5px solid #0C6B45' : '1px solid #ECECE4',
                   }}
                 >
-                  <img src={img} alt="" className="h-full w-full object-cover" />
+                  <img
+                    src={img}
+                    alt=""
+                    className={styles.thumbnailImage}
+                    loading="eager"
+                    decoding="async"
+                    draggable={false}
+                  />
                 </button>
               )
             })}
@@ -583,16 +600,18 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
       {/* Detalle + selección */}
       <div className={`${styles.storeDetails} flex flex-col justify-center`}>
         <p className="text-[13px] font-medium uppercase tracking-wide" style={{ color: '#0C6B45' }}>
-          Remera oversize · algodón premium
+          Edición limitada
         </p>
         <h1 className="font-display mt-1 text-3xl leading-tight md:text-4xl" style={{ color: '#1B1B1B' }}>
-          {PRODUCT_NAME}
+          Vestite como alguien que siempre da un paso más.
         </h1>
-        <p className="mt-3 max-w-md text-[15px] leading-relaxed" style={{ color: '#5B5B54' }}>
-          Suave, liviana y hecha para moverte. Cada pasito cuenta — ahora también en tu ropa.
-        </p>
-        <p className="mt-2 max-w-md text-[13px] font-medium leading-relaxed" style={{ color: '#0C6B45' }}>
-          Lote de 200 unidades, para los verdaderos amantes de Pasito. No hay re-stock.
+        <ul className={styles.valueProps} aria-label="Características de la remera">
+          <li>Calce oversize</li>
+          <li>Algodón premium</li>
+          <li>Sin reposición</li>
+        </ul>
+        <p className={styles.scarcityCopy}>
+          Una sola tanda, sin reposición. Cuando se agota tu talle, se terminó.
         </p>
 
         <div className="mt-5 flex items-baseline gap-2">
@@ -625,12 +644,13 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
 
         {/* Talles */}
         <div className="mt-6">
-          <div className="mb-2 text-sm font-medium" style={{ color: '#1B1B1B' }}>
-            Talle
+          <div className="mb-2 flex items-center justify-between gap-3 text-sm font-medium" style={{ color: '#1B1B1B' }}>
+            <span>Talle</span>
+            <span className="text-xs font-normal" style={{ color: '#8A8A82' }}>Elegí el tuyo</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {SIZES.map((s) => {
-              const out = stockFor(stock, base.id, s) <= 0
+              const out = inventoryKnown && stockFor(inventory, base.id, s) <= 0
               const selected = s === size && !out
               return (
                 <button
@@ -653,11 +673,24 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
               )
             })}
           </div>
-          {!soldOut && available <= 10 && (
-            <p className="mt-2 text-xs font-medium" style={{ color: '#B4531B' }}>
-              ¡Últimas {available} unidades en este talle!
-            </p>
-          )}
+          <p
+            className={styles.stockStatus}
+            data-urgent={available !== null && available > 0 && available <= 10 ? 'true' : undefined}
+            data-unavailable={!inventoryKnown || soldOut ? 'true' : undefined}
+            role="status"
+            aria-live="polite"
+          >
+            <span className={styles.stockDot} aria-hidden="true" />
+            {!inventoryKnown
+              ? 'No pudimos confirmar el stock en este momento. Probá de nuevo en unos minutos.'
+              : soldOut
+                ? `El talle ${size} está agotado.`
+                : available === 1
+                  ? `¡Queda la última unidad en talle ${size}!`
+                  : available !== null && available <= 10
+                    ? `¡Quedan solo ${available} unidades en talle ${size}!`
+                    : `Quedan ${available} unidades en talle ${size} en esta tanda.`}
+          </p>
         </div>
 
         {/* Entrega */}
@@ -708,7 +741,7 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
               type="button"
               onClick={() => setQty((q) => Math.max(1, q - 1))}
               className="grid h-10 w-10 place-items-center text-lg disabled:opacity-30"
-              disabled={qty <= 1 || soldOut}
+              disabled={qty <= 1 || !canBuy}
               aria-label="Restar"
               style={{ color: '#1B1B1B' }}
             >
@@ -721,7 +754,7 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
               type="button"
               onClick={() => setQty((q) => Math.min(maxQty, q + 1))}
               className="grid h-10 w-10 place-items-center text-lg disabled:opacity-30"
-              disabled={qty >= maxQty || soldOut}
+              disabled={qty >= maxQty || !canBuy}
               aria-label="Sumar"
               style={{ color: '#1B1B1B' }}
             >
@@ -733,14 +766,18 @@ export function StoreClient({ stock = DEFAULT_STOCK }: { stock?: StockMap }) {
         <button
           type="button"
           onClick={openCheckout}
-          disabled={soldOut}
+          disabled={!canBuy}
           className="mt-8 flex h-14 items-center justify-center gap-2 rounded-full text-base font-semibold text-white transition-transform duration-150 enabled:hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-50"
-          style={{ background: soldOut ? '#9A9A92' : '#0C6B45' }}
+          style={{ background: canBuy ? '#0C6B45' : '#9A9A92' }}
         >
-          {soldOut ? 'Agotado' : `Comprar · ${money(total)}`}
+          {!inventoryKnown
+            ? 'Stock no disponible'
+            : soldOut
+              ? 'Talle agotado'
+              : `Asegurar mi talle · ${money(total)}`}
         </button>
         <p className="mt-3 text-center text-xs" style={{ color: '#9A9A92' }}>
-          Pago seguro procesado por Rebill
+          Pago seguro con Rebill · Confirmación por email
         </p>
       </div>
     </div>

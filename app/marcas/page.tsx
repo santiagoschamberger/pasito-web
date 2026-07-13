@@ -113,7 +113,7 @@ export default function MarcasPage() {
 
       <section className={styles.brandsSocialProofSection}>
         <div className={`${styles.container} ${styles.brandsSocialProof}`}>
-          <div className={styles.brandsSocialProofIntro}><span>Prueba social</span><h2>Ya caminaron con nosotros.</h2></div>
+          <div className={styles.brandsSocialProofIntro}><h2>Ya activaron con nosotros</h2></div>
           <div className={styles.brandsWordmarks} aria-label="Marcas que activaron con Pasito">
             {SOCIAL_PROOF_BRANDS.map((brand) => (
               <div className={styles.brandsWordmark} key={brand.name}>

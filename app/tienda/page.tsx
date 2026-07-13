@@ -7,8 +7,8 @@ import marketingStyles from '../marketing.module.css'
 import styles from './tienda.module.css'
 
 export const metadata: Metadata = {
-  title: 'Tienda Pasito — Remera oficial',
-  description: 'La remera oficial de Pasito. Algodón premium, edición limitada.',
+  title: 'Remera oficial Pasito — Edición limitada',
+  description: 'La Remera Pasito de algodón premium y calce oversize. Una sola tanda, sin reposición.',
 }
 
 // Stock siempre fresco en cada carga.
@@ -27,7 +27,7 @@ async function getStock(): Promise<StockMap | undefined> {
   const { data, error } = await supabase.from('tienda_stock').select('base, size, qty')
   if (error || !data || data.length === 0) {
     if (error) console.error('Tienda stock error:', error.message)
-    return undefined // StoreClient usa su stock por defecto
+    return undefined // StoreClient bloquea la compra sin inventar disponibilidad
   }
   const map: StockMap = {}
   for (const row of data as { base: string; size: string; qty: number }[]) {

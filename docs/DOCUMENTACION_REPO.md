@@ -251,7 +251,7 @@ Producto:
 - Envio a domicilio: `2000`.
 - Retiro en Palermo: gratis.
 - Maximo por orden: `10`.
-- Lote comunicado: 200 unidades, sin restock.
+- Edicion limitada comunicada como una sola tanda, sin reposicion.
 
 Variantes:
 
@@ -263,7 +263,7 @@ Stock:
 
 - La pagina lee `tienda_stock` con service role.
 - `revalidate = 0` para stock fresco.
-- Si Supabase no esta configurado o falla, el cliente usa `DEFAULT_STOCK`.
+- Si Supabase no esta configurado o falla, el cliente informa que no puede confirmar el stock y bloquea la compra para no mostrar disponibilidad ficticia.
 - Stock inicial por migracion: blanca S 24, M 23, L 23, XL 23; negra S 24, M 23, L 23, XL 23.
 
 Checkout:

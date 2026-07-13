@@ -12,6 +12,10 @@ const PRINTS = ['verde', 'blanca'] as const
 const SIZES = ['S', 'M', 'L', 'XL'] as const
 const DELIVERIES = ['retiro', 'envio'] as const
 const REBILL_API = 'https://api.rebill.com/v3'
+const REBILL_PRODUCT_REFERENCE = {
+  retiro: 'prd_936db4129964428d9377bda54608d012',
+  envio: 'prd_916d9bf2683e40b4abf1c2a9c94e3145',
+} as const
 
 let supabase: SupabaseClient | null = null
 function getSupabase() {
@@ -148,16 +152,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'El monto del pago no coincide.' }, { status: 400 })
   }
 
-  // El checkout de Tienda envía la variante en metadata. Si Rebill la devuelve,
-  // validamos que el pago corresponda al producto que la persona eligió.
+  // Instant Checkout persiste toda la selección en metadata. La exigimos y
+  // validamos contra el pedido recibido para no confiar sólo en el cliente.
   const metadata = pay.metadata
   if (
-    metadata &&
-    ((metadata.base && metadata.base !== base) ||
-      (metadata.print && metadata.print !== print) ||
-      (metadata.size && metadata.size !== size) ||
-      (metadata.qty && String(metadata.qty) !== String(qty)) ||
-      (metadata.delivery && metadata.delivery !== delivery))
+    !metadata ||
+    metadata.catalogProductId !== REBILL_PRODUCT_REFERENCE[delivery as keyof typeof REBILL_PRODUCT_REFERENCE] ||
+    metadata.base !== base ||
+    metadata.print !== print ||
+    metadata.size !== size ||
+    String(metadata.qty) !== String(qty) ||
+    metadata.delivery !== delivery
   ) {
     return NextResponse.json({ error: 'El pago no coincide con la selección de la tienda.' }, { status: 400 })
   }
