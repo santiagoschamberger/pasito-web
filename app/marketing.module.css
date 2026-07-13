@@ -791,19 +791,24 @@
 .brandsChallengeDark { border: 1px solid rgb(216 194 255 / 34%); background: rgb(255 255 255 / 7%); color: #fff; }
 .brandsChallengeDark .brandsChallengeIndex { background: var(--brand-pink); color: var(--brand-burgundy); }
 .brandsChallengeDark p,.brandsChallengeDark small { color: rgb(255 255 255 / 70%); }
-.brandsCaseStudy { display: grid; grid-template-columns: .55fr .9fr 1.1fr; align-items: center; gap: 48px; padding-top: 150px; }
+.brandsResultsSection { background: #f3ecff; }
+.brandsResults { display: grid; gap: 28px; padding-top: 120px; padding-bottom: 120px; }
+.brandsCaseStudy { display: grid; grid-template-columns: .55fr .9fr 1.1fr; align-items: center; gap: 42px; padding: 34px; border: 1px solid rgb(50 20 92 / 9%); border-radius: 32px; background: #fff; box-shadow: 0 18px 52px rgb(50 20 92 / 8%); }
 .brandsCaseLogo { display: flex; align-items: center; justify-content: center; min-height: 190px; border: 1px solid #d9ddff; border-radius: 24px; background: #edf0ff; box-shadow: 0 18px 40px rgb(54 66 184 / 10%); color: #3642b8; font-family: var(--font-bricolage), system-ui, sans-serif; font-size: 28px; font-weight: 800; letter-spacing: -1px; }
 .brandsCaseLogo img { width: min(72%, 180px); height: auto; }
 .brandsCaseStats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.brandsCaseStats div { padding: 22px; border: 1px solid var(--surface-stroke); border-radius: 20px; }
+.brandsCaseStats div { min-height: 150px; padding: 22px; border: 1px solid var(--surface-stroke); border-radius: 20px; background: #fbfaf8; }
 .brandsCaseStats strong { display: block; color: var(--brand-primary); font-family: var(--font-bricolage), system-ui, sans-serif; font-size: 38px; font-weight: 800; line-height: 41px; letter-spacing: -1.2px; }
 .brandsCaseStats span { display: block; margin-top: 10px; color: var(--neutral-600); font-size: 13px; line-height: 18px; }
-.brandsMeasurement { display: grid; grid-template-columns: .85fr 1.15fr; gap: 80px; padding-top: 230px; }
-.brandsMeasurement .sectionTitle { max-width: 560px; }
-.brandsMeasurementList { display: flex; flex-wrap: wrap; align-content: start; gap: 10px; }
-.brandsMeasurementList span { display: inline-flex; align-items: center; gap: 8px; padding: 12px 14px; border-radius: 14px; background: var(--neutral-100); color: var(--brand-primary); font-size: 13px; font-weight: 600; line-height: 18px; }
-.brandsMeasurementList span:nth-child(3n + 2) { background: var(--brand-pink); color: var(--brand-burgundy); }
-.brandsMeasurementList span:nth-child(3n) { background: #e8dcff; color: #52258d; }
+.brandsMeasurement { display: grid; grid-template-columns: .9fr 1.1fr; align-items: start; gap: 64px; padding: 56px; border-radius: 32px; background: var(--brand-dark); color: #fff; box-shadow: 0 24px 64px rgb(0 64 39 / 18%); }
+.brandsMeasurement .sectionTitle { max-width: 560px; color: #fff; font-size: clamp(42px, 4.2vw, 58px); font-weight: 800; line-height: .98; letter-spacing: -2px; }
+.brandsMeasurementBody { max-width: 540px; margin: 22px 0 0; color: rgb(255 255 255 / 70%); font-size: 15px; line-height: 22px; }
+.brandsMeasurementList { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.brandsMeasurementList li { display: grid; grid-template-columns: 38px 1fr; align-items: center; gap: 12px; min-height: 78px; padding: 14px; border: 1px solid rgb(255 255 255 / 12%); border-radius: 18px; background: rgb(255 255 255 / 8%); }
+.brandsMeasurementList li > span { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 12px; background: var(--brand-accent); color: var(--brand-dark); }
+.brandsMeasurementList li:nth-child(3n + 2) > span { background: var(--brand-pink); color: var(--brand-burgundy); }
+.brandsMeasurementList li:nth-child(3n) > span { background: #d8c2ff; color: #52258d; }
+.brandsMeasurementList strong { color: #fff; font-size: 13px; font-weight: 650; line-height: 18px; }
 .brandsScarcity { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 28px; margin-top: 150px; padding: 36px; border-radius: 28px; background: var(--brand-pink); color: var(--brand-burgundy); }
 .brandsScarcity > svg { color: var(--brand-burgundy); }
 .brandsScarcity h2 { margin: 0; font-family: var(--font-bricolage), system-ui, sans-serif; font-size: 30px; font-weight: 800; line-height: 34px; letter-spacing: -.8px; }
@@ -884,7 +889,8 @@
   .brandsWordmark:last-child { grid-column: 2 / 3; }
   .brandsHowItWorks,.brandsMeasurement { grid-template-columns: 1fr; gap: 56px; }
   .brandsHowItWorks { padding-bottom: 120px; }
-  .brandsMeasurement { padding-top: 180px; }
+  .brandsResults { padding-top: 88px; padding-bottom: 88px; }
+  .brandsMeasurement { padding: 48px; }
   .brandsComparisonGrid { grid-template-columns: 1fr; gap: 0; }
   .brandsComparisonShift { position: relative; top: auto; left: auto; justify-self: center; margin: -14px 0; transform: rotate(-3deg); }
   .brandsAudienceGrid { grid-template-columns: 1fr 1fr; }
@@ -1022,7 +1028,7 @@
   .brandsHeroArt { width: 300px; height: 405px; }
   .brandsHeroPhone { top: -4px; right: auto; left: 50%; width: 210px; transform: translateX(-50%) rotate(6deg); }
   .brandsMarqueeTrack span { padding-top: 16px; padding-bottom: 16px; font-size: 13px; }
-  .brandsSocialProof,.brandsContext,.brandsHowItWorks,.brandsAudience,.brandsFormats,.brandsCaseStudy,.brandsMeasurement,.brandsScarcity { padding-top: 96px; }
+  .brandsSocialProof,.brandsContext,.brandsHowItWorks,.brandsAudience,.brandsFormats,.brandsScarcity { padding-top: 96px; }
   .brandsSocialProof,.brandsContext { gap: 36px; }
   .brandsSocialProof h2 { font-size: 31px; line-height: 36px; }
   .brandsWordmarks { grid-template-columns: 1fr 1fr; gap: 0; }
@@ -1071,9 +1077,14 @@
   .brandsChallengeGrid { margin-top: 42px; }
   .brandsChallengeGrid { grid-template-columns: 1fr; }
   .brandsChallengeGrid article { min-height: 240px; }
+  .brandsResults { gap: 18px; padding-top: 72px; padding-bottom: 72px; }
+  .brandsCaseStudy { gap: 24px; padding: 20px; border-radius: 24px; }
   .brandsCaseLogo { grid-row: auto; min-height: 140px; }
   .brandsCaseStats { grid-column: auto; grid-template-columns: 1fr; }
-  .brandsMeasurement { gap: 40px; padding-top: 140px; }
+  .brandsCaseStats div { min-height: auto; }
+  .brandsMeasurement { gap: 32px; padding: 30px 22px; border-radius: 24px; }
+  .brandsMeasurement .sectionTitle { font-size: 39px; line-height: 40px; letter-spacing: -1.4px; }
+  .brandsMeasurementList { grid-template-columns: 1fr; }
   .brandsScarcity { grid-template-columns: 1fr; gap: 16px; margin: 96px 20px 0; padding: 28px; }
   .brandsScarcityPills { grid-column: auto; justify-content: flex-start; }
 }

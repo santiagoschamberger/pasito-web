@@ -242,15 +242,25 @@ export default function MarcasPage() {
         </div>
       </section>
 
-      <section className={`${styles.container} ${styles.brandsCaseStudy}`}>
-        <div className={styles.brandsCaseLogo}><Image src="/marketing/brands/decathlon.svg" alt="Decathlon" width={158} height={38} unoptimized /></div>
-        <div><NumberedOverline number="07">Caso real</NumberedOverline><h2 className={styles.sectionTitle}>Decathlon lo probó.</h2><p className={styles.sectionBody}>La gente caminó, participó y difundió la marca por elección propia.</p></div>
-        <div className={styles.brandsCaseStats}><div><strong>45.000</strong><span>personas se anotaron y caminaron por la marca.</span></div><div><strong>~1.000</strong><span>compartieron la historia en Instagram.</span></div></div>
-      </section>
+      <section className={styles.brandsResultsSection}>
+        <div className={`${styles.container} ${styles.brandsResults}`}>
+          <div className={styles.brandsCaseStudy}>
+            <div className={styles.brandsCaseLogo}><Image src="/marketing/brands/decathlon.svg" alt="Decathlon" width={158} height={38} unoptimized /></div>
+            <div><NumberedOverline number="07">Caso real</NumberedOverline><h2 className={styles.sectionTitle}>Decathlon lo probó.</h2><p className={styles.sectionBody}>La gente caminó, participó y difundió la marca por elección propia.</p></div>
+            <div className={styles.brandsCaseStats}><div><strong>53.000</strong><span>personas se anotaron y caminaron por la marca.</span></div><div><strong>~1.000</strong><span>compartieron la historia en Instagram.</span></div></div>
+          </div>
 
-      <section className={`${styles.container} ${styles.brandsMeasurement}`}>
-        <div><NumberedOverline number="08">Medición</NumberedOverline><h2 className={styles.sectionTitle}>Cada activación termina con datos, no con sensaciones.</h2></div>
-        <div className={styles.brandsMeasurementList}>{MEASUREMENTS.map((measurement) => <span key={measurement}><BarChart3 size={16} />{measurement}</span>)}</div>
+          <div className={styles.brandsMeasurement}>
+            <div>
+              <NumberedOverline number="08" light>Medición</NumberedOverline>
+              <h2 className={styles.sectionTitle}>Cada activación termina con datos, no con sensaciones.</h2>
+              <p className={styles.brandsMeasurementBody}>Tu equipo recibe una lectura clara de qué pasó, quién participó y qué conviene optimizar en la próxima campaña.</p>
+            </div>
+            <ul className={styles.brandsMeasurementList} aria-label="Datos incluidos en cada activación">
+              {MEASUREMENTS.map((measurement) => <li key={measurement}><span><BarChart3 size={17} /></span><strong>{measurement}</strong></li>)}
+            </ul>
+          </div>
+        </div>
       </section>
 
       <section className={`${styles.container} ${styles.brandsScarcity}`}>
