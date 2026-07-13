@@ -36,6 +36,22 @@
 .stockDot { width: 7px; height: 7px; flex: 0 0 auto; margin-top: 5px; border-radius: 50%; background: #d92d20; box-shadow: 0 0 0 3px rgb(217 45 32 / 12%); }
 .stockStatus[data-urgent="true"] .stockDot { background: #d92d20; box-shadow: 0 0 0 3px rgb(217 45 32 / 14%); }
 .stockStatus[data-unavailable="true"] .stockDot { background: #a5a59d; box-shadow: none; }
+.shippingForm { min-width: 0; margin: 18px 0 0; padding: 20px; border: 1px solid #dce8df; border-radius: 20px; background: #f7faf8; }
+.shippingForm legend { padding: 0 6px; color: #173c2b; font-size: 14px; font-weight: 700; }
+.shippingFormIntro { margin: -2px 0 16px; color: #68746b; font-size: 12px; line-height: 17px; }
+.shippingGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 12px; }
+.shippingGrid label { display: flex; min-width: 0; flex-direction: column; gap: 6px; color: #303a33; font-size: 12px; font-weight: 650; line-height: 17px; }
+.shippingGrid label > span { display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px; }
+.shippingGrid label small { color: #8b948d; font-size: 10px; font-weight: 500; }
+.shippingGrid input,.shippingGrid select,.shippingGrid textarea { width: 100%; min-width: 0; border: 1px solid #d8ded9; border-radius: 12px; outline: 0; background: #fff; padding: 10px 11px; color: #1b1b1b; font: inherit; font-size: 13px; font-weight: 500; line-height: 18px; transition: border-color .16s ease, box-shadow .16s ease; }
+.shippingGrid textarea { resize: vertical; }
+.shippingGrid input:focus,.shippingGrid select:focus,.shippingGrid textarea:focus { border-color: #0c6b45; box-shadow: 0 0 0 3px rgb(12 107 69 / 11%); }
+.shippingGrid input::placeholder,.shippingGrid textarea::placeholder { color: #a4aaa5; }
+.shippingFieldFull { grid-column: 1 / -1; }
+.shippingError { margin: 12px 0 0; color: #b42318; font-size: 12px; font-weight: 650; line-height: 17px; }
+.shippingPrivacy { margin: 12px 0 0; color: #7a837c; font-size: 10px; line-height: 15px; }
+.checkoutShippingAddress { display: grid; gap: 3px; margin-top: 12px; border-top: 1px solid #ecece4; padding-top: 12px; color: #5b5b54; font-size: 12px; line-height: 17px; }
+.checkoutShippingAddress strong { color: #1b1b1b; font-size: 12px; }
 .storeCheckout { max-width: 640px !important; }
 .checkoutFrame { position: relative; min-height: 360px; }
 .checkoutHost { min-height: 360px; transition: opacity .2s ease; }
@@ -55,6 +71,9 @@
   .storeFooter { padding: 30px 20px 36px; }
   .storeGrid { padding: 42px 20px 64px !important; }
   .storeGalleryMain { border-radius: 22px !important; }
+  .shippingForm { padding: 18px 16px; }
+  .shippingGrid { grid-template-columns: 1fr; }
+  .shippingFieldFull { grid-column: auto; }
   .checkoutFrame,.checkoutHost { min-height: 340px; }
   .checkoutLoading { border-radius: 18px; }
 }

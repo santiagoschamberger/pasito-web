@@ -2,6 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import {
+  EMPTY_SHIPPING_ADDRESS,
+  formatShippingAddress,
+  normalizeShippingAddress,
+  type ShippingAddress,
+} from '@/lib/store-shipping'
 import styles from './tienda.module.css'
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -66,9 +72,36 @@ const BASES: Base[] = [
 
 type Delivery = 'retiro' | 'envio'
 const DELIVERY_OPTIONS: { id: Delivery; label: string; note: string; cost: number }[] = [
-  { id: 'retiro', label: 'Retiro en Palermo', note: 'Coordinamos por email', cost: 0 },
-  { id: 'envio', label: 'Envío a domicilio', note: 'A todo el país', cost: SHIPPING },
+  { id: 'retiro', label: 'Retiro en Gallo 1645', note: 'Lun a vie · 11 a 15 h', cost: 0 },
+  { id: 'envio', label: 'Envío a domicilio', note: 'Despacho en 5–6 días hábiles', cost: SHIPPING },
 ]
+
+const ARGENTINA_PROVINCES = [
+  'Buenos Aires',
+  'Ciudad Autónoma de Buenos Aires',
+  'Catamarca',
+  'Chaco',
+  'Chubut',
+  'Córdoba',
+  'Corrientes',
+  'Entre Ríos',
+  'Formosa',
+  'Jujuy',
+  'La Pampa',
+  'La Rioja',
+  'Mendoza',
+  'Misiones',
+  'Neuquén',
+  'Río Negro',
+  'Salta',
+  'San Juan',
+  'San Luis',
+  'Santa Cruz',
+  'Santa Fe',
+  'Santiago del Estero',
+  'Tierra del Fuego',
+  'Tucumán',
+] as const
 
 type StockMap = Record<string, Record<string, number>>
 
@@ -352,6 +385,10 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
   const [checkoutReady, setCheckoutReady] = useState(false)
   const [checkoutError, setCheckoutError] = useState<string | null>(null)
   const [registeringOrder, setRegisteringOrder] = useState(false)
+  const [preparingCheckout, setPreparingCheckout] = useState(false)
+  const [checkoutIntentId, setCheckoutIntentId] = useState<string | null>(null)
+  const [shippingAddress, setShippingAddress] = useState<ShippingAddress>(() => ({ ...EMPTY_SHIPPING_ADDRESS }))
+  const [shippingAddressError, setShippingAddressError] = useState<string | null>(null)
 
   useEffect(() => {
     loadRebillSDK().catch(() => undefined)
@@ -364,6 +401,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
   const shippingCost = delivery === 'envio' ? SHIPPING : 0
   const subtotal = PRICE * qty
   const total = subtotal + shippingCost
+  const checkoutShippingAddress = delivery === 'envio' ? normalizeShippingAddress(shippingAddress) : null
 
   const selectBase = useCallback(
     (b: Base) => {
@@ -380,17 +418,57 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
     setQty(1)
   }, [])
 
-  const openCheckout = useCallback(() => {
+  const openCheckout = useCallback(async () => {
     if (!canBuy) return
-    setDone(null)
-    setCheckoutReady(false)
-    setCheckoutError(null)
-    setRegisteringOrder(false)
-    loadRebillSDK().catch(() => undefined)
-    setOpen(true)
-  }, [canBuy])
 
-  const closeCheckout = useCallback(() => setOpen(false), [])
+    const address = delivery === 'envio' ? normalizeShippingAddress(shippingAddress) : null
+    if (delivery === 'envio' && !address) {
+      setShippingAddressError('Completá calle y número, localidad, provincia, código postal y un teléfono válido.')
+      return
+    }
+
+    setPreparingCheckout(true)
+    setShippingAddressError(null)
+    loadRebillSDK().catch(() => undefined)
+
+    try {
+      let nextIntentId: string | null = null
+      if (delivery === 'envio') {
+        const response = await fetch('/api/orders/intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            base: base.id,
+            print: base.print.id,
+            size,
+            qty,
+            address,
+          }),
+        })
+        const payload = await response.json().catch(() => ({})) as { checkoutIntentId?: string; error?: string }
+        if (!response.ok || !payload.checkoutIntentId) {
+          throw new Error(payload.error || 'No pudimos guardar la dirección. Probá de nuevo.')
+        }
+        nextIntentId = payload.checkoutIntentId
+      }
+
+      setCheckoutIntentId(nextIntentId)
+      setDone(null)
+      setCheckoutReady(false)
+      setCheckoutError(null)
+      setRegisteringOrder(false)
+      setOpen(true)
+    } catch (error) {
+      setShippingAddressError(error instanceof Error ? error.message : 'No pudimos preparar el envío.')
+    } finally {
+      setPreparingCheckout(false)
+    }
+  }, [base, canBuy, delivery, qty, shippingAddress, size])
+
+  const closeCheckout = useCallback(() => {
+    setOpen(false)
+    setCheckoutIntentId(null)
+  }, [])
 
   // El SDK sólo inicia el flujo. Recién mostramos el éxito cuando el servidor
   // confirma el pago con Rebill y descuenta el stock de forma idempotente.
@@ -436,7 +514,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
   const handleCheckoutReady = useCallback(() => setCheckoutReady(true), [])
 
   const variantText = `Remera ${base.label} · estampa ${base.print.label}`
-  const deliveryLabel = delivery === 'retiro' ? 'Retiro en Palermo' : 'Envío a domicilio'
+  const deliveryLabel = delivery === 'retiro' ? 'Retiro en Gallo 1645' : 'Envío a domicilio'
 
   const instantProduct = {
     name: [{ language: 'es', text: `${PRODUCT_NAME} · ${variantText} · Talle ${size}` }],
@@ -455,6 +533,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
       size,
       qty: String(qty),
       delivery,
+      ...(checkoutIntentId ? { checkoutIntentId } : {}),
     },
   }
 
@@ -510,6 +589,12 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
               <span>{money(total)}</span>
             </div>
           </div>
+          {checkoutShippingAddress && (
+            <div className={styles.checkoutShippingAddress}>
+              <strong>Envío a</strong>
+              <span>{formatShippingAddress(checkoutShippingAddress)}</span>
+            </div>
+          )}
         </div>
 
         {done ? (
@@ -523,7 +608,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
             <p className="mx-auto mt-2 max-w-sm text-sm" style={{ color: '#5B5B54' }}>
               {done.needsSupport
                 ? 'Estamos terminando de verificar la acreditación y te contactaremos por email. No hace falta que vuelvas a pagar.'
-                : <>Te enviamos la confirmación por email. {delivery === 'retiro' ? 'Coordinamos el retiro en Palermo.' : 'Coordinamos el envío a tu domicilio.'}</>}
+                : <>Te enviamos la confirmación por email. {delivery === 'retiro' ? 'Podés retirar en Gallo 1645, de lunes a viernes de 11 a 15 h.' : 'Tu dirección quedó guardada y despacharemos el pedido dentro de 5–6 días hábiles.'}</>}
             </p>
             {done.paymentId && (
               <p className="mt-3 text-[11px]" style={{ color: '#B4B4AC' }}>
@@ -619,7 +704,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
             {money(PRICE)}
           </span>
           <span className="text-sm" style={{ color: '#9A9A92' }}>
-            retiro gratis en Palermo · envío {money(SHIPPING)}
+            retiro gratis en Gallo 1645 · envío {money(SHIPPING)}
           </span>
         </div>
 
@@ -705,7 +790,11 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
                 <button
                   key={o.id}
                   type="button"
-                  onClick={() => setDelivery(o.id)}
+                  onClick={() => {
+                    setDelivery(o.id)
+                    setShippingAddressError(null)
+                    setCheckoutIntentId(null)
+                  }}
                   aria-pressed={selected}
                   className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left transition-colors"
                   style={
@@ -729,6 +818,99 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
               )
             })}
           </div>
+
+          {delivery === 'envio' && (
+            <fieldset className={styles.shippingForm} aria-describedby={shippingAddressError ? 'shipping-address-error' : undefined}>
+              <legend>Dirección de envío</legend>
+              <p className={styles.shippingFormIntro}>La guardamos de forma segura para preparar y entregar este pedido.</p>
+              <div className={styles.shippingGrid}>
+                <label className={styles.shippingFieldFull}>
+                  <span>Calle y número</span>
+                  <input
+                    type="text"
+                    value={shippingAddress.line1}
+                    onChange={(event) => setShippingAddress((current) => ({ ...current, line1: event.target.value }))}
+                    autoComplete="shipping address-line1"
+                    placeholder="Ej. Av. Santa Fe 3253"
+                    maxLength={140}
+                    required
+                  />
+                </label>
+                <label className={styles.shippingFieldFull}>
+                  <span>Piso, departamento o casa <small>Opcional</small></span>
+                  <input
+                    type="text"
+                    value={shippingAddress.line2}
+                    onChange={(event) => setShippingAddress((current) => ({ ...current, line2: event.target.value }))}
+                    autoComplete="shipping address-line2"
+                    placeholder="Ej. Piso 4 · Depto. B"
+                    maxLength={80}
+                  />
+                </label>
+                <label>
+                  <span>Localidad</span>
+                  <input
+                    type="text"
+                    value={shippingAddress.city}
+                    onChange={(event) => setShippingAddress((current) => ({ ...current, city: event.target.value }))}
+                    autoComplete="shipping address-level2"
+                    placeholder="Ej. Palermo"
+                    maxLength={80}
+                    required
+                  />
+                </label>
+                <label>
+                  <span>Provincia</span>
+                  <select
+                    value={shippingAddress.province}
+                    onChange={(event) => setShippingAddress((current) => ({ ...current, province: event.target.value }))}
+                    autoComplete="shipping address-level1"
+                    required
+                  >
+                    <option value="">Elegí una provincia</option>
+                    {ARGENTINA_PROVINCES.map((province) => <option value={province} key={province}>{province}</option>)}
+                  </select>
+                </label>
+                <label>
+                  <span>Código postal</span>
+                  <input
+                    type="text"
+                    value={shippingAddress.postalCode}
+                    onChange={(event) => setShippingAddress((current) => ({ ...current, postalCode: event.target.value.toUpperCase() }))}
+                    autoComplete="shipping postal-code"
+                    placeholder="Ej. C1425"
+                    maxLength={12}
+                    required
+                  />
+                </label>
+                <label>
+                  <span>Teléfono de contacto</span>
+                  <input
+                    type="tel"
+                    value={shippingAddress.phone}
+                    onChange={(event) => setShippingAddress((current) => ({ ...current, phone: event.target.value }))}
+                    autoComplete="shipping tel"
+                    inputMode="tel"
+                    placeholder="Ej. 11 2345 6789"
+                    maxLength={30}
+                    required
+                  />
+                </label>
+                <label className={styles.shippingFieldFull}>
+                  <span>Indicaciones para la entrega <small>Opcional</small></span>
+                  <textarea
+                    value={shippingAddress.notes}
+                    onChange={(event) => setShippingAddress((current) => ({ ...current, notes: event.target.value }))}
+                    placeholder="Ej. Timbre 4B o dejar en recepción"
+                    maxLength={240}
+                    rows={2}
+                  />
+                </label>
+              </div>
+              {shippingAddressError && <p className={styles.shippingError} id="shipping-address-error" role="alert">{shippingAddressError}</p>}
+              <p className={styles.shippingPrivacy}>Solo usamos estos datos para gestionar la entrega de tu compra.</p>
+            </fieldset>
+          )}
         </div>
 
         {/* Cantidad */}
@@ -766,11 +948,13 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
         <button
           type="button"
           onClick={openCheckout}
-          disabled={!canBuy}
+          disabled={!canBuy || preparingCheckout}
           className="mt-8 flex h-14 items-center justify-center gap-2 rounded-full text-base font-semibold text-white transition-transform duration-150 enabled:hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-50"
           style={{ background: canBuy ? '#0C6B45' : '#9A9A92' }}
         >
-          {!inventoryKnown
+          {preparingCheckout
+            ? 'Guardando dirección…'
+            : !inventoryKnown
             ? 'Stock no disponible'
             : soldOut
               ? 'Talle agotado'

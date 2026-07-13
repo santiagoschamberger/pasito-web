@@ -3,6 +3,12 @@ import { revalidatePath } from 'next/cache'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
+import {
+  formatShippingAddress,
+  normalizeShippingAddress,
+  type ShippingAddress,
+} from '@/lib/store-shipping'
+
 /* Debe coincidir con la config de la tienda (app/tienda/StoreClient.tsx). */
 const PRICE = 35000
 const SHIPPING = 2000
@@ -16,6 +22,7 @@ const REBILL_PRODUCT_REFERENCE = {
   retiro: 'prd_936db4129964428d9377bda54608d012',
   envio: 'prd_916d9bf2683e40b4abf1c2a9c94e3145',
 } as const
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 let supabase: SupabaseClient | null = null
 function getSupabase() {
@@ -32,6 +39,19 @@ function expectedAmount(qty: number, delivery: string) {
   return PRICE * qty + (delivery === 'envio' ? SHIPPING : 0)
 }
 
+function escapeHtml(value: string) {
+  return value.replace(/[&<>'"]/g, (character) => {
+    const entities: Record<string, string> = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;',
+    }
+    return entities[character]
+  })
+}
+
 function orderConfirmationHtml(params: {
   name?: string
   variant: string
@@ -39,11 +59,24 @@ function orderConfirmationHtml(params: {
   qty: number
   delivery: string
   amount: number
+  shippingAddress?: ShippingAddress | null
 }): string {
   const deliveryText =
     params.delivery === 'retiro'
-      ? 'Retiro en Palermo (coordinamos por email)'
+      ? 'Retiro en Gallo 1645'
       : 'Envío a domicilio'
+  const shippingAddress = params.shippingAddress
+  const shippingDetails = shippingAddress
+    ? `
+      <p style="font-size:14px;color:#555;margin:0 0 6px;">Dirección: ${escapeHtml(formatShippingAddress(shippingAddress))}</p>
+      <p style="font-size:14px;color:#555;margin:0 0 6px;">Teléfono: ${escapeHtml(shippingAddress.phone)}</p>
+      ${shippingAddress.notes ? `<p style="font-size:14px;color:#555;margin:0 0 6px;">Indicaciones: ${escapeHtml(shippingAddress.notes)}</p>` : ''}
+    `
+    : ''
+  const deliveryInstructions =
+    params.delivery === 'retiro'
+      ? `Podés retirar tu pedido en <strong>Gallo 1645</strong>, de lunes a viernes de <strong>11 a 15 h</strong>. Presentá este email o tu ID de pago.`
+      : `Tu dirección quedó guardada. Vamos a despachar el pedido dentro de <strong>5–6 días hábiles</strong>.`
   const money = new Intl.NumberFormat('es-AR', {
     style: 'currency',
     currency: CURRENCY,
@@ -60,16 +93,17 @@ function orderConfirmationHtml(params: {
     </div>
     <h2 style="font-size:22px;color:#111;margin:0 0 16px;font-weight:600;">¡Gracias por tu compra! 🎉</h2>
     <p style="font-size:15px;color:#555;margin:0 0 20px;line-height:1.6;">
-      ${params.name ? `${params.name}, ` : ''}confirmamos tu pedido de la <strong>Remera Pasito</strong>.
+      ${params.name ? `${escapeHtml(params.name)}, ` : ''}confirmamos tu pedido de la <strong>Remera Pasito</strong>.
     </p>
     <div style="background:#f7f7f4;border-radius:12px;padding:18px 20px;margin:0 0 24px;">
-      <p style="font-size:14px;color:#333;margin:0 0 6px;"><strong>${params.variant}</strong></p>
-      <p style="font-size:14px;color:#555;margin:0 0 6px;">Talle ${params.size} · ${params.qty} ${params.qty === 1 ? 'unidad' : 'unidades'}</p>
+      <p style="font-size:14px;color:#333;margin:0 0 6px;"><strong>${escapeHtml(params.variant)}</strong></p>
+      <p style="font-size:14px;color:#555;margin:0 0 6px;">Talle ${escapeHtml(params.size)} · ${params.qty} ${params.qty === 1 ? 'unidad' : 'unidades'}</p>
       <p style="font-size:14px;color:#555;margin:0 0 6px;">Entrega: ${deliveryText}</p>
+      ${shippingDetails}
       <p style="font-size:14px;color:#111;margin:8px 0 0;"><strong>Total: ${money}</strong></p>
     </div>
     <p style="font-size:14px;color:#555;margin:0 0 8px;line-height:1.6;">
-      Te escribimos en breve para coordinar la ${params.delivery === 'retiro' ? 'entrega en Palermo' : 'entrega'}.
+      ${deliveryInstructions}
     </p>
     <div style="margin-top:36px;padding-top:24px;border-top:1px solid #f0f0f0;">
       <p style="font-size:14px;color:#333;margin:0;">Nos vemos en la calle,<br/><strong>Pasito</strong></p>
@@ -155,6 +189,10 @@ export async function POST(req: NextRequest) {
   // Instant Checkout persiste toda la selección en metadata. La exigimos y
   // validamos contra el pedido recibido para no confiar sólo en el cliente.
   const metadata = pay.metadata
+  const checkoutIntentId =
+    delivery === 'envio' && typeof metadata?.checkoutIntentId === 'string'
+      ? metadata.checkoutIntentId.trim()
+      : null
   if (
     !metadata ||
     metadata.catalogProductId !== REBILL_PRODUCT_REFERENCE[delivery as keyof typeof REBILL_PRODUCT_REFERENCE] ||
@@ -162,7 +200,8 @@ export async function POST(req: NextRequest) {
     metadata.print !== print ||
     metadata.size !== size ||
     String(metadata.qty) !== String(qty) ||
-    metadata.delivery !== delivery
+    metadata.delivery !== delivery ||
+    (delivery === 'envio' && (!checkoutIntentId || !UUID_PATTERN.test(checkoutIntentId)))
   ) {
     return NextResponse.json({ error: 'El pago no coincide con la selección de la tienda.' }, { status: 400 })
   }
@@ -172,7 +211,8 @@ export async function POST(req: NextRequest) {
     [pay.customer?.firstName, pay.customer?.lastName].filter(Boolean).join(' ') || null
 
   // 2) Confirmar la orden y descontar stock (atómico + idempotente).
-  const { data: result, error } = await getSupabase().rpc('tienda_confirm_order', {
+  const db = getSupabase()
+  const { data: result, error } = await db.rpc('tienda_confirm_order_v2', {
     p_payment_id: paymentId,
     p_base: base,
     p_print: print,
@@ -183,6 +223,7 @@ export async function POST(req: NextRequest) {
     p_currency: CURRENCY,
     p_email: email,
     p_customer_name: customerName,
+    p_checkout_intent_id: checkoutIntentId,
   })
 
   if (error) {
@@ -197,14 +238,44 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  if (result === 'invalid_checkout_intent') {
+    return NextResponse.json(
+      { error: 'El pago fue recibido, pero necesitamos verificar la dirección de envío.', result },
+      { status: 409 },
+    )
+  }
+
   const variant = `Remera ${base === 'blanca' ? 'Blanca' : 'Negra'} · estampa ${
     print === 'verde' ? 'Verde' : 'Blanca'
   }`
 
+  let shippingAddress: ShippingAddress | null = null
+  if (result === 'confirmed' && delivery === 'envio') {
+    const { data: confirmedOrder, error: addressError } = await db
+      .from('tienda_orders')
+      .select('shipping_address_line1, shipping_address_line2, shipping_city, shipping_province, shipping_postal_code, shipping_phone, shipping_notes')
+      .eq('rebill_payment_id', paymentId)
+      .maybeSingle()
+
+    if (addressError) {
+      console.error('[orders] Error leyendo dirección confirmada:', addressError)
+    } else if (confirmedOrder) {
+      shippingAddress = normalizeShippingAddress({
+        line1: confirmedOrder.shipping_address_line1,
+        line2: confirmedOrder.shipping_address_line2 ?? '',
+        city: confirmedOrder.shipping_city,
+        province: confirmedOrder.shipping_province,
+        postalCode: confirmedOrder.shipping_postal_code,
+        phone: confirmedOrder.shipping_phone,
+        notes: confirmedOrder.shipping_notes ?? '',
+      })
+    }
+  }
+
   // 3) Mail de confirmación (sólo la primera vez que se confirma el pago).
   if (result === 'confirmed' && email && process.env.RESEND_API_KEY) {
-    new Resend(process.env.RESEND_API_KEY).emails
-      .send({
+    try {
+      const { error: emailError } = await new Resend(process.env.RESEND_API_KEY).emails.send({
         from: 'Pasito <noreply@pasito.app>',
         to: email,
         subject: 'Confirmamos tu Remera Pasito',
@@ -215,9 +286,13 @@ export async function POST(req: NextRequest) {
           qty,
           delivery,
           amount: expected,
+          shippingAddress,
         }),
       })
-      .catch((err) => console.error('[orders] Error enviando mail:', err))
+      if (emailError) console.error('[orders] Error enviando mail:', emailError)
+    } catch (err) {
+      console.error('[orders] Error enviando mail:', err)
+    }
   }
 
   if (result === 'confirmed') {

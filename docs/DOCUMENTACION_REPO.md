@@ -239,7 +239,10 @@ Archivos:
 - `app/tienda/page.tsx`
 - `app/tienda/StoreClient.tsx`
 - `app/api/orders/route.ts`
+- `app/api/orders/intent/route.ts`
+- `lib/store-shipping.ts`
 - `supabase/migrations/20260702000000_tienda_store.sql`
+- `supabase/migrations/20260713131306_tienda_shipping_addresses.sql`
 
 Tienda de remera oficial Pasito.
 
@@ -249,7 +252,8 @@ Producto:
 - Precio unitario: `35000`.
 - Moneda: `ARS`.
 - Envio a domicilio: `2000`.
-- Retiro en Palermo: gratis.
+- Retiro en Gallo 1645, lunes a viernes de 11 a 15 h: gratis.
+- Los envios se despachan dentro de 5-6 dias habiles.
 - Maximo por orden: `10`.
 - Edicion limitada comunicada como una sola tanda, sin reposicion.
 
@@ -270,9 +274,17 @@ Checkout:
 
 - Usa web component `rebill-checkout`.
 - Carga SDK desde `https://unpkg.com/rebill@1.17.28/dist/rebill/rebill.esm.js`.
-- Usa `NEXT_PUBLIC_REBILL_PUBLIC_KEY` o una public key hardcodeada.
-- El `instantProduct` incluye nombre, descripcion, amount, currency y metadata: base, print, size, qty, delivery.
+- Usa `NEXT_PUBLIC_REBILL_PUBLIC_KEY`.
+- El `instantProduct` incluye nombre, descripcion, amount, currency y metadata: base, print, size, qty, delivery y, para envios, `checkoutIntentId`.
 - El resumen interno de Rebill se oculta y el repo muestra su propio resumen.
+
+Direccion de envio:
+
+- Se pide antes de abrir Rebill: calle y numero, piso/departamento opcional, localidad, provincia, codigo postal, telefono e indicaciones opcionales.
+- `POST /api/orders/intent` valida variante, stock y direccion, y crea un intent de dos horas en `tienda_checkout_intents`.
+- Rebill recibe solo el UUID `checkoutIntentId`; la direccion no se copia al proveedor de pagos.
+- Los intents vencidos se eliminan de forma oportunista al preparar nuevos checkouts.
+- Al confirmar el pago, la RPC v2 bloquea y consume el intent, y copia la direccion a `tienda_orders` dentro de la misma transaccion que descuenta stock.
 
 Confirmacion de orden:
 
@@ -281,24 +293,28 @@ Confirmacion de orden:
 - Solo acepta pagos `approved`.
 - Verifica monto exacto esperado: `PRICE * qty + shipping`.
 - Verifica moneda `ARS`.
-- Luego llama RPC Supabase `tienda_confirm_order`.
+- Luego llama RPC Supabase `tienda_confirm_order_v2`.
 
 Reglas atomicas de Supabase:
 
 - `tienda_stock` y `tienda_orders` tienen RLS habilitado sin politicas, para acceso solo via service role / server.
 - `tienda_orders.rebill_payment_id` es unique para idempotencia.
-- RPC `tienda_confirm_order`:
+- RPC `tienda_confirm_order_v2`:
   - Si el pago ya fue procesado, devuelve `duplicate`.
+  - Para envios exige un `checkoutIntentId` vigente, no consumido y consistente con la variante pagada.
   - Bloquea la fila de stock con `for update`.
   - Si no hay stock suficiente, devuelve `insufficient_stock`.
-  - Descuenta stock e inserta orden.
+  - Descuenta stock, inserta la orden con direccion y consume el intent atomicamente.
   - Devuelve `confirmed`.
   - En carrera por unique violation, devuelve `duplicate`.
+- La RPC anterior queda disponible durante el rollout, pero `PUBLIC`, `anon` y `authenticated` no tienen permiso de ejecucion. Ambas RPC quedan reservadas a `service_role`.
 
 Emails:
 
 - Si la orden es `confirmed`, hay email de cliente y `RESEND_API_KEY` existe, envia confirmacion de compra.
 - Si la orden es duplicada, no reenvia mail.
+- Retiro informa Gallo 1645, lunes a viernes de 11 a 15 h.
+- Envio repite la direccion guardada e informa despacho dentro de 5-6 dias habiles.
 
 Por que esta disenado asi:
 
@@ -716,6 +732,15 @@ Tabla:
 - `currency text not null default 'ARS'`
 - `email text`
 - `customer_name text`
+- `checkout_intent_id uuid` (unique parcial cuando no es null)
+- `shipping_address_line1 text`
+- `shipping_address_line2 text`
+- `shipping_city text`
+- `shipping_province text`
+- `shipping_postal_code text`
+- `shipping_country_code text`
+- `shipping_phone text`
+- `shipping_notes text`
 - `status text not null default 'paid'`
 - `created_at timestamptz not null default now()`
 
@@ -730,8 +755,18 @@ Indice:
 RPC:
 
 - `public.tienda_confirm_order(...) returns text`.
+- `public.tienda_confirm_order_v2(..., p_checkout_intent_id uuid) returns text`.
 - Usa `security definer`.
-- Devuelve `confirmed`, `duplicate` o `insufficient_stock`.
+- Solo `service_role` puede ejecutar las RPC de tienda.
+- La version v2 devuelve `confirmed`, `duplicate`, `insufficient_stock` o `invalid_checkout_intent`.
+
+### `tienda_checkout_intents`
+
+- Guarda temporalmente direccion, telefono y seleccion del producto antes de abrir Rebill.
+- Expira a las dos horas.
+- Tiene RLS habilitado y grants solo para `service_role`.
+- `consumed_at` y `consumed_by_payment_id` impiden reutilizar una direccion para otro pago.
+- La direccion confirmada se copia a `tienda_orders`; los intents vencidos se eliminan.
 
 ## 9. Universal Links, App Links y archivos estaticos criticos
 
