@@ -21,7 +21,7 @@ export function pickupCoordinationBlockHtml(customerName?: string | null) {
 
   return `
     <div style="background:#f2f8f4;border:1px solid #cfe5d7;border-radius:14px;padding:22px 20px;margin:0 0 24px;">
-      <p style="font-size:16px;color:#004027;margin:0 0 8px;font-weight:700;">Coordiná tu retiro por WhatsApp</p>
+      <p style="font-size:16px;color:#004027;margin:0 0 8px;font-weight:700;">Coordiná tu retiro en Belgrano por WhatsApp</p>
       <p style="font-size:14px;color:#405149;margin:0 0 18px;line-height:1.6;">
         Enviá un mensaje al <strong>${PICKUP_WHATSAPP_NUMBER_DISPLAY}</strong> indicando tu nombre y apellido, qué día y a qué hora vas a pasar a buscarla.
       </p>
@@ -50,7 +50,7 @@ export function pickupInstructionsEmailHtml(params: {
     </div>
     <h2 style="font-size:22px;color:#111;margin:0 0 14px;font-weight:700;">Coordinemos el retiro de tu remera</h2>
     <p style="font-size:15px;color:#555;margin:0 0 22px;line-height:1.6;">
-      ${firstName ? `${escapeHtml(firstName)}, ` : ''}tu pedido está registrado para retiro.
+      ${firstName ? `${escapeHtml(firstName)}, ` : ''}tu pedido está registrado para retiro en Belgrano.
     </p>
     <div style="background:#f7f7f4;border-radius:12px;padding:17px 20px;margin:0 0 22px;">
       <p style="font-size:14px;color:#333;margin:0 0 6px;"><strong>${escapeHtml(params.variant)}</strong></p>

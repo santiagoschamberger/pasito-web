@@ -30,7 +30,7 @@ const REBILL_SDK_SRC = 'https://unpkg.com/rebill@1.17.28/dist/rebill/rebill.esm.
 
 const PRODUCT_NAME = 'Remera Pasito'
 const PRICE = 35000 // ⬅️ precio unitario
-const SHIPPING = 2000 // ⬅️ costo de envío a domicilio
+const SHIPPING = 5000 // ⬅️ costo de envío a domicilio
 const CURRENCY = 'ARS' // ARS | USD | BRL | CLP | COP | MXN
 
 // Referencias de los productos persistentes en Rebill. El checkout sigue
@@ -631,7 +631,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
                   </svg>
                 </div>
                 <div>
-                  <h2 id="pickup-confirmation-title">Coordiná tu retiro por WhatsApp</h2>
+                  <h2 id="pickup-confirmation-title">Coordiná tu retiro en Belgrano por WhatsApp</h2>
                   <p>
                     Enviá un mensaje al <strong>{PICKUP_WHATSAPP_NUMBER_DISPLAY}</strong> indicando tu nombre y apellido, qué día y a qué hora vas a pasar a buscarla.
                   </p>
@@ -744,7 +744,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
             {money(PRICE)}
           </span>
           <span className="text-sm" style={{ color: '#9A9A92' }}>
-            retiro coordinado gratis · envío {money(SHIPPING)}
+            retiro en Belgrano gratis · envío {money(SHIPPING)}
           </span>
         </div>
 

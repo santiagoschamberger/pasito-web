@@ -13,7 +13,7 @@ import { pickupCoordinationBlockHtml } from '@/lib/store-pickup-email'
 
 /* Debe coincidir con la config de la tienda (app/tienda/StoreClient.tsx). */
 const PRICE = 35000
-const SHIPPING = 2000
+const SHIPPING = 5000
 const CURRENCY = 'ARS'
 const BASES = ['blanca', 'negra'] as const
 const PRINTS = ['verde', 'blanca'] as const
