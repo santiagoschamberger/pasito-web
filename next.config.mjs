@@ -24,6 +24,13 @@ const nextConfig = {
         source: '/.well-known/apple-app-site-association',
         headers: [{ key: 'Content-Type', value: 'application/json' }],
       },
+      {
+        source: '/datos/:path*',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive, nosnippet' },
+          { key: 'Cache-Control', value: 'private, no-store, max-age=0' },
+        ],
+      },
     ]
   },
   turbopack: {
