@@ -219,7 +219,6 @@ export function BrandRow({ light = false }: { light?: boolean }) {
     { name: 'Decathlon', src: '/marketing/brands/decathlon.svg', width: 124, height: 28 },
     { name: 'KFC', src: '/marketing/brands/kfc.svg', width: 86, height: 30 },
     { name: "Wendy's", src: '/marketing/brands/wendys.svg', width: 84, height: 42 },
-    { name: 'Açaí Brasil', src: '/marketing/brands/acai-brasil.png', width: 124, height: 32 },
   ]
   return (
     <div className={styles.brandRow} data-motion-item>

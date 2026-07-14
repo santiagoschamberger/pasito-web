@@ -82,7 +82,6 @@ const SOCIAL_PROOF_BRANDS: SocialProofBrand[] = [
   { name: 'Decathlon', src: '/marketing/brands/decathlon.svg', width: 154, height: 36 },
   { name: 'KFC', src: '/marketing/brands/kfc.svg', width: 98, height: 36 },
   { name: "Wendy's", src: '/marketing/brands/wendys.svg', width: 96, height: 44 },
-  { name: 'Açaí Brasil', src: '/marketing/brands/acai-brasil.png', width: 142, height: 36 },
 ]
 
 const MEASUREMENTS = ['Alcance en la app', 'Participantes registrados', 'Pasos generados', 'Clicks al link', 'Canjes', 'Historias compartidas', 'Segmentación por ciudad, barrio y edad', 'Aprendizajes para la próxima campaña']
