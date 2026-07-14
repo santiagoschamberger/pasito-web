@@ -39,7 +39,7 @@ const PLANS = [
     extra: 'Todo lo de Starter, más:',
     featured: true,
     features: [
-      <><strong>No regalás nada:</strong> podés trabajar solo con descuentos y premios con compra extra</>,
+      <><strong>Beneficios que cuidan tu margen:</strong> ofrecé descuentos y premios con compra adicional, sin necesidad de bonificar productos completos</>,
       <>Sellos e insignias de tu local</>,
       <>Recompensas por visitas recurrentes</>,
       <>Configuración avanzada de beneficios</>,
