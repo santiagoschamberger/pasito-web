@@ -252,7 +252,7 @@ Producto:
 - Precio unitario: `35000`.
 - Moneda: `ARS`.
 - Envio a domicilio: `5000`.
-- Retiro en Belgrano: gratis. El punto exacto y horario se informan de forma privada despues de la compra.
+- Retiro en Belgrano o Palermo: gratis. El punto exacto y horario se informan de forma privada despues de la compra.
 - Los envios se despachan dentro de 5-6 dias habiles.
 - Maximo por orden: `10`.
 - Edicion limitada comunicada como una sola tanda, sin reposicion.
@@ -313,7 +313,7 @@ Emails:
 
 - Si la orden es `confirmed`, hay email de cliente y `RESEND_API_KEY` existe, envia confirmacion de compra.
 - Si la orden es duplicada, no reenvia mail.
-- Retiro en Belgrano informa que el punto exacto y horario se coordinan por email despues de la compra.
+- Retiro en Belgrano o Palermo informa que el punto exacto y horario se coordinan por email despues de la compra.
 - Envio repite la direccion guardada e informa despacho dentro de 5-6 dias habiles.
 
 Por que esta disenado asi:

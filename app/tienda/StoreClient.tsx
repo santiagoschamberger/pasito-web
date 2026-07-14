@@ -631,7 +631,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
                   </svg>
                 </div>
                 <div>
-                  <h2 id="pickup-confirmation-title">Coordiná tu retiro en Belgrano por WhatsApp</h2>
+                  <h2 id="pickup-confirmation-title">Coordiná tu retiro en Belgrano o Palermo por WhatsApp</h2>
                   <p>
                     Enviá un mensaje al <strong>{PICKUP_WHATSAPP_NUMBER_DISPLAY}</strong> indicando tu nombre y apellido, qué día y a qué hora vas a pasar a buscarla.
                   </p>
@@ -744,7 +744,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
             {money(PRICE)}
           </span>
           <span className="text-sm" style={{ color: '#9A9A92' }}>
-            retiro en Belgrano gratis · envío {money(SHIPPING)}
+            retiro en Belgrano o Palermo gratis · envío {money(SHIPPING)}
           </span>
         </div>
 

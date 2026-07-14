@@ -15,6 +15,7 @@ test('pickup WhatsApp link preloads the customer and pickup schedule placeholder
   assert.equal(url.pathname, '/5491136491620')
   assert.match(url.searchParams.get('text') ?? '', /soy Ada Lovelace/i)
   assert.match(url.searchParams.get('text') ?? '', /Belgrano/i)
+  assert.match(url.searchParams.get('text') ?? '', /Palermo/i)
   assert.match(url.searchParams.get('text') ?? '', /\[DÍA\].*\[HORA\]/)
 })
 
@@ -28,7 +29,7 @@ test('pickup emails show the phone number and a WhatsApp button', () => {
   })
 
   for (const html of [block, email]) {
-    assert.match(html, /retiro en Belgrano/i)
+    assert.match(html, /retiro en Belgrano o Palermo/i)
     assert.match(html, /\+54 9 11 3649-1620/)
     assert.match(html, /Ir a WhatsApp/)
     assert.match(html, /https:\/\/wa\.me\/5491136491620/)

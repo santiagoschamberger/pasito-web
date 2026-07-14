@@ -21,12 +21,12 @@ export function pickupCoordinationBlockHtml(customerName?: string | null) {
 
   return `
     <div style="background:#f2f8f4;border:1px solid #cfe5d7;border-radius:14px;padding:22px 20px;margin:0 0 24px;">
-      <p style="font-size:16px;color:#004027;margin:0 0 8px;font-weight:700;">Coordiná tu retiro en Belgrano por WhatsApp</p>
+      <p style="font-size:16px;color:#004027;margin:0 0 8px;font-weight:700;">Coordiná tu retiro en Belgrano o Palermo por WhatsApp</p>
       <p style="font-size:14px;color:#405149;margin:0 0 18px;line-height:1.6;">
         Enviá un mensaje al <strong>${PICKUP_WHATSAPP_NUMBER_DISPLAY}</strong> indicando tu nombre y apellido, qué día y a qué hora vas a pasar a buscarla.
       </p>
       <a href="${whatsappUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:#006d42;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;padding:13px 20px;border-radius:999px;">Ir a WhatsApp</a>
-      <p style="font-size:12px;color:#6b7771;margin:14px 0 0;line-height:1.5;">El mensaje ya incluye tu nombre. Completá [DÍA] y [HORA] antes de enviarlo.</p>
+      <p style="font-size:12px;color:#6b7771;margin:14px 0 0;line-height:1.5;">El mensaje ya incluye tu nombre. Elegí Belgrano o Palermo y completá [DÍA] y [HORA] antes de enviarlo.</p>
     </div>
   `
 }
@@ -50,7 +50,7 @@ export function pickupInstructionsEmailHtml(params: {
     </div>
     <h2 style="font-size:22px;color:#111;margin:0 0 14px;font-weight:700;">Coordinemos el retiro de tu remera</h2>
     <p style="font-size:15px;color:#555;margin:0 0 22px;line-height:1.6;">
-      ${firstName ? `${escapeHtml(firstName)}, ` : ''}tu pedido está registrado para retiro en Belgrano.
+      ${firstName ? `${escapeHtml(firstName)}, ` : ''}tu pedido está registrado para retiro en Belgrano o Palermo.
     </p>
     <div style="background:#f7f7f4;border-radius:12px;padding:17px 20px;margin:0 0 22px;">
       <p style="font-size:14px;color:#333;margin:0 0 6px;"><strong>${escapeHtml(params.variant)}</strong></p>
