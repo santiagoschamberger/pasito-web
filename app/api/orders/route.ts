@@ -8,7 +8,12 @@ import {
   normalizeShippingAddress,
   type ShippingAddress,
 } from '@/lib/store-shipping'
-import { PICKUP_LABEL, pickupWhatsAppUrl as buildPickupWhatsAppUrl } from '@/lib/store-fulfillment'
+import {
+  isPickupLocation,
+  pickupLabel,
+  pickupWhatsAppUrl as buildPickupWhatsAppUrl,
+  type PickupLocation,
+} from '@/lib/store-fulfillment'
 import { pickupCoordinationBlockHtml } from '@/lib/store-pickup-email'
 
 /* Debe coincidir con la config de la tienda (app/tienda/StoreClient.tsx). */
@@ -61,12 +66,13 @@ function orderConfirmationHtml(params: {
   size: string
   qty: number
   delivery: string
+  pickupLocation?: PickupLocation | null
   amount: number
   shippingAddress?: ShippingAddress | null
 }): string {
   const deliveryText =
     params.delivery === 'retiro'
-      ? PICKUP_LABEL
+      ? pickupLabel(params.pickupLocation)
       : 'Envío a domicilio'
   const shippingAddress = params.shippingAddress
   const shippingDetails = shippingAddress
@@ -78,7 +84,7 @@ function orderConfirmationHtml(params: {
     : ''
   const deliveryInstructions =
     params.delivery === 'retiro'
-      ? pickupCoordinationBlockHtml(params.customerName)
+      ? pickupCoordinationBlockHtml(params.customerName, params.pickupLocation)
       : `<p style="font-size:14px;color:#555;margin:0 0 8px;line-height:1.6;">Tu dirección quedó guardada. Vamos a despachar el pedido dentro de <strong>5–6 días hábiles</strong>.</p>`
   const money = new Intl.NumberFormat('es-AR', {
     style: 'currency',
@@ -131,6 +137,8 @@ export async function POST(req: NextRequest) {
   const size = String(body.size ?? '')
   const qty = Number(body.qty ?? 0)
   const delivery = String(body.delivery ?? '')
+  const rawPickupLocation = body.pickupLocation
+  const pickupLocation = isPickupLocation(rawPickupLocation) ? rawPickupLocation : null
 
   // Validación básica de entrada.
   if (
@@ -139,6 +147,8 @@ export async function POST(req: NextRequest) {
     !PRINTS.includes(print as (typeof PRINTS)[number]) ||
     !SIZES.includes(size as (typeof SIZES)[number]) ||
     !DELIVERIES.includes(delivery as (typeof DELIVERIES)[number]) ||
+    (delivery === 'retiro' && !pickupLocation) ||
+    (delivery === 'envio' && rawPickupLocation !== undefined && rawPickupLocation !== null && rawPickupLocation !== '') ||
     !Number.isInteger(qty) ||
     qty < 1 ||
     qty > 10
@@ -190,6 +200,7 @@ export async function POST(req: NextRequest) {
   // Instant Checkout persiste toda la selección en metadata. La exigimos y
   // validamos contra el pedido recibido para no confiar sólo en el cliente.
   const metadata = pay.metadata
+  const paidPickupLocation = isPickupLocation(metadata?.pickupLocation) ? metadata.pickupLocation : null
   const checkoutIntentId =
     delivery === 'envio' && typeof metadata?.checkoutIntentId === 'string'
       ? metadata.checkoutIntentId.trim()
@@ -202,6 +213,8 @@ export async function POST(req: NextRequest) {
     metadata.size !== size ||
     String(metadata.qty) !== String(qty) ||
     metadata.delivery !== delivery ||
+    (delivery === 'retiro' && paidPickupLocation !== pickupLocation) ||
+    (delivery === 'envio' && metadata.pickupLocation !== undefined) ||
     (delivery === 'envio' && (!checkoutIntentId || !UUID_PATTERN.test(checkoutIntentId)))
   ) {
     return NextResponse.json({ error: 'El pago no coincide con la selección de la tienda.' }, { status: 400 })
@@ -213,7 +226,7 @@ export async function POST(req: NextRequest) {
 
   // 2) Confirmar la orden y descontar stock (atómico + idempotente).
   const db = getSupabase()
-  const { data: result, error } = await db.rpc('tienda_confirm_order_v2', {
+  const { data: result, error } = await db.rpc('tienda_confirm_order_v3', {
     p_payment_id: paymentId,
     p_base: base,
     p_print: print,
@@ -225,6 +238,7 @@ export async function POST(req: NextRequest) {
     p_email: email,
     p_customer_name: customerName,
     p_checkout_intent_id: checkoutIntentId,
+    p_pickup_location: pickupLocation,
   })
 
   if (error) {
@@ -242,6 +256,13 @@ export async function POST(req: NextRequest) {
   if (result === 'invalid_checkout_intent') {
     return NextResponse.json(
       { error: 'El pago fue recibido, pero necesitamos verificar la dirección de envío.', result },
+      { status: 409 },
+    )
+  }
+
+  if (result === 'invalid_pickup_location') {
+    return NextResponse.json(
+      { error: 'El pago fue recibido, pero necesitamos verificar el punto de retiro elegido.', result },
       { status: 409 },
     )
   }
@@ -288,6 +309,7 @@ export async function POST(req: NextRequest) {
             size,
             qty,
             delivery,
+            pickupLocation,
             amount: expected,
             shippingAddress,
           }),
@@ -319,7 +341,7 @@ export async function POST(req: NextRequest) {
     ok: true,
     result,
     ...(delivery === 'retiro'
-      ? { pickupWhatsAppUrl: buildPickupWhatsAppUrl(customerName) }
+      ? { pickupWhatsAppUrl: buildPickupWhatsAppUrl(customerName, pickupLocation) }
       : {}),
   })
 }

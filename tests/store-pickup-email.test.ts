@@ -8,32 +8,33 @@ import {
 } from '../lib/store-pickup-email.ts'
 import { pickupWhatsAppUrl } from '../lib/store-fulfillment.ts'
 
-test('pickup WhatsApp link preloads the customer and pickup schedule placeholders', () => {
-  const url = new URL(pickupWhatsAppUrl('Ada Lovelace'))
+test('pickup WhatsApp link preloads the selected location and schedule placeholders', () => {
+  const url = new URL(pickupWhatsAppUrl('Ada Lovelace', 'belgrano'))
 
   assert.equal(url.hostname, 'wa.me')
   assert.equal(url.pathname, '/5491136491620')
   assert.match(url.searchParams.get('text') ?? '', /soy Ada Lovelace/i)
   assert.match(url.searchParams.get('text') ?? '', /Belgrano/i)
-  assert.match(url.searchParams.get('text') ?? '', /Palermo/i)
+  assert.doesNotMatch(url.searchParams.get('text') ?? '', /Palermo/i)
   assert.match(url.searchParams.get('text') ?? '', /\[DÍA\].*\[HORA\]/)
 })
 
-test('pickup emails show the phone number and a WhatsApp button', () => {
-  const block = pickupCoordinationBlockHtml('Ada Lovelace')
+test('pickup emails show the selected location, phone number, and a WhatsApp button', () => {
+  const block = pickupCoordinationBlockHtml('Ada Lovelace', 'palermo')
   const email = pickupInstructionsEmailHtml({
     customerName: 'Ada Lovelace',
     variant: 'Remera Negra · estampa Blanca',
     size: 'M',
     qty: 1,
+    pickupLocation: 'palermo',
   })
 
   for (const html of [block, email]) {
-    assert.match(html, /retiro en Belgrano o Palermo/i)
     assert.match(html, /\+54 9 11 3649-1620/)
     assert.match(html, /Ir a WhatsApp/)
     assert.match(html, /https:\/\/wa\.me\/5491136491620/)
   }
+  assert.match(email, /retiro en Palermo/i)
 })
 
 test('future order confirmations track pickup instruction delivery', () => {
@@ -57,5 +58,5 @@ test('the order confirmation page shows the pickup WhatsApp instructions', () =>
   assert.match(store, /PICKUP_WHATSAPP_NUMBER_DISPLAY/)
   assert.match(store, /Ir a WhatsApp/)
   assert.match(store, /pickupWhatsAppUrl/)
-  assert.match(route, /pickupWhatsAppUrl: buildPickupWhatsAppUrl\(customerName\)/)
+  assert.match(route, /pickupWhatsAppUrl: buildPickupWhatsAppUrl\(customerName, pickupLocation\)/)
 })

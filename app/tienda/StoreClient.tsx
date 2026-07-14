@@ -9,11 +9,15 @@ import {
   type ShippingAddress,
 } from '@/lib/store-shipping'
 import {
-  PICKUP_CONFIRMATION,
   PICKUP_LABEL,
+  PICKUP_LOCATIONS,
   PICKUP_NOTE,
   PICKUP_WHATSAPP_NUMBER_DISPLAY,
+  pickupConfirmation,
+  pickupLabel,
+  pickupLocationName,
   pickupWhatsAppUrl,
+  type PickupLocation,
 } from '@/lib/store-fulfillment'
 import styles from './tienda.module.css'
 
@@ -387,6 +391,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
   const [size, setSize] = useState<Size>(() => firstAvailableSize(inventory, BASES[0].id))
   const [qty, setQty] = useState(1)
   const [delivery, setDelivery] = useState<Delivery>('retiro')
+  const [pickupLocation, setPickupLocation] = useState<PickupLocation | null>(null)
   const [open, setOpen] = useState(false)
   const [done, setDone] = useState<{
     paymentId?: string
@@ -408,6 +413,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
   const available = inventoryKnown ? stockFor(inventory, base.id, size) : null
   const soldOut = available !== null && available <= 0
   const canBuy = available !== null && available > 0
+  const canStartCheckout = canBuy && (delivery !== 'retiro' || pickupLocation !== null)
   const maxQty = available === null ? 1 : Math.max(1, Math.min(MAX_PER_ORDER, available))
   const shippingCost = delivery === 'envio' ? SHIPPING : 0
   const subtotal = PRICE * qty
@@ -430,7 +436,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
   }, [])
 
   const openCheckout = useCallback(async () => {
-    if (!canBuy) return
+    if (!canStartCheckout) return
 
     const address = delivery === 'envio' ? normalizeShippingAddress(shippingAddress) : null
     if (delivery === 'envio' && !address) {
@@ -474,7 +480,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
     } finally {
       setPreparingCheckout(false)
     }
-  }, [base, canBuy, delivery, qty, shippingAddress, size])
+  }, [base, canStartCheckout, delivery, qty, shippingAddress, size])
 
   const closeCheckout = useCallback(() => {
     setOpen(false)
@@ -505,6 +511,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
             size,
             qty,
             delivery,
+            pickupLocation,
           }),
         })
         const payload = await response.json().catch(() => ({})) as { pickupWhatsAppUrl?: string }
@@ -519,14 +526,14 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
         setRegisteringOrder(false)
       }
     },
-    [base, size, qty, delivery],
+    [base, size, qty, delivery, pickupLocation],
   )
 
   const handleError = useCallback((detail: unknown) => setCheckoutError(rebillErrorMessage(detail)), [])
   const handleCheckoutReady = useCallback(() => setCheckoutReady(true), [])
 
   const variantText = `Remera ${base.label} · estampa ${base.print.label}`
-  const deliveryLabel = delivery === 'retiro' ? PICKUP_LABEL : 'Envío a domicilio'
+  const deliveryLabel = delivery === 'retiro' ? pickupLabel(pickupLocation) : 'Envío a domicilio'
 
   const instantProduct = {
     name: [{ language: 'es', text: `${PRODUCT_NAME} · ${variantText} · Talle ${size}` }],
@@ -545,6 +552,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
       size,
       qty: String(qty),
       delivery,
+      ...(pickupLocation ? { pickupLocation } : {}),
       ...(checkoutIntentId ? { checkoutIntentId } : {}),
     },
   }
@@ -620,7 +628,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
             <p className="mx-auto mt-2 max-w-sm text-sm" style={{ color: '#5B5B54' }}>
               {done.needsSupport
                 ? 'Estamos terminando de verificar la acreditación y te contactaremos por email. No hace falta que vuelvas a pagar.'
-                : <>Te enviamos la confirmación por email. {delivery === 'retiro' ? PICKUP_CONFIRMATION : 'Tu dirección quedó guardada y despacharemos el pedido dentro de 5–6 días hábiles.'}</>}
+                : <>Te enviamos la confirmación por email. {delivery === 'retiro' ? pickupConfirmation(pickupLocation) : 'Tu dirección quedó guardada y despacharemos el pedido dentro de 5–6 días hábiles.'}</>}
             </p>
             {!done.needsSupport && delivery === 'retiro' && (
               <section className={styles.pickupConfirmation} aria-labelledby="pickup-confirmation-title">
@@ -631,12 +639,12 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
                   </svg>
                 </div>
                 <div>
-                  <h2 id="pickup-confirmation-title">Coordiná tu retiro en Belgrano o Palermo por WhatsApp</h2>
+                  <h2 id="pickup-confirmation-title">Coordiná tu {pickupLabel(pickupLocation).toLowerCase()} por WhatsApp</h2>
                   <p>
                     Enviá un mensaje al <strong>{PICKUP_WHATSAPP_NUMBER_DISPLAY}</strong> indicando tu nombre y apellido, qué día y a qué hora vas a pasar a buscarla.
                   </p>
                   <a
-                    href={done.pickupWhatsAppUrl ?? pickupWhatsAppUrl()}
+                    href={done.pickupWhatsAppUrl ?? pickupWhatsAppUrl(null, pickupLocation)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.pickupWhatsAppButton}
@@ -744,7 +752,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
             {money(PRICE)}
           </span>
           <span className="text-sm" style={{ color: '#9A9A92' }}>
-            retiro en Belgrano o Palermo gratis · envío {money(SHIPPING)}
+            retiro gratis en Belgrano o Palermo · envío {money(SHIPPING)}
           </span>
         </div>
 
@@ -832,6 +840,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
                   type="button"
                   onClick={() => {
                     setDelivery(o.id)
+                    if (o.id === 'envio') setPickupLocation(null)
                     setShippingAddressError(null)
                     setCheckoutIntentId(null)
                   }}
@@ -858,6 +867,31 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
               )
             })}
           </div>
+
+          {delivery === 'retiro' && (
+            <fieldset className={styles.pickupLocationFieldset}>
+              <legend>Elegí dónde retirar</legend>
+              <div className={styles.pickupLocationOptions}>
+                {PICKUP_LOCATIONS.map((location) => {
+                  const selected = location === pickupLocation
+                  const locationName = pickupLocationName(location)
+                  return (
+                    <button
+                      key={location}
+                      type="button"
+                      onClick={() => setPickupLocation(location)}
+                      aria-pressed={selected}
+                      data-selected={selected ? 'true' : undefined}
+                    >
+                      <span>{locationName}</span>
+                      <small>Gratis</small>
+                    </button>
+                  )
+                })}
+              </div>
+              <p>Seleccioná una de las dos zonas para continuar. El punto exacto y el horario se coordinan después de la compra.</p>
+            </fieldset>
+          )}
 
           {delivery === 'envio' && (
             <fieldset className={styles.shippingForm} aria-describedby={shippingAddressError ? 'shipping-address-error' : undefined}>
@@ -988,17 +1022,19 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
         <button
           type="button"
           onClick={openCheckout}
-          disabled={!canBuy || preparingCheckout}
+          disabled={!canStartCheckout || preparingCheckout}
           className="mt-8 flex h-14 items-center justify-center gap-2 rounded-full text-base font-semibold text-white transition-transform duration-150 enabled:hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-50"
-          style={{ background: canBuy ? '#0C6B45' : '#9A9A92' }}
+          style={{ background: canStartCheckout ? '#0C6B45' : '#9A9A92' }}
         >
           {preparingCheckout
-            ? 'Guardando dirección…'
+            ? (delivery === 'envio' ? 'Guardando dirección…' : 'Preparando pago…')
             : !inventoryKnown
-            ? 'Stock no disponible'
-            : soldOut
-              ? 'Talle agotado'
-              : `Asegurar mi talle · ${money(total)}`}
+              ? 'Stock no disponible'
+              : soldOut
+                ? 'Talle agotado'
+                : delivery === 'retiro' && !pickupLocation
+                  ? 'Elegí dónde retirar'
+                  : `Asegurar mi talle · ${money(total)}`}
         </button>
         <p className="mt-3 text-center text-xs" style={{ color: '#9A9A92' }}>
           Pago seguro con Rebill · Confirmación por email

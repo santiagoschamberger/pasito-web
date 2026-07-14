@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
 import { pickupInstructionsEmailHtml } from '../lib/store-pickup-email.ts'
+import { isPickupLocation } from '../lib/store-fulfillment.ts'
 
 type PickupOrder = {
   id: string
@@ -11,6 +12,7 @@ type PickupOrder = {
   print: string | null
   size: string
   qty: number
+  pickup_location: string | null
 }
 
 const execute = process.argv.includes('--execute')
@@ -29,7 +31,7 @@ const resend = new Resend(resendApiKey)
 
 const { data, error } = await db
   .from('tienda_orders')
-  .select('id, email, customer_name, base, print, size, qty')
+  .select('id, email, customer_name, base, print, size, qty, pickup_location')
   .eq('delivery', 'retiro')
   .eq('status', 'paid')
   .is('pickup_instructions_sent_at', null)
@@ -62,6 +64,7 @@ for (const order of orders) {
         variant,
         size: order.size,
         qty: order.qty,
+        pickupLocation: isPickupLocation(order.pickup_location) ? order.pickup_location : null,
       }),
     },
     { idempotencyKey: `tienda-pickup-instructions-${order.id}` },

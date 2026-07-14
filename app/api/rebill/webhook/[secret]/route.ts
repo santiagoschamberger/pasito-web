@@ -48,6 +48,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ se
   const size = typeof metadata?.size === 'string' ? metadata.size : ''
   const qty = Number(metadata?.qty ?? 0)
   const delivery = typeof metadata?.delivery === 'string' ? metadata.delivery : ''
+  const pickupLocation = typeof metadata?.pickupLocation === 'string' ? metadata.pickupLocation : undefined
 
   if (!base || !print || !size || !Number.isInteger(qty) || !delivery) {
     console.error('[rebill-webhook] Pago de tienda sin metadata de variante', payment.id)
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ se
   const orderRequest = new NextRequest(new URL('/api/orders', request.url), {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ paymentId: payment.id, base, print, size, qty, delivery }),
+    body: JSON.stringify({ paymentId: payment.id, base, print, size, qty, delivery, pickupLocation }),
   })
   const orderResponse = await confirmStoreOrder(orderRequest)
 

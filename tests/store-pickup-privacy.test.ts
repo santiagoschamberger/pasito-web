@@ -12,6 +12,8 @@ const publicPickupSources = [
 
 test('the former pickup street address is never exposed by the store', () => {
   assert.doesNotMatch(publicPickupSources, /Gallo\s+1645/i)
-  assert.match(publicPickupSources, /Retiro en Belgrano o Palermo/)
+  assert.match(publicPickupSources, /Retiro gratis/)
+  assert.match(publicPickupSources, /Belgrano/)
+  assert.match(publicPickupSources, /Palermo/)
   assert.match(publicPickupSources, /coordinar el punto exacto.*horario/i)
 })

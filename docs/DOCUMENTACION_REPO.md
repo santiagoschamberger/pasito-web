@@ -243,6 +243,7 @@ Archivos:
 - `lib/store-shipping.ts`
 - `supabase/migrations/20260702000000_tienda_store.sql`
 - `supabase/migrations/20260713131306_tienda_shipping_addresses.sql`
+- `supabase/migrations/20260714204349_add_store_pickup_location.sql`
 
 Tienda de remera oficial Pasito.
 
@@ -252,7 +253,7 @@ Producto:
 - Precio unitario: `35000`.
 - Moneda: `ARS`.
 - Envio a domicilio: `5000`.
-- Retiro en Belgrano o Palermo: gratis. El punto exacto y horario se informan de forma privada despues de la compra.
+- Retiro: gratis. Antes de pagar se debe elegir exactamente un punto: Belgrano o Palermo. La ubicacion exacta y el horario se informan de forma privada despues de la compra.
 - Los envios se despachan dentro de 5-6 dias habiles.
 - Maximo por orden: `10`.
 - Edicion limitada comunicada como una sola tanda, sin reposicion.
@@ -275,7 +276,7 @@ Checkout:
 - Usa web component `rebill-checkout`.
 - Carga SDK desde `https://unpkg.com/rebill@1.17.28/dist/rebill/rebill.esm.js`.
 - Usa `NEXT_PUBLIC_REBILL_PUBLIC_KEY`.
-- El `instantProduct` incluye nombre, descripcion, amount, currency y metadata: base, print, size, qty, delivery y, para envios, `checkoutIntentId`.
+- El `instantProduct` incluye nombre, descripcion, amount, currency y metadata: base, print, size, qty, delivery; para retiros, `pickupLocation`; y para envios, `checkoutIntentId`.
 - El resumen interno de Rebill se oculta y el repo muestra su propio resumen.
 
 Direccion de envio:
@@ -293,27 +294,28 @@ Confirmacion de orden:
 - Solo acepta pagos `approved`.
 - Verifica monto exacto esperado: `PRICE * qty + shipping`.
 - Verifica moneda `ARS`.
-- Luego llama RPC Supabase `tienda_confirm_order_v2`.
+- Luego llama RPC Supabase `tienda_confirm_order_v3`.
 
 Reglas atomicas de Supabase:
 
 - `tienda_stock` y `tienda_orders` tienen RLS habilitado sin politicas, para acceso solo via service role / server.
 - `tienda_orders.rebill_payment_id` es unique para idempotencia.
-- RPC `tienda_confirm_order_v2`:
+- RPC `tienda_confirm_order_v3`:
   - Si el pago ya fue procesado, devuelve `duplicate`.
   - Para envios exige un `checkoutIntentId` vigente, no consumido y consistente con la variante pagada.
+  - Para retiros exige `pickupLocation` igual a `belgrano` o `palermo` y lo guarda en `tienda_orders.pickup_location`.
   - Bloquea la fila de stock con `for update`.
   - Si no hay stock suficiente, devuelve `insufficient_stock`.
   - Descuenta stock, inserta la orden con direccion y consume el intent atomicamente.
   - Devuelve `confirmed`.
   - En carrera por unique violation, devuelve `duplicate`.
-- La RPC anterior queda disponible durante el rollout, pero `PUBLIC`, `anon` y `authenticated` no tienen permiso de ejecucion. Ambas RPC quedan reservadas a `service_role`.
+- Las RPC anteriores quedan disponibles durante el rollout, pero `PUBLIC`, `anon` y `authenticated` no tienen permiso de ejecucion. Todas quedan reservadas a `service_role`.
 
 Emails:
 
 - Si la orden es `confirmed`, hay email de cliente y `RESEND_API_KEY` existe, envia confirmacion de compra.
 - Si la orden es duplicada, no reenvia mail.
-- Retiro en Belgrano o Palermo informa que el punto exacto y horario se coordinan por email despues de la compra.
+- Retiro informa la zona elegida (Belgrano o Palermo); el punto exacto y horario se coordinan por email despues de la compra.
 - Envio repite la direccion guardada e informa despacho dentro de 5-6 dias habiles.
 
 Por que esta disenado asi:
@@ -728,6 +730,7 @@ Tabla:
 - `size text not null`
 - `qty integer not null check (qty > 0)`
 - `delivery text not null`
+- `pickup_location text` (`belgrano` o `palermo`; null en envios y ordenes historicas)
 - `amount numeric not null`
 - `currency text not null default 'ARS'`
 - `email text`
@@ -756,9 +759,10 @@ RPC:
 
 - `public.tienda_confirm_order(...) returns text`.
 - `public.tienda_confirm_order_v2(..., p_checkout_intent_id uuid) returns text`.
+- `public.tienda_confirm_order_v3(..., p_checkout_intent_id uuid, p_pickup_location text) returns text`.
 - Usa `security definer`.
 - Solo `service_role` puede ejecutar las RPC de tienda.
-- La version v2 devuelve `confirmed`, `duplicate`, `insufficient_stock` o `invalid_checkout_intent`.
+- La version v3 devuelve `confirmed`, `duplicate`, `insufficient_stock`, `invalid_checkout_intent` o `invalid_pickup_location`.
 
 ### `tienda_checkout_intents`
 

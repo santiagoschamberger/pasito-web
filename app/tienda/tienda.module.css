@@ -36,6 +36,14 @@
 .stockDot { width: 7px; height: 7px; flex: 0 0 auto; margin-top: 5px; border-radius: 50%; background: #d92d20; box-shadow: 0 0 0 3px rgb(217 45 32 / 12%); }
 .stockStatus[data-urgent="true"] .stockDot { background: #d92d20; box-shadow: 0 0 0 3px rgb(217 45 32 / 14%); }
 .stockStatus[data-unavailable="true"] .stockDot { background: #a5a59d; box-shadow: none; }
+.pickupLocationFieldset { min-width: 0; margin: 18px 0 0; padding: 18px; border: 1px solid #dce8df; border-radius: 20px; background: #f7faf8; }
+.pickupLocationFieldset legend { padding: 0 6px; color: #173c2b; font-size: 14px; font-weight: 700; }
+.pickupLocationOptions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pickupLocationOptions button { display: flex; min-height: 48px; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid #d8ded9; border-radius: 14px; background: #fff; padding: 11px 13px; color: #1b1b1b; font-size: 13px; font-weight: 700; text-align: left; transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease; }
+.pickupLocationOptions button:hover { border-color: #9bb9a7; }
+.pickupLocationOptions button[data-selected="true"] { border-color: #0c6b45; background: #eef7f1; box-shadow: 0 0 0 1px #0c6b45; color: #0c6b45; }
+.pickupLocationOptions small { color: #5e796a; font-size: 11px; font-weight: 650; }
+.pickupLocationFieldset > p { margin: 10px 0 0; color: #68746b; font-size: 11px; line-height: 16px; }
 .shippingForm { min-width: 0; margin: 18px 0 0; padding: 20px; border: 1px solid #dce8df; border-radius: 20px; background: #f7faf8; }
 .shippingForm legend { padding: 0 6px; color: #173c2b; font-size: 14px; font-weight: 700; }
 .shippingFormIntro { margin: -2px 0 16px; color: #68746b; font-size: 12px; line-height: 17px; }
