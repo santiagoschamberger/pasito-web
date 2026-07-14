@@ -8,6 +8,7 @@ import {
   normalizeShippingAddress,
   type ShippingAddress,
 } from '@/lib/store-shipping'
+import { PICKUP_CONFIRMATION, PICKUP_LABEL } from '@/lib/store-fulfillment'
 
 /* Debe coincidir con la config de la tienda (app/tienda/StoreClient.tsx). */
 const PRICE = 35000
@@ -63,7 +64,7 @@ function orderConfirmationHtml(params: {
 }): string {
   const deliveryText =
     params.delivery === 'retiro'
-      ? 'Retiro en Gallo 1645'
+      ? PICKUP_LABEL
       : 'Envío a domicilio'
   const shippingAddress = params.shippingAddress
   const shippingDetails = shippingAddress
@@ -75,7 +76,7 @@ function orderConfirmationHtml(params: {
     : ''
   const deliveryInstructions =
     params.delivery === 'retiro'
-      ? `Podés retirar tu pedido en <strong>Gallo 1645</strong>, de lunes a viernes de <strong>11 a 15 h</strong>. Presentá este email o tu ID de pago.`
+      ? PICKUP_CONFIRMATION
       : `Tu dirección quedó guardada. Vamos a despachar el pedido dentro de <strong>5–6 días hábiles</strong>.`
   const money = new Intl.NumberFormat('es-AR', {
     style: 'currency',

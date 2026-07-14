@@ -8,6 +8,7 @@ import {
   normalizeShippingAddress,
   type ShippingAddress,
 } from '@/lib/store-shipping'
+import { PICKUP_CONFIRMATION, PICKUP_LABEL, PICKUP_NOTE } from '@/lib/store-fulfillment'
 import styles from './tienda.module.css'
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -72,7 +73,7 @@ const BASES: Base[] = [
 
 type Delivery = 'retiro' | 'envio'
 const DELIVERY_OPTIONS: { id: Delivery; label: string; note: string; cost: number }[] = [
-  { id: 'retiro', label: 'Retiro en Gallo 1645', note: 'Lun a vie · 11 a 15 h', cost: 0 },
+  { id: 'retiro', label: PICKUP_LABEL, note: PICKUP_NOTE, cost: 0 },
   { id: 'envio', label: 'Envío a domicilio', note: 'Despacho en 5–6 días hábiles', cost: SHIPPING },
 ]
 
@@ -514,7 +515,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
   const handleCheckoutReady = useCallback(() => setCheckoutReady(true), [])
 
   const variantText = `Remera ${base.label} · estampa ${base.print.label}`
-  const deliveryLabel = delivery === 'retiro' ? 'Retiro en Gallo 1645' : 'Envío a domicilio'
+  const deliveryLabel = delivery === 'retiro' ? PICKUP_LABEL : 'Envío a domicilio'
 
   const instantProduct = {
     name: [{ language: 'es', text: `${PRODUCT_NAME} · ${variantText} · Talle ${size}` }],
@@ -608,7 +609,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
             <p className="mx-auto mt-2 max-w-sm text-sm" style={{ color: '#5B5B54' }}>
               {done.needsSupport
                 ? 'Estamos terminando de verificar la acreditación y te contactaremos por email. No hace falta que vuelvas a pagar.'
-                : <>Te enviamos la confirmación por email. {delivery === 'retiro' ? 'Podés retirar en Gallo 1645, de lunes a viernes de 11 a 15 h.' : 'Tu dirección quedó guardada y despacharemos el pedido dentro de 5–6 días hábiles.'}</>}
+                : <>Te enviamos la confirmación por email. {delivery === 'retiro' ? PICKUP_CONFIRMATION : 'Tu dirección quedó guardada y despacharemos el pedido dentro de 5–6 días hábiles.'}</>}
             </p>
             {done.paymentId && (
               <p className="mt-3 text-[11px]" style={{ color: '#B4B4AC' }}>
@@ -704,7 +705,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
             {money(PRICE)}
           </span>
           <span className="text-sm" style={{ color: '#9A9A92' }}>
-            retiro gratis en Gallo 1645 · envío {money(SHIPPING)}
+            retiro coordinado gratis · envío {money(SHIPPING)}
           </span>
         </div>
 

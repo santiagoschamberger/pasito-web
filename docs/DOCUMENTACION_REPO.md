@@ -252,7 +252,7 @@ Producto:
 - Precio unitario: `35000`.
 - Moneda: `ARS`.
 - Envio a domicilio: `2000`.
-- Retiro en Gallo 1645, lunes a viernes de 11 a 15 h: gratis.
+- Retiro coordinado: gratis. El punto y horario se informan de forma privada despues de la compra.
 - Los envios se despachan dentro de 5-6 dias habiles.
 - Maximo por orden: `10`.
 - Edicion limitada comunicada como una sola tanda, sin reposicion.
@@ -313,7 +313,7 @@ Emails:
 
 - Si la orden es `confirmed`, hay email de cliente y `RESEND_API_KEY` existe, envia confirmacion de compra.
 - Si la orden es duplicada, no reenvia mail.
-- Retiro informa Gallo 1645, lunes a viernes de 11 a 15 h.
+- Retiro informa que el punto y horario se coordinan por email despues de la compra.
 - Envio repite la direccion guardada e informa despacho dentro de 5-6 dias habiles.
 
 Por que esta disenado asi:
