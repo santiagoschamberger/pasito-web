@@ -1,6 +1,6 @@
 import {
-  PICKUP_WHATSAPP_NUMBER,
   PICKUP_WHATSAPP_NUMBER_DISPLAY,
+  pickupWhatsAppUrl,
 } from './store-fulfillment.ts'
 
 function escapeHtml(value: string) {
@@ -14,19 +14,6 @@ function escapeHtml(value: string) {
     }
     return entities[character]
   })
-}
-
-function normalizedCustomerName(customerName?: string | null) {
-  return customerName?.trim().replace(/\s+/g, ' ') || '[NOMBRE Y APELLIDO]'
-}
-
-export function pickupWhatsAppUrl(customerName?: string | null) {
-  const message = [
-    `Hola Pasito, soy ${normalizedCustomerName(customerName)}.`,
-    'Voy a pasar a buscar mi remera el [DÍA] a las [HORA].',
-  ].join(' ')
-
-  return `https://wa.me/${PICKUP_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
 }
 
 export function pickupCoordinationBlockHtml(customerName?: string | null) {

@@ -60,6 +60,16 @@
 .checkoutLoading strong { color: #153426; font-size: 15px; line-height: 20px; }
 .checkoutLoading small { color: #7c7c65; font-size: 12px; line-height: 17px; }
 .checkoutSpinner { width: 28px; height: 28px; flex: 0 0 auto; border: 3px solid #dce9df; border-top-color: #006d42; border-radius: 50%; animation: checkoutSpin .8s linear infinite; }
+.pickupConfirmation { display: grid; grid-template-columns: 42px minmax(0,1fr); gap: 13px; width: 100%; max-width: 440px; margin: 24px auto 0; border: 1px solid #cfe5d7; border-radius: 20px; background: #f2f8f4; padding: 20px; color: #183e2b; text-align: left; }
+.pickupConfirmationIcon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 50%; background: #dcefe2; color: #006d42; }
+.pickupConfirmationIcon svg { width: 22px; height: 22px; }
+.pickupConfirmation h2 { margin: 0; color: #123a27; font-family: var(--font-bricolage); font-size: 17px; font-weight: 750; line-height: 22px; }
+.pickupConfirmation p { margin: 7px 0 15px; color: #52685b; font-size: 13px; line-height: 19px; }
+.pickupConfirmation p strong { color: #173c2b; white-space: nowrap; }
+.pickupWhatsAppButton { display: inline-flex; min-height: 43px; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; background: #006d42; padding: 10px 18px; color: #fff; font-size: 13px; font-weight: 750; line-height: 18px; transition: transform .16s ease, background-color .16s ease; }
+.pickupWhatsAppButton:hover { background: #005c38; transform: translateY(-1px); }
+.pickupWhatsAppButton svg { width: 16px; height: 16px; }
+.pickupConfirmation small { display: block; margin-top: 10px; color: #718077; font-size: 10px; line-height: 15px; }
 
 @keyframes checkoutSpin { to { transform: rotate(360deg); } }
 
@@ -76,4 +86,5 @@
   .shippingFieldFull { grid-column: auto; }
   .checkoutFrame,.checkoutHost { min-height: 340px; }
   .checkoutLoading { border-radius: 18px; }
+  .pickupConfirmation { grid-template-columns: 1fr; padding: 18px; }
 }

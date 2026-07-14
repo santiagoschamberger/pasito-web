@@ -8,7 +8,7 @@ import {
   normalizeShippingAddress,
   type ShippingAddress,
 } from '@/lib/store-shipping'
-import { PICKUP_LABEL } from '@/lib/store-fulfillment'
+import { PICKUP_LABEL, pickupWhatsAppUrl as buildPickupWhatsAppUrl } from '@/lib/store-fulfillment'
 import { pickupCoordinationBlockHtml } from '@/lib/store-pickup-email'
 
 /* Debe coincidir con la config de la tienda (app/tienda/StoreClient.tsx). */
@@ -315,5 +315,11 @@ export async function POST(req: NextRequest) {
     revalidatePath('/tienda')
   }
 
-  return NextResponse.json({ ok: true, result })
+  return NextResponse.json({
+    ok: true,
+    result,
+    ...(delivery === 'retiro'
+      ? { pickupWhatsAppUrl: buildPickupWhatsAppUrl(customerName) }
+      : {}),
+  })
 }

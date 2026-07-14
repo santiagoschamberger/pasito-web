@@ -8,7 +8,13 @@ import {
   normalizeShippingAddress,
   type ShippingAddress,
 } from '@/lib/store-shipping'
-import { PICKUP_CONFIRMATION, PICKUP_LABEL, PICKUP_NOTE } from '@/lib/store-fulfillment'
+import {
+  PICKUP_CONFIRMATION,
+  PICKUP_LABEL,
+  PICKUP_NOTE,
+  PICKUP_WHATSAPP_NUMBER_DISPLAY,
+  pickupWhatsAppUrl,
+} from '@/lib/store-fulfillment'
 import styles from './tienda.module.css'
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -382,7 +388,11 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
   const [qty, setQty] = useState(1)
   const [delivery, setDelivery] = useState<Delivery>('retiro')
   const [open, setOpen] = useState(false)
-  const [done, setDone] = useState<{ paymentId?: string; needsSupport?: boolean } | null>(null)
+  const [done, setDone] = useState<{
+    paymentId?: string
+    needsSupport?: boolean
+    pickupWhatsAppUrl?: string
+  } | null>(null)
   const [checkoutReady, setCheckoutReady] = useState(false)
   const [checkoutError, setCheckoutError] = useState<string | null>(null)
   const [registeringOrder, setRegisteringOrder] = useState(false)
@@ -497,8 +507,9 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
             delivery,
           }),
         })
+        const payload = await response.json().catch(() => ({})) as { pickupWhatsAppUrl?: string }
         if (!response.ok) throw new Error('No se pudo confirmar la orden.')
-        setDone({ paymentId })
+        setDone({ paymentId, pickupWhatsAppUrl: payload.pickupWhatsAppUrl })
       } catch {
         // El pago puede estar aprobado aunque la acreditación o el descuento de
         // stock todavía requieran revisión. No reabrimos el checkout para evitar
@@ -611,6 +622,34 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
                 ? 'Estamos terminando de verificar la acreditación y te contactaremos por email. No hace falta que vuelvas a pagar.'
                 : <>Te enviamos la confirmación por email. {delivery === 'retiro' ? PICKUP_CONFIRMATION : 'Tu dirección quedó guardada y despacharemos el pedido dentro de 5–6 días hábiles.'}</>}
             </p>
+            {!done.needsSupport && delivery === 'retiro' && (
+              <section className={styles.pickupConfirmation} aria-labelledby="pickup-confirmation-title">
+                <div className={styles.pickupConfirmationIcon} aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 11.5a8.4 8.4 0 0 1-9 8.5 9.5 9.5 0 0 1-4-.9L3 21l1.9-4.8a8.5 8.5 0 1 1 16.1-4.7Z" />
+                    <path d="M8.2 8.5c.3 2.7 2.5 4.8 5.2 5.2" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 id="pickup-confirmation-title">Coordiná tu retiro por WhatsApp</h2>
+                  <p>
+                    Enviá un mensaje al <strong>{PICKUP_WHATSAPP_NUMBER_DISPLAY}</strong> indicando tu nombre y apellido, qué día y a qué hora vas a pasar a buscarla.
+                  </p>
+                  <a
+                    href={done.pickupWhatsAppUrl ?? pickupWhatsAppUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.pickupWhatsAppButton}
+                  >
+                    Ir a WhatsApp
+                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m9 18 6-6-6-6" />
+                    </svg>
+                  </a>
+                  <small>Revisá tu nombre y completá [DÍA] y [HORA] antes de enviarlo.</small>
+                </div>
+              </section>
+            )}
             {done.paymentId && (
               <p className="mt-3 text-[11px]" style={{ color: '#B4B4AC' }}>
                 ID de pago: {done.paymentId}
