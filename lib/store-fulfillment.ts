@@ -1,3 +1,5 @@
 export const PICKUP_LABEL = 'Retiro coordinado'
 export const PICKUP_NOTE = 'Coordinamos el punto y horario después de la compra'
-export const PICKUP_CONFIRMATION = 'Te contactaremos por email para coordinar el punto y horario de retiro.'
+export const PICKUP_CONFIRMATION = 'Escribinos por WhatsApp para coordinar el punto, el día y el horario de retiro.'
+export const PICKUP_WHATSAPP_NUMBER = '5491136491620'
+export const PICKUP_WHATSAPP_NUMBER_DISPLAY = '+54 9 11 3649-1620'

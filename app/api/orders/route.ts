@@ -8,7 +8,8 @@ import {
   normalizeShippingAddress,
   type ShippingAddress,
 } from '@/lib/store-shipping'
-import { PICKUP_CONFIRMATION, PICKUP_LABEL } from '@/lib/store-fulfillment'
+import { PICKUP_LABEL } from '@/lib/store-fulfillment'
+import { pickupCoordinationBlockHtml } from '@/lib/store-pickup-email'
 
 /* Debe coincidir con la config de la tienda (app/tienda/StoreClient.tsx). */
 const PRICE = 35000
@@ -55,6 +56,7 @@ function escapeHtml(value: string) {
 
 function orderConfirmationHtml(params: {
   name?: string
+  customerName?: string | null
   variant: string
   size: string
   qty: number
@@ -76,8 +78,8 @@ function orderConfirmationHtml(params: {
     : ''
   const deliveryInstructions =
     params.delivery === 'retiro'
-      ? PICKUP_CONFIRMATION
-      : `Tu dirección quedó guardada. Vamos a despachar el pedido dentro de <strong>5–6 días hábiles</strong>.`
+      ? pickupCoordinationBlockHtml(params.customerName)
+      : `<p style="font-size:14px;color:#555;margin:0 0 8px;line-height:1.6;">Tu dirección quedó guardada. Vamos a despachar el pedido dentro de <strong>5–6 días hábiles</strong>.</p>`
   const money = new Intl.NumberFormat('es-AR', {
     style: 'currency',
     currency: CURRENCY,
@@ -103,9 +105,7 @@ function orderConfirmationHtml(params: {
       ${shippingDetails}
       <p style="font-size:14px;color:#111;margin:8px 0 0;"><strong>Total: ${money}</strong></p>
     </div>
-    <p style="font-size:14px;color:#555;margin:0 0 8px;line-height:1.6;">
-      ${deliveryInstructions}
-    </p>
+    ${deliveryInstructions}
     <div style="margin-top:36px;padding-top:24px;border-top:1px solid #f0f0f0;">
       <p style="font-size:14px;color:#333;margin:0;">Nos vemos en la calle,<br/><strong>Pasito</strong></p>
     </div>
@@ -276,21 +276,36 @@ export async function POST(req: NextRequest) {
   // 3) Mail de confirmación (sólo la primera vez que se confirma el pago).
   if (result === 'confirmed' && email && process.env.RESEND_API_KEY) {
     try {
-      const { error: emailError } = await new Resend(process.env.RESEND_API_KEY).emails.send({
-        from: 'Pasito <noreply@pasito.app>',
-        to: email,
-        subject: 'Confirmamos tu Remera Pasito',
-        html: orderConfirmationHtml({
-          name: pay.customer?.firstName,
-          variant,
-          size,
-          qty,
-          delivery,
-          amount: expected,
-          shippingAddress,
-        }),
-      })
+      const { data: emailData, error: emailError } = await new Resend(process.env.RESEND_API_KEY).emails.send(
+        {
+          from: 'Pasito <noreply@pasito.app>',
+          to: email,
+          subject: 'Confirmamos tu Remera Pasito',
+          html: orderConfirmationHtml({
+            name: pay.customer?.firstName,
+            customerName,
+            variant,
+            size,
+            qty,
+            delivery,
+            amount: expected,
+            shippingAddress,
+          }),
+        },
+        { idempotencyKey: `tienda-order-confirmation-${paymentId}` },
+      )
       if (emailError) console.error('[orders] Error enviando mail:', emailError)
+      if (!emailError && delivery === 'retiro') {
+        const { error: trackingError } = await db
+          .from('tienda_orders')
+          .update({
+            pickup_instructions_sent_at: new Date().toISOString(),
+            pickup_instructions_email_id: emailData?.id ?? null,
+          })
+          .eq('rebill_payment_id', paymentId)
+
+        if (trackingError) console.error('[orders] Error registrando instrucciones de retiro:', trackingError)
+      }
     } catch (err) {
       console.error('[orders] Error enviando mail:', err)
     }
