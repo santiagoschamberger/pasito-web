@@ -44,6 +44,7 @@ import type {
   TopChallengeDatum,
   TopRewardDatum,
 } from '@/lib/data-room/types'
+import { withRollingAverage } from '@/lib/data-room/trends'
 import { DataRoomViewTracker } from './DataRoomViewTracker'
 
 const numberFormatter = new Intl.NumberFormat('es-AR')
@@ -504,14 +505,19 @@ export function DataRoomDashboard({
     usuarios: row.count,
     canjeadores: data.redeemerAgeDistribution.find((item) => item.label === row.label)?.count ?? 0,
   })), [data.ageDistribution, data.redeemerAgeDistribution])
+  const dailyActiveTrend = useMemo(
+    () => withRollingAverage(data.dailyActiveTrend ?? []),
+    [data.dailyActiveTrend],
+  )
+  const lastRollingDau = dailyActiveTrend.at(-1)?.rollingAverage ?? 0
   const dailyActiveDomain = useMemo<[number, number]>(() => {
-    const counts = (data.dailyActiveTrend ?? []).map((row) => row.count)
+    const counts = dailyActiveTrend.map((row) => row.rollingAverage)
     if (!counts.length) return [0, 1]
     const minimum = Math.min(...counts)
     const maximum = Math.max(...counts)
     const padding = Math.max((maximum - minimum) * 0.12, maximum * 0.04, 1)
     return [Math.max(0, Math.floor(minimum - padding)), Math.ceil(maximum + padding)]
-  }, [data.dailyActiveTrend])
+  }, [dailyActiveTrend])
   const activityTimeline = data.activityTimeline ?? []
   const activityMarkers = useMemo(() => {
     const markerDates = new Map<string, ActivityTimelineDatum['kind']>()
@@ -725,7 +731,7 @@ export function DataRoomDashboard({
                 icon={<Activity size={18} aria-hidden />}
                 label="DAU promedio"
                 value={formatLargeNumber(marketing.averageDau30d)}
-                helper={`${formatNumber(marketing.dauLastCompleteDay)} en el último día completo`}
+                helper={`${formatNumber(lastRollingDau)} de tendencia móvil · 7 días`}
                 pink
               />
               <SignalCard
@@ -779,32 +785,42 @@ export function DataRoomDashboard({
             </div>
 
             <div className="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,1.75fr)_minmax(320px,1fr)]">
-              <Panel title="DAU por día" helper="Personas únicas por jornada durante los últimos 30 días completos.">
+              <Panel title="Tendencia de DAU" helper="Promedio móvil de 7 días sobre jornadas completas; el valor real de cada día aparece al pasar el cursor.">
                 <div className="grid gap-2 rounded-2xl bg-[#FFF0FB] p-3 sm:grid-cols-2 sm:p-4">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#702353]">Promedio diario</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#702353]">Promedio · 30 días</p>
                     <p className="mt-1 text-2xl font-bold tracking-[-0.04em] text-[#400224]">{formatLargeNumber(marketing.averageDau30d)}</p>
                   </div>
                   <div className="sm:border-l sm:border-[#400224]/10 sm:pl-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#702353]">Último día completo</p>
-                    <p className="mt-1 text-2xl font-bold tracking-[-0.04em] text-[#400224]">{formatLargeNumber(marketing.dauLastCompleteDay)}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#702353]">Tendencia móvil · 7 días</p>
+                    <p className="mt-1 text-2xl font-bold tracking-[-0.04em] text-[#400224]">{formatLargeNumber(lastRollingDau)}</p>
                   </div>
                 </div>
                 <div className="mt-4 h-[245px] w-full">
                   <ClientOnlyChart>
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data.dailyActiveTrend ?? []} margin={{ top: 24, right: 12, left: -8, bottom: 0 }}>
+                    <LineChart data={dailyActiveTrend} margin={{ top: 24, right: 12, left: -8, bottom: 0 }}>
                       <CartesianGrid vertical={false} stroke="#E8EDE9" />
                       <XAxis dataKey="date" tickFormatter={formatDay} interval="preserveStartEnd" minTickGap={32} tickMargin={8} axisLine={false} tickLine={false} tick={{ fill: '#66706B', fontSize: 11 }} />
                       <YAxis domain={dailyActiveDomain} tickFormatter={(value) => compactFormatter.format(Number(value))} axisLine={false} tickLine={false} tick={{ fill: '#66706B', fontSize: 11 }} />
                       <Tooltip
                         contentStyle={tooltipStyle}
                         labelFormatter={(label) => formatDay(String(label))}
-                        formatter={(value) => [formatNumber(Number(value)), 'Personas activas']}
+                        formatter={(value, name) => [formatNumber(Number(value)), name]}
+                      />
+                      <Line
+                        type="linear"
+                        dataKey="count"
+                        name="DAU diario real"
+                        stroke="transparent"
+                        dot={false}
+                        activeDot={false}
+                        isAnimationActive={false}
                       />
                       <Line
                         type="monotone"
-                        dataKey="count"
+                        dataKey="rollingAverage"
+                        name="Tendencia móvil · 7 días"
                         stroke="#A62C78"
                         strokeWidth={3}
                         dot={(props: { cx?: number; cy?: number; payload?: { date?: string } }) => {
@@ -1260,6 +1276,7 @@ export function DataRoomDashboard({
           <p className="mt-1 max-w-5xl">
             La base corresponde a perfiles registrados en {data.countryName}. “Activas 30 días” usa la última fecha de actividad registrada.
             DAU es el promedio diario de personas activas en 30 días completos; WAU y MAU son personas únicas en 7 y 30 días completos. El día en curso se excluye.
+            La curva de DAU muestra un promedio móvil de 7 días para reducir oscilaciones puntuales; el tooltip conserva el valor diario real sin modificar.
             Stickiness es DAU promedio dividido MAU. Una “jornada activa” es una persona con apertura y actividad sincronizada ese día; no equivale a una impresión publicitaria.
             Las notificaciones “enviadas” son aceptadas por el proveedor de push y las “aperturas” requieren una interacción registrada.
             Los canjes incluyen únicamente cupones confirmados como usados. Los pasos de desafíos se suman por activación y pueden superponerse si una persona participó en desafíos simultáneos.
