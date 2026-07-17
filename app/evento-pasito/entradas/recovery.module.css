@@ -1,0 +1,107 @@
+.page {
+  display: grid;
+  min-height: 100svh;
+  padding: 34px 20px;
+  place-items: center;
+  background: #f1f5ec;
+  color: #153426;
+}
+
+.shell {
+  width: min(100%, 520px);
+  padding: 38px;
+  border: 1px solid #dce5d7;
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 28px 70px rgb(0 64 39 / 10%);
+}
+
+.back {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 34px;
+  color: #68756e;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.eyebrow {
+  margin: 31px 0 8px;
+  color: #006d42;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.shell h1 {
+  margin: 0;
+  color: #004027;
+  font-family: var(--font-bricolage), system-ui, sans-serif;
+  font-size: 48px;
+  line-height: .96;
+  letter-spacing: -.05em;
+}
+
+.lead {
+  margin: 19px 0 0;
+  color: #65746c;
+  font-size: 15px;
+  line-height: 23px;
+}
+
+.form { margin-top: 30px; }
+.form label { display: block; margin-bottom: 8px; color: #31483c; font-size: 13px; font-weight: 750; }
+
+.inputWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 55px;
+  padding: 0 16px;
+  border: 1px solid #d9e1d5;
+  border-radius: 15px;
+  background: #fafcf7;
+  color: #006d42;
+}
+
+.inputWrap input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #153426;
+  font: inherit;
+  font-size: 15px;
+}
+
+.form button {
+  width: 100%;
+  min-height: 54px;
+  margin-top: 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #006d42;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.form button:disabled { cursor: wait; opacity: .62; }
+.form small { display: block; margin-top: 14px; color: #7b877f; font-size: 11px; line-height: 16px; text-align: center; }
+.error { margin: 12px 0 0; padding: 11px 13px; border-radius: 12px; background: #fde9e7; color: #9e2c23; font-size: 12px; }
+.support { margin: 28px 0 0; color: #758079; font-size: 12px; text-align: center; }
+.support a { color: #006d42; font-weight: 750; text-decoration: underline; }
+
+.done { display: grid; min-height: 310px; margin-top: 26px; place-items: center; align-content: center; text-align: center; }
+.done > span { display: grid; width: 64px; height: 64px; place-items: center; border-radius: 50%; background: #ebfa61; color: #006d42; }
+.done h2 { margin: 19px 0 0; color: #004027; font-family: var(--font-bricolage), system-ui, sans-serif; font-size: 34px; }
+.done p { margin: 12px 0 0; color: #63736b; font-size: 14px; line-height: 21px; }
+
+@media (max-width: 520px) {
+  .page { padding: 0; place-items: stretch; background: #fff; }
+  .shell { min-height: 100svh; padding: 26px 22px 40px; border: 0; border-radius: 0; box-shadow: none; }
+  .shell h1 { font-size: 43px; }
+}

@@ -1,0 +1,176 @@
+.page {
+  display: grid;
+  min-height: 100svh;
+  padding: 20px;
+  place-items: center;
+  background: #e9f0e5;
+  color: #153426;
+  transition: background .2s ease;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #006d42;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.loading svg,
+.checking svg { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loginCard,
+.scannerCard,
+.resultCard {
+  width: min(100%, 480px);
+  padding: 30px;
+  border: 1px solid #d6e1d2;
+  border-radius: 27px;
+  background: #fff;
+  box-shadow: 0 28px 65px rgb(0 64 39 / 12%);
+}
+
+.loginIcon {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 22px;
+  place-items: center;
+  border-radius: 50%;
+  background: #ebfa61;
+  color: #006d42;
+}
+
+.loginCard > p,
+.scannerCard header p,
+.resultCard > p:first-of-type {
+  margin: 0 0 6px;
+  color: #006d42;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.loginCard h1,
+.scannerCard h1,
+.resultCard h1 {
+  margin: 0;
+  color: #004027;
+  font-family: var(--font-bricolage), system-ui, sans-serif;
+  font-size: 36px;
+  line-height: 1;
+  letter-spacing: -.04em;
+}
+
+.loginCard label {
+  display: block;
+  margin: 24px 0 7px;
+  color: #41564a;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.loginCard input,
+.manualForm input {
+  width: 100%;
+  min-height: 53px;
+  padding: 0 15px;
+  border: 1px solid #d7e0d4;
+  border-radius: 14px;
+  outline: 0;
+  background: #fafcf8;
+  color: #173b2a;
+  font: inherit;
+}
+
+.loginCard input:focus,
+.manualForm input:focus { border-color: #006d42; box-shadow: 0 0 0 3px rgb(0 109 66 / 10%); }
+
+.loginCard > button,
+.resultCard > button:first-of-type {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 54px;
+  margin-top: 24px;
+  border: 0;
+  border-radius: 999px;
+  background: #006d42;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.loginCard > button:disabled { cursor: wait; opacity: .6; }
+.error { margin-top: 13px; padding: 11px 13px; border-radius: 12px; background: #fde7e4; color: #9d291f; font-size: 12px; line-height: 17px; }
+
+.scannerCard header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.scannerCard header span { display: block; margin-top: 7px; color: #748078; font-size: 11px; }
+.scannerCard header > button { display: grid; width: 42px; height: 42px; place-items: center; border: 1px solid #dde4da; border-radius: 50%; background: #fff; color: #69766f; cursor: pointer; }
+
+.camera {
+  position: relative;
+  display: grid;
+  aspect-ratio: 1 / 1;
+  margin-top: 24px;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 22px;
+  background: #09291c;
+}
+
+.camera video { width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+.cameraActive video { opacity: 1; }
+.camera > button { position: absolute; z-index: 3; display: flex; align-items: center; gap: 9px; min-height: 52px; padding: 0 21px; border: 0; border-radius: 999px; background: #ebfa61; color: #004027; font-size: 14px; font-weight: 800; cursor: pointer; }
+.scanFrame { position: absolute; z-index: 2; width: 62%; aspect-ratio: 1; border: 3px solid #ebfa61; border-radius: 20px; box-shadow: 0 0 0 999px rgb(0 0 0 / 25%); opacity: 0; }
+.cameraActive .scanFrame { opacity: 1; }
+
+.checking { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; color: #006d42; font-size: 12px; font-weight: 750; }
+.separator { display: flex; align-items: center; gap: 12px; margin: 23px 0; color: #839087; font-size: 11px; }
+.separator::before, .separator::after { height: 1px; flex: 1; background: #e3e8e0; content: ''; }
+.manualForm { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 9px; }
+.manualForm input { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+.manualForm button { min-width: 92px; border: 0; border-radius: 14px; background: #006d42; color: #fff; font-size: 13px; font-weight: 800; cursor: pointer; }
+.manualForm button:disabled { cursor: not-allowed; opacity: .42; }
+
+.page_admitted { background: #006d42; }
+.page_already_used { background: #f5b742; }
+.page_void, .page_invalid, .page_error { background: #a62e24; }
+.resultCard { text-align: center; }
+.resultIcon { display: grid; width: 96px; height: 96px; margin: 0 auto 24px; place-items: center; border-radius: 50%; background: #ebfa61; color: #006d42; }
+.page_already_used .resultIcon { background: #fff2c7; color: #765100; }
+.page_void .resultIcon, .page_invalid .resultIcon, .page_error .resultIcon { background: #fde2df; color: #a62e24; }
+.resultCard h1 { font-size: 42px; }
+.attendee { display: grid; gap: 4px; margin-top: 22px; padding: 17px; border-radius: 15px; background: #f5f8f2; }
+.attendee strong { color: #163b29; font-size: 17px; }
+.attendee span { color: #67766d; font-size: 12px; }
+.attendee code { margin-top: 7px; color: #006d42; font-size: 18px; font-weight: 800; letter-spacing: .1em; }
+.attendee small { color: #7b877f; font-size: 11px; }
+.resultDetail { margin: 20px 0 0; color: #66736b; font-size: 14px; line-height: 21px; }
+.manualNext { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; margin-top: 8px; border: 0; background: transparent; color: #006d42; font-size: 13px; font-weight: 750; cursor: pointer; }
+
+@media (max-width: 520px) {
+  .page { padding: 0; place-items: stretch; background: #fff; }
+  .page_admitted { background: #006d42; }
+  .page_already_used { background: #f5b742; }
+  .page_void, .page_invalid, .page_error { background: #a62e24; }
+  .loginCard, .scannerCard, .resultCard { min-height: 100svh; padding: 24px 19px 34px; border: 0; border-radius: 0; box-shadow: none; }
+  .loginCard, .resultCard { display: flex; flex-direction: column; justify-content: center; }
+  .camera { margin-right: -4px; margin-left: -4px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading svg, .checking svg { animation: none; }
+}
