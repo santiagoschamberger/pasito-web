@@ -279,6 +279,12 @@
   object-fit: cover;
 }
 
+.photoFrame picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .paloma {
   position: absolute;
   right: -70px;
@@ -314,15 +320,15 @@
 }
 
 .ticketsSection {
-  padding: 132px 0 124px;
+  padding: 112px 0;
   background: var(--event-cream);
 }
 
-.sectionHeading {
+.ticketLayout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 430px);
-  align-items: end;
-  gap: 72px;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 470px);
+  align-items: center;
+  gap: 96px;
 }
 
 .overline {
@@ -334,7 +340,7 @@
   text-transform: uppercase;
 }
 
-.sectionHeading h2,
+.ticketCopy h2,
 .experienceHeading h2,
 .scheduleIntro h2,
 .locationCopy h2 {
@@ -345,126 +351,109 @@
   letter-spacing: -.04em;
 }
 
-.sectionHeading h2 span,
+.ticketCopy h2 span,
 .scheduleIntro h2 span,
 .locationCopy h2 span {
   color: var(--event-green);
 }
 
-.sectionHeading > p {
+.ticketCopy > p:last-child {
+  max-width: 590px;
+  margin-top: 24px !important;
   color: var(--event-muted);
   font-size: 17px;
-  line-height: 26px;
+  line-height: 27px;
   text-wrap: pretty;
 }
 
-.ticketGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  margin-top: 54px;
-}
-
-.ticketCard {
+.priceCard {
   display: flex;
   flex-direction: column;
-  min-height: 390px;
-  padding: 28px;
-  border: 1px solid var(--event-line);
-  border-radius: 28px;
-  box-shadow: 0 18px 55px rgb(0 64 39 / 7%);
-}
-
-.ticketlime {
-  border-color: transparent;
+  min-height: 418px;
+  padding: 36px;
+  border-radius: 30px;
   background: var(--event-lime);
+  box-shadow: 0 24px 60px rgb(0 64 39 / 10%);
   color: var(--event-dark);
 }
 
-.ticketpink {
-  border-color: transparent;
-  background: var(--event-pink);
-  color: var(--event-burgundy);
-}
-
-.ticketwhite {
-  background: #fff;
-  color: var(--event-ink);
-}
-
-.ticketTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-.ticketTop > span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: 1px solid currentColor;
-  border-radius: 50%;
-  font-family: var(--font-bricolage), system-ui, sans-serif;
+.priceCard > span {
   font-size: 13px;
-  font-weight: 750;
-}
-
-.ticketTop p {
-  font-size: 13px;
-  font-weight: 750;
-  line-height: 18px;
+  font-weight: 800;
+  line-height: 17px;
+  letter-spacing: .06em;
   text-transform: uppercase;
 }
 
-.ticketPrice {
-  margin-top: 54px;
-  font-family: var(--font-bricolage), system-ui, sans-serif;
-  font-size: clamp(42px, 4vw, 58px);
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -.045em;
-}
-
-.ticketNote {
-  max-width: 270px;
-  margin-top: 14px !important;
-  color: currentColor;
+.priceCard > p {
+  margin-top: 12px !important;
   font-size: 14px;
   line-height: 21px;
-  opacity: .72;
+  opacity: .7;
 }
 
-.ticketButton {
+.ticketBonusList {
+  display: grid;
+  margin-top: 18px;
+  border-top: 1px solid rgb(0 64 39 / 16%);
+}
+
+.ticketBonusList > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 0;
+  border-bottom: 1px solid rgb(0 64 39 / 16%);
+}
+
+.ticketBonusList > div > span {
+  display: grid;
+  gap: 2px;
+}
+
+.ticketBonusList small {
+  font-size: 10px;
+  font-weight: 750;
+  line-height: 13px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  opacity: .6;
+}
+
+.ticketBonusList strong {
+  font-family: var(--font-bricolage), system-ui, sans-serif;
+  font-size: 24px;
+  line-height: 27px;
+  letter-spacing: -.025em;
+}
+
+.ticketBonusList p {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: var(--event-dark);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.priceCard .buyButton {
   width: 100%;
-  margin-top: auto;
+  margin-top: 22px;
   background: var(--event-dark);
   box-shadow: none;
   color: #fff;
 }
 
-.ticketButton:hover {
+.priceCard .buyButton:hover {
   background: var(--event-green);
   box-shadow: none;
   color: #fff;
-}
-
-.ticketpink .ticketButton {
-  background: var(--event-burgundy);
-}
-
-.ticketpink .ticketButton:hover {
-  background: #5d0a39;
-}
-
-.ticketFinePrint {
-  margin-top: 20px !important;
-  color: #79847e;
-  font-size: 12px;
-  line-height: 17px;
-  text-align: center;
 }
 
 .experienceSection {
@@ -653,6 +642,14 @@
   line-height: 18px;
 }
 
+.timelineDetail {
+  max-width: 510px;
+  margin-top: 7px !important;
+  color: var(--event-muted);
+  font-size: 13px;
+  line-height: 19px;
+}
+
 .timelineArtist:hover {
   color: var(--event-dark);
   text-decoration: underline;
@@ -764,6 +761,109 @@
 
 .mapLink:hover {
   color: var(--event-dark);
+}
+
+.sponsorsSection {
+  padding: 112px 0 120px;
+  background: #fff;
+}
+
+.sponsorsHeading {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.sponsorsHeading h2 {
+  margin-top: 15px;
+  font-size: clamp(46px, 4.5vw, 66px);
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: -.04em;
+}
+
+.sponsorsHeading h2 span {
+  color: var(--event-green);
+}
+
+.sponsorsHeading > p:last-child {
+  max-width: 580px;
+  margin: 22px auto 0 !important;
+  color: var(--event-muted);
+  font-size: 17px;
+  line-height: 26px;
+  text-wrap: pretty;
+}
+
+.sponsorGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin: 54px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sponsorGrid li {
+  display: grid;
+  min-width: 0;
+  height: 128px;
+  place-items: center;
+  padding: 20px;
+  border: 1px solid var(--event-line);
+  border-radius: 22px;
+  background: var(--event-cream);
+}
+
+.sponsorGrid li > a {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  border-radius: 12px;
+}
+
+.sponsorGrid li > a:focus-visible {
+  outline: 3px solid var(--event-lime);
+  outline-offset: 4px;
+}
+
+.sponsorGrid img {
+  display: block;
+  width: min(100%, 180px);
+  height: 72px;
+  object-fit: contain;
+}
+
+.sponsorGrid .sponsorSlotEmpty {
+  border-style: dashed;
+  background: #fbfcf9;
+}
+
+.sponsorPlaceholder {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #a1aca6;
+}
+
+.sponsorPlaceholder small {
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 15px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.sponsorPlaceholder strong {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid #d8ded9;
+  border-radius: 50%;
+  font-family: var(--font-bricolage), system-ui, sans-serif;
+  font-size: 10px;
 }
 
 .finalSection {
@@ -971,6 +1071,24 @@
   color: var(--event-muted);
   font-size: 14px;
   line-height: 20px;
+}
+
+.currentBonus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px !important;
+  padding: 10px 12px;
+  border-radius: 13px;
+  background: #eff8dc;
+  color: var(--event-green);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 18px;
+}
+
+.currentBonus svg {
+  flex: 0 0 auto;
 }
 
 .quantityPicker {
@@ -1308,21 +1426,20 @@
     margin-top: 18px;
   }
 
-  .ticketGrid {
+  .ticketLayout {
     grid-template-columns: 1fr;
+    gap: 42px;
   }
 
-  .ticketCard {
-    min-height: 320px;
+  .priceCard {
+    min-height: 400px;
   }
 
-  .sectionHeading,
   .experienceHeading {
     grid-template-columns: 1fr;
     gap: 28px;
   }
 
-  .sectionHeading > p,
   .experienceHeading > p {
     max-width: 620px;
   }
@@ -1338,6 +1455,10 @@
 
   .locationPhoto {
     width: min(100%, 570px);
+  }
+
+  .sponsorGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -1375,9 +1496,9 @@
   }
 
   .heroInner {
-    gap: 42px;
-    padding-top: 44px;
-    padding-bottom: 64px;
+    gap: 0;
+    padding-top: 34px;
+    padding-bottom: 34px;
   }
 
   .kicker {
@@ -1386,7 +1507,7 @@
 
   .heroCopy h1 {
     margin-top: 15px;
-    font-size: clamp(45px, 13.2vw, 60px);
+    font-size: clamp(42px, 12.4vw, 56px);
     line-height: .96;
     letter-spacing: -.045em;
   }
@@ -1405,7 +1526,7 @@
   }
 
   .heroFacts > div {
-    min-height: 70px;
+    min-height: 60px;
     padding: 10px 12px;
   }
 
@@ -1422,31 +1543,24 @@
   }
 
   .heroActions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 26px;
+    margin-top: 24px;
   }
 
-  .heroActions .buyButton,
   .secondaryButton {
     min-height: 50px;
-    padding: 12px 13px;
+    padding: 12px 20px;
     font-size: 13px;
   }
 
-  .heroActions .buyButton svg {
+  .heroVisual {
     display: none;
   }
 
-  .heroVisual {
-    width: calc(100% - 16px);
-    margin-top: 4px;
-  }
-
   .photoFrame {
+    aspect-ratio: 4 / 3;
     border-width: 7px;
     border-radius: 28px;
+    transform: rotate(1.5deg);
   }
 
   .venuePhoto {
@@ -1462,10 +1576,10 @@
   .heroTicker {
     justify-content: flex-start;
     gap: 16px;
-    min-height: 60px;
+    min-height: 48px;
     overflow: hidden;
-    padding: 14px 20px;
-    font-size: 15px;
+    padding: 11px 20px;
+    font-size: 14px;
     white-space: nowrap;
   }
 
@@ -1478,48 +1592,92 @@
   .ticketsSection,
   .experienceSection,
   .scheduleSection,
-  .locationSection {
-    padding: 84px 0;
+  .locationSection,
+  .sponsorsSection {
+    padding: 72px 0;
   }
 
-  .sectionHeading h2,
+  .ticketsSection {
+    padding: 56px 0;
+  }
+
+  .ticketCopy h2,
   .experienceHeading h2,
   .scheduleIntro h2,
-  .locationCopy h2 {
+  .locationCopy h2,
+  .sponsorsHeading h2 {
     font-size: 43px;
     line-height: 1.02;
   }
 
-  .sectionHeading > p,
+  .ticketCopy > p:last-child,
   .experienceHeading > p,
   .scheduleIntro > p:last-child,
-  .locationCopy > p {
+  .locationCopy > p,
+  .sponsorsHeading > p:last-child {
     font-size: 15px;
     line-height: 23px;
   }
 
-  .ticketGrid {
-    gap: 12px;
+  .sponsorGrid {
+    grid-template-columns: none;
+    grid-auto-columns: minmax(142px, 43vw);
+    grid-auto-flow: column;
+    gap: 10px;
     margin-top: 38px;
+    margin-right: -20px;
+    overflow-x: auto;
+    padding-right: 20px;
+    padding-bottom: 8px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
   }
 
-  .ticketCard {
-    min-height: 302px;
+  .sponsorGrid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sponsorGrid li {
+    height: 96px;
+    padding: 14px;
+    border-radius: 18px;
+    scroll-snap-align: start;
+  }
+
+  .sponsorGrid li:last-child:nth-child(odd) {
+    grid-column: auto;
+    width: auto;
+  }
+
+  .ticketLayout {
+    gap: 34px;
+  }
+
+  .priceCard {
+    min-height: 0;
     padding: 24px;
     border-radius: 24px;
   }
 
-  .ticketPrice {
-    margin-top: 36px;
-    font-size: 50px;
-  }
-
-  .ticketNote {
+  .priceCard > p {
     font-size: 13px;
     line-height: 19px;
   }
 
-  .ticketButton {
+  .ticketBonusList {
+    margin-top: 15px;
+  }
+
+  .ticketBonusList > div {
+    padding: 11px 0;
+  }
+
+  .ticketBonusList strong {
+    font-size: 22px;
+    line-height: 25px;
+  }
+
+  .priceCard .buyButton {
     min-height: 50px;
   }
 
@@ -1547,24 +1705,31 @@
 
   .scheduleLayout,
   .locationLayout {
-    gap: 45px;
+    gap: 34px;
+  }
+
+  .scheduleIntro > p:last-child {
+    display: none;
   }
 
   .timeline li {
-    grid-template-columns: 44px minmax(0, 1fr);
-    gap: 14px;
-    min-height: 108px;
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    padding: 14px 0;
   }
 
   .timelineIcon {
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
+    display: none;
   }
 
   .timeline h3 {
-    font-size: 19px;
-    line-height: 24px;
+    margin-top: 3px;
+    font-size: 17px;
+    line-height: 21px;
+  }
+
+  .timelineDetail {
+    display: none;
   }
 
   .timelineNumber {
@@ -1573,6 +1738,7 @@
 
   .locationPhoto {
     width: 100%;
+    aspect-ratio: 16 / 10;
     border-radius: 25px;
   }
 
@@ -1725,7 +1891,11 @@
 
 @media (max-width: 640px) {
   .checkoutSection {
-    padding: 82px 0;
+    padding: 58px 0;
+  }
+
+  .checkoutLayout {
+    gap: 28px;
   }
 
   .checkoutBackdrop {
@@ -1740,20 +1910,17 @@
   }
 
   .checkoutIntro > p:not(.overline) {
+    margin-top: 18px;
     font-size: 15px;
     line-height: 23px;
   }
 
   .checkoutIntro ul {
-    grid-template-columns: 1fr;
-  }
-
-  .checkoutIntro li {
-    align-items: center;
+    display: none;
   }
 
   .checkoutCard {
-    min-height: 500px;
+    min-height: 460px;
     padding: 25px 19px;
     border-radius: 24px;
   }
@@ -1765,6 +1932,7 @@
   .quantityPicker {
     grid-template-columns: 52px minmax(0, 1fr) 52px;
     gap: 9px;
+    margin-top: 24px;
     padding: 14px;
   }
 
