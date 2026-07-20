@@ -22,41 +22,39 @@ const PRICE_BY_COUNTRY: Record<Country, { ventas: string; destacado: string; des
 
 const PLANS = [
   {
-    name: 'Starter',
+    name: 'Gratis',
     priceKey: 'starter' as const,
-    lead: 'Conseguí nuevos clientes sin costo.',
+    lead: 'Empezá a recibir nuevas visitas, sin costo mensual.',
     features: [
       <>Aparecés en el mapa de Pasito</>,
-      <><strong>Único requisito:</strong> publicás un premio gratuito con mínimo 5 canjes por día para los usuarios</>,
-      <>Podés sumar descuentos</>,
+      <>Para mantener activo el plan, ofrecé al menos un premio 100% gratuito —sin compra adicional— con un cupo disponible de 5 canjes por día</>,
+      <>Por cada premio activo, podés sumar hasta 2 descuentos</>,
     ],
     action: 'Empezá gratis',
   },
   {
-    name: 'Ventas',
+    name: 'Standard',
     priceKey: 'ventas' as const,
-    lead: 'Convertí las visitas en ventas.',
-    extra: 'Todo lo de Starter, más:',
+    lead: 'Más libertad para convertir visitas en ventas.',
     featured: true,
     features: [
-      <><strong>Beneficios que cuidan tu margen:</strong> ofrecé descuentos y premios con compra adicional, sin necesidad de bonificar productos completos</>,
-      <>Sellos e insignias de tu local</>,
-      <>Recompensas por visitas recurrentes</>,
-      <>Configuración avanzada de beneficios</>,
-      <>Próximamente: Club del comercio, tu programa de fidelización</>,
-      <>Próximamente: campañas y notificaciones segmentadas</>,
+      <>Elegís si querés ofrecer premios 100% gratuitos</>,
+      <>Publicá todos los descuentos que quieras</>,
+      <>Creá comunidad con sellos e insignias que los usuarios obtienen al canjear en tu comercio</>,
+      <>Aparecés en el mapa de Pasito</>,
     ],
-    action: 'Activar Ventas',
+    action: 'Activar Standard',
   },
   {
     name: 'Destacado',
     priceKey: 'destacado' as const,
-    lead: 'Sé la primera opción de tu zona.',
-    extra: 'Todo lo de Ventas, más:',
+    lead: 'Más visibilidad para ser una de las primeras opciones de tu zona.',
+    extra: 'Todo lo incluido en Standard, más:',
     features: [
-      <>Pin destacado en el mapa</>,
-      <>Aparecés primero en las búsquedas</>,
-      <>Branding destacado de tu comercio</>,
+      <>Posicionamiento prioritario en los primeros puestos de tu categoría</>,
+      <>Pin destacado con la foto de tu marca</>,
+      <>3 notificaciones push por mes a una audiencia de 5.000 usuarios de tu zona</>,
+      <>Soporte 24/7</>,
     ],
     action: 'Quiero destacarme',
   },
@@ -65,17 +63,13 @@ const PLANS = [
 const TABLE_ROWS = [
   ['Ideal para', 'Darse a conocer', 'Vender y fidelizar', 'Dominar tu zona'],
   ['Aparece en el mapa', '✓', '✓', '⭐ Destacado'],
-  ['Premios gratuitos', '✓ (mín. 5/día)', 'Opcional', 'Opcional'],
-  ['Descuentos', '✓', '✓', '✓'],
-  ['Premios con compra', '—', '✓', '✓'],
+  ['Premios 100% gratuitos', '1 activo (mín. 5/día)', 'Opcional', 'Opcional'],
+  ['Descuentos', 'Hasta 2 por premio activo', 'Sin límite', 'Sin límite'],
   ['Sellos e insignias', '—', '✓', '✓'],
-  ['Recompensas por visitas recurrentes', '—', '✓', '✓'],
-  ['Configuración avanzada', '—', '✓', '✓'],
-  ['Pin destacado en el mapa', '—', '—', '✓'],
-  ['Primero en búsquedas', '—', '—', '✓'],
-  ['Branding destacado', '—', '—', '✓'],
-  ['Club del comercio (próximamente)', '—', '✓', '✓'],
-  ['Campañas segmentadas (próximamente)', '—', '✓', '✓'],
+  ['Primeros puestos de la categoría', '—', '—', '✓'],
+  ['Pin con foto de marca', '—', '—', '✓'],
+  ['Notificaciones push', '—', '—', '3/mes a 5.000 usuarios'],
+  ['Soporte 24/7', '—', '—', '✓'],
 ]
 
 export function PricingPlans() {
@@ -135,7 +129,7 @@ export function PricingPlans() {
         <summary><span className={styles.compareSummaryTitle}>Comparación completa</span><span className={styles.compareLabel} /></summary>
         <div className={styles.tableWrap}>
           <table className={styles.compareTable}>
-            <thead><tr><th /><th>Starter</th><th>Ventas</th><th>Destacado</th></tr></thead>
+            <thead><tr><th /><th>Gratis</th><th>Standard</th><th>Destacado</th></tr></thead>
             <tbody>{[priceRow, ...TABLE_ROWS].map((row) => <tr key={row[0]}>{row.map((cell, index) => <td key={`${row[0]}-${index}`}>{cell}</td>)}</tr>)}</tbody>
           </table>
         </div>

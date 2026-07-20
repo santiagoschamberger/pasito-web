@@ -39,13 +39,13 @@ const RULES = [
 ]
 
 const FAQS = [
-  { q: '¿Cuánto cuesta el plan Starter?', a: 'Nada. Tu única inversión es el premio que entregás cuando alguien llega de verdad a tu local.' },
+  { q: '¿Cuánto cuesta el plan Gratis?', a: 'Nada. Para mantenerlo activo, ofrecés un premio sin compra adicional con un cupo disponible de al menos 5 canjes por día.' },
   { q: '¿Qué puedo ofrecer como premio?', a: 'Un producto, un servicio, una clase o una experiencia. Lo que mejor represente a tu comercio.' },
-  { q: '¿Estoy obligado a regalar producto?', a: 'Solo en Starter. En Ventas y Destacado podés trabajar únicamente con descuentos y premios con compra. Y no es regalar, es invertir para que alguien entre a tu local y pruebe tu producto.' },
+  { q: '¿Tengo que ofrecer un premio gratuito?', a: 'En el plan Gratis, sí: para mantenerlo activo necesitás publicar al menos un premio sin compra adicional, con un cupo disponible de 5 canjes por día. En Standard y Destacado, los premios gratuitos son opcionales.' },
   { q: '¿Cómo valido un canje?', a: 'Con un código fijo de 4 números que te asigna Pasito. Si trabajás con cupones propios, podés cargar tus códigos y validarlos en tu sistema.' },
-  { q: '¿Puedo limitar cuántos canjes recibo?', a: 'Sí. Definís un cupo diario (mínimo 5 en Starter), los días, horarios y sucursales.' },
+  { q: '¿Puedo limitar cuántos canjes recibo?', a: 'Sí. Definís el cupo diario, los días, horarios y sucursales. En el plan Gratis, el cupo mínimo disponible es de 5 canjes por día.' },
   { q: '¿Cómo cobro la compra adicional?', a: 'Como siempre: con tus medios de pago habituales. Pasito no interviene ni cobra comisión sobre esa venta.' },
-  { q: '¿Qué es el Club del comercio?', a: 'Próximamente. Será tu propio programa de fidelización dentro de Pasito: sellos, insignias y recompensas para que tus clientes vuelvan.' },
+  { q: '¿Cómo funciona la comunidad de mi comercio?', a: 'Con Standard y Destacado, los usuarios obtienen sellos e insignias cuando canjean en tu comercio, fortaleciendo el vínculo con tu comunidad.' },
   { q: '¿Hay permanencia?', a: 'No. Cambiás de plan o te das de baja cuando quieras.' },
 ]
 
@@ -156,7 +156,7 @@ export default async function ComerciosPage() {
               <span className={styles.comparisonFoot}><span className={styles.comparisonPill}>5/10 compran algo más</span></span>
             </article>
           </div>
-          <p className={styles.comparisonNote}>¿Y si arrancás con Starter? Costo fijo $0: tu única inversión es el premio, y solo cuando la visita llega.</p>
+          <p className={styles.comparisonNote}>¿Y si arrancás con el plan Gratis? Costo fijo $0: tu única inversión es el premio, y solo cuando la visita llega.</p>
         </div>
       </section>
 
