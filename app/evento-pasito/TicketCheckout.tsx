@@ -10,6 +10,7 @@ import {
   type TicketBreakdown,
   type TicketInventoryTier,
 } from '@/lib/tomate-event'
+import { PasitosClaimForm } from './pasitos/PasitosClaimForm'
 import styles from './tomate.module.css'
 
 const REBILL_PUBLIC_KEY = process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY ?? ''
@@ -37,6 +38,12 @@ type Quote = {
 
 type Confirmation = {
   emailPending: boolean
+  pasitosReward?: {
+    amount: number
+    status: 'credited' | 'pending'
+    claimUrl: string
+    claimToken: string
+  }
   tickets: { code: string; number: number; url: string }[]
 }
 
@@ -333,6 +340,19 @@ export function TicketCheckout() {
                   </a>
                 ))}
               </div>
+              {confirmation.pasitosReward?.status === 'credited' && (
+                <div className={styles.creditedBonus} role="status">
+                  <Gift size={20} aria-hidden="true" />
+                  <span><strong>{confirmation.pasitosReward.amount} Pasitos acreditados</strong><small>Ya están en la cuenta asociada al email del pago.</small></span>
+                </div>
+              )}
+              {confirmation.pasitosReward?.status === 'pending' && (
+                <PasitosClaimForm
+                  token={confirmation.pasitosReward.claimToken}
+                  amount={confirmation.pasitosReward.amount}
+                  compact
+                />
+              )}
               <button type="button" className={styles.checkoutPrimary} onClick={reset}>Comprar otra entrada</button>
               <a className={styles.recoveryLink} href="/evento-pasito/entradas">¿Necesitás reenviar tus entradas?</a>
             </div>

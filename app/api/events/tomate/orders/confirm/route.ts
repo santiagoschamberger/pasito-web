@@ -4,7 +4,7 @@ import { TOMATE_EVENT, type EventTicket } from '@/lib/tomate-event'
 import { getRebillPayment, rebillCustomerName, type RebillPayment } from '@/lib/tomate-rebill'
 import { getTomateSupabase, requestOrigin } from '@/lib/tomate-server'
 import { sendTomateTicketsEmail } from '@/lib/tomate-ticket-email'
-import { createTicketToken } from '@/lib/tomate-ticket-security'
+import { createPasitosClaimToken, createTicketToken } from '@/lib/tomate-ticket-security'
 
 type ConfirmResult = {
   status?: 'confirmed' | 'duplicate' | 'invalid' | 'invalid_intent' | 'amount_mismatch'
@@ -36,6 +36,11 @@ type TicketRow = {
   ticket_number: number
   status: 'valid' | 'used' | 'void'
   checked_in_at: string | null
+}
+
+type PasitosClaimResult = {
+  status?: 'credited' | 'account_not_found'
+  amount?: number
 }
 
 async function loadOrder(paymentId: string): Promise<{ order: OrderRow; tickets: EventTicket[] }> {
@@ -158,14 +163,32 @@ export async function POST(request: NextRequest) {
     }
 
     const bundle = await loadOrder(paymentId)
+    const origin = requestOrigin(request)
+    const claimToken = createPasitosClaimToken(bundle.order.id)
+    const { data: rawReward, error: rewardError } = await db.rpc('event_claim_order_pasitos', {
+      p_order_id: bundle.order.id,
+      p_account_email: bundle.order.customer_email,
+    })
+    if (rewardError) throw rewardError
+    const rewardResult = (rawReward ?? {}) as PasitosClaimResult
+    if (rewardResult.status !== 'credited' && rewardResult.status !== 'account_not_found') {
+      throw new Error(`No se pudo preparar el premio de Pasitos: ${rewardResult.status ?? 'unknown'}`)
+    }
+    const pasitosReward = {
+      amount: rewardResult.amount ?? 0,
+      status: rewardResult.status === 'credited' ? 'credited' as const : 'pending' as const,
+      claimToken,
+      claimUrl: `${origin}/evento-pasito/pasitos/${claimToken}`,
+    }
     let emailPending = Boolean(!bundle.order.confirmation_email_sent_at)
     const isE2e = Boolean(e2ePayment(paymentId, intent))
     const shouldSendEmail = !isE2e || process.env.TOMATE_E2E_SEND_EMAIL === '1'
     if (emailPending && shouldSendEmail) {
       try {
         const sent = await sendTomateTicketsEmail({
-          origin: requestOrigin(request),
+          origin,
           kind: 'confirmation',
+          pasitosRewards: [pasitosReward],
           orders: [{
             id: bundle.order.id,
             paymentId: bundle.order.rebill_payment_id,
@@ -195,10 +218,11 @@ export async function POST(request: NextRequest) {
       result: result.status,
       latePayment: Boolean(result.latePayment),
       emailPending,
+      pasitosReward,
       tickets: bundle.tickets.map((ticket) => ({
         code: ticket.code,
         number: ticket.number,
-        url: `${requestOrigin(request)}/evento-pasito/ticket/${createTicketToken(ticket.id)}`,
+        url: `${origin}/evento-pasito/ticket/${createTicketToken(ticket.id)}`,
       })),
     }, { headers: { 'Cache-Control': 'no-store, max-age=0' } })
   } catch (error) {

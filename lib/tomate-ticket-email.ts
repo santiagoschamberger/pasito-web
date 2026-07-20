@@ -30,6 +30,11 @@ export async function sendTomateTicketsEmail(params: {
   origin: string
   orders: TicketEmailOrder[]
   kind: 'confirmation' | 'recovery'
+  pasitosRewards?: Array<{
+    amount: number
+    status: 'credited' | 'pending'
+    claimUrl: string
+  }>
 }): Promise<{ id: string | null }> {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) throw new Error('Falta RESEND_API_KEY.')
@@ -63,6 +68,18 @@ export async function sendTomateTicketsEmail(params: {
   const intro = params.kind === 'confirmation'
     ? `${greeting}tu pago está confirmado. ${allTickets.length === 1 ? 'Esta es tu entrada' : 'Estas son tus entradas'} para ${escapeHtml(TOMATE_EVENT.name)}.`
     : `${greeting}acá tenés nuevamente ${allTickets.length === 1 ? 'tu entrada' : 'tus entradas'} para ${escapeHtml(TOMATE_EVENT.name)}.`
+  const rewardCards = (params.pasitosRewards ?? []).filter((reward) => reward.amount > 0).map((reward) => (
+    reward.status === 'credited'
+      ? `<div style="margin:0 0 24px;padding:18px;border-radius:14px;background:#edf8f1;color:#17382a;">
+          <p style="margin:0 0 5px;font-size:15px;font-weight:800;">🎁 ${reward.amount} Pasitos acreditados</p>
+          <p style="margin:0;color:#536158;font-size:13px;line-height:1.5;">Ya están en la cuenta de Pasito asociada al email con el que pagaste.</p>
+        </div>`
+      : `<div style="margin:0 0 24px;padding:18px;border-radius:14px;background:#edf8f1;color:#17382a;">
+          <p style="margin:0 0 5px;font-size:15px;font-weight:800;">🎁 Tenés ${reward.amount} Pasitos para acreditar</p>
+          <p style="margin:0 0 14px;color:#536158;font-size:13px;line-height:1.5;">No encontramos una cuenta de Pasito con el email del pago. Decinos qué email usás en la app.</p>
+          <a href="${escapeHtml(reward.claimUrl)}" style="display:inline-block;padding:11px 16px;border-radius:999px;background:#0c6b45;color:#fff;font-size:13px;font-weight:800;text-decoration:none;">Acreditar mis Pasitos</a>
+        </div>`
+  )).join('')
   const html = `<!doctype html>
   <html><head><meta charset="utf-8"></head>
   <body style="margin:0;padding:0;background:#f3f5ed;">
@@ -79,6 +96,7 @@ export async function sendTomateTicketsEmail(params: {
           <p style="margin:0;font-size:14px;">${escapeHtml(TOMATE_EVENT.venueLabel)}</p>
           ${params.kind === 'confirmation' ? `<p style="margin:7px 0 0;font-size:14px;">Total: <strong>${tomateMoney(totalAmount)}</strong></p>` : ''}
         </div>
+        ${rewardCards}
         ${ticketCards}
         <p style="margin:22px 0 0;color:#66736b;font-size:13px;line-height:1.55;">Guardá este email. El QR es único y se valida una sola vez en el ingreso. Podés llevarlo en el celular; no hace falta imprimirlo.</p>
         <p style="margin:28px 0 0;padding-top:20px;border-top:1px solid #eef0e8;color:#203d2e;font-size:14px;">Nos vemos en la calle,<br><strong>Pasito</strong></p>

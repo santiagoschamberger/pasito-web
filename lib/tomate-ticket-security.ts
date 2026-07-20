@@ -3,6 +3,7 @@ import 'server-only'
 import { createHmac, timingSafeEqual } from 'node:crypto'
 
 const TICKET_VERSION = 'pt1'
+const PASITOS_CLAIM_VERSION = 'pp1'
 const SESSION_VERSION = 'pcs1'
 export const TOMATE_CHECKIN_COOKIE = 'tomate_checkin_session'
 
@@ -30,6 +31,19 @@ export function createTicketToken(ticketId: string): string {
 export function readTicketToken(value: string): string | null {
   const parts = value.trim().split('.')
   if (parts.length !== 3 || parts[0] !== TICKET_VERSION) return null
+  const payload = `${parts[0]}.${parts[1]}`
+  if (!safeEqual(signature(payload), parts[2])) return null
+  return /^[0-9a-f-]{36}$/i.test(parts[1]) ? parts[1] : null
+}
+
+export function createPasitosClaimToken(orderId: string): string {
+  const payload = `${PASITOS_CLAIM_VERSION}.${orderId}`
+  return `${payload}.${signature(payload)}`
+}
+
+export function readPasitosClaimToken(value: string): string | null {
+  const parts = value.trim().split('.')
+  if (parts.length !== 3 || parts[0] !== PASITOS_CLAIM_VERSION) return null
   const payload = `${parts[0]}.${parts[1]}`
   if (!safeEqual(signature(payload), parts[2])) return null
   return /^[0-9a-f-]{36}$/i.test(parts[1]) ? parts[1] : null
