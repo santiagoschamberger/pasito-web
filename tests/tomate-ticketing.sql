@@ -52,8 +52,8 @@ begin
   );
   assert v_result ->> 'status' = 'reserved', 'first reservation failed';
   assert (v_result ->> 'amount')::integer = 35000, 'first-tier amount mismatch';
-  assert (v_result ->> 'expiresAt')::timestamptz = now() + interval '15 minutes',
-    'checkout reservation must expire after 15 minutes';
+  assert (v_result ->> 'expiresAt')::timestamptz = now() + interval '5 minutes',
+    'checkout reservation must expire after 5 minutes';
   v_first_intent := (v_result ->> 'intentId')::uuid;
 
   -- A new reservation in the same browser replaces the old hold atomically.
