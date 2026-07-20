@@ -1380,6 +1380,22 @@
   display: block;
 }
 
+.creditedBonus span {
+  min-width: 0;
+  flex: 1;
+}
+
+.creditedBonus > a {
+  flex: 0 0 auto;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: var(--event-green);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 .creditedBonus strong {
   font-size: 14px;
 }
@@ -1682,6 +1698,16 @@
     width: 24px;
     height: 24px;
     font-size: 9px;
+  }
+
+  .creditedBonus {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .creditedBonus > a {
+    width: 100%;
+    text-align: center;
   }
 
   .ticketLayout {

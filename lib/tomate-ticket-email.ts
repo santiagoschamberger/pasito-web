@@ -32,6 +32,7 @@ export async function sendTomateTicketsEmail(params: {
   kind: 'confirmation' | 'recovery'
   pasitosRewards?: Array<{
     amount: number
+    quantity: number
     status: 'credited' | 'pending'
     claimUrl: string
   }>
@@ -72,12 +73,12 @@ export async function sendTomateTicketsEmail(params: {
     reward.status === 'credited'
       ? `<div style="margin:0 0 24px;padding:18px;border-radius:14px;background:#edf8f1;color:#17382a;">
           <p style="margin:0 0 5px;font-size:15px;font-weight:800;">🎁 ${reward.amount} Pasitos acreditados</p>
-          <p style="margin:0;color:#536158;font-size:13px;line-height:1.5;">Ya están en la cuenta de Pasito asociada al email con el que pagaste.</p>
+          <p style="margin:0;color:#536158;font-size:13px;line-height:1.5;">Ya fueron enviados a las cuentas de Pasito indicadas para ${reward.quantity === 1 ? 'la entrada' : `las ${reward.quantity} entradas`}.</p>
         </div>`
       : `<div style="margin:0 0 24px;padding:18px;border-radius:14px;background:#edf8f1;color:#17382a;">
-          <p style="margin:0 0 5px;font-size:15px;font-weight:800;">🎁 Tenés ${reward.amount} Pasitos para acreditar</p>
-          <p style="margin:0 0 14px;color:#536158;font-size:13px;line-height:1.5;">No encontramos una cuenta de Pasito con el email del pago. Decinos qué email usás en la app.</p>
-          <a href="${escapeHtml(reward.claimUrl)}" style="display:inline-block;padding:11px 16px;border-radius:999px;background:#0c6b45;color:#fff;font-size:13px;font-weight:800;text-decoration:none;">Acreditar mis Pasitos</a>
+          <p style="margin:0 0 5px;font-size:15px;font-weight:800;">🎁 Tenés ${reward.amount} Pasitos para repartir</p>
+          <p style="margin:0 0 14px;color:#536158;font-size:13px;line-height:1.5;">Cargá un ID de soporte por entrada. Si querés, podés usar el mismo ID para ${reward.quantity === 1 ? 'la entrada' : 'todas'}.</p>
+          <a href="${escapeHtml(reward.claimUrl)}" style="display:inline-block;padding:11px 16px;border-radius:999px;background:#0c6b45;color:#fff;font-size:13px;font-weight:800;text-decoration:none;">Repartir mis Pasitos</a>
         </div>`
   )).join('')
   const html = `<!doctype html>

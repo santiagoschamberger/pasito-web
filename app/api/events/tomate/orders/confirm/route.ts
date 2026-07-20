@@ -38,9 +38,10 @@ type TicketRow = {
   checked_in_at: string | null
 }
 
-type PasitosClaimResult = {
-  status?: 'credited' | 'account_not_found'
+type PasitosPrepareResult = {
+  status?: 'pending' | 'credited'
   amount?: number
+  quantity?: number
 }
 
 async function loadOrder(paymentId: string): Promise<{ order: OrderRow; tickets: EventTicket[] }> {
@@ -165,18 +166,18 @@ export async function POST(request: NextRequest) {
     const bundle = await loadOrder(paymentId)
     const origin = requestOrigin(request)
     const claimToken = createPasitosClaimToken(bundle.order.id)
-    const { data: rawReward, error: rewardError } = await db.rpc('event_claim_order_pasitos', {
+    const { data: rawReward, error: rewardError } = await db.rpc('event_prepare_order_pasitos', {
       p_order_id: bundle.order.id,
-      p_account_email: bundle.order.customer_email,
     })
     if (rewardError) throw rewardError
-    const rewardResult = (rawReward ?? {}) as PasitosClaimResult
-    if (rewardResult.status !== 'credited' && rewardResult.status !== 'account_not_found') {
+    const rewardResult = (rawReward ?? {}) as PasitosPrepareResult
+    if (rewardResult.status !== 'pending' && rewardResult.status !== 'credited') {
       throw new Error(`No se pudo preparar el premio de Pasitos: ${rewardResult.status ?? 'unknown'}`)
     }
     const pasitosReward = {
       amount: rewardResult.amount ?? 0,
-      status: rewardResult.status === 'credited' ? 'credited' as const : 'pending' as const,
+      quantity: rewardResult.quantity ?? bundle.order.quantity,
+      status: rewardResult.status,
       claimToken,
       claimUrl: `${origin}/evento-pasito/pasitos/${claimToken}`,
     }

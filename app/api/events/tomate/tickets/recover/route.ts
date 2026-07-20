@@ -83,17 +83,17 @@ export async function POST(request: NextRequest) {
 
     const origin = requestOrigin(request)
     const pasitosRewards = (await Promise.all(orders.map(async (order) => {
-      const { data: rawReward, error: rewardError } = await db.rpc('event_claim_order_pasitos', {
+      const { data: rawReward, error: rewardError } = await db.rpc('event_prepare_order_pasitos', {
         p_order_id: order.id,
-        p_account_email: order.customer_email,
       })
       if (rewardError) throw rewardError
-      const reward = (rawReward ?? {}) as { status?: string; amount?: number }
-      if (reward.status !== 'credited' && reward.status !== 'account_not_found') return null
+      const reward = (rawReward ?? {}) as { status?: string; amount?: number; quantity?: number }
+      if (reward.status !== 'credited' && reward.status !== 'pending') return null
       const claimToken = createPasitosClaimToken(order.id)
       return {
         amount: reward.amount ?? 0,
-        status: reward.status === 'credited' ? 'credited' as const : 'pending' as const,
+        quantity: reward.quantity ?? order.quantity,
+        status: reward.status as 'credited' | 'pending',
         claimUrl: `${origin}/evento-pasito/pasitos/${claimToken}`,
       }
     }))).filter((reward): reward is NonNullable<typeof reward> => reward !== null)
