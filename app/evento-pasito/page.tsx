@@ -120,9 +120,9 @@ const SPONSORS: Sponsor[] = [
   },
   {
     name: 'Kiwell',
-    logo: '/evento-pasito/sponsors/kiwell.png',
+    logo: '/evento-pasito/sponsors/kiwell-wordmark.png',
     cardClassName: styles.sponsorCardKiwell,
-    logoClassName: styles.sponsorLogoCircle,
+    logoClassName: styles.sponsorLogoWide,
   },
   { name: 'Natier', logo: '/evento-pasito/sponsors/natier.webp' },
   {
