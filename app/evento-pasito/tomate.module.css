@@ -558,7 +558,7 @@
 }
 
 .scheduleSection {
-  padding: 132px 0;
+  padding: 132px 0 72px;
   background: #fff;
 }
 
@@ -764,8 +764,10 @@
 }
 
 .sponsorsSection {
-  padding: 112px 0 120px;
-  background: #fff;
+  padding: 84px 0 88px;
+  border-top: 1px solid #eee8dc;
+  border-bottom: 1px solid #eee8dc;
+  background: #fbf8f2;
 }
 
 .sponsorsHeading {
@@ -1656,7 +1658,11 @@
   }
 
   .sponsorsSection {
-    padding: 48px 0 52px;
+    padding: 44px 0 48px;
+  }
+
+  .scheduleSection {
+    padding-bottom: 40px;
   }
 
   .ticketCopy h2,
