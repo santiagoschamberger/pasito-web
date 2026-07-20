@@ -898,6 +898,10 @@
   transform: scale(1.32);
 }
 
+.sponsorGrid .sponsorLogoOffline {
+  transform: scale(1.12);
+}
+
 .sponsorGrid .sponsorCardUnderArmour {
   border-color: #dc0019;
   background: #dc0019;
@@ -913,9 +917,9 @@
   background: #ff760c;
 }
 
-.sponsorGrid .sponsorCardEmblem {
-  border-color: #003227;
-  background: #003227;
+.sponsorGrid .sponsorCardOffline {
+  border-color: var(--event-line);
+  background: #fff;
 }
 
 .sponsorGrid .sponsorCardBoss {

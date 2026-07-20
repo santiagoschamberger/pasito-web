@@ -120,10 +120,10 @@ const SPONSORS: Sponsor[] = [
     logoClassName: `${styles.sponsorLogoSquare} ${styles.sponsorLogoLinck}`,
   },
   {
-    name: 'Marca aliada',
-    logo: '/evento-pasito/sponsors/partner-emblem.jpg',
-    cardClassName: styles.sponsorCardEmblem,
-    logoClassName: styles.sponsorLogoSquare,
+    name: 'Offline',
+    logo: '/evento-pasito/sponsors/offline.png',
+    cardClassName: styles.sponsorCardOffline,
+    logoClassName: `${styles.sponsorLogoWide} ${styles.sponsorLogoOffline}`,
   },
   {
     name: 'BOSS',
