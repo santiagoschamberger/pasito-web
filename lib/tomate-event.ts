@@ -9,9 +9,9 @@ export const TOMATE_EVENT = {
 } as const
 
 export const TOMATE_TICKET_BONUSES = [
-  { position: 1, label: 'Primera tanda', unitPrice: 25000, pasitos: 50 },
-  { position: 2, label: 'Segunda tanda', unitPrice: 35000, pasitos: 20 },
-  { position: 3, label: 'Tercera tanda', unitPrice: 45000, pasitos: 70 },
+  { position: 1, label: 'Primera tanda', unitPrice: 35000, pasitos: 50 },
+  { position: 2, label: 'Segunda tanda', unitPrice: 45000, pasitos: 20 },
+  { position: 3, label: 'Tercera tanda', unitPrice: 55000, pasitos: 70 },
 ] as const
 
 export type TicketBreakdown = {

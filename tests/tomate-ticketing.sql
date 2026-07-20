@@ -24,9 +24,9 @@ begin
   insert into public.event_ticket_tiers (
     event_slug, position, name, unit_price, capacity, pasitos_bonus
   ) values
-    ('pasito-tomate-sql-test', 1, 'Primeras 100', 25000, 100, 50),
-    ('pasito-tomate-sql-test', 2, 'Siguientes 100', 35000, 100, 20),
-    ('pasito-tomate-sql-test', 3, 'Precio final', 45000, null, 70);
+    ('pasito-tomate-sql-test', 1, 'Primeras 100', 35000, 100, 50),
+    ('pasito-tomate-sql-test', 2, 'Siguientes 100', 45000, 100, 20),
+    ('pasito-tomate-sql-test', 3, 'Precio final', 55000, null, 70);
 
   select count(*)::integer into v_count
     from public.event_ticket_tiers
@@ -37,7 +37,7 @@ begin
     'pasito-tomate-sql-test', 1, repeat('1', 64), repeat('2', 64)
   );
   assert v_result ->> 'status' = 'reserved', 'first reservation failed';
-  assert (v_result ->> 'amount')::integer = 25000, 'first-tier amount mismatch';
+  assert (v_result ->> 'amount')::integer = 35000, 'first-tier amount mismatch';
   v_first_intent := (v_result ->> 'intentId')::uuid;
 
   -- A new reservation in the same browser replaces the old hold atomically.
@@ -69,12 +69,12 @@ begin
   );
   assert v_result ->> 'status' = 'reserved', '98-ticket setup failed';
 
-  -- Four tickets now span the 100-ticket price boundary: two at 25k and two at 35k.
+  -- Four tickets now span the 100-ticket price boundary: two at 35k and two at 45k.
   v_cross := public.event_reserve_tickets(
     'pasito-tomate-sql-test', 4, repeat('5', 64), repeat('6', 64)
   );
   assert v_cross ->> 'status' = 'reserved', 'cross-tier reservation failed';
-  assert (v_cross ->> 'amount')::integer = 120000, 'cross-tier total must be 2x25k + 2x35k';
+  assert (v_cross ->> 'amount')::integer = 160000, 'cross-tier total must be 2x35k + 2x45k';
   assert jsonb_array_length(v_cross -> 'breakdown') = 2, 'cross-tier breakdown should have two lines';
   assert (v_cross #>> '{breakdown,0,quantity}')::integer = 2, 'first-tier boundary quantity mismatch';
   assert (v_cross #>> '{breakdown,1,quantity}')::integer = 2, 'second-tier boundary quantity mismatch';
@@ -88,7 +88,7 @@ begin
   v_confirm := public.event_confirm_ticket_order(
     v_cross_intent,
     'pay_tomate_transactional_test',
-    120000,
+    160000,
     'ARS',
     'E2E.TEST@PASITO.APP',
     'Prueba Transaccional'
@@ -109,7 +109,7 @@ begin
   v_duplicate := public.event_confirm_ticket_order(
     v_cross_intent,
     'pay_tomate_transactional_test',
-    120000,
+    160000,
     'ARS',
     'e2e.test@pasito.app',
     'Prueba Transaccional'
