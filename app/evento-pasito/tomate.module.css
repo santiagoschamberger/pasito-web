@@ -906,7 +906,7 @@
 }
 
 .sponsorGrid .sponsorLogoArizona {
-  filter: saturate(3) contrast(1.08);
+  transform: scale(1.08);
 }
 
 .sponsorGrid .sponsorLogoLinck {
@@ -933,8 +933,8 @@
 }
 
 .sponsorGrid .sponsorCardArizona {
-  border-color: #f0f0f0;
-  background: #f8f8f8;
+  border-color: #000;
+  background: #000;
 }
 
 .sponsorGrid .sponsorCardProta {

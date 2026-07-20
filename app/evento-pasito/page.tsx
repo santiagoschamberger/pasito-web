@@ -151,7 +151,7 @@ const SPONSORS: Sponsor[] = [
   },
   {
     name: 'Arizona Health & Studio',
-    logo: '/evento-pasito/sponsors/arizona.jpeg',
+    logo: '/evento-pasito/sponsors/arizona.png',
     cardClassName: styles.sponsorCardArizona,
     logoClassName: `${styles.sponsorLogoWide} ${styles.sponsorLogoArizona}`,
   },
