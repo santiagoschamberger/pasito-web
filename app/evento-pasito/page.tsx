@@ -319,7 +319,7 @@ export default function TomateEventPage() {
                 </div>
               ))}
             </div>
-            <p>Los Pasitos que ves junto a cada precio son un regalo por entrada: los acreditamos en tu cuenta dentro de la app Pasito para que los uses donde quieras.</p>
+            <p>Los Pasitos que ves junto a cada precio son un regalo por entrada. Después de comprar, vas a poder indicar desde un link qué cuenta de Pasito recibe los de cada entrada.</p>
             <BuyButton label="Comprar entrada" />
           </div>
         </div>
