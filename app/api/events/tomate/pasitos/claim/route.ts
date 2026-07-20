@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { getTomateSupabase, requestIpHash } from '@/lib/tomate-server'
+import { isTomateSupportId } from '@/lib/tomate-support-id'
 import { readPasitosClaimToken } from '@/lib/tomate-ticket-security'
 
 type ClaimResult = {
-  status?: 'credited' | 'account_not_found' | 'payment_not_approved' | 'no_reward' | 'not_found' | 'invalid' | 'invalid_count'
+  status?: 'credited' | 'support_id_invalid' | 'payment_not_approved' | 'no_reward' | 'not_found' | 'invalid' | 'invalid_count'
   amount?: number
   alreadyCredited?: boolean
   invalidPositions?: number[]
+  ambiguousPositions?: number[]
 }
-
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 export async function POST(request: NextRequest) {
   let body: { token?: unknown; supportIds?: unknown }
@@ -23,9 +23,9 @@ export async function POST(request: NextRequest) {
   const token = typeof body.token === 'string' ? body.token.trim() : ''
   const orderId = readPasitosClaimToken(token)
   const supportIds = Array.isArray(body.supportIds)
-    ? body.supportIds.map((value) => typeof value === 'string' ? value.trim().toLowerCase() : '')
+    ? body.supportIds.map((value) => typeof value === 'string' ? value.trim().toUpperCase() : '')
     : []
-  if (!orderId || supportIds.length < 1 || supportIds.length > 6 || supportIds.some((id) => !UUID_PATTERN.test(id))) {
+  if (!orderId || supportIds.length < 1 || supportIds.length > 6 || supportIds.some((id) => !isTomateSupportId(id))) {
     return NextResponse.json({ error: 'Revisá el enlace y los IDs de soporte ingresados.' }, { status: 400 })
   }
 
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Demasiados intentos. Esperá unos minutos y probá de nuevo.' }, { status: 429 })
     }
 
-    const { data, error } = await db.rpc('event_claim_order_pasitos_by_support_ids', {
+    const { data, error } = await db.rpc('event_claim_order_pasitos_by_support_codes', {
       p_order_id: orderId,
       p_support_ids: supportIds,
     })
@@ -57,13 +57,22 @@ export async function POST(request: NextRequest) {
         alreadyCredited: Boolean(result.alreadyCredited),
       }, { headers: { 'Cache-Control': 'no-store, max-age=0' } })
     }
-    if (result.status === 'account_not_found') {
-      const positions = result.invalidPositions ?? []
-      const entries = positions.map((position) => `entrada ${position}`).join(', ')
+    if (result.status === 'support_id_invalid') {
+      const invalidPositions = result.invalidPositions ?? []
+      const ambiguousPositions = result.ambiguousPositions ?? []
+      const messages: string[] = []
+      if (invalidPositions.length > 0) {
+        const entries = invalidPositions.map((position) => `entrada ${position}`).join(', ')
+        messages.push(`No encontramos una cuenta de Pasito para ${entries}. Revisá ${invalidPositions.length === 1 ? 'ese ID' : 'esos IDs'} de soporte.`)
+      }
+      if (ambiguousPositions.length > 0) {
+        const entries = ambiguousPositions.map((position) => `entrada ${position}`).join(', ')
+        messages.push(`El ID de ${entries} coincide con más de una cuenta. Escribinos a soporte para acreditarlo de forma segura.`)
+      }
       return NextResponse.json({
-        error: `No encontramos una cuenta de Pasito para ${entries || 'uno de los IDs'}. Revisá ${positions.length === 1 ? 'ese ID' : 'esos IDs'} de soporte.`,
+        error: messages.join(' ') || 'Revisá los IDs de soporte ingresados.',
         amount: result.amount ?? 0,
-      }, { status: 404 })
+      }, { status: 422 })
     }
     if (result.status === 'invalid_count') {
       return NextResponse.json({ error: 'Tenés que ingresar un ID de soporte por cada entrada.' }, { status: 400 })

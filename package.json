@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",
-    "start": "next start"
+    "start": "next start",
+    "test": "node --experimental-strip-types --test tests/tomate-support-id.test.mts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
