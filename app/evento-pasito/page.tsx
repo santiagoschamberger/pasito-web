@@ -143,6 +143,53 @@ function BuyButton({ className = '', label = 'Comprar entrada' }: { className?: 
   )
 }
 
+function SponsorsSection() {
+  return (
+    <section className={styles.sponsorsSection} id="sponsors">
+      <div className={styles.container}>
+        <div className={styles.sponsorsHeading}>
+          <p className={styles.overline}>Marcas que caminan con nosotros</p>
+          <h2>Nos acompañan<br /><span>en cada paso.</span></h2>
+          <p>Muy pronto vas a conocer a todas las marcas que hacen posible este encuentro.</p>
+        </div>
+
+        <ul className={styles.sponsorGrid} aria-label="Sponsors del evento">
+          {SPONSORS.map((sponsor, index) => {
+            const logo = sponsor.logo ? (
+              <Image
+                src={sponsor.logo}
+                alt={sponsor.name}
+                width={180}
+                height={72}
+                sizes="(max-width: 640px) 25vw, (max-width: 860px) 24vw, 180px"
+              />
+            ) : (
+              <span className={styles.sponsorPlaceholder} aria-hidden="true">
+                <small>Logo</small>
+                <strong>{String(index + 1).padStart(2, '0')}</strong>
+              </span>
+            )
+
+            return (
+              <li
+                className={!sponsor.logo ? styles.sponsorSlotEmpty : undefined}
+                key={sponsor.name}
+                aria-label={!sponsor.logo ? `Espacio para sponsor ${index + 1}` : undefined}
+              >
+                {sponsor.href ? (
+                  <a href={sponsor.href} target="_blank" rel="noopener noreferrer" aria-label={`Visitar ${sponsor.name}`}>
+                    {logo}
+                  </a>
+                ) : logo}
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
 export default function TomateEventPage() {
   return (
     <main className={`${marketingStyles.page} ${styles.page}`} data-marketing-page>
@@ -250,6 +297,8 @@ export default function TomateEventPage() {
         </div>
       </section>
 
+      <SponsorsSection />
+
       <section className={styles.ticketsSection} id="entradas">
         <div className={`${styles.container} ${styles.ticketLayout}`}>
           <div className={styles.ticketCopy}>
@@ -305,49 +354,6 @@ export default function TomateEventPage() {
               Abrir en Google Maps <ExternalLink size={17} aria-hidden="true" />
             </a>
           </div>
-        </div>
-      </section>
-
-      <section className={styles.sponsorsSection} id="sponsors">
-        <div className={styles.container}>
-          <div className={styles.sponsorsHeading}>
-            <p className={styles.overline}>Marcas que caminan con nosotros</p>
-            <h2>Nos acompañan<br /><span>en cada paso.</span></h2>
-            <p>Muy pronto vas a conocer a todas las marcas que hacen posible este encuentro.</p>
-          </div>
-
-          <ul className={styles.sponsorGrid} aria-label="Sponsors del evento">
-            {SPONSORS.map((sponsor, index) => {
-              const logo = sponsor.logo ? (
-                <Image
-                  src={sponsor.logo}
-                  alt={sponsor.name}
-                  width={180}
-                  height={72}
-                  sizes="(max-width: 640px) 36vw, (max-width: 860px) 24vw, 180px"
-                />
-              ) : (
-                <span className={styles.sponsorPlaceholder} aria-hidden="true">
-                  <small>Logo</small>
-                  <strong>{String(index + 1).padStart(2, '0')}</strong>
-                </span>
-              )
-
-              return (
-                <li
-                  className={!sponsor.logo ? styles.sponsorSlotEmpty : undefined}
-                  key={sponsor.name}
-                  aria-label={!sponsor.logo ? `Espacio para sponsor ${index + 1}` : undefined}
-                >
-                  {sponsor.href ? (
-                    <a href={sponsor.href} target="_blank" rel="noopener noreferrer" aria-label={`Visitar ${sponsor.name}`}>
-                      {logo}
-                    </a>
-                  ) : logo}
-                </li>
-              )
-            })}
-          </ul>
         </div>
       </section>
 
