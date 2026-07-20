@@ -876,11 +876,6 @@
   background: #000;
 }
 
-.sponsorGrid .sponsorCardKiwell {
-  border-color: #2d4838;
-  background: #2d4838;
-}
-
 .sponsorGrid .sponsorCardMatter {
   border-color: var(--event-deep);
   background: var(--event-deep);

@@ -95,6 +95,11 @@ const SPONSORS: Sponsor[] = [
     logoClassName: styles.sponsorLogoSquare,
   },
   {
+    name: 'Kiwell',
+    logo: '/evento-pasito/sponsors/kiwell-2025.png',
+    logoClassName: styles.sponsorLogoWide,
+  },
+  {
     name: 'Somos PROTA',
     logo: '/evento-pasito/sponsors/somos-prota.jpeg',
     cardClassName: styles.sponsorCardProta,
@@ -116,12 +121,6 @@ const SPONSORS: Sponsor[] = [
     name: 'BOSS',
     logo: '/evento-pasito/sponsors/boss.jpeg',
     cardClassName: styles.sponsorCardBoss,
-    logoClassName: styles.sponsorLogoWide,
-  },
-  {
-    name: 'Kiwell',
-    logo: '/evento-pasito/sponsors/kiwell-wordmark.png',
-    cardClassName: styles.sponsorCardKiwell,
     logoClassName: styles.sponsorLogoWide,
   },
   { name: 'Natier', logo: '/evento-pasito/sponsors/natier.webp' },
