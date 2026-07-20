@@ -5,7 +5,6 @@ import { ArrowLeft, Check, Clock3, Gift, Mail, Minus, Plus, ShieldCheck, Ticket 
 
 import {
   TOMATE_EVENT,
-  TOMATE_TICKET_BONUSES,
   tomateMoney,
   type TicketBreakdown,
   type TicketInventoryTier,
@@ -189,10 +188,6 @@ export function TicketCheckout() {
   useEffect(() => { void refreshAvailability() }, [refreshAvailability])
 
   const currentTier = tiers.find((tier) => tier.available === null || tier.available > 0) ?? tiers.at(-1)
-  const currentBonus = currentTier
-    ? TOMATE_TICKET_BONUSES.find((bonus) => bonus.position === currentTier.position)
-    : null
-
   const releaseQuote = useCallback(async (reservation: Quote) => {
     try {
       await fetch(`/api/events/tomate/checkout-intents/${reservation.intentId}`, {
@@ -315,7 +310,6 @@ export function TicketCheckout() {
       <div className={styles.checkoutBackdrop} aria-hidden="true" />
       <div className={`${styles.container} ${styles.checkoutLayout}`}>
         <div className={styles.checkoutIntro}>
-          <p className={`${styles.overline} ${styles.overlineLight}`}>Compra segura</p>
           <h2 id="checkout-title">Tu lugar,<br /><span>en dos minutos.</span></h2>
           <p>Elegí cuántas entradas querés y confirmá el valor disponible antes de pagar.</p>
           <ul>
@@ -395,9 +389,6 @@ export function TicketCheckout() {
               <h3>{currentTier ? `Entradas a ${tomateMoney(currentTier.unitPrice)}` : 'Reservá tus entradas'}</h3>
               {currentTier && currentTier.capacity !== null && currentTier.available !== null && (
                 <p className={styles.availabilityCopy}>Cupos limitados: quedan {currentTier.available} entradas disponibles a este valor.</p>
-              )}
-              {currentBonus && (
-                <p className={styles.currentBonus}><Gift size={17} aria-hidden="true" /> Además, te regalamos {currentBonus.pasitos} Pasitos por entrada.</p>
               )}
               <div className={styles.quantityPicker} aria-label="Cantidad de entradas">
                 <button type="button" onClick={() => setQuantity((value) => Math.max(1, value - 1))} disabled={quantity === 1} aria-label="Restar una entrada"><Minus size={22} /></button>

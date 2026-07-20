@@ -1073,24 +1073,6 @@
   line-height: 20px;
 }
 
-.currentBonus {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 14px !important;
-  padding: 10px 12px;
-  border-radius: 13px;
-  background: #eff8dc;
-  color: var(--event-green);
-  font-size: 13px;
-  font-weight: 750;
-  line-height: 18px;
-}
-
-.currentBonus svg {
-  flex: 0 0 auto;
-}
-
 .quantityPicker {
   display: grid;
   grid-template-columns: 62px minmax(0, 1fr) 62px;

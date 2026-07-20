@@ -101,7 +101,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const protocol = requestHeaders.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https')
   const origin = `${protocol}://${host}`
   const title = 'Pasito Walking Club x TOMATE - 26 de julio'
-  const description = '10.000 pasos, almuerzo buffet, bienestar y música en el Rosedal de Palermo. Entradas desde $25.000.'
+  const description = '10.000 pasos, almuerzo buffet, bienestar y música en el Rosedal de Palermo. Entradas desde $35.000.'
 
   return {
     title,
@@ -270,7 +270,7 @@ export default function TomateEventPage() {
                 </div>
               ))}
             </div>
-            <p>El regalo corresponde a cada entrada comprada.</p>
+            <p>Los Pasitos que ves junto a cada precio son un regalo por entrada: los acreditamos en tu cuenta dentro de la app Pasito para que los uses donde quieras.</p>
             <BuyButton label="Comprar entrada" />
           </div>
         </div>
@@ -364,7 +364,7 @@ export default function TomateEventPage() {
       </footer>
 
       <div className={styles.mobileBuyBar}>
-        <span><small>Entradas desde</small><strong>$25.000</strong></span>
+        <span><small>Entradas desde</small><strong>$35.000</strong></span>
         <BuyButton label="Comprar entrada" />
       </div>
     </main>
