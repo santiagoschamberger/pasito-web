@@ -388,7 +388,7 @@ export function TicketCheckout() {
               <p className={styles.checkoutEyebrow}>Elegí la cantidad</p>
               <h3>{currentTier ? `Entradas a ${tomateMoney(currentTier.unitPrice)}` : 'Reservá tus entradas'}</h3>
               {currentTier && currentTier.capacity !== null && currentTier.available !== null && (
-                <p className={styles.availabilityCopy}>Cupos limitados: quedan {currentTier.available} entradas disponibles a este valor.</p>
+                <p className={styles.availabilityCopy}>Disponibilidad ahora: quedan {currentTier.available}. Las reservas sin pagar se liberan a los 30 minutos.</p>
               )}
               <div className={styles.quantityPicker} aria-label="Cantidad de entradas">
                 <button type="button" onClick={() => setQuantity((value) => Math.max(1, value - 1))} disabled={quantity === 1} aria-label="Restar una entrada"><Minus size={22} /></button>
