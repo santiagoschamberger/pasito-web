@@ -1617,6 +1617,10 @@
     padding: 56px 0;
   }
 
+  .sponsorsSection {
+    padding: 48px 0 52px;
+  }
+
   .ticketCopy h2,
   .experienceHeading h2,
   .scheduleIntro h2,
@@ -1636,33 +1640,48 @@
   }
 
   .sponsorGrid {
-    grid-template-columns: none;
-    grid-auto-columns: minmax(142px, 43vw);
-    grid-auto-flow: column;
-    gap: 10px;
-    margin-top: 38px;
-    margin-right: -20px;
-    overflow-x: auto;
-    padding-right: 20px;
-    padding-bottom: 8px;
-    scroll-snap-type: x proximity;
-    scrollbar-width: none;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-flow: row;
+    gap: 8px;
+    margin-top: 26px;
+    padding: 0;
+    overflow: visible;
   }
 
-  .sponsorGrid::-webkit-scrollbar {
-    display: none;
+  .sponsorsHeading h2 {
+    font-size: 36px;
+  }
+
+  .sponsorsHeading > p:last-child {
+    max-width: 330px;
+    margin-top: 14px !important;
+    font-size: 14px;
+    line-height: 20px;
   }
 
   .sponsorGrid li {
-    height: 96px;
-    padding: 14px;
-    border-radius: 18px;
-    scroll-snap-align: start;
+    height: 68px;
+    padding: 8px;
+    border-radius: 14px;
   }
 
-  .sponsorGrid li:last-child:nth-child(odd) {
-    grid-column: auto;
-    width: auto;
+  .sponsorGrid img {
+    height: 42px;
+  }
+
+  .sponsorPlaceholder {
+    gap: 5px;
+  }
+
+  .sponsorPlaceholder small {
+    font-size: 9px;
+    line-height: 12px;
+  }
+
+  .sponsorPlaceholder strong {
+    width: 24px;
+    height: 24px;
+    font-size: 9px;
   }
 
   .ticketLayout {
