@@ -101,6 +101,12 @@ const SPONSORS: Sponsor[] = [
     logoClassName: styles.sponsorLogoSquare,
   },
   {
+    name: 'LINCK Running Team',
+    logo: '/evento-pasito/sponsors/linck-running-team.png',
+    cardClassName: styles.sponsorCardLinck,
+    logoClassName: `${styles.sponsorLogoSquare} ${styles.sponsorLogoLinck}`,
+  },
+  {
     name: 'Marca aliada',
     logo: '/evento-pasito/sponsors/partner-emblem.jpg',
     cardClassName: styles.sponsorCardEmblem,
