@@ -1,10 +1,11 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowLeft, Check, Clock3, Mail, Minus, Plus, ShieldCheck, Ticket } from 'lucide-react'
+import { ArrowLeft, Check, Clock3, Gift, Mail, Minus, Plus, ShieldCheck, Ticket } from 'lucide-react'
 
 import {
   TOMATE_EVENT,
+  TOMATE_TICKET_BONUSES,
   tomateMoney,
   type TicketBreakdown,
   type TicketInventoryTier,
@@ -181,6 +182,9 @@ export function TicketCheckout() {
   useEffect(() => { void refreshAvailability() }, [refreshAvailability])
 
   const currentTier = tiers.find((tier) => tier.available === null || tier.available > 0) ?? tiers.at(-1)
+  const currentBonus = currentTier
+    ? TOMATE_TICKET_BONUSES.find((bonus) => bonus.position === currentTier.position)
+    : null
 
   const releaseQuote = useCallback(async (reservation: Quote) => {
     try {
@@ -306,7 +310,7 @@ export function TicketCheckout() {
         <div className={styles.checkoutIntro}>
           <p className={`${styles.overline} ${styles.overlineLight}`}>Compra segura</p>
           <h2 id="checkout-title">Tu lugar,<br /><span>en dos minutos.</span></h2>
-          <p>Elegí cuántas entradas querés. Reservamos el precio durante 30 minutos mientras completás el pago.</p>
+          <p>Elegí cuántas entradas querés y confirmá el valor disponible antes de pagar.</p>
           <ul>
             <li><ShieldCheck size={20} /> Pago procesado por Rebill</li>
             <li><Mail size={20} /> QR y código directo a tu email</li>
@@ -370,7 +374,10 @@ export function TicketCheckout() {
               <p className={styles.checkoutEyebrow}>Elegí la cantidad</p>
               <h3>{currentTier ? `Entradas a ${tomateMoney(currentTier.unitPrice)}` : 'Reservá tus entradas'}</h3>
               {currentTier && currentTier.capacity !== null && currentTier.available !== null && (
-                <p className={styles.availabilityCopy}>Quedan {currentTier.available} en la tanda “{currentTier.name}”.</p>
+                <p className={styles.availabilityCopy}>Cupos limitados: quedan {currentTier.available} entradas disponibles a este valor.</p>
+              )}
+              {currentBonus && (
+                <p className={styles.currentBonus}><Gift size={17} aria-hidden="true" /> Además, te regalamos {currentBonus.pasitos} Pasitos por entrada.</p>
               )}
               <div className={styles.quantityPicker} aria-label="Cantidad de entradas">
                 <button type="button" onClick={() => setQuantity((value) => Math.max(1, value - 1))} disabled={quantity === 1} aria-label="Restar una entrada"><Minus size={22} /></button>
@@ -381,7 +388,7 @@ export function TicketCheckout() {
               <button type="button" className={styles.checkoutPrimary} onClick={() => void startCheckout()} disabled={preparing}>
                 {preparing ? 'Reservando precio…' : 'Continuar al pago'}
               </button>
-              <p className={styles.paymentFinePrint}>El total exacto se calcula según las tandas disponibles. Si tu compra cruza de tanda, vas a ver cada precio antes de pagar.</p>
+              <p className={styles.paymentFinePrint}>Vas a ver el total exacto antes de pagar.</p>
               <a className={styles.recoveryLink} href="/evento-pasito/entradas">Ya compré y necesito mis entradas</a>
             </div>
           )}
