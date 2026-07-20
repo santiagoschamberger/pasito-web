@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { TOMATE_EVENT, type EventTicket } from '@/lib/tomate-event'
 import { getTomateSupabase, requestIpHash, requestOrigin } from '@/lib/tomate-server'
 import { sendTomateTicketsEmail } from '@/lib/tomate-ticket-email'
+import { createPasitosClaimToken } from '@/lib/tomate-ticket-security'
 
 type OrderRow = {
   id: string
@@ -80,9 +81,27 @@ export async function POST(request: NextRequest) {
     if (ticketError) throw ticketError
     const tickets = (ticketRows ?? []) as TicketRow[]
 
+    const origin = requestOrigin(request)
+    const pasitosRewards = (await Promise.all(orders.map(async (order) => {
+      const { data: rawReward, error: rewardError } = await db.rpc('event_claim_order_pasitos', {
+        p_order_id: order.id,
+        p_account_email: order.customer_email,
+      })
+      if (rewardError) throw rewardError
+      const reward = (rawReward ?? {}) as { status?: string; amount?: number }
+      if (reward.status !== 'credited' && reward.status !== 'account_not_found') return null
+      const claimToken = createPasitosClaimToken(order.id)
+      return {
+        amount: reward.amount ?? 0,
+        status: reward.status === 'credited' ? 'credited' as const : 'pending' as const,
+        claimUrl: `${origin}/evento-pasito/pasitos/${claimToken}`,
+      }
+    }))).filter((reward): reward is NonNullable<typeof reward> => reward !== null)
+
     const sent = await sendTomateTicketsEmail({
-      origin: requestOrigin(request),
+      origin,
       kind: 'recovery',
+      pasitosRewards,
       orders: orders.map((order) => ({
         id: order.id,
         paymentId: order.rebill_payment_id,

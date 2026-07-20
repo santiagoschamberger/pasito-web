@@ -1,0 +1,200 @@
+.page {
+  min-height: 100svh;
+  padding: 36px 18px;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(239, 250, 122, .72), transparent 34%),
+    #f3f5ed;
+  color: #183327;
+}
+
+.shell {
+  width: min(100%, 520px);
+  margin: 0 auto;
+}
+
+.logo {
+  display: block;
+  width: 118px;
+  height: auto;
+  margin: 0 auto 34px;
+}
+
+.heading {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.heading p {
+  margin: 0 0 8px;
+  color: #0c6b45;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.heading h1 {
+  margin: 0;
+  font-size: clamp(30px, 9vw, 45px);
+  line-height: 1.02;
+  letter-spacing: -.04em;
+}
+
+.claimCard {
+  display: flex;
+  gap: 14px;
+  padding: 22px;
+  border: 1px solid rgba(12, 107, 69, .16);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 18px 55px rgba(24, 51, 39, .1);
+  text-align: left;
+}
+
+.claimCard.compact {
+  width: 100%;
+  margin-top: 20px;
+  padding: 17px;
+  border-radius: 17px;
+  box-shadow: none;
+}
+
+.icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  place-items: center;
+  border-radius: 50%;
+  background: #effa7a;
+  color: #0c6b45;
+}
+
+.formBody {
+  min-width: 0;
+  flex: 1;
+}
+
+.claimCard strong {
+  display: block;
+  color: #183327;
+  font-size: 17px;
+  line-height: 1.25;
+}
+
+.claimCard p {
+  margin: 5px 0 15px;
+  color: #68736d;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.claimCard label,
+.claimCard label span {
+  display: block;
+}
+
+.claimCard label span {
+  margin-bottom: 6px;
+  color: #355245;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.claimCard input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid #cfd8d2;
+  border-radius: 12px;
+  outline: none;
+  background: #fff;
+  color: #183327;
+  font: inherit;
+}
+
+.claimCard input:focus {
+  border-color: #0c6b45;
+  box-shadow: 0 0 0 3px rgba(12, 107, 69, .12);
+}
+
+.claimCard button {
+  display: inline-flex;
+  width: 100%;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 11px;
+  border: 0;
+  border-radius: 999px;
+  background: #0c6b45;
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.claimCard button:disabled {
+  cursor: wait;
+  opacity: .65;
+}
+
+.claimCard .error {
+  margin: 9px 0 0;
+  color: #b83232;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.credited {
+  align-items: center;
+  background: #f8fce7;
+}
+
+.credited p {
+  margin-bottom: 0;
+}
+
+.statusCard {
+  padding: 24px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 18px 55px rgba(24, 51, 39, .1);
+  text-align: center;
+}
+
+.statusCard strong {
+  display: block;
+  font-size: 20px;
+}
+
+.statusCard p {
+  margin: 8px 0 0;
+  color: #68736d;
+  line-height: 1.5;
+}
+
+.back {
+  display: block;
+  margin-top: 24px;
+  color: #0c6b45;
+  font-size: 14px;
+  font-weight: 750;
+  text-align: center;
+}
+
+.spinner {
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 480px) {
+  .page { padding-top: 26px; }
+  .logo { margin-bottom: 26px; }
+  .claimCard { padding: 18px; }
+  .claimCard.compact { flex-direction: column; }
+}
