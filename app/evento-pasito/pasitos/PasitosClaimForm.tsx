@@ -3,6 +3,12 @@
 import { FormEvent, useState } from 'react'
 import { Check, Gift, LoaderCircle } from 'lucide-react'
 
+import {
+  isTomateSupportId,
+  normalizeTomateSupportId,
+  TOMATE_SUPPORT_ID_LENGTH,
+} from '@/lib/tomate-support-id'
+
 import styles from './pasitos.module.css'
 
 export function PasitosClaimForm({
@@ -21,17 +27,24 @@ export function PasitosClaimForm({
   const [credited, setCredited] = useState(false)
 
   const updateSupportId = (index: number, value: string) => {
-    setSupportIds((current) => current.map((supportId, position) => position === index ? value : supportId))
+    const normalized = normalizeTomateSupportId(value)
+    setSupportIds((current) => current.map((supportId, position) => position === index ? normalized : supportId))
   }
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setSubmitting(true)
     setError(null)
+
+    const submittedIds = sameForAll
+      ? entries.map(() => normalizeTomateSupportId(supportIds[0] ?? ''))
+      : supportIds.map(normalizeTomateSupportId)
+    if (submittedIds.some((supportId) => !isTomateSupportId(supportId))) {
+      setError('Ingresá los 8 caracteres del ID de soporte que aparece en Perfil dentro de la app.')
+      return
+    }
+
+    setSubmitting(true)
     try {
-      const submittedIds = sameForAll
-        ? entries.map(() => supportIds[0]?.trim() ?? '')
-        : supportIds.map((supportId) => supportId.trim())
       const response = await fetch('/api/events/tomate/pasitos/claim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -60,7 +73,7 @@ export function PasitosClaimForm({
   }
 
   return (
-    <form className={styles.claimCard} onSubmit={submit}>
+    <form className={styles.claimCard} onSubmit={submit} noValidate>
       <span className={styles.icon}><Gift size={22} /></span>
       <div className={styles.formBody}>
         <strong>Tenés {amount} Pasitos para repartir</strong>
@@ -90,14 +103,16 @@ export function PasitosClaimForm({
                 type="text"
                 inputMode="text"
                 autoComplete="off"
-                autoCapitalize="none"
+                autoCapitalize="characters"
                 spellCheck={false}
                 value={supportIds[index] ?? ''}
                 onChange={(event) => updateSupportId(index, event.target.value)}
-                placeholder="ID de soporte"
+                placeholder="Ej: 9103286F"
                 required
-                minLength={36}
-                maxLength={36}
+                minLength={TOMATE_SUPPORT_ID_LENGTH}
+                maxLength={TOMATE_SUPPORT_ID_LENGTH}
+                pattern="[A-Fa-f0-9]{8}"
+                title="Ingresá los 8 caracteres del ID de soporte"
                 disabled={submitting}
               />
             </label>

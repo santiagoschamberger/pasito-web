@@ -20,6 +20,8 @@ declare
   v_reward jsonb;
   v_reward_user_id uuid;
   v_second_reward_user_id uuid;
+  v_reward_support_id text;
+  v_second_reward_support_id text;
   v_reward_balance integer;
   v_reward_total integer;
   v_second_reward_balance integer;
@@ -155,19 +157,21 @@ begin
    limit 1;
   assert v_reward_user_id is not null and v_second_reward_user_id is not null,
     'two support IDs are required for the group reward test';
+  v_reward_support_id := upper(left(v_reward_user_id::text, 8));
+  v_second_reward_support_id := upper(left(v_second_reward_user_id::text, 8));
 
   -- One unknown support ID rejects the whole submission; no account receives
   -- a partial credit and the link remains available for correction.
-  v_reward := public.event_claim_order_pasitos_by_support_ids(
+  v_reward := public.event_claim_order_pasitos_by_support_codes(
     v_order_id,
     array[
-      v_reward_user_id,
-      v_second_reward_user_id,
-      v_reward_user_id,
-      '00000000-0000-4000-8000-000000000000'::uuid
+      v_reward_support_id,
+      v_second_reward_support_id,
+      v_reward_support_id,
+      '00000000'
     ]
   );
-  assert v_reward ->> 'status' = 'account_not_found', 'unknown support ID was accepted';
+  assert v_reward ->> 'status' = 'support_id_invalid', 'unknown support ID was accepted';
   assert v_reward -> 'invalidPositions' = '[4]'::jsonb, 'invalid support ID position was not returned';
   assert (select count(*) from public.event_pasito_reward_entries where order_id = v_order_id and status = 'credited') = 0,
     'invalid group claim partially credited entries';
@@ -178,9 +182,9 @@ begin
 
   -- Reusing one support ID is allowed. With ticket bonuses 70, 70, 50, 50,
   -- alternating two IDs gives each account 120 Pasitos.
-  v_reward := public.event_claim_order_pasitos_by_support_ids(
+  v_reward := public.event_claim_order_pasitos_by_support_codes(
     v_order_id,
-    array[v_reward_user_id, v_second_reward_user_id, v_reward_user_id, v_second_reward_user_id]
+    array[v_reward_support_id, v_second_reward_support_id, v_reward_support_id, v_second_reward_support_id]
   );
   assert v_reward ->> 'status' = 'credited', 'support IDs did not receive the group reward';
   assert not (v_reward ->> 'alreadyCredited')::boolean, 'first reward claim marked as duplicate';
@@ -193,9 +197,9 @@ begin
   assert (select total_pasitos_earned from public.profiles where id = v_second_reward_user_id) = v_second_reward_total + 120,
     'reward did not increment second lifetime earnings';
 
-  v_reward := public.event_claim_order_pasitos_by_support_ids(
+  v_reward := public.event_claim_order_pasitos_by_support_codes(
     v_order_id,
-    array[v_second_reward_user_id, v_second_reward_user_id, v_second_reward_user_id, v_second_reward_user_id]
+    array[v_second_reward_support_id, v_second_reward_support_id, v_second_reward_support_id, v_second_reward_support_id]
   );
   assert (v_reward ->> 'alreadyCredited')::boolean, 'duplicate reward claim was not idempotent';
   assert (select pasitos_balance from public.profiles where id = v_reward_user_id) = v_reward_balance + 120,
@@ -222,9 +226,9 @@ begin
   v_same_support_order_id := (v_confirm ->> 'orderId')::uuid;
   v_reward := public.event_prepare_order_pasitos(v_same_support_order_id);
   assert (v_reward ->> 'amount')::integer = 100, 'same-support reward amount mismatch';
-  v_reward := public.event_claim_order_pasitos_by_support_ids(
+  v_reward := public.event_claim_order_pasitos_by_support_codes(
     v_same_support_order_id,
-    array[v_reward_user_id, v_reward_user_id]
+    array[v_reward_support_id, v_reward_support_id]
   );
   assert v_reward ->> 'status' = 'credited', 'same support ID for every ticket was rejected';
   assert (select pasitos_balance from public.profiles where id = v_reward_user_id) = v_reward_balance + 220,
@@ -297,17 +301,17 @@ begin
     'authenticated users can read private per-ticket Pasitos rewards';
   assert not has_function_privilege(
     'anon',
-    'public.event_claim_order_pasitos_by_support_ids(uuid,uuid[])'::regprocedure,
+    'public.event_claim_order_pasitos_by_support_codes(uuid,text[])'::regprocedure,
     'execute'
   ), 'anon can call the Pasitos credit function directly';
   assert not has_function_privilege(
     'authenticated',
-    'public.event_claim_order_pasitos_by_support_ids(uuid,uuid[])'::regprocedure,
+    'public.event_claim_order_pasitos_by_support_codes(uuid,text[])'::regprocedure,
     'execute'
   ), 'authenticated users can call the Pasitos credit function directly';
   assert has_function_privilege(
     'service_role',
-    'public.event_claim_order_pasitos_by_support_ids(uuid,uuid[])'::regprocedure,
+    'public.event_claim_order_pasitos_by_support_codes(uuid,text[])'::regprocedure,
     'execute'
   ), 'the private server role cannot call the Pasitos credit function';
   assert (select relrowsecurity from pg_class where oid = 'public.event_ticket_orders'::regclass),
