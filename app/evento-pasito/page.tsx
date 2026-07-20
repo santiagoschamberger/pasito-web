@@ -73,20 +73,63 @@ const SCHEDULE = [
 type Sponsor = {
   name: string
   logo: string
-  darkCard?: boolean
+  cardClassName?: string
+  logoClassName?: string
 }
 
 const SPONSORS: Sponsor[] = [
-  { name: 'Heineken 0.0', logo: '/evento-pasito/sponsors/heineken-00.png' },
-  { name: 'Under Armour', logo: '/evento-pasito/sponsors/under-armour.png' },
-  { name: 'TOMATE Estación de Sabores', logo: '/evento-pasito/sponsors/tomate.jpeg' },
-  { name: 'Somos PROTA', logo: '/evento-pasito/sponsors/somos-prota.jpeg' },
-  { name: 'Marca aliada', logo: '/evento-pasito/sponsors/partner-emblem.jpg' },
-  { name: 'BOSS', logo: '/evento-pasito/sponsors/boss.jpeg' },
-  { name: 'Kiwell', logo: '/evento-pasito/sponsors/kiwell.png' },
+  {
+    name: 'Heineken 0.0',
+    logo: '/evento-pasito/sponsors/heineken-00.png',
+    logoClassName: styles.sponsorLogoHeineken,
+  },
+  {
+    name: 'Under Armour',
+    logo: '/evento-pasito/sponsors/under-armour.png',
+    cardClassName: styles.sponsorCardUnderArmour,
+    logoClassName: styles.sponsorLogoCircle,
+  },
+  {
+    name: 'TOMATE Estación de Sabores',
+    logo: '/evento-pasito/sponsors/tomate.jpeg',
+    logoClassName: styles.sponsorLogoSquare,
+  },
+  {
+    name: 'Somos PROTA',
+    logo: '/evento-pasito/sponsors/somos-prota.jpeg',
+    cardClassName: styles.sponsorCardProta,
+    logoClassName: styles.sponsorLogoSquare,
+  },
+  {
+    name: 'Marca aliada',
+    logo: '/evento-pasito/sponsors/partner-emblem.jpg',
+    cardClassName: styles.sponsorCardEmblem,
+    logoClassName: styles.sponsorLogoSquare,
+  },
+  {
+    name: 'BOSS',
+    logo: '/evento-pasito/sponsors/boss.jpeg',
+    cardClassName: styles.sponsorCardBoss,
+    logoClassName: styles.sponsorLogoWide,
+  },
+  {
+    name: 'Kiwell',
+    logo: '/evento-pasito/sponsors/kiwell.png',
+    cardClassName: styles.sponsorCardKiwell,
+    logoClassName: styles.sponsorLogoCircle,
+  },
   { name: 'Natier', logo: '/evento-pasito/sponsors/natier.webp' },
-  { name: 'Matter', logo: '/evento-pasito/sponsors/matter.png', darkCard: true },
-  { name: 'The Glow Factor', logo: '/evento-pasito/sponsors/the-glow-factor.jpeg' },
+  {
+    name: 'Matter',
+    logo: '/evento-pasito/sponsors/matter.png',
+    cardClassName: styles.sponsorCardMatter,
+    logoClassName: styles.sponsorLogoWide,
+  },
+  {
+    name: 'The Glow Factor',
+    logo: '/evento-pasito/sponsors/the-glow-factor.jpeg',
+    logoClassName: styles.sponsorLogoSquare,
+  },
 ]
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -149,8 +192,9 @@ function SponsorsSection() {
 
         <ul className={styles.sponsorGrid} aria-label="Sponsors del evento">
           {SPONSORS.map((sponsor) => (
-            <li className={sponsor.darkCard ? styles.sponsorCardDark : undefined} key={sponsor.name}>
+            <li className={sponsor.cardClassName} key={sponsor.name}>
               <Image
+                className={sponsor.logoClassName}
                 src={sponsor.logo}
                 alt={`Logo de ${sponsor.name}`}
                 width={180}

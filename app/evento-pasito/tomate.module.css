@@ -809,7 +809,7 @@
   min-width: 0;
   height: 128px;
   place-items: center;
-  padding: 20px;
+  padding: 11px;
   overflow: hidden;
   border: 1px solid var(--event-line);
   border-radius: 22px;
@@ -818,12 +818,57 @@
 
 .sponsorGrid img {
   display: block;
-  width: min(100%, 180px);
-  height: 80px;
+  width: min(100%, 206px);
+  height: 100%;
+  max-height: 104px;
   object-fit: contain;
 }
 
-.sponsorGrid .sponsorCardDark {
+.sponsorGrid .sponsorLogoCircle,
+.sponsorGrid .sponsorLogoSquare {
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: 1;
+}
+
+.sponsorGrid .sponsorLogoCircle {
+  clip-path: circle(48% at 50% 50%);
+}
+
+.sponsorGrid .sponsorLogoWide {
+  width: 100%;
+}
+
+.sponsorGrid .sponsorLogoHeineken {
+  transform: scale(1.08);
+}
+
+.sponsorGrid .sponsorCardUnderArmour {
+  border-color: #dc0019;
+  background: #dc0019;
+}
+
+.sponsorGrid .sponsorCardProta {
+  border-color: #ffeedc;
+  background: #ffeedc;
+}
+
+.sponsorGrid .sponsorCardEmblem {
+  border-color: #003227;
+  background: #003227;
+}
+
+.sponsorGrid .sponsorCardBoss {
+  border-color: #000;
+  background: #000;
+}
+
+.sponsorGrid .sponsorCardKiwell {
+  border-color: #2d4838;
+  background: #2d4838;
+}
+
+.sponsorGrid .sponsorCardMatter {
   border-color: var(--event-deep);
   background: var(--event-deep);
 }
@@ -1643,12 +1688,13 @@
 
   .sponsorGrid li {
     height: 68px;
-    padding: 8px;
+    padding: 5px;
     border-radius: 14px;
   }
 
   .sponsorGrid img {
-    height: 48px;
+    height: 100%;
+    max-height: 56px;
   }
 
   .creditedBonus {
