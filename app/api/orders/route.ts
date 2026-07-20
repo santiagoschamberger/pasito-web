@@ -20,6 +20,7 @@ import {
   emailDeliveryErrorMessage,
   retryEmailDelivery,
 } from '@/lib/email-retry'
+import { isRebillPaymentAmountValid } from '@/lib/rebill-payment-validation'
 
 /* Debe coincidir con la config de la tienda (app/tienda/StoreClient.tsx). */
 const PRICE = 35000
@@ -191,6 +192,7 @@ export async function POST(req: NextRequest) {
     status?: string
     amount?: number | string
     currency?: string
+    installments?: number | null
     metadata?: Record<string, unknown>
     customer?: { email?: string; firstName?: string; lastName?: string }
   }
@@ -213,7 +215,7 @@ export async function POST(req: NextRequest) {
   }
 
   const expected = expectedAmount(qty, delivery)
-  if (Number(pay.amount) !== expected || (pay.currency ?? '').toUpperCase() !== CURRENCY) {
+  if (!isRebillPaymentAmountValid(pay.amount, expected, pay.installments) || (pay.currency ?? '').toUpperCase() !== CURRENCY) {
     return NextResponse.json({ error: 'El monto del pago no coincide.' }, { status: 400 })
   }
 

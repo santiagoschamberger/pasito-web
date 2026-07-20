@@ -6,7 +6,12 @@ import {
   emailDeliveryErrorMessage,
   retryEmailDelivery,
 } from '@/lib/email-retry'
-import { getRebillPayment, rebillCustomerName, type RebillPayment } from '@/lib/tomate-rebill'
+import {
+  getRebillPayment,
+  rebillCustomerName,
+  type RebillPayment,
+} from '@/lib/tomate-rebill'
+import { isRebillPaymentAmountValid } from '@/lib/rebill-payment-validation'
 import { getTomateSupabase, requestOrigin } from '@/lib/tomate-server'
 import { sendTomateTicketsEmail } from '@/lib/tomate-ticket-email'
 import { createPasitosClaimToken, createTicketToken } from '@/lib/tomate-ticket-security'
@@ -138,7 +143,7 @@ export async function POST(request: NextRequest) {
     }
     const metadata = payment.metadata
     if (
-      Number(payment.amount) !== Number(intent.amount)
+      !isRebillPaymentAmountValid(payment.amount, intent.amount, payment.installments)
       || payment.currency?.toUpperCase() !== intent.currency
       || metadata?.eventSlug !== TOMATE_EVENT.slug
       || metadata?.checkoutIntentId !== intent.id

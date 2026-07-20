@@ -7,6 +7,7 @@ export type RebillPayment = {
   status?: string
   amount?: number | string
   currency?: string
+  installments?: number | null
   metadata?: Record<string, unknown>
   customer?: {
     email?: string
