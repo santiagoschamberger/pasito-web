@@ -135,6 +135,11 @@ const SPONSORS: Sponsor[] = [
     logo: '/evento-pasito/sponsors/the-glow-factor.jpeg',
     logoClassName: styles.sponsorLogoSquare,
   },
+  {
+    name: 'Awake',
+    logo: '/evento-pasito/sponsors/awake.jpeg',
+    logoClassName: styles.sponsorLogoWide,
+  },
 ]
 
 export async function generateMetadata(): Promise<Metadata> {
