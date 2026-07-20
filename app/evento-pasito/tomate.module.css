@@ -810,60 +810,22 @@
   height: 128px;
   place-items: center;
   padding: 20px;
+  overflow: hidden;
   border: 1px solid var(--event-line);
   border-radius: 22px;
-  background: var(--event-cream);
-}
-
-.sponsorGrid li > a {
-  display: grid;
-  width: 100%;
-  height: 100%;
-  place-items: center;
-  border-radius: 12px;
-}
-
-.sponsorGrid li > a:focus-visible {
-  outline: 3px solid var(--event-lime);
-  outline-offset: 4px;
+  background: #fff;
 }
 
 .sponsorGrid img {
   display: block;
   width: min(100%, 180px);
-  height: 72px;
+  height: 80px;
   object-fit: contain;
 }
 
-.sponsorGrid .sponsorSlotEmpty {
-  border-style: dashed;
-  background: #fbfcf9;
-}
-
-.sponsorPlaceholder {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  color: #a1aca6;
-}
-
-.sponsorPlaceholder small {
-  font-size: 11px;
-  font-weight: 750;
-  line-height: 15px;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-
-.sponsorPlaceholder strong {
-  display: grid;
-  width: 30px;
-  height: 30px;
-  place-items: center;
-  border: 1px solid #d8ded9;
-  border-radius: 50%;
-  font-family: var(--font-bricolage), system-ui, sans-serif;
-  font-size: 10px;
+.sponsorGrid .sponsorCardDark {
+  border-color: var(--event-deep);
+  background: var(--event-deep);
 }
 
 .finalSection {
@@ -1492,6 +1454,10 @@
   .sponsorGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
+  .sponsorGrid li:last-child:nth-child(3n + 1) {
+    grid-column: 2;
+  }
 }
 
 @media (max-width: 640px) {
@@ -1682,22 +1648,7 @@
   }
 
   .sponsorGrid img {
-    height: 42px;
-  }
-
-  .sponsorPlaceholder {
-    gap: 5px;
-  }
-
-  .sponsorPlaceholder small {
-    font-size: 9px;
-    line-height: 12px;
-  }
-
-  .sponsorPlaceholder strong {
-    width: 24px;
-    height: 24px;
-    font-size: 9px;
+    height: 48px;
   }
 
   .creditedBonus {

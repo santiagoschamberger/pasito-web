@@ -72,27 +72,21 @@ const SCHEDULE = [
 
 type Sponsor = {
   name: string
-  logo?: string
-  href?: string
+  logo: string
+  darkCard?: boolean
 }
 
-// Reemplazá cada espacio con el nombre, la ruta del logo y, si corresponde, su sitio web.
 const SPONSORS: Sponsor[] = [
-  { name: 'Sponsor 01' },
-  { name: 'Sponsor 02' },
-  { name: 'Sponsor 03' },
-  { name: 'Sponsor 04' },
-  { name: 'Sponsor 05' },
-  { name: 'Sponsor 06' },
-  { name: 'Sponsor 07' },
-  { name: 'Sponsor 08' },
-  { name: 'Sponsor 09' },
-  { name: 'Sponsor 10' },
-  { name: 'Sponsor 11' },
-  { name: 'Sponsor 12' },
-  { name: 'Sponsor 13' },
-  { name: 'Sponsor 14' },
-  { name: 'Sponsor 15' },
+  { name: 'Heineken 0.0', logo: '/evento-pasito/sponsors/heineken-00.png' },
+  { name: 'Under Armour', logo: '/evento-pasito/sponsors/under-armour.png' },
+  { name: 'TOMATE Estación de Sabores', logo: '/evento-pasito/sponsors/tomate.jpeg' },
+  { name: 'Somos PROTA', logo: '/evento-pasito/sponsors/somos-prota.jpeg' },
+  { name: 'Marca aliada', logo: '/evento-pasito/sponsors/partner-emblem.jpg' },
+  { name: 'BOSS', logo: '/evento-pasito/sponsors/boss.jpeg' },
+  { name: 'Kiwell', logo: '/evento-pasito/sponsors/kiwell.png' },
+  { name: 'Natier', logo: '/evento-pasito/sponsors/natier.webp' },
+  { name: 'Matter', logo: '/evento-pasito/sponsors/matter.png', darkCard: true },
+  { name: 'The Glow Factor', logo: '/evento-pasito/sponsors/the-glow-factor.jpeg' },
 ]
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -150,40 +144,21 @@ function SponsorsSection() {
         <div className={styles.sponsorsHeading}>
           <p className={styles.overline}>Marcas que caminan con nosotros</p>
           <h2>Nos acompañan<br /><span>en cada paso.</span></h2>
-          <p>Muy pronto vas a conocer a todas las marcas que hacen posible este encuentro.</p>
+          <p>Estas son las marcas que nos acompañan y hacen posible este encuentro.</p>
         </div>
 
         <ul className={styles.sponsorGrid} aria-label="Sponsors del evento">
-          {SPONSORS.map((sponsor, index) => {
-            const logo = sponsor.logo ? (
+          {SPONSORS.map((sponsor) => (
+            <li className={sponsor.darkCard ? styles.sponsorCardDark : undefined} key={sponsor.name}>
               <Image
                 src={sponsor.logo}
-                alt={sponsor.name}
+                alt={`Logo de ${sponsor.name}`}
                 width={180}
                 height={72}
                 sizes="(max-width: 640px) 25vw, (max-width: 860px) 24vw, 180px"
               />
-            ) : (
-              <span className={styles.sponsorPlaceholder} aria-hidden="true">
-                <small>Logo</small>
-                <strong>{String(index + 1).padStart(2, '0')}</strong>
-              </span>
-            )
-
-            return (
-              <li
-                className={!sponsor.logo ? styles.sponsorSlotEmpty : undefined}
-                key={sponsor.name}
-                aria-label={!sponsor.logo ? `Espacio para sponsor ${index + 1}` : undefined}
-              >
-                {sponsor.href ? (
-                  <a href={sponsor.href} target="_blank" rel="noopener noreferrer" aria-label={`Visitar ${sponsor.name}`}>
-                    {logo}
-                  </a>
-                ) : logo}
-              </li>
-            )
-          })}
+            </li>
+          ))}
         </ul>
       </div>
     </section>
