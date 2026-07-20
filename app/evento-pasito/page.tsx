@@ -64,7 +64,7 @@ const SCHEDULE = [
   },
   {
     time: '14:00 - 15:00',
-    title: 'Música en el fogón con Tato Arzune',
+    title: 'Canciones de Fogón x Tato Arzune',
     detail: 'Set acústico y canciones en vivo.',
     href: 'https://www.instagram.com/tatoarzune/',
     icon: Music2,
@@ -90,12 +90,6 @@ const SPONSORS: Sponsor[] = [
     logo: '/evento-pasito/sponsors/flux-osde.png',
     cardClassName: styles.sponsorCardFlux,
     logoClassName: `${styles.sponsorLogoWide} ${styles.sponsorLogoFlux}`,
-  },
-  {
-    name: 'Under Armour',
-    logo: '/evento-pasito/sponsors/under-armour.png',
-    cardClassName: styles.sponsorCardUnderArmour,
-    logoClassName: styles.sponsorLogoCircle,
   },
   {
     name: 'TOMATE Estación de Sabores',
