@@ -4,15 +4,16 @@ import { getTomateSupabase, requestIpHash } from '@/lib/tomate-server'
 import { readPasitosClaimToken } from '@/lib/tomate-ticket-security'
 
 type ClaimResult = {
-  status?: 'credited' | 'account_not_found' | 'payment_not_approved' | 'no_reward' | 'not_found' | 'invalid'
+  status?: 'credited' | 'account_not_found' | 'payment_not_approved' | 'no_reward' | 'not_found' | 'invalid' | 'invalid_count'
   amount?: number
   alreadyCredited?: boolean
+  invalidPositions?: number[]
 }
 
-const NO_ACCOUNT_MESSAGE = 'No encontramos una cuenta verificada de Pasito con ese email. Revisalo o probá con otro.'
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 export async function POST(request: NextRequest) {
-  let body: { token?: unknown; email?: unknown }
+  let body: { token?: unknown; supportIds?: unknown }
   try {
     body = await request.json()
   } catch {
@@ -21,9 +22,11 @@ export async function POST(request: NextRequest) {
 
   const token = typeof body.token === 'string' ? body.token.trim() : ''
   const orderId = readPasitosClaimToken(token)
-  const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
-  if (!orderId || email.length > 254 || !/^\S+@\S+\.\S+$/.test(email)) {
-    return NextResponse.json({ error: 'Revisá el enlace y el email ingresado.' }, { status: 400 })
+  const supportIds = Array.isArray(body.supportIds)
+    ? body.supportIds.map((value) => typeof value === 'string' ? value.trim().toLowerCase() : '')
+    : []
+  if (!orderId || supportIds.length < 1 || supportIds.length > 6 || supportIds.some((id) => !UUID_PATTERN.test(id))) {
+    return NextResponse.json({ error: 'Revisá el enlace y los IDs de soporte ingresados.' }, { status: 400 })
   }
 
   const db = getTomateSupabase()
@@ -39,9 +42,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Demasiados intentos. Esperá unos minutos y probá de nuevo.' }, { status: 429 })
     }
 
-    const { data, error } = await db.rpc('event_claim_order_pasitos', {
+    const { data, error } = await db.rpc('event_claim_order_pasitos_by_support_ids', {
       p_order_id: orderId,
-      p_account_email: email,
+      p_support_ids: supportIds,
     })
     if (error) throw error
     const result = (data ?? {}) as ClaimResult
@@ -55,7 +58,15 @@ export async function POST(request: NextRequest) {
       }, { headers: { 'Cache-Control': 'no-store, max-age=0' } })
     }
     if (result.status === 'account_not_found') {
-      return NextResponse.json({ error: NO_ACCOUNT_MESSAGE, amount: result.amount ?? 0 }, { status: 404 })
+      const positions = result.invalidPositions ?? []
+      const entries = positions.map((position) => `entrada ${position}`).join(', ')
+      return NextResponse.json({
+        error: `No encontramos una cuenta de Pasito para ${entries || 'uno de los IDs'}. Revisá ${positions.length === 1 ? 'ese ID' : 'esos IDs'} de soporte.`,
+        amount: result.amount ?? 0,
+      }, { status: 404 })
+    }
+    if (result.status === 'invalid_count') {
+      return NextResponse.json({ error: 'Tenés que ingresar un ID de soporte por cada entrada.' }, { status: 400 })
     }
     if (result.status === 'payment_not_approved') {
       return NextResponse.json({ error: 'La compra no está aprobada; no podemos acreditar este premio.' }, { status: 409 })

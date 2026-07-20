@@ -7,6 +7,8 @@ declare
   v_replacement_intent uuid;
   v_cross jsonb;
   v_cross_intent uuid;
+  v_same_support_intent uuid;
+  v_same_support_order_id uuid;
   v_confirm jsonb;
   v_duplicate jsonb;
   v_order_id uuid;
@@ -15,9 +17,11 @@ declare
   v_redeem jsonb;
   v_reward jsonb;
   v_reward_user_id uuid;
-  v_reward_email text;
+  v_second_reward_user_id uuid;
   v_reward_balance integer;
   v_reward_total integer;
+  v_second_reward_balance integer;
+  v_second_reward_total integer;
   v_count integer;
   v_i integer;
 begin
@@ -118,35 +122,109 @@ begin
   select count(*)::integer into v_count from public.event_tickets where order_id = v_order_id;
   assert v_count = 4, 'duplicate payment minted extra tickets';
 
-  -- A missing payment-email match creates one pending reward with the frozen
-  -- amount. A verified alternate account can claim it exactly once.
-  v_reward := public.event_claim_order_pasitos(v_order_id, 'missing-e2e-account@pasito.invalid');
-  assert v_reward ->> 'status' = 'account_not_found', 'missing account should leave reward pending';
+  -- Preparing a reward creates one pending assignment per ticket. The signed
+  -- link later submits one support ID for every entry in one atomic claim.
+  v_reward := public.event_prepare_order_pasitos(v_order_id);
+  assert v_reward ->> 'status' = 'pending', 'reward preparation failed';
   assert (v_reward ->> 'amount')::integer = 140, 'pending reward amount mismatch';
+  assert (v_reward ->> 'quantity')::integer = 4, 'pending reward quantity mismatch';
+  assert jsonb_array_length(v_reward -> 'entries') = 4, 'expected one reward entry per ticket';
   assert (select status from public.event_pasito_rewards where order_id = v_order_id) = 'pending',
-    'missing account did not persist pending reward';
+    'reward summary did not stay pending';
+  assert (select count(*) from public.event_pasito_reward_entries where order_id = v_order_id and status = 'pending') = 4,
+    'reward entries were not prepared';
 
-  select u.id, u.email, p.pasitos_balance, p.total_pasitos_earned
-    into v_reward_user_id, v_reward_email, v_reward_balance, v_reward_total
-    from auth.users u
-    join public.profiles p on p.id = u.id
-   where u.email is not null and u.email_confirmed_at is not null
-   order by u.created_at
+  select p.id, p.pasitos_balance, p.total_pasitos_earned
+    into v_reward_user_id, v_reward_balance, v_reward_total
+    from public.profiles p
+   order by p.created_at, p.id
    limit 1;
-  assert v_reward_user_id is not null, 'no verified test account available';
+  select p.id, p.pasitos_balance, p.total_pasitos_earned
+    into v_second_reward_user_id, v_second_reward_balance, v_second_reward_total
+    from public.profiles p
+   order by p.created_at, p.id
+   offset 1
+   limit 1;
+  assert v_reward_user_id is not null and v_second_reward_user_id is not null,
+    'two support IDs are required for the group reward test';
 
-  v_reward := public.event_claim_order_pasitos(v_order_id, v_reward_email);
-  assert v_reward ->> 'status' = 'credited', 'verified account did not receive reward';
+  -- One unknown support ID rejects the whole submission; no account receives
+  -- a partial credit and the link remains available for correction.
+  v_reward := public.event_claim_order_pasitos_by_support_ids(
+    v_order_id,
+    array[
+      v_reward_user_id,
+      v_second_reward_user_id,
+      v_reward_user_id,
+      '00000000-0000-4000-8000-000000000000'::uuid
+    ]
+  );
+  assert v_reward ->> 'status' = 'account_not_found', 'unknown support ID was accepted';
+  assert v_reward -> 'invalidPositions' = '[4]'::jsonb, 'invalid support ID position was not returned';
+  assert (select count(*) from public.event_pasito_reward_entries where order_id = v_order_id and status = 'credited') = 0,
+    'invalid group claim partially credited entries';
+  assert (select pasitos_balance from public.profiles where id = v_reward_user_id) = v_reward_balance,
+    'invalid group claim changed the first balance';
+  assert (select pasitos_balance from public.profiles where id = v_second_reward_user_id) = v_second_reward_balance,
+    'invalid group claim changed the second balance';
+
+  -- Reusing one support ID is allowed. With ticket bonuses 50, 50, 20, 20,
+  -- alternating two IDs gives each account 70 Pasitos.
+  v_reward := public.event_claim_order_pasitos_by_support_ids(
+    v_order_id,
+    array[v_reward_user_id, v_second_reward_user_id, v_reward_user_id, v_second_reward_user_id]
+  );
+  assert v_reward ->> 'status' = 'credited', 'support IDs did not receive the group reward';
   assert not (v_reward ->> 'alreadyCredited')::boolean, 'first reward claim marked as duplicate';
-  assert (select pasitos_balance from public.profiles where id = v_reward_user_id) = v_reward_balance + 140,
-    'reward did not increment balance';
-  assert (select total_pasitos_earned from public.profiles where id = v_reward_user_id) = v_reward_total + 140,
-    'reward did not increment lifetime earnings';
+  assert (select pasitos_balance from public.profiles where id = v_reward_user_id) = v_reward_balance + 70,
+    'reward did not increment first balance';
+  assert (select total_pasitos_earned from public.profiles where id = v_reward_user_id) = v_reward_total + 70,
+    'reward did not increment first lifetime earnings';
+  assert (select pasitos_balance from public.profiles where id = v_second_reward_user_id) = v_second_reward_balance + 70,
+    'reward did not increment second balance';
+  assert (select total_pasitos_earned from public.profiles where id = v_second_reward_user_id) = v_second_reward_total + 70,
+    'reward did not increment second lifetime earnings';
 
-  v_reward := public.event_claim_order_pasitos(v_order_id, v_reward_email);
+  v_reward := public.event_claim_order_pasitos_by_support_ids(
+    v_order_id,
+    array[v_second_reward_user_id, v_second_reward_user_id, v_second_reward_user_id, v_second_reward_user_id]
+  );
   assert (v_reward ->> 'alreadyCredited')::boolean, 'duplicate reward claim was not idempotent';
-  assert (select pasitos_balance from public.profiles where id = v_reward_user_id) = v_reward_balance + 140,
+  assert (select pasitos_balance from public.profiles where id = v_reward_user_id) = v_reward_balance + 70,
     'duplicate reward claim minted extra Pasitos';
+  assert (select pasitos_balance from public.profiles where id = v_second_reward_user_id) = v_second_reward_balance + 70,
+    'duplicate reward claim changed the second balance';
+
+  -- A separate two-ticket order can intentionally send every ticket bonus to
+  -- one support ID.
+  v_result := public.event_reserve_tickets(
+    'pasito-tomate-sql-test', 2, repeat('8', 64), repeat('9', 64)
+  );
+  assert v_result ->> 'status' = 'reserved', 'same-support reservation failed';
+  assert (v_result ->> 'amount')::integer = 90000, 'same-support order should use two 45k tickets';
+  v_same_support_intent := (v_result ->> 'intentId')::uuid;
+  v_confirm := public.event_confirm_ticket_order(
+    v_same_support_intent,
+    'pay_tomate_same_support_test',
+    90000,
+    'ARS',
+    'same-support@pasito.app',
+    'Mismo ID'
+  );
+  v_same_support_order_id := (v_confirm ->> 'orderId')::uuid;
+  v_reward := public.event_prepare_order_pasitos(v_same_support_order_id);
+  assert (v_reward ->> 'amount')::integer = 40, 'same-support reward amount mismatch';
+  v_reward := public.event_claim_order_pasitos_by_support_ids(
+    v_same_support_order_id,
+    array[v_reward_user_id, v_reward_user_id]
+  );
+  assert v_reward ->> 'status' = 'credited', 'same support ID for every ticket was rejected';
+  assert (select pasitos_balance from public.profiles where id = v_reward_user_id) = v_reward_balance + 110,
+    'same support ID did not receive both ticket bonuses';
+  assert public.event_update_order_payment('pay_tomate_same_support_test', 'refunded') = 'updated',
+    'same-support cleanup refund failed';
+  assert (select pasitos_balance from public.profiles where id = v_reward_user_id) = v_reward_balance + 70,
+    'same-support refund did not restore the first-order balance';
 
   -- Recovery claims are generic and rate-limited per purchaser.
   assert public.event_claim_ticket_recovery('pasito-tomate-sql-test', 'e2e.test@pasito.app') ->> 'status' = 'claimed',
@@ -169,18 +247,26 @@ begin
   assert public.event_update_order_payment('pay_tomate_transactional_test', 'refunded') = 'updated',
     'refund update failed';
   assert (select pasitos_balance from public.profiles where id = v_reward_user_id) = v_reward_balance,
-    'refund did not reverse Pasitos balance';
+    'refund did not reverse first Pasitos balance';
   assert (select total_pasitos_earned from public.profiles where id = v_reward_user_id) = v_reward_total,
-    'refund did not reverse lifetime earnings';
+    'refund did not reverse first lifetime earnings';
+  assert (select pasitos_balance from public.profiles where id = v_second_reward_user_id) = v_second_reward_balance,
+    'refund did not reverse second Pasitos balance';
+  assert (select total_pasitos_earned from public.profiles where id = v_second_reward_user_id) = v_second_reward_total,
+    'refund did not reverse second lifetime earnings';
 
   assert public.event_update_order_payment('pay_tomate_transactional_test', 'approved') = 'updated',
     'payment reapproval failed';
-  assert (select pasitos_balance from public.profiles where id = v_reward_user_id) = v_reward_balance + 140,
-    'payment reapproval did not restore Pasitos';
+  assert (select pasitos_balance from public.profiles where id = v_reward_user_id) = v_reward_balance + 70,
+    'payment reapproval did not restore first account Pasitos';
+  assert (select pasitos_balance from public.profiles where id = v_second_reward_user_id) = v_second_reward_balance + 70,
+    'payment reapproval did not restore second account Pasitos';
   assert public.event_update_order_payment('pay_tomate_transactional_test', 'refunded') = 'updated',
     'second refund update failed';
   assert (select pasitos_balance from public.profiles where id = v_reward_user_id) = v_reward_balance,
     'second refund was not idempotent';
+  assert (select pasitos_balance from public.profiles where id = v_second_reward_user_id) = v_second_reward_balance,
+    'second refund changed the second account balance';
   v_redeem := public.event_redeem_ticket(
     'pasito-tomate-sql-test', v_second_ticket_id, null, 'SQL test', 'qr'
   );
@@ -199,6 +285,8 @@ begin
     'authenticated users can read private tickets';
   assert not has_table_privilege('authenticated', 'public.event_pasito_rewards', 'select'),
     'authenticated users can read private Pasitos rewards';
+  assert not has_table_privilege('authenticated', 'public.event_pasito_reward_entries', 'select'),
+    'authenticated users can read private per-ticket Pasitos rewards';
   assert (select relrowsecurity from pg_class where oid = 'public.event_ticket_orders'::regclass),
     'orders RLS is disabled';
 end;

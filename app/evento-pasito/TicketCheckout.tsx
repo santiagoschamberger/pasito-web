@@ -9,7 +9,6 @@ import {
   type TicketBreakdown,
   type TicketInventoryTier,
 } from '@/lib/tomate-event'
-import { PasitosClaimForm } from './pasitos/PasitosClaimForm'
 import styles from './tomate.module.css'
 
 const REBILL_PUBLIC_KEY = process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY ?? ''
@@ -39,6 +38,7 @@ type Confirmation = {
   emailPending: boolean
   pasitosReward?: {
     amount: number
+    quantity: number
     status: 'credited' | 'pending'
     claimUrl: string
     claimToken: string
@@ -337,15 +337,15 @@ export function TicketCheckout() {
               {confirmation.pasitosReward?.status === 'credited' && (
                 <div className={styles.creditedBonus} role="status">
                   <Gift size={20} aria-hidden="true" />
-                  <span><strong>{confirmation.pasitosReward.amount} Pasitos acreditados</strong><small>Ya están en la cuenta asociada al email del pago.</small></span>
+                  <span><strong>{confirmation.pasitosReward.amount} Pasitos acreditados</strong><small>Ya fueron enviados a las cuentas indicadas.</small></span>
                 </div>
               )}
               {confirmation.pasitosReward?.status === 'pending' && (
-                <PasitosClaimForm
-                  token={confirmation.pasitosReward.claimToken}
-                  amount={confirmation.pasitosReward.amount}
-                  compact
-                />
+                <div className={styles.creditedBonus} role="status">
+                  <Gift size={20} aria-hidden="true" />
+                  <span><strong>{confirmation.pasitosReward.amount} Pasitos para repartir</strong><small>Cargá un ID de soporte por entrada desde el link que te enviamos.</small></span>
+                  <a href={confirmation.pasitosReward.claimUrl}>Repartir Pasitos</a>
+                </div>
               )}
               <button type="button" className={styles.checkoutPrimary} onClick={reset}>Comprar otra entrada</button>
               <a className={styles.recoveryLink} href="/evento-pasito/entradas">¿Necesitás reenviar tus entradas?</a>
