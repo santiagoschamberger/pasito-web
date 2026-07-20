@@ -847,6 +847,17 @@
   transform: scale(1.08);
 }
 
+.sponsorGrid .sponsorLogoFlux {
+  transform: scale(1.04);
+}
+
+.sponsorGrid .sponsorLogoKiwell {
+  height: 100%;
+  max-height: none;
+  object-fit: cover;
+  transform: scale(1.45);
+}
+
 .sponsorGrid .sponsorLogoLinck {
   transform: scale(1.32);
 }
@@ -854,6 +865,16 @@
 .sponsorGrid .sponsorCardUnderArmour {
   border-color: #dc0019;
   background: #dc0019;
+}
+
+.sponsorGrid .sponsorCardFlux {
+  border-color: #583898;
+  background: #583898;
+}
+
+.sponsorGrid .sponsorCardKiwell {
+  border-color: #283848;
+  background: #283848;
 }
 
 .sponsorGrid .sponsorCardProta {

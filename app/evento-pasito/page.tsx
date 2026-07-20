@@ -79,9 +79,10 @@ type Sponsor = {
 
 const SPONSORS: Sponsor[] = [
   {
-    name: 'Heineken 0.0',
-    logo: '/evento-pasito/sponsors/heineken-00.png',
-    logoClassName: styles.sponsorLogoHeineken,
+    name: 'Flux, el plan joven de OSDE',
+    logo: '/evento-pasito/sponsors/flux-osde.png',
+    cardClassName: styles.sponsorCardFlux,
+    logoClassName: `${styles.sponsorLogoWide} ${styles.sponsorLogoFlux}`,
   },
   {
     name: 'Under Armour',
@@ -96,8 +97,9 @@ const SPONSORS: Sponsor[] = [
   },
   {
     name: 'Kiwell',
-    logo: '/evento-pasito/sponsors/kiwell-2025.png',
-    logoClassName: styles.sponsorLogoWide,
+    logo: '/evento-pasito/sponsors/kiwell-green.png',
+    cardClassName: styles.sponsorCardKiwell,
+    logoClassName: `${styles.sponsorLogoWide} ${styles.sponsorLogoKiwell}`,
   },
   {
     name: 'Somos PROTA',
@@ -139,6 +141,11 @@ const SPONSORS: Sponsor[] = [
     name: 'Awake',
     logo: '/evento-pasito/sponsors/awake.jpeg',
     logoClassName: styles.sponsorLogoWide,
+  },
+  {
+    name: 'Heineken 0.0',
+    logo: '/evento-pasito/sponsors/heineken-00.png',
+    logoClassName: styles.sponsorLogoHeineken,
   },
 ]
 
