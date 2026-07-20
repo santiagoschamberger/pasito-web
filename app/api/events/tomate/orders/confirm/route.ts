@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { TOMATE_EVENT, type EventTicket } from '@/lib/tomate-event'
+import {
+  EmailDeliveryError,
+  emailDeliveryErrorMessage,
+  retryEmailDelivery,
+} from '@/lib/email-retry'
 import { getRebillPayment, rebillCustomerName, type RebillPayment } from '@/lib/tomate-rebill'
 import { getTomateSupabase, requestOrigin } from '@/lib/tomate-server'
 import { sendTomateTicketsEmail } from '@/lib/tomate-ticket-email'
@@ -185,8 +190,9 @@ export async function POST(request: NextRequest) {
     const isE2e = Boolean(e2ePayment(paymentId, intent))
     const shouldSendEmail = !isE2e || process.env.TOMATE_E2E_SEND_EMAIL === '1'
     if (emailPending && shouldSendEmail) {
+      let sendAttempts = 0
       try {
-        const sent = await sendTomateTicketsEmail({
+        const delivery = await retryEmailDelivery(() => sendTomateTicketsEmail({
           origin,
           kind: 'confirmation',
           pasitosRewards: [pasitosReward],
@@ -199,16 +205,27 @@ export async function POST(request: NextRequest) {
             quantity: bundle.order.quantity,
             tickets: bundle.tickets,
           }],
+        }))
+        sendAttempts = delivery.attempts
+        const { error: emailTrackingError } = await db.rpc('event_record_confirmation_email_attempt', {
+          p_order_id: bundle.order.id,
+          p_attempt_count: delivery.attempts,
+          p_email_id: delivery.value.id,
+          p_error: null,
         })
-        const { error: emailTrackingError } = await db.from('event_ticket_orders').update({
-          confirmation_email_sent_at: new Date().toISOString(),
-          confirmation_email_id: sent.id,
-          updated_at: new Date().toISOString(),
-        }).eq('id', bundle.order.id)
-        if (emailTrackingError) console.error('[tomate/orders] No se pudo registrar el email:', emailTrackingError)
+        if (emailTrackingError) throw emailTrackingError
         emailPending = false
       } catch (error) {
-        console.error('[tomate/orders] No se pudo enviar el email:', error)
+        const attemptCount = error instanceof EmailDeliveryError ? error.attempts : Math.max(sendAttempts, 1)
+        const errorMessage = emailDeliveryErrorMessage(error)
+        console.error('[tomate/orders] No se pudo enviar o registrar el email:', errorMessage)
+        const { error: trackingError } = await db.rpc('event_record_confirmation_email_attempt', {
+          p_order_id: bundle.order.id,
+          p_attempt_count: attemptCount,
+          p_email_id: null,
+          p_error: errorMessage,
+        })
+        if (trackingError) console.error('[tomate/orders] No se pudo registrar el intento de email:', trackingError)
       }
     } else if (isE2e) {
       emailPending = false

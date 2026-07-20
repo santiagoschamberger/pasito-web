@@ -325,7 +325,7 @@ export function TicketCheckout() {
               <span className={styles.successIcon}><Check size={30} /></span>
               <p className={styles.checkoutEyebrow}>Compra confirmada</p>
               <h3>¡Tus entradas ya son tuyas!</h3>
-              <p>{confirmation.emailPending ? 'Estamos reintentando el envío por email.' : 'Te enviamos los QR y códigos por email.'} También podés abrirlos ahora:</p>
+              <p>{confirmation.emailPending ? 'El email quedó pendiente y lo vamos a reintentar automáticamente.' : 'Te enviamos los QR y códigos por email.'} También podés abrirlos ahora:</p>
               <div className={styles.successTickets}>
                 {confirmation.tickets.map((ticket) => (
                   <a href={ticket.url} target="_blank" rel="noopener noreferrer" key={ticket.code}>

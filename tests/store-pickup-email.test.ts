@@ -37,16 +37,18 @@ test('pickup emails show the selected location, phone number, and a WhatsApp but
   assert.match(email, /retiro en Palermo/i)
 })
 
-test('future order confirmations track pickup instruction delivery', () => {
+test('future order confirmations track delivery and preserve pickup instruction tracking', () => {
   const route = readFileSync(new URL('../app/api/orders/route.ts', import.meta.url), 'utf8')
   const migration = readFileSync(
-    new URL('../supabase/migrations/20260714150216_track_store_pickup_instructions.sql', import.meta.url),
+    new URL('../supabase/migrations/20260720193544_track_transactional_email_attempts.sql', import.meta.url),
     'utf8',
   )
 
   assert.match(route, /pickupCoordinationBlockHtml/)
   assert.match(route, /tienda-order-confirmation-/)
-  assert.match(route, /pickup_instructions_sent_at/)
+  assert.match(route, /tienda_record_confirmation_email_attempt/)
+  assert.match(migration, /confirmation_email_sent_at/)
+  assert.match(migration, /pickup_instructions_sent_at/)
   assert.match(migration, /pickup_instructions_email_id/)
 })
 

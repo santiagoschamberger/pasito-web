@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { TOMATE_EVENT, type EventTicket } from '@/lib/tomate-event'
+import { retryEmailDelivery } from '@/lib/email-retry'
 import { getTomateSupabase, requestIpHash, requestOrigin } from '@/lib/tomate-server'
 import { sendTomateTicketsEmail } from '@/lib/tomate-ticket-email'
 import { createPasitosClaimToken } from '@/lib/tomate-ticket-security'
@@ -98,7 +99,7 @@ export async function POST(request: NextRequest) {
       }
     }))).filter((reward): reward is NonNullable<typeof reward> => reward !== null)
 
-    const sent = await sendTomateTicketsEmail({
+    const delivery = await retryEmailDelivery(() => sendTomateTicketsEmail({
       origin,
       kind: 'recovery',
       pasitosRewards,
@@ -117,7 +118,8 @@ export async function POST(request: NextRequest) {
           checkedInAt: ticket.checked_in_at,
         })),
       })),
-    })
+    }))
+    const sent = delivery.value
 
     const now = new Date().toISOString()
     const { error: trackingError } = await db.from('event_ticket_orders').update({

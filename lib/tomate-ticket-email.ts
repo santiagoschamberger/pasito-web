@@ -36,7 +36,7 @@ export async function sendTomateTicketsEmail(params: {
     status: 'credited' | 'pending'
     claimUrl: string
   }>
-}): Promise<{ id: string | null }> {
+}): Promise<{ id: string }> {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) throw new Error('Falta RESEND_API_KEY.')
   const firstOrder = params.orders[0]
@@ -119,5 +119,6 @@ export async function sendTomateTicketsEmail(params: {
   }, { idempotencyKey: `tomate-${params.kind}-${unique}` })
 
   if (error) throw new Error(error.message)
-  return { id: data?.id ?? null }
+  if (!data?.id) throw new Error('Resend no devolvió un identificador de email.')
+  return { id: data.id }
 }

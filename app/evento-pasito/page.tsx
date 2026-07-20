@@ -45,8 +45,15 @@ const SCHEDULE = [
   },
   {
     time: '12:20 - 13:00',
-    title: 'Yoga, charlas y experiencias',
-    detail: 'Un espacio de bienestar para bajar un cambio.',
+    title: 'Yoga por Arizona + Kiwell — Outdoors',
+    highlights: [
+      { label: 'Charlas x Offline' },
+      { label: 'Aprendiendo a Sentir y Pensar — CEO Sinergy' },
+      {
+        label: 'La incomodidad del cambio — Shirly Kohn',
+        href: 'https://www.instagram.com/shirlykohn/',
+      },
+    ],
     icon: Sparkles,
   },
   {
@@ -114,10 +121,10 @@ const SPONSORS: Sponsor[] = [
     logoClassName: `${styles.sponsorLogoSquare} ${styles.sponsorLogoLinck}`,
   },
   {
-    name: 'Marca aliada',
-    logo: '/evento-pasito/sponsors/partner-emblem.jpg',
-    cardClassName: styles.sponsorCardEmblem,
-    logoClassName: styles.sponsorLogoSquare,
+    name: 'Offline',
+    logo: '/evento-pasito/sponsors/offline.png',
+    cardClassName: styles.sponsorCardOffline,
+    logoClassName: `${styles.sponsorLogoWide} ${styles.sponsorLogoOffline}`,
   },
   {
     name: 'BOSS',
@@ -141,6 +148,12 @@ const SPONSORS: Sponsor[] = [
     name: 'Awake',
     logo: '/evento-pasito/sponsors/awake.jpeg',
     logoClassName: styles.sponsorLogoWide,
+  },
+  {
+    name: 'Arizona Health & Studio',
+    logo: '/evento-pasito/sponsors/arizona.jpeg',
+    cardClassName: styles.sponsorCardArizona,
+    logoClassName: `${styles.sponsorLogoWide} ${styles.sponsorLogoArizona}`,
   },
   {
     name: 'Heineken 0.0',
@@ -314,7 +327,7 @@ export default function TomateEventPage() {
           </div>
 
           <ol className={styles.timeline}>
-            {SCHEDULE.map(({ time, title, detail, href, icon: Icon }, index) => (
+            {SCHEDULE.map(({ time, title, detail, highlights, href, icon: Icon }, index) => (
               <li key={time}>
                 <span className={styles.timelineIcon}><Icon size={21} aria-hidden="true" /></span>
                 <div>
@@ -325,6 +338,19 @@ export default function TomateEventPage() {
                       {detail} <ExternalLink size={14} aria-hidden="true" />
                     </a>
                   ) : detail ? <p className={styles.timelineDetail}>{detail}</p> : null}
+                  {highlights ? (
+                    <ul className={styles.timelineHighlights}>
+                      {highlights.map((highlight) => (
+                        <li key={highlight.label}>
+                          {highlight.href ? (
+                            <a href={highlight.href} target="_blank" rel="noopener noreferrer">
+                              {highlight.label} <ExternalLink size={12} aria-hidden="true" />
+                            </a>
+                          ) : <span>{highlight.label}</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
                 </div>
                 <span className={styles.timelineNumber}>{String(index + 1).padStart(2, '0')}</span>
               </li>

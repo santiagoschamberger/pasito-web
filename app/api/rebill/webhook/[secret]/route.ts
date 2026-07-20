@@ -20,6 +20,22 @@ type WebhookPayload = {
   webhook?: { event?: string }
 }
 
+async function hasPendingEmail(response: Response): Promise<boolean> {
+  if (!response.ok) return false
+  try {
+    const payload = await response.clone().json() as { emailPending?: unknown }
+    return payload.emailPending === true
+  } catch {
+    return false
+  }
+}
+
+function pendingEmailResponse() {
+  // Rebill reintenta respuestas 5xx. La orden ya es idempotente, así que el
+  // siguiente callback sólo vuelve a intentar el email pendiente.
+  return NextResponse.json({ error: 'El email de confirmación sigue pendiente.' }, { status: 503 })
+}
+
 /**
  * Rebill no firma sus webhooks. La ruta usa un segmento secreto y delega la
  * confirmación final a /api/orders, que vuelve a consultar la API de Rebill
@@ -58,6 +74,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ se
       })
       const orderResponse = await confirmTomateOrder(orderRequest)
       if (orderResponse.status >= 500) return orderResponse
+      if (await hasPendingEmail(orderResponse)) return pendingEmailResponse()
       return NextResponse.json({ ok: true })
     }
 
@@ -106,5 +123,6 @@ export async function POST(request: NextRequest, context: { params: Promise<{ se
   // Rebill reintenta fallos 5xx. Los 4xx son inconsistencias que requieren
   // revisión humana y se confirman para no generar una cola infinita.
   if (orderResponse.status >= 500) return orderResponse
+  if (await hasPendingEmail(orderResponse)) return pendingEmailResponse()
   return NextResponse.json({ ok: true })
 }

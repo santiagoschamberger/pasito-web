@@ -396,6 +396,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
   const [done, setDone] = useState<{
     paymentId?: string
     needsSupport?: boolean
+    emailPending?: boolean
     pickupWhatsAppUrl?: string
   } | null>(null)
   const [checkoutReady, setCheckoutReady] = useState(false)
@@ -514,9 +515,16 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
             pickupLocation,
           }),
         })
-        const payload = await response.json().catch(() => ({})) as { pickupWhatsAppUrl?: string }
+        const payload = await response.json().catch(() => ({})) as {
+          emailPending?: boolean
+          pickupWhatsAppUrl?: string
+        }
         if (!response.ok) throw new Error('No se pudo confirmar la orden.')
-        setDone({ paymentId, pickupWhatsAppUrl: payload.pickupWhatsAppUrl })
+        setDone({
+          paymentId,
+          emailPending: payload.emailPending,
+          pickupWhatsAppUrl: payload.pickupWhatsAppUrl,
+        })
       } catch {
         // El pago puede estar aprobado aunque la acreditación o el descuento de
         // stock todavía requieran revisión. No reabrimos el checkout para evitar
@@ -628,6 +636,8 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
             <p className="mx-auto mt-2 max-w-sm text-sm" style={{ color: '#5B5B54' }}>
               {done.needsSupport
                 ? 'Estamos terminando de verificar la acreditación y te contactaremos por email. No hace falta que vuelvas a pagar.'
+                : done.emailPending
+                  ? <>Tu compra está confirmada. El email quedó pendiente y lo vamos a reintentar automáticamente. {delivery === 'retiro' ? pickupConfirmation(pickupLocation) : 'Tu dirección quedó guardada y despacharemos el pedido dentro de 5–6 días hábiles.'}</>
                 : <>Te enviamos la confirmación por email. {delivery === 'retiro' ? pickupConfirmation(pickupLocation) : 'Tu dirección quedó guardada y despacharemos el pedido dentro de 5–6 días hábiles.'}</>}
             </p>
             {!done.needsSupport && delivery === 'retiro' && (

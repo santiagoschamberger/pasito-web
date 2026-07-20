@@ -15,6 +15,11 @@ import {
   type PickupLocation,
 } from '@/lib/store-fulfillment'
 import { pickupCoordinationBlockHtml } from '@/lib/store-pickup-email'
+import {
+  EmailDeliveryError,
+  emailDeliveryErrorMessage,
+  retryEmailDelivery,
+} from '@/lib/email-retry'
 
 /* Debe coincidir con la config de la tienda (app/tienda/StoreClient.tsx). */
 const PRICE = 35000
@@ -30,6 +35,21 @@ const REBILL_PRODUCT_REFERENCE = {
   envio: 'prd_916d9bf2683e40b4abf1c2a9c94e3145',
 } as const
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
+type StoreOrderRow = {
+  id: string
+  email: string | null
+  customer_name: string | null
+  delivery: string
+  confirmation_email_sent_at: string | null
+  shipping_address_line1: string | null
+  shipping_address_line2: string | null
+  shipping_city: string | null
+  shipping_province: string | null
+  shipping_postal_code: string | null
+  shipping_phone: string | null
+  shipping_notes: string | null
+}
 
 let supabase: SupabaseClient | null = null
 function getSupabase() {
@@ -267,22 +287,29 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  if (result !== 'confirmed' && result !== 'duplicate') {
+    console.error('[orders] Resultado inesperado confirmando orden:', result)
+    return NextResponse.json({ error: 'No se pudo registrar la orden.' }, { status: 500 })
+  }
+
   const variant = `Remera ${base === 'blanca' ? 'Blanca' : 'Negra'} · estampa ${
     print === 'verde' ? 'Verde' : 'Blanca'
   }`
 
-  let shippingAddress: ShippingAddress | null = null
-  if (result === 'confirmed' && delivery === 'envio') {
-    const { data: confirmedOrder, error: addressError } = await db
-      .from('tienda_orders')
-      .select('shipping_address_line1, shipping_address_line2, shipping_city, shipping_province, shipping_postal_code, shipping_phone, shipping_notes')
-      .eq('rebill_payment_id', paymentId)
-      .maybeSingle()
+  const { data: rawConfirmedOrder, error: orderReadError } = await db
+    .from('tienda_orders')
+    .select('id, email, customer_name, delivery, confirmation_email_sent_at, shipping_address_line1, shipping_address_line2, shipping_city, shipping_province, shipping_postal_code, shipping_phone, shipping_notes')
+    .eq('rebill_payment_id', paymentId)
+    .maybeSingle()
 
-    if (addressError) {
-      console.error('[orders] Error leyendo dirección confirmada:', addressError)
-    } else if (confirmedOrder) {
-      shippingAddress = normalizeShippingAddress({
+  if (orderReadError || !rawConfirmedOrder) {
+    console.error('[orders] Error leyendo la orden confirmada:', orderReadError)
+    return NextResponse.json({ error: 'No se pudo cargar la orden confirmada.' }, { status: 500 })
+  }
+  const confirmedOrder = rawConfirmedOrder as StoreOrderRow
+
+  const shippingAddress: ShippingAddress | null = delivery === 'envio'
+    ? normalizeShippingAddress({
         line1: confirmedOrder.shipping_address_line1,
         line2: confirmedOrder.shipping_address_line2 ?? '',
         city: confirmedOrder.shipping_city,
@@ -291,45 +318,66 @@ export async function POST(req: NextRequest) {
         phone: confirmedOrder.shipping_phone,
         notes: confirmedOrder.shipping_notes ?? '',
       })
-    }
-  }
+    : null
 
-  // 3) Mail de confirmación (sólo la primera vez que se confirma el pago).
-  if (result === 'confirmed' && email && process.env.RESEND_API_KEY) {
+  // 3) Mail de confirmación. También se intenta en callbacks duplicados si
+  // un intento anterior no quedó registrado como enviado.
+  let emailPending = !confirmedOrder.confirmation_email_sent_at
+  if (emailPending) {
+    let sendAttempts = 0
     try {
-      const { data: emailData, error: emailError } = await new Resend(process.env.RESEND_API_KEY).emails.send(
-        {
-          from: 'Pasito <noreply@pasito.app>',
-          to: email,
-          subject: 'Confirmamos tu Remera Pasito',
-          html: orderConfirmationHtml({
-            name: pay.customer?.firstName,
-            customerName,
-            variant,
-            size,
-            qty,
-            delivery,
-            pickupLocation,
-            amount: expected,
-            shippingAddress,
-          }),
-        },
-        { idempotencyKey: `tienda-order-confirmation-${paymentId}` },
-      )
-      if (emailError) console.error('[orders] Error enviando mail:', emailError)
-      if (!emailError && delivery === 'retiro') {
-        const { error: trackingError } = await db
-          .from('tienda_orders')
-          .update({
-            pickup_instructions_sent_at: new Date().toISOString(),
-            pickup_instructions_email_id: emailData?.id ?? null,
-          })
-          .eq('rebill_payment_id', paymentId)
+      const targetEmail = confirmedOrder.email?.trim().toLowerCase() ?? ''
+      if (!/^\S+@\S+\.\S+$/.test(targetEmail)) throw new Error('El pago no incluye un email válido.')
+      const resendApiKey = process.env.RESEND_API_KEY
+      if (!resendApiKey) throw new Error('Falta RESEND_API_KEY.')
+      const resend = new Resend(resendApiKey)
+      const sent = await retryEmailDelivery(async () => {
+        const { data: emailData, error: emailError } = await resend.emails.send(
+          {
+            from: 'Pasito <noreply@pasito.app>',
+            to: targetEmail,
+            subject: 'Confirmamos tu Remera Pasito',
+            html: orderConfirmationHtml({
+              name: pay.customer?.firstName,
+              customerName: confirmedOrder.customer_name,
+              variant,
+              size,
+              qty,
+              delivery,
+              pickupLocation,
+              amount: expected,
+              shippingAddress,
+            }),
+          },
+          { idempotencyKey: `tienda-order-confirmation-${paymentId}` },
+        )
+        if (emailError) throw new Error(emailError.message)
+        if (!emailData?.id) throw new Error('Resend no devolvió un identificador de email.')
+        return emailData.id
+      })
+      sendAttempts = sent.attempts
 
-        if (trackingError) console.error('[orders] Error registrando instrucciones de retiro:', trackingError)
+      const { error: trackingError } = await db.rpc('tienda_record_confirmation_email_attempt', {
+        p_order_id: confirmedOrder.id,
+        p_attempt_count: sent.attempts,
+        p_email_id: sent.value,
+        p_error: null,
+      })
+      if (trackingError) throw trackingError
+      emailPending = false
+    } catch (error) {
+      const attemptCount = error instanceof EmailDeliveryError ? error.attempts : Math.max(sendAttempts, 1)
+      const errorMessage = emailDeliveryErrorMessage(error)
+      console.error('[orders] Error enviando o registrando mail:', errorMessage)
+      const { error: trackingError } = await db.rpc('tienda_record_confirmation_email_attempt', {
+        p_order_id: confirmedOrder.id,
+        p_attempt_count: attemptCount,
+        p_email_id: null,
+        p_error: errorMessage,
+      })
+      if (trackingError) {
+        console.error('[orders] Error registrando el intento de email:', trackingError)
       }
-    } catch (err) {
-      console.error('[orders] Error enviando mail:', err)
     }
   }
 
@@ -340,6 +388,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     ok: true,
     result,
+    emailPending,
     ...(delivery === 'retiro'
       ? { pickupWhatsAppUrl: buildPickupWhatsAppUrl(customerName, pickupLocation) }
       : {}),
