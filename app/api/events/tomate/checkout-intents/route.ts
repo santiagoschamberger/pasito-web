@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { TOMATE_EVENT, type TicketBreakdown } from '@/lib/tomate-event'
+import { TOMATE_EVENT, TOMATE_EVENT_TERMS_VERSION, type TicketBreakdown } from '@/lib/tomate-event'
 import { checkoutIdentity, getTomateSupabase, TOMATE_BUYER_COOKIE } from '@/lib/tomate-server'
 import { createIntentToken } from '@/lib/tomate-ticket-security'
 
@@ -19,7 +19,7 @@ type ReservationResult = {
 }
 
 export async function POST(request: NextRequest) {
-  let body: { quantity?: unknown; promoCode?: unknown }
+  let body: { quantity?: unknown; promoCode?: unknown; termsAccepted?: unknown }
   try {
     body = await request.json()
   } catch {
@@ -30,6 +30,9 @@ export async function POST(request: NextRequest) {
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > TOMATE_EVENT.maxTicketsPerOrder) {
     return NextResponse.json({ error: `Podés comprar entre 1 y ${TOMATE_EVENT.maxTicketsPerOrder} entradas.` }, { status: 400 })
   }
+  if (body.termsAccepted !== true) {
+    return NextResponse.json({ error: 'Tenés que aceptar las bases y condiciones del evento.' }, { status: 400 })
+  }
   const promoCode = typeof body.promoCode === 'string' ? body.promoCode.trim().toUpperCase() : ''
   if (promoCode && !/^[A-Z0-9_-]{3,40}$/.test(promoCode)) {
     return NextResponse.json({ error: 'El código de descuento no es válido.' }, { status: 400 })
@@ -37,7 +40,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const identity = checkoutIdentity(request)
-    const { data, error } = await getTomateSupabase().rpc('event_reserve_tickets', {
+    const db = getTomateSupabase()
+    const { data, error } = await db.rpc('event_reserve_tickets', {
       p_event_slug: TOMATE_EVENT.slug,
       p_quantity: quantity,
       p_client_key_hash: identity.clientKeyHash,
@@ -61,6 +65,15 @@ export async function POST(request: NextRequest) {
     }
     if (result.status !== 'reserved' || !result.intentId || !result.expiresAt || !result.amount) {
       throw new Error(`Respuesta de reserva inesperada: ${result.status ?? 'vacía'}`)
+    }
+
+    const { error: acceptanceError } = await db.from('event_checkout_intents').update({
+      terms_accepted_at: new Date().toISOString(),
+      terms_version: TOMATE_EVENT_TERMS_VERSION,
+    }).eq('id', result.intentId).select('id').single()
+    if (acceptanceError) {
+      await db.rpc('event_cancel_ticket_reservation', { p_intent_id: result.intentId })
+      throw acceptanceError
     }
 
     const response = NextResponse.json({

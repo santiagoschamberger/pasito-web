@@ -1260,6 +1260,33 @@
   outline: 3px solid rgb(0 109 66 / 12%);
 }
 
+.termsAcceptance {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 11px;
+  align-items: start;
+  margin-top: 20px;
+  color: var(--event-muted);
+  font-size: 12px;
+  line-height: 18px;
+  cursor: pointer;
+}
+
+.termsAcceptance input {
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+  accent-color: var(--event-green);
+  cursor: pointer;
+}
+
+.termsAcceptance a {
+  color: var(--event-green);
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .checkoutPrimary {
   display: flex;
   align-items: center;
@@ -1285,7 +1312,7 @@
 }
 
 .checkoutPrimary:disabled {
-  cursor: wait;
+  cursor: not-allowed;
   opacity: .62;
 }
 

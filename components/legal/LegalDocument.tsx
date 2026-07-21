@@ -9,7 +9,8 @@ function formatBlock(block: string) {
 }
 
 function isHeading(value: string) {
-  return /^(\([ivxlcdm]+\)|\d+\.-|vi\.\d+\.|[a-z]\)\s*[A-ZÁÉÍÓÚÑ]{3,})/i.test(value)
+  return /^(\d+\.-|vi\.\d+\.|[a-z]\)\s*[A-ZÁÉÍÓÚÑ]{3,})/i.test(value)
+    || /^\([ivxlcdm]+\)\s+[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ\s.,-]{3,}$/.test(value)
 }
 
 export function LegalDocument({ content }: { content: string }) {

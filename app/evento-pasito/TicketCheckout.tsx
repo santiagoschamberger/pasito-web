@@ -5,6 +5,7 @@ import { ArrowLeft, Check, Clock3, Gift, Mail, Minus, Plus, ShieldCheck, Ticket 
 
 import {
   TOMATE_EVENT,
+  TOMATE_EVENT_TERMS_PATH,
   tomateMoney,
   type TicketBreakdown,
   type TicketInventoryTier,
@@ -171,6 +172,7 @@ function checkoutErrorMessage(detail: unknown): string {
 export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInventoryTier[] }) {
   const [quantity, setQuantity] = useState(1)
   const [promoCode, setPromoCode] = useState('')
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [tiers, setTiers] = useState<TicketInventoryTier[]>(initialTiers)
   const [quote, setQuote] = useState<Quote | null>(null)
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null)
@@ -233,7 +235,7 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
       const response = await fetch('/api/events/tomate/checkout-intents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quantity, promoCode }),
+        body: JSON.stringify({ quantity, promoCode, termsAccepted }),
       })
       const payload = await response.json().catch(() => ({})) as Quote & { error?: string }
       if (!response.ok || !payload.intentId) throw new Error(payload.error || 'No pudimos reservar las entradas.')
@@ -245,7 +247,7 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
     } finally {
       setPreparing(false)
     }
-  }, [promoCode, quantity])
+  }, [promoCode, quantity, termsAccepted])
 
   const goBack = useCallback(async () => {
     if (!quote || confirming) return
@@ -311,6 +313,7 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
     setError(null)
     setQuantity(1)
     setPromoCode('')
+    setTermsAccepted(false)
     void refreshAvailability()
   }, [refreshAvailability])
 
@@ -421,8 +424,21 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
                   maxLength={40}
                 />
               </label>
+              <label className={styles.termsAcceptance}>
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={(event) => setTermsAccepted(event.target.checked)}
+                  required
+                />
+                <span>
+                  Declaro que soy mayor de 18 años y acepto las{' '}
+                  <a href={TOMATE_EVENT_TERMS_PATH} target="_blank" rel="noopener noreferrer">bases y condiciones del evento</a>,
+                  incluyendo el consentimiento para comunicar mis datos a los sponsors.
+                </span>
+              </label>
               {error && <div className={styles.checkoutError} role="alert">{error}</div>}
-              <button type="button" className={styles.checkoutPrimary} onClick={() => void startCheckout()} disabled={preparing}>
+              <button type="button" className={styles.checkoutPrimary} onClick={() => void startCheckout()} disabled={preparing || !termsAccepted}>
                 {preparing ? 'Reservando precio…' : 'Continuar al pago'}
               </button>
               <p className={styles.paymentFinePrint}>Vas a ver el total exacto antes de pagar.</p>

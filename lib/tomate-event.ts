@@ -8,6 +8,9 @@ export const TOMATE_EVENT = {
   maxTicketsPerOrder: 6,
 } as const
 
+export const TOMATE_EVENT_TERMS_PATH = '/terminos/evento-pasito'
+export const TOMATE_EVENT_TERMS_VERSION = '2026-07'
+
 export const TOMATE_TICKET_BONUSES = [
   { position: 1, label: 'Tanda 1 · 100 cupos', unitPrice: 35000, pasitos: 70, soldOut: true },
   { position: 2, label: 'Tanda 2 · 100 cupos', unitPrice: 45000, pasitos: 50, soldOut: false },
