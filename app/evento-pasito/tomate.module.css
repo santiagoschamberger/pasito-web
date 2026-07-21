@@ -1095,8 +1095,7 @@
 }
 
 .checkoutIntro {
-  position: sticky;
-  top: 120px;
+  align-self: start;
   padding-top: 28px;
 }
 
