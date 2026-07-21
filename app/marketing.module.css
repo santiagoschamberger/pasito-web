@@ -77,6 +77,21 @@
 }
 .navLink:hover { color: var(--brand-dark); }
 .navLinkActive { border-bottom: 2px solid var(--brand-accent); color: var(--brand-dark); }
+.eventNavLink { display: inline-flex; align-items: center; gap: 6px; }
+.navNewChip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 18px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--brand-pink);
+  color: var(--brand-burgundy);
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 14px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
 .navActions { display: flex; align-items: center; gap: 12px; margin-left: auto; }
 .navTextButton { padding: 10px 8px; color: var(--brand-primary); font-size: 14px; font-weight: 600; }
 .pinkButton {

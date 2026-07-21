@@ -76,6 +76,17 @@ const PRESS_LOGOS: PressLogo[] = [
   },
 ]
 
+function EventNavLink({ mobile = false }: { mobile?: boolean }) {
+  return (
+    <Link
+      className={`${mobile ? styles.mobileNavLink : styles.navLink} ${styles.eventNavLink}`}
+      href="/evento-pasito"
+    >
+      Evento <span className={styles.navNewChip}>Nuevo</span>
+    </Link>
+  )
+}
+
 export function MarketingNav({ active = 'home' }: { active?: 'home' | 'comercios' | 'empresas' | 'marcas' | 'merch' }) {
   const isCommerce = active === 'comercios'
   const isEnterprise = active === 'empresas'
@@ -96,6 +107,7 @@ export function MarketingNav({ active = 'home' }: { active?: 'home' | 'comercios
           <Image src="/brand/logo-green.svg" alt="Pasito" width={96} height={23} priority />
         </Link>
         <div className={styles.navLinks}>
+          <EventNavLink />
           <Link className={`${styles.navLink} ${isCommerce ? styles.navLinkActive : ''}`} href="/comercios">Comercios</Link>
           <Link className={`${styles.navLink} ${isBrands ? styles.navLinkActive : ''}`} href="/marcas">Marcas</Link>
           <Link className={`${styles.navLink} ${isEnterprise ? styles.navLinkActive : ''}`} href="/empresas">Empresas</Link>
@@ -127,6 +139,7 @@ export function MarketingNav({ active = 'home' }: { active?: 'home' | 'comercios
           </summary>
           <div className={styles.mobileNavPanel}>
             <div className={styles.mobileNavLinks}>
+              <EventNavLink mobile />
               <Link className={`${styles.mobileNavLink} ${isCommerce ? styles.mobileNavLinkActive : ''}`} href="/comercios">Comercios</Link>
               <Link className={`${styles.mobileNavLink} ${isBrands ? styles.mobileNavLinkActive : ''}`} href="/marcas">Marcas</Link>
               <Link className={`${styles.mobileNavLink} ${isEnterprise ? styles.mobileNavLinkActive : ''}`} href="/empresas">Empresas</Link>
