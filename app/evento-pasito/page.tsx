@@ -18,7 +18,13 @@ import {
 } from 'lucide-react'
 
 import { MarketingMotion } from '@/components/marketing/MarketingMotion'
-import { TOMATE_TICKET_BONUSES, tomateMoney } from '@/lib/tomate-event'
+import {
+  TOMATE_TICKET_BONUSES,
+  tomateMoney,
+  tomateTicketTierIsSoldOut,
+  type TicketInventoryTier,
+} from '@/lib/tomate-event'
+import { getTomateTicketInventory } from '@/lib/tomate-server'
 import marketingStyles from '../marketing.module.css'
 import styles from './tomate.module.css'
 import { TicketCheckout } from './TicketCheckout'
@@ -162,7 +168,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const protocol = requestHeaders.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https')
   const origin = `${protocol}://${host}`
   const title = 'Pasito Walking Club x TOMATE - 26 de julio'
-  const description = '10.000 pasos, almuerzo buffet, bienestar y música en el Rosedal de Palermo. Entradas desde $35.000.'
+  const currentTier = TOMATE_TICKET_BONUSES.find((tier) => !tier.soldOut) ?? TOMATE_TICKET_BONUSES[0]
+  const description = `10.000 pasos, almuerzo buffet, bienestar y música en el Rosedal de Palermo. Entradas desde ${tomateMoney(currentTier.unitPrice)}.`
 
   return {
     title,
@@ -233,7 +240,17 @@ function SponsorsSection() {
   )
 }
 
-export default function TomateEventPage() {
+export default async function TomateEventPage() {
+  let ticketInventory: TicketInventoryTier[] = []
+  try {
+    ticketInventory = await getTomateTicketInventory()
+  } catch (error) {
+    console.error('[evento-pasito] No se pudo precargar el inventario:', error)
+  }
+  const currentPublicTier = TOMATE_TICKET_BONUSES.find(
+    (tier) => !tomateTicketTierIsSoldOut(tier.position, ticketInventory),
+  ) ?? TOMATE_TICKET_BONUSES[0]
+
   return (
     <main className={`${marketingStyles.page} ${styles.page}`} data-marketing-page>
       <MarketingMotion />
@@ -365,15 +382,22 @@ export default function TomateEventPage() {
           <div className={styles.priceCard}>
             <span>Precios y Pasitos de regalo</span>
             <div className={styles.ticketBonusList}>
-              {TOMATE_TICKET_BONUSES.map((tier) => (
-                <div key={tier.position}>
-                  <span>
-                    <small>{tier.label}</small>
-                    <strong>{tomateMoney(tier.unitPrice)}</strong>
-                  </span>
-                  <p><Gift size={17} aria-hidden="true" /> +{tier.pasitos} Pasitos</p>
-                </div>
-              ))}
+              {TOMATE_TICKET_BONUSES.map((tier) => {
+                const soldOut = tomateTicketTierIsSoldOut(tier.position, ticketInventory)
+                return (
+                  <div className={soldOut ? styles.ticketTierSoldOut : undefined} key={tier.position}>
+                    <span>
+                      <small>{tier.label}</small>
+                      <strong>{tomateMoney(tier.unitPrice)}</strong>
+                    </span>
+                    {soldOut ? (
+                      <p className={styles.soldOutBadge}>Agotada</p>
+                    ) : (
+                      <p><Gift size={17} aria-hidden="true" /> +{tier.pasitos} Pasitos</p>
+                    )}
+                  </div>
+                )
+              })}
             </div>
             <p>Los Pasitos que ves junto a cada precio son un regalo por entrada. Después de comprar, vas a poder indicar desde un link qué cuenta de Pasito recibe los de cada entrada.</p>
             <BuyButton label="Comprar entrada" />
@@ -381,7 +405,7 @@ export default function TomateEventPage() {
         </div>
       </section>
 
-      <TicketCheckout />
+      <TicketCheckout initialTiers={ticketInventory} />
 
       <section className={styles.locationSection} id="lugar">
         <div className={`${styles.container} ${styles.locationLayout}`}>
@@ -426,7 +450,7 @@ export default function TomateEventPage() {
       </footer>
 
       <div className={styles.mobileBuyBar}>
-        <span><small>Entradas desde</small><strong>$35.000</strong></span>
+        <span><small>Entradas desde</small><strong>{tomateMoney(currentPublicTier.unitPrice)}</strong></span>
         <BuyButton label="Comprar entrada" />
       </div>
     </main>

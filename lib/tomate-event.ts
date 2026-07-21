@@ -9,9 +9,9 @@ export const TOMATE_EVENT = {
 } as const
 
 export const TOMATE_TICKET_BONUSES = [
-  { position: 1, label: 'Tanda 1 · 100 cupos', unitPrice: 35000, pasitos: 70 },
-  { position: 2, label: 'Tanda 2 · 100 cupos', unitPrice: 45000, pasitos: 50 },
-  { position: 3, label: 'Tanda 3 · cupo restante', unitPrice: 55000, pasitos: 20 },
+  { position: 1, label: 'Tanda 1 · 100 cupos', unitPrice: 35000, pasitos: 70, soldOut: true },
+  { position: 2, label: 'Tanda 2 · 100 cupos', unitPrice: 45000, pasitos: 50, soldOut: false },
+  { position: 3, label: 'Tanda 3 · cupo restante', unitPrice: 55000, pasitos: 20, soldOut: false },
 ] as const
 
 export type TicketBreakdown = {
@@ -31,6 +31,20 @@ export type TicketInventoryTier = {
   sold: number
   held: number
   available: number | null
+}
+
+export function tomateTicketTierIsSoldOut(
+  position: number,
+  inventory: TicketInventoryTier[],
+): boolean {
+  const liveTier = inventory.find((tier) => tier.position === position)
+  if (liveTier) {
+    return liveTier.capacity !== null
+      && liveTier.available !== null
+      && liveTier.available <= 0
+  }
+
+  return TOMATE_TICKET_BONUSES.find((tier) => tier.position === position)?.soldOut ?? false
 }
 
 export type EventTicket = {

@@ -4,11 +4,22 @@ import { createHash, randomUUID } from 'node:crypto'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { NextRequest } from 'next/server'
 
-import { TOMATE_EVENT } from '@/lib/tomate-event'
+import { TOMATE_EVENT, type TicketInventoryTier } from '@/lib/tomate-event'
 
 export const TOMATE_BUYER_COOKIE = 'tomate_buyer'
 
 let client: SupabaseClient | null = null
+
+type InventoryRow = {
+  tier_id: number | string
+  tier_position: number
+  tier_name: string
+  unit_price: number
+  capacity: number | null
+  sold: number
+  held: number
+  available: number | null
+}
 
 export function getTomateSupabase(): SupabaseClient {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -21,6 +32,24 @@ export function getTomateSupabase(): SupabaseClient {
     })
   }
   return client
+}
+
+export async function getTomateTicketInventory(): Promise<TicketInventoryTier[]> {
+  const { data, error } = await getTomateSupabase().rpc('event_ticket_inventory', {
+    p_event_slug: TOMATE_EVENT.slug,
+  })
+  if (error) throw error
+
+  return ((data ?? []) as InventoryRow[]).map((row) => ({
+    tierId: Number(row.tier_id),
+    position: Number(row.tier_position),
+    name: row.tier_name,
+    unitPrice: Number(row.unit_price),
+    capacity: row.capacity === null ? null : Number(row.capacity),
+    sold: Number(row.sold),
+    held: Number(row.held),
+    available: row.available === null ? null : Number(row.available),
+  }))
 }
 
 function privateHash(value: string): string {

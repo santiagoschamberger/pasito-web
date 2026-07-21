@@ -164,9 +164,9 @@ function checkoutErrorMessage(detail: unknown): string {
   return 'No se pudo procesar el pago. Revisá los datos e intentá nuevamente.'
 }
 
-export function TicketCheckout() {
+export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInventoryTier[] }) {
   const [quantity, setQuantity] = useState(1)
-  const [tiers, setTiers] = useState<TicketInventoryTier[]>([])
+  const [tiers, setTiers] = useState<TicketInventoryTier[]>(initialTiers)
   const [quote, setQuote] = useState<Quote | null>(null)
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null)
   const [preparing, setPreparing] = useState(false)
@@ -185,7 +185,9 @@ export function TicketCheckout() {
     }
   }, [])
 
-  useEffect(() => { void refreshAvailability() }, [refreshAvailability])
+  useEffect(() => {
+    if (initialTiers.length === 0) void refreshAvailability()
+  }, [initialTiers.length, refreshAvailability])
 
   const currentTier = tiers.find((tier) => tier.available === null || tier.available > 0) ?? tiers.at(-1)
   const releaseQuote = useCallback(async (reservation: Quote) => {
