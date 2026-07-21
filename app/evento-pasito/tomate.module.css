@@ -1229,6 +1229,37 @@
   font-weight: 650;
 }
 
+.promoField {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.promoField span {
+  color: var(--event-dark);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.promoField input {
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 15px;
+  border: 1px solid var(--event-line);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--event-dark);
+  font: inherit;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.promoField input:focus {
+  border-color: var(--event-green);
+  outline: 3px solid rgb(0 109 66 / 12%);
+}
+
 .checkoutPrimary {
   display: flex;
   align-items: center;
@@ -1344,6 +1375,15 @@
   gap: 16px;
   color: var(--event-muted);
   font-size: 13px;
+}
+
+.quoteBreakdown .quoteDiscount {
+  color: var(--event-green);
+  font-weight: 750;
+}
+
+.quoteBreakdown .quoteDiscount strong {
+  color: var(--event-green);
 }
 
 .quoteBreakdown strong {

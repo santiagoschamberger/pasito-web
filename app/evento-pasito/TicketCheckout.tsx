@@ -28,8 +28,12 @@ type Quote = {
   intentId: string
   intentToken: string
   quantity: number
+  subtotalAmount: number
+  discountAmount: number
   amount: number
   currency: string
+  promoCode?: string
+  discountPercent?: number
   expiresAt: string
   breakdown: TicketBreakdown[]
 }
@@ -166,6 +170,7 @@ function checkoutErrorMessage(detail: unknown): string {
 
 export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInventoryTier[] }) {
   const [quantity, setQuantity] = useState(1)
+  const [promoCode, setPromoCode] = useState('')
   const [tiers, setTiers] = useState<TicketInventoryTier[]>(initialTiers)
   const [quote, setQuote] = useState<Quote | null>(null)
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null)
@@ -228,7 +233,7 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
       const response = await fetch('/api/events/tomate/checkout-intents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quantity }),
+        body: JSON.stringify({ quantity, promoCode }),
       })
       const payload = await response.json().catch(() => ({})) as Quote & { error?: string }
       if (!response.ok || !payload.intentId) throw new Error(payload.error || 'No pudimos reservar las entradas.')
@@ -240,7 +245,7 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
     } finally {
       setPreparing(false)
     }
-  }, [quantity])
+  }, [promoCode, quantity])
 
   const goBack = useCallback(async () => {
     if (!quote || confirming) return
@@ -295,6 +300,7 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
       eventSlug: TOMATE_EVENT.slug,
       checkoutIntentId: quote.intentId,
       quantity: String(quote.quantity),
+      promoCode: quote.promoCode ?? '',
     },
   }) : null, [quote])
 
@@ -304,6 +310,7 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
     setPaymentReceived(false)
     setError(null)
     setQuantity(1)
+    setPromoCode('')
     void refreshAvailability()
   }, [refreshAvailability])
 
@@ -379,6 +386,12 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
                     <strong>{tomateMoney(line.quantity * line.unitPrice)}</strong>
                   </div>
                 ))}
+                {quote.discountAmount > 0 && (
+                  <div className={styles.quoteDiscount}>
+                    <span>{quote.promoCode} · {quote.discountPercent}% de descuento</span>
+                    <strong>−{tomateMoney(quote.discountAmount)}</strong>
+                  </div>
+                )}
               </div>
               {error && <div className={styles.checkoutError} role="alert">{error}</div>}
               {confirming && <div className={styles.confirmingMessage}>Confirmando el pago y creando tus QR…</div>}
@@ -397,6 +410,17 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
                 <span><strong>{quantity}</strong><small>{quantity === 1 ? 'entrada' : 'entradas'}</small></span>
                 <button type="button" onClick={() => setQuantity((value) => Math.min(TOMATE_EVENT.maxTicketsPerOrder, value + 1))} disabled={quantity === TOMATE_EVENT.maxTicketsPerOrder} aria-label="Sumar una entrada"><Plus size={22} /></button>
               </div>
+              <label className={styles.promoField}>
+                <span>Código de descuento</span>
+                <input
+                  value={promoCode}
+                  onChange={(event) => setPromoCode(event.target.value.toUpperCase())}
+                  placeholder="Ingresá tu código"
+                  autoCapitalize="characters"
+                  autoComplete="off"
+                  maxLength={40}
+                />
+              </label>
               {error && <div className={styles.checkoutError} role="alert">{error}</div>}
               <button type="button" className={styles.checkoutPrimary} onClick={() => void startCheckout()} disabled={preparing}>
                 {preparing ? 'Reservando precio…' : 'Continuar al pago'}

@@ -8,14 +8,18 @@ type ReservationResult = {
   status?: string
   intentId?: string
   quantity?: number
+  subtotalAmount?: number
+  discountAmount?: number
   amount?: number
   currency?: string
+  promoCode?: string
+  discountPercent?: number
   expiresAt?: string
   breakdown?: TicketBreakdown[]
 }
 
 export async function POST(request: NextRequest) {
-  let body: { quantity?: unknown }
+  let body: { quantity?: unknown; promoCode?: unknown }
   try {
     body = await request.json()
   } catch {
@@ -26,6 +30,10 @@ export async function POST(request: NextRequest) {
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > TOMATE_EVENT.maxTicketsPerOrder) {
     return NextResponse.json({ error: `Podés comprar entre 1 y ${TOMATE_EVENT.maxTicketsPerOrder} entradas.` }, { status: 400 })
   }
+  const promoCode = typeof body.promoCode === 'string' ? body.promoCode.trim().toUpperCase() : ''
+  if (promoCode && !/^[A-Z0-9_-]{3,40}$/.test(promoCode)) {
+    return NextResponse.json({ error: 'El código de descuento no es válido.' }, { status: 400 })
+  }
 
   try {
     const identity = checkoutIdentity(request)
@@ -34,6 +42,7 @@ export async function POST(request: NextRequest) {
       p_quantity: quantity,
       p_client_key_hash: identity.clientKeyHash,
       p_client_ip_hash: identity.clientIpHash,
+      p_promo_code: promoCode || null,
     })
     if (error) throw error
 
@@ -44,6 +53,12 @@ export async function POST(request: NextRequest) {
     if (result.status === 'sold_out') {
       return NextResponse.json({ error: 'No quedan suficientes entradas para esa cantidad.' }, { status: 409 })
     }
+    if (result.status === 'promo_invalid') {
+      return NextResponse.json({ error: 'El código de descuento no es válido.' }, { status: 400 })
+    }
+    if (result.status === 'promo_exhausted') {
+      return NextResponse.json({ error: 'El código de descuento ya alcanzó su límite de usos.' }, { status: 409 })
+    }
     if (result.status !== 'reserved' || !result.intentId || !result.expiresAt || !result.amount) {
       throw new Error(`Respuesta de reserva inesperada: ${result.status ?? 'vacía'}`)
     }
@@ -52,8 +67,12 @@ export async function POST(request: NextRequest) {
       intentId: result.intentId,
       intentToken: createIntentToken(result.intentId),
       quantity: result.quantity,
+      subtotalAmount: result.subtotalAmount,
+      discountAmount: result.discountAmount,
       amount: result.amount,
       currency: result.currency,
+      promoCode: result.promoCode,
+      discountPercent: result.discountPercent,
       expiresAt: result.expiresAt,
       breakdown: result.breakdown ?? [],
     }, { headers: { 'Cache-Control': 'no-store, max-age=0' } })

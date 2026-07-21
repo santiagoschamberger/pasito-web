@@ -26,6 +26,7 @@ declare
   v_reward_total integer;
   v_second_reward_balance integer;
   v_second_reward_total integer;
+  v_promo_intent uuid;
   v_count integer;
   v_i integer;
 begin
@@ -35,6 +36,18 @@ begin
     ('pasito-tomate-sql-test', 1, 'Tanda 1', 35000, 100, 70),
     ('pasito-tomate-sql-test', 2, 'Tanda 2', 45000, 100, 50),
     ('pasito-tomate-sql-test', 3, 'Tanda 3', 55000, null, 20);
+
+  insert into public.event_promo_codes (
+    event_slug, code, discount_percent, max_redemptions
+  ) values
+    ('pasito-tomate-promo-sql-test', 'SQLTEST15', 15, 30),
+    ('pasito-tomate-promo-sql-test', 'SQLLIMIT10', 10, 1);
+
+  insert into public.event_ticket_tiers (
+    event_slug, position, name, unit_price, capacity, pasitos_bonus
+  ) values (
+    'pasito-tomate-promo-sql-test', 1, 'Promo test', 35000, null, 1
+  );
 
   select count(*)::integer into v_count
     from public.event_ticket_tiers
@@ -55,6 +68,44 @@ begin
   assert (v_result ->> 'expiresAt')::timestamptz = now() + interval '5 minutes',
     'checkout reservation must expire after 5 minutes';
   v_first_intent := (v_result ->> 'intentId')::uuid;
+
+  v_result := public.event_reserve_tickets(
+    'pasito-tomate-promo-sql-test', 1, repeat('e', 64), repeat('f', 64), 'sqltest15'
+  );
+  assert v_result ->> 'promoCode' = 'SQLTEST15', 'promo code was not normalized';
+  assert (v_result ->> 'subtotalAmount')::integer = 35000, 'promo subtotal mismatch';
+  assert (v_result ->> 'discountAmount')::integer = 5250, '15 percent discount mismatch';
+  assert (v_result ->> 'amount')::integer = 29750, 'discounted amount mismatch';
+  v_promo_intent := (v_result ->> 'intentId')::uuid;
+
+  v_confirm := public.event_confirm_ticket_order(
+    v_promo_intent, 'pay_promo_test', 29750, 'ARS', 'promo@pasito.app', 'Promo Test'
+  );
+  assert v_confirm ->> 'status' = 'confirmed', 'discounted order confirmation failed';
+  assert (
+    select redemptions_used from public.event_promo_codes
+     where event_slug = 'pasito-tomate-promo-sql-test' and code = 'SQLTEST15'
+  ) = 1, 'confirmed promo use was not counted';
+
+  v_result := public.event_reserve_tickets(
+    'pasito-tomate-promo-sql-test', 1, repeat('c', 64), repeat('d', 64), 'SQLLIMIT10'
+  );
+  assert v_result ->> 'status' = 'reserved', 'limited promo reservation failed';
+  v_promo_intent := (v_result ->> 'intentId')::uuid;
+  v_confirm := public.event_confirm_ticket_order(
+    v_promo_intent, 'pay_promo_limit_test', (v_result ->> 'amount')::integer,
+    'ARS', 'promo-limit@pasito.app', 'Promo Limit Test'
+  );
+  assert v_confirm ->> 'status' = 'confirmed', 'limited promo confirmation failed';
+  v_result := public.event_reserve_tickets(
+    'pasito-tomate-promo-sql-test', 1, repeat('9', 64), repeat('8', 64), 'SQLLIMIT10'
+  );
+  assert v_result ->> 'status' = 'promo_exhausted', 'promo redemption limit was not enforced';
+
+  v_result := public.event_reserve_tickets(
+    'pasito-tomate-promo-sql-test', 1, repeat('7', 64), repeat('6', 64), 'NOEXISTE'
+  );
+  assert v_result ->> 'status' = 'promo_invalid', 'unknown promo code was accepted';
 
   -- A new reservation in the same browser replaces the old hold atomically.
   v_result := public.event_reserve_tickets(
