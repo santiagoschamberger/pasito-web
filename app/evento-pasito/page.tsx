@@ -108,6 +108,30 @@ type Sponsor = {
 
 const SPONSORS: Sponsor[] = [
   {
+    name: 'Decathlon',
+    logo: '/evento-pasito/sponsors/decathlon.jpg',
+    cardClassName: styles.sponsorCardDecathlon,
+    logoClassName: `${styles.sponsorLogoWide} ${styles.sponsorLogoDecathlon}`,
+  },
+  {
+    name: 'Garmin',
+    logo: '/evento-pasito/sponsors/garmin.png',
+    cardClassName: styles.sponsorCardGarmin,
+    logoClassName: `${styles.sponsorLogoWide} ${styles.sponsorLogoGarmin}`,
+  },
+  {
+    name: 'Aurum',
+    logo: '/evento-pasito/sponsors/aurum.png',
+    cardClassName: styles.sponsorCardAurum,
+    logoClassName: `${styles.sponsorLogoWide} ${styles.sponsorLogoAurum}`,
+  },
+  {
+    name: 'Benevia Natural Brands',
+    logo: '/evento-pasito/sponsors/benevia-natural-brands.png',
+    cardClassName: styles.sponsorCardBenevia,
+    logoClassName: `${styles.sponsorLogoWide} ${styles.sponsorLogoBenevia}`,
+  },
+  {
     name: 'Flux, el plan joven de OSDE',
     logo: '/evento-pasito/sponsors/flux-osde.png',
     cardClassName: styles.sponsorCardFlux,
