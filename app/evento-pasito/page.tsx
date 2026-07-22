@@ -64,7 +64,7 @@ const SCHEDULE = [
   },
   {
     time: '13:00 - 14:00',
-    title: 'Almuerzo buffet en TOMATE',
+    title: 'Brunch buffet en TOMATE',
     detail: 'Incluido con tu entrada.',
     icon: Utensils,
   },
@@ -185,7 +185,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const origin = `${protocol}://${host}`
   const title = 'Pasito Walking Club x TOMATE - 26 de julio'
   const currentTier = TOMATE_TICKET_BONUSES.find((tier) => !tier.soldOut) ?? TOMATE_TICKET_BONUSES[0]
-  const description = `10.000 pasos, almuerzo buffet, bienestar y música en el Rosedal de Palermo. Entradas desde ${tomateMoney(currentTier.unitPrice)}.`
+  const description = `10.000 pasos, brunch buffet, bienestar y música en el Rosedal de Palermo. Entradas desde ${tomateMoney(currentTier.unitPrice)}.`
 
   return {
     title,
@@ -313,8 +313,8 @@ export default async function TomateEventPage() {
         <div className={styles.heroInner}>
           <div className={styles.heroCopy}>
             <p className={styles.kicker}>Pasito Walking Club <span aria-hidden="true">×</span> TOMATE</p>
-            <h1>10.000 pasos y un almuerzo <span>a cielo abierto.</span></h1>
-            <p className={styles.heroLead}>El primer encuentro presencial de Pasito: caminata, bienestar, almuerzo buffet, música y un día para compartir.</p>
+            <h1>10.000 pasos y un brunch <span>a cielo abierto.</span></h1>
+            <p className={styles.heroLead}>El primer encuentro presencial de Pasito: caminata, bienestar, brunch buffet, música y un día para compartir.</p>
 
             <div className={styles.heroFacts} aria-label="Datos principales del evento">
               <div>
@@ -360,7 +360,7 @@ export default async function TomateEventPage() {
 
         <div className={styles.heroTicker} aria-label="Resumen del evento">
           <span>Caminata</span><i aria-hidden="true" />
-          <span>Almuerzo</span><i aria-hidden="true" />
+          <span>Brunch</span><i aria-hidden="true" />
           <span>Yoga</span><i aria-hidden="true" />
           <span>Música</span><i aria-hidden="true" />
           <span>Comunidad</span>
@@ -372,7 +372,7 @@ export default async function TomateEventPage() {
           <div className={styles.scheduleIntro}>
             <p className={styles.overline}>Domingo 26 de julio</p>
             <h2>De la caminata<br /><span>al DJ set.</span></h2>
-            <p>Primero nos movemos. Después compartimos el almuerzo, las experiencias y la música, sin apuro y en un solo lugar.</p>
+            <p>Primero nos movemos. Después compartimos el brunch, las experiencias y la música, sin apuro y en un solo lugar.</p>
           </div>
 
           <ol className={styles.timeline}>
@@ -387,7 +387,7 @@ export default async function TomateEventPage() {
                       {detail} <ExternalLink size={14} aria-hidden="true" />
                     </a>
                   ) : detail ? <p className={styles.timelineDetail}>{detail}</p> : null}
-                  {title === 'Almuerzo buffet en TOMATE' ? <EventMenu /> : null}
+                  {title === 'Brunch buffet en TOMATE' ? <EventMenu /> : null}
                   {highlights ? (
                     <ul className={styles.timelineHighlights}>
                       {highlights.map((highlight) => (
@@ -416,7 +416,7 @@ export default async function TomateEventPage() {
           <div className={styles.ticketCopy}>
             <p className={styles.overline}>Cupos limitados</p>
             <h2>Tu entrada<br /><span>incluye todo.</span></h2>
-            <p>Caminata, stretch, yoga, charlas y experiencias, almuerzo buffet en TOMATE, música en el fogón y DJ set.</p>
+            <p>Caminata, stretch, yoga, charlas y experiencias, brunch buffet en TOMATE, música en el fogón y DJ set.</p>
             <ul className={styles.ticketPerks} aria-label="Beneficios incluidos con la entrada">
               <li>
                 <Gift size={19} aria-hidden="true" />

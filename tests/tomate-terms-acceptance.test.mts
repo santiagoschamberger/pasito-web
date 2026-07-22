@@ -26,6 +26,8 @@ test('published event terms include the material participation conditions', () =
 })
 
 test('event page publishes the included menu, product kit and purchase raffles', () => {
+  assert.doesNotMatch(eventPage, /almuerzo/i)
+  assert.match(eventPage, /Brunch buffet en TOMATE/)
   assert.match(eventPage, /Cuadrados de pastaflora/)
   assert.match(eventPage, /Café de especialidad, Familia Cabrales \(espresso y cortado\)/)
   assert.match(eventPage, /Kit de productos incluido/)
