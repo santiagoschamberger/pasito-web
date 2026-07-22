@@ -4,6 +4,7 @@ import test from 'node:test'
 
 const checkout = readFileSync(new URL('../app/evento-pasito/TicketCheckout.tsx', import.meta.url), 'utf8')
 const endpoint = readFileSync(new URL('../app/api/events/tomate/checkout-intents/route.ts', import.meta.url), 'utf8')
+const eventPage = readFileSync(new URL('../app/evento-pasito/page.tsx', import.meta.url), 'utf8')
 const terms = readFileSync(new URL('../content/terminos-evento-pasito.txt', import.meta.url), 'utf8')
 
 test('ticket checkout requires explicit acceptance of the event terms', () => {
@@ -22,4 +23,11 @@ test('published event terms include the material participation conditions', () =
   assert.match(terms, /DATOS PERSONALES Y CONSENTIMIENTO PARA SU COMUNICACIÓN A LOS SPONSORS/i)
   assert.match(terms, /CANCELACIONES, REEMBOLSOS Y CAMBIOS DE TITULARIDAD/i)
   assert.match(terms, /Última actualización: Julio de 2026/i)
+})
+
+test('event page publishes the included menu, product kit and purchase raffles', () => {
+  assert.match(eventPage, /Cuadrados de pastaflora/)
+  assert.match(eventPage, /Café de especialidad, Familia Cabrales \(espresso y cortado\)/)
+  assert.match(eventPage, /Kit de productos incluido/)
+  assert.match(eventPage, /relojes Garmin y kits de productos Decathlon/)
 })

@@ -83,6 +83,22 @@ const SCHEDULE = [
   },
 ]
 
+const EVENT_MENU = {
+  food: [
+    'Cuadrados de pastaflora',
+    'Mini sándwich de queso brie, tomate y pesto',
+    'Mini sándwich de queso brie y jamón cocido natural',
+    'Shot de frutas',
+    'Shot de yogurt con granola',
+    'Pan de queso',
+  ],
+  drinks: [
+    'Agua mineral',
+    'Limonada, menta y jengibre',
+    'Café de especialidad, Familia Cabrales (espresso y cortado)',
+  ],
+}
+
 type Sponsor = {
   name: string
   logo: string
@@ -208,6 +224,28 @@ function BuyButton({ className = '', label = 'Comprar entrada' }: { className?: 
       {label}
       <ArrowRight size={19} aria-hidden="true" />
     </a>
+  )
+}
+
+function EventMenu() {
+  return (
+    <details className={styles.eventMenu}>
+      <summary>Ver menú incluido</summary>
+      <div className={styles.eventMenuGrid}>
+        <div>
+          <strong>Para comer</strong>
+          <ul>
+            {EVENT_MENU.food.map((item) => <li key={item}>{item}</li>)}
+          </ul>
+        </div>
+        <div>
+          <strong>Bebidas</strong>
+          <ul>
+            {EVENT_MENU.drinks.map((item) => <li key={item}>{item}</li>)}
+          </ul>
+        </div>
+      </div>
+    </details>
   )
 }
 
@@ -349,6 +387,7 @@ export default async function TomateEventPage() {
                       {detail} <ExternalLink size={14} aria-hidden="true" />
                     </a>
                   ) : detail ? <p className={styles.timelineDetail}>{detail}</p> : null}
+                  {title === 'Almuerzo buffet en TOMATE' ? <EventMenu /> : null}
                   {highlights ? (
                     <ul className={styles.timelineHighlights}>
                       {highlights.map((highlight) => (
@@ -378,6 +417,16 @@ export default async function TomateEventPage() {
             <p className={styles.overline}>Cupos limitados</p>
             <h2>Tu entrada<br /><span>incluye todo.</span></h2>
             <p>Caminata, stretch, yoga, charlas y experiencias, almuerzo buffet en TOMATE, música en el fogón y DJ set.</p>
+            <ul className={styles.ticketPerks} aria-label="Beneficios incluidos con la entrada">
+              <li>
+                <Gift size={19} aria-hidden="true" />
+                <span><strong>Kit de productos incluido</strong><small>Lo recibís con tu entrada.</small></span>
+              </li>
+              <li>
+                <Sparkles size={19} aria-hidden="true" />
+                <span><strong>Sorteos con tu compra</strong><small>Participás por relojes Garmin y kits de productos Decathlon.</small></span>
+              </li>
+            </ul>
           </div>
           <div className={styles.priceCard}>
             <span>Precios y Pasitos de regalo</span>
