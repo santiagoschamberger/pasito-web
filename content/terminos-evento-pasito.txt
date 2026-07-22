@@ -20,9 +20,7 @@ PASITO podrá modificar parcialmente los horarios de las distintas actividades c
 
 3.- REQUISITOS DE PARTICIPACIÓN:
 
-Podrán participar del Evento aquellas personas que: (i) hayan adquirido una entrada válida conforme el mecanismo descripto en la Cláusula 4; (ii) sean mayores de dieciocho (18) años de edad, requisito excluyente para el ingreso y permanencia en el Evento, conforme la Cláusula 13; (iii) acepten expresamente las presentes Bases;
-
-(iv) otorguen el consentimiento específico para la comunicación de los datos personales indicados en la Cláusula 9 a favor de los Sponsors.
+Podrán participar del Evento aquellas personas que: (i) hayan adquirido una entrada válida conforme el mecanismo descripto en la Cláusula 4; (ii) acepten expresamente las presentes Bases; y (iii) otorguen el consentimiento específico para la comunicación de los datos personales indicados en la Cláusula 9 a favor de los Sponsors.
 
 El Evento se encuentra abierto a la comunidad en general. La adquisición de la entrada no requiere ser usuario registrado de la aplicación PASITO, ni haber descargado la aplicación previamente. Cualquier persona que reúna los requisitos precedentes podrá comprar su entrada a través del sitio web del Evento (www.pasito.app/evento-pasito), con independencia de su vínculo previo con PASITO.
 
@@ -134,21 +132,11 @@ PASITO actúa como organizador y operador tecnológico del Evento, coordinando l
 
 Los productos, servicios, muestras, activaciones o experiencias que cada Sponsor ofrezca dentro del Evento son de exclusiva responsabilidad de cada Sponsor en cuanto a su calidad, idoneidad y condiciones de uso, sin perjuicio de los derechos que pudieran corresponder a los asistentes bajo la normativa de defensa del consumidor.
 
-13.- PROHIBICIÓN DE INGRESO A MENORES DE EDAD:
-
-El Evento está destinado exclusivamente a personas mayores de dieciocho (18) años. Queda expresamente prohibido el ingreso y la permanencia de menores de edad en el Predio durante el desarrollo del Evento, no encontrándose habilitada ninguna modalidad de ingreso acompañado por un adulto responsable ni excepción de ningún tipo.
-
-Al momento de la compra, el adquirente deberá declarar bajo su responsabilidad ser mayor de edad. En caso de compras múltiples (hasta seis entradas), dicha declaración se entiende extendida respecto de cada una de las personas a cuyo nombre se emitan las entradas, siendo el adquirente responsable de verificar dicha condición antes de transferir o entregar una entrada a un tercero.
-
-El control de acceso se realizará en la instancia de acreditación en el Predio mediante la exhibición obligatoria de Documento Nacional de Identidad (DNI) u otro documento de identidad válido con fotografía. PASITO y/o el personal de acreditación se reservan el derecho de admisión y permanencia, pudiendo negar el ingreso a toda persona que no acredite fehacientemente su mayoría de edad al momento de la acreditación.
-
-La negativa de ingreso fundada en la falta de acreditación de la mayoría de edad, o en una declaración falsa efectuada por el adquirente al momento de la compra, no generará derecho a reembolso ni a reclamo alguno contra PASITO, los Sponsors o el Predio.
-
-14.- CONDUCTA EN EL PREDIO, RESPONSABILIDAD PERSONAL Y DERECHO DE ADMISIÓN:
+13.- CONDUCTA EN EL PREDIO, RESPONSABILIDAD PERSONAL Y DERECHO DE ADMISIÓN:
 
 El asistente se compromete a observar un comportamiento respetuoso hacia el resto de los asistentes, el personal de PASITO, los Sponsors, los colaboradores y organizadores, y el personal del Predio, así como a cumplir con las indicaciones de seguridad y organización que estos impartan durante el desarrollo del Evento.
 
-Sin perjuicio del derecho de admisión específico previsto en la Cláusula 13 respecto de menores de edad, PASITO y/o el Predio se reservan, con carácter general, el derecho de admisión y permanencia, pudiendo impedir el ingreso o disponer el retiro inmediato del Predio, sin derecho a reembolso, de toda persona que:
+PASITO y/o el Predio se reservan el derecho de admisión y permanencia, pudiendo impedir el ingreso o disponer el retiro inmediato del Predio, sin derecho a reembolso, de toda persona que:
 
 (i) se encuentre bajo los efectos de sustancias que pongan en riesgo su propia seguridad o la de terceros;
 
@@ -166,13 +154,13 @@ Cada asistente es responsable de la custodia de sus pertenencias personales dura
 
 El ejercicio del derecho de admisión y permanencia por parte de PASITO y/o el Predio deberá ejercerse de manera razonable, fundada y no discriminatoria, conforme la normativa de defensa del consumidor y demás normativa aplicable.
 
-15.- LEY APLICABLE Y JURISDICCIÓN
+14.- LEY APLICABLE Y JURISDICCIÓN
 
 Estos Términos se regirán por las leyes de la República Argentina.
 
 Toda controversia será sometida a los tribunales competentes conforme la normativa de defensa del consumidor aplicable.
 
-16.- CONTACTO:
+15.- CONTACTO:
 
 PASITO APP S.A.S.
 

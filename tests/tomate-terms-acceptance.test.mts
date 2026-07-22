@@ -10,13 +10,15 @@ test('ticket checkout requires explicit acceptance of the event terms', () => {
   assert.match(checkout, /type="checkbox"/)
   assert.match(checkout, /disabled=\{preparing \|\| !termsAccepted\}/)
   assert.match(checkout, /href=\{TOMATE_EVENT_TERMS_PATH\}/)
+  assert.match(checkout, /Acepto los\{' '\}/)
+  assert.doesNotMatch(checkout, /mayor de 18 años/i)
   assert.match(endpoint, /body\.termsAccepted !== true/)
   assert.match(endpoint, /terms_accepted_at/)
   assert.match(endpoint, /terms_version/)
 })
 
 test('published event terms include the material participation conditions', () => {
-  assert.match(terms, /mayores de dieciocho \(18\) años/i)
+  assert.doesNotMatch(terms, /dieciocho \(18\) años|menores de edad|mayor(?:es)? de edad/i)
   assert.match(terms, /DATOS PERSONALES Y CONSENTIMIENTO PARA SU COMUNICACIÓN A LOS SPONSORS/i)
   assert.match(terms, /CANCELACIONES, REEMBOLSOS Y CAMBIOS DE TITULARIDAD/i)
   assert.match(terms, /Última actualización: Julio de 2026/i)

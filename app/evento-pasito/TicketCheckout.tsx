@@ -432,9 +432,8 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
                   required
                 />
                 <span>
-                  Declaro que soy mayor de 18 años y acepto las{' '}
-                  <a href={TOMATE_EVENT_TERMS_PATH} target="_blank" rel="noopener noreferrer">bases y condiciones del evento</a>,
-                  incluyendo el consentimiento para comunicar mis datos a los sponsors.
+                  Acepto los{' '}
+                  <a href={TOMATE_EVENT_TERMS_PATH} target="_blank" rel="noopener noreferrer">términos y condiciones del evento</a>.
                 </span>
               </label>
               {error && <div className={styles.checkoutError} role="alert">{error}</div>}
