@@ -38,4 +38,5 @@ test('new sponsor logos lead the event sponsor list with Decathlon first', () =>
   assert.match(eventPage, /const SPONSORS:[\s\S]*name: 'Decathlon'[\s\S]*name: 'Garmin'[\s\S]*name: 'Aurum'[\s\S]*name: 'Benevia Natural Brands'[\s\S]*name: 'Flux/)
   assert.match(eventPage, /\/evento-pasito\/sponsors\/decathlon\.jpg/)
   assert.match(eventPage, /\/evento-pasito\/sponsors\/garmin\.png/)
+  assert.match(eventPage, /name: 'Aurum'[\s\S]*unoptimized: true/)
 })

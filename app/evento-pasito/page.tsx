@@ -104,6 +104,7 @@ type Sponsor = {
   logo: string
   cardClassName?: string
   logoClassName?: string
+  unoptimized?: boolean
 }
 
 const SPONSORS: Sponsor[] = [
@@ -124,6 +125,7 @@ const SPONSORS: Sponsor[] = [
     logo: '/evento-pasito/sponsors/aurum.png',
     cardClassName: styles.sponsorCardAurum,
     logoClassName: `${styles.sponsorLogoWide} ${styles.sponsorLogoAurum}`,
+    unoptimized: true,
   },
   {
     name: 'Benevia Natural Brands',
@@ -293,6 +295,7 @@ function SponsorsSection() {
                 width={180}
                 height={72}
                 sizes="(max-width: 640px) 25vw, (max-width: 860px) 24vw, 180px"
+                unoptimized={sponsor.unoptimized}
               />
             </li>
           ))}

@@ -1053,8 +1053,7 @@
 .sponsorGrid .sponsorLogoAurum {
   height: 100%;
   max-height: none;
-  object-fit: cover;
-  transform: scale(1.08);
+  object-fit: contain;
 }
 
 .sponsorGrid .sponsorLogoBenevia {
@@ -1072,8 +1071,8 @@
 }
 
 .sponsorGrid .sponsorCardAurum {
-  border-color: #594943;
-  background: #594943;
+  border-color: #5e4c43;
+  background: #5e4c43;
 }
 
 .sponsorGrid .sponsorCardBenevia {
