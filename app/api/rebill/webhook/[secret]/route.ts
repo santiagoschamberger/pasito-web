@@ -11,10 +11,14 @@ type WebhookPayload = {
     payment?: {
       id?: string
       status?: string
+      subscriptionId?: string | null
+      subscription_id?: string | null
       metadata?: Record<string, unknown>
     }
     id?: string
     status?: string
+    subscriptionId?: string | null
+    subscription_id?: string | null
     metadata?: Record<string, unknown>
   }
   webhook?: { event?: string }
@@ -61,6 +65,12 @@ export async function POST(request: NextRequest, context: { params: Promise<{ se
 
   const payment = payload.data?.payment ?? payload.data
   if (!payment?.id) return new NextResponse(null, { status: 204 })
+
+  const subscriptionId = payment.subscriptionId
+    ?? payment.subscription_id
+    ?? payload.data?.subscriptionId
+    ?? payload.data?.subscription_id
+  if (subscriptionId) return new NextResponse(null, { status: 204 })
 
   const metadata = payment.metadata
   if (metadata?.eventSlug === TOMATE_EVENT.slug) {

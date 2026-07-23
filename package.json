@@ -6,7 +6,7 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
-    "test": "node --experimental-strip-types --test tests/marketing-event-nav.test.mjs tests/tomate-support-id.test.mts tests/tomate-ticket-tier-status.test.mts tests/tomate-terms-acceptance.test.mts tests/email-retry.test.mts tests/email-delivery-tracking.test.mts tests/rebill-payment-amount.test.mts"
+    "test": "node --experimental-strip-types --test tests/marketing-event-nav.test.mjs tests/tomate-support-id.test.mts tests/tomate-ticket-tier-status.test.mts tests/tomate-terms-acceptance.test.mts tests/email-retry.test.mts tests/email-delivery-tracking.test.mts tests/rebill-payment-amount.test.mts tests/rebill-webhook-routing.test.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
