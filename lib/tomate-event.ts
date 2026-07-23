@@ -14,7 +14,7 @@ export const TOMATE_EVENT_TERMS_VERSION = '2026-07'
 export const TOMATE_TICKET_BONUSES = [
   { position: 1, label: 'Tanda 1 · 100 cupos', unitPrice: 35000, pasitos: 70, soldOut: true },
   { position: 2, label: 'Tanda 2 · 100 cupos', unitPrice: 45000, pasitos: 50, soldOut: false },
-  { position: 3, label: 'Tanda 3 · cupo restante', unitPrice: 55000, pasitos: 20, soldOut: false },
+  { position: 3, label: 'Tanda 3 · cupo restante', unitPrice: 48000, pasitos: 20, soldOut: false },
 ] as const
 
 export type TicketBreakdown = {
