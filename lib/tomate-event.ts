@@ -5,6 +5,8 @@ export const TOMATE_EVENT = {
   timeLabel: '10:30 a 16:30',
   venueLabel: 'TOMATE, Rosedal de Palermo',
   currency: 'ARS',
+  capacity: 239,
+  salesClosed: true,
   maxTicketsPerOrder: 6,
 } as const
 
@@ -12,9 +14,9 @@ export const TOMATE_EVENT_TERMS_PATH = '/terminos/evento-pasito'
 export const TOMATE_EVENT_TERMS_VERSION = '2026-07'
 
 export const TOMATE_TICKET_BONUSES = [
-  { position: 1, label: 'Tanda 1 · 100 cupos', unitPrice: 35000, pasitos: 70, soldOut: true },
-  { position: 2, label: 'Tanda 2 · 100 cupos', unitPrice: 45000, pasitos: 50, soldOut: false },
-  { position: 3, label: 'Tanda 3 · cupo restante', unitPrice: 48000, pasitos: 20, soldOut: false },
+  { position: 1, label: 'Tanda 1 · 100 cupos', unitPrice: 35000, capacity: 100, pasitos: 70, soldOut: true },
+  { position: 2, label: 'Tanda 2 · 100 cupos', unitPrice: 45000, capacity: 100, pasitos: 50, soldOut: true },
+  { position: 3, label: 'Tanda 3 · 39 cupos', unitPrice: 48000, capacity: 39, pasitos: 20, soldOut: true },
 ] as const
 
 export type TicketBreakdown = {
@@ -48,6 +50,14 @@ export function tomateTicketTierIsSoldOut(
   }
 
   return TOMATE_TICKET_BONUSES.find((tier) => tier.position === position)?.soldOut ?? false
+}
+
+export function tomateEventIsSoldOut(inventory: TicketInventoryTier[]): boolean {
+  if (TOMATE_EVENT.salesClosed) return true
+
+  return TOMATE_TICKET_BONUSES.every(
+    (tier) => tomateTicketTierIsSoldOut(tier.position, inventory),
+  )
 }
 
 export type EventTicket = {

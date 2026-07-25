@@ -20,6 +20,7 @@ import {
 import { MarketingMotion } from '@/components/marketing/MarketingMotion'
 import {
   TOMATE_TICKET_BONUSES,
+  tomateEventIsSoldOut,
   tomateMoney,
   tomateTicketTierIsSoldOut,
   type TicketInventoryTier,
@@ -210,8 +211,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const protocol = requestHeaders.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https')
   const origin = `${protocol}://${host}`
   const title = 'Pasito Walking Club x TOMATE - 26 de julio'
-  const currentTier = TOMATE_TICKET_BONUSES.find((tier) => !tier.soldOut) ?? TOMATE_TICKET_BONUSES[0]
-  const description = `10.000 pasos, brunch buffet, bienestar y música en el Rosedal de Palermo. Entradas desde ${tomateMoney(currentTier.unitPrice)}.`
+  const currentTier = TOMATE_TICKET_BONUSES.find((tier) => !tier.soldOut)
+  const description = currentTier
+    ? `10.000 pasos, brunch buffet, bienestar y música en el Rosedal de Palermo. Entradas desde ${tomateMoney(currentTier.unitPrice)}.`
+    : '10.000 pasos, brunch buffet, bienestar y música en el Rosedal de Palermo. Entradas agotadas.'
 
   return {
     title,
@@ -241,10 +244,28 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-function BuyButton({ className = '', label = 'Comprar entrada' }: { className?: string; label?: string }) {
+function BuyButton({
+  className = '',
+  label = 'Comprar entrada',
+  soldOut = false,
+}: {
+  className?: string
+  label?: string
+  soldOut?: boolean
+}) {
+  const buttonClassName = `${styles.buyButton} ${className}`
+
+  if (soldOut) {
+    return (
+      <span className={buttonClassName} aria-disabled="true">
+        {label}
+      </span>
+    )
+  }
+
   return (
     <a
-      className={`${styles.buyButton} ${className}`}
+      className={buttonClassName}
       href="#comprar"
     >
       {label}
@@ -312,9 +333,10 @@ export default async function TomateEventPage() {
   } catch (error) {
     console.error('[evento-pasito] No se pudo precargar el inventario:', error)
   }
+  const eventSoldOut = tomateEventIsSoldOut(ticketInventory)
   const currentPublicTier = TOMATE_TICKET_BONUSES.find(
     (tier) => !tomateTicketTierIsSoldOut(tier.position, ticketInventory),
-  ) ?? TOMATE_TICKET_BONUSES[0]
+  ) ?? TOMATE_TICKET_BONUSES.at(-1)!
 
   return (
     <main className={`${marketingStyles.page} ${styles.page}`} data-marketing-page>
@@ -331,7 +353,7 @@ export default async function TomateEventPage() {
             <a href="#lugar">Lugar</a>
             <a href="#sponsors">Sponsors</a>
           </div>
-          <BuyButton className={styles.navBuy} />
+          <BuyButton className={styles.navBuy} label={eventSoldOut ? 'SOLD OUT' : 'Comprar entrada'} soldOut={eventSoldOut} />
         </div>
       </nav>
 
@@ -476,7 +498,7 @@ export default async function TomateEventPage() {
               })}
             </div>
             <p>Los Pasitos que ves junto a cada precio son un regalo por entrada. Después de comprar, vas a poder indicar desde un link qué cuenta de Pasito recibe los de cada entrada.</p>
-            <BuyButton label="Comprar entrada" />
+            <BuyButton label={eventSoldOut ? 'SOLD OUT' : 'Comprar entrada'} soldOut={eventSoldOut} />
           </div>
         </div>
       </section>
@@ -526,8 +548,11 @@ export default async function TomateEventPage() {
       </footer>
 
       <div className={styles.mobileBuyBar}>
-        <span><small>Entradas desde</small><strong>{tomateMoney(currentPublicTier.unitPrice)}</strong></span>
-        <BuyButton label="Comprar entrada" />
+        <span>
+          <small>{eventSoldOut ? 'Entradas' : 'Entradas desde'}</small>
+          <strong>{eventSoldOut ? 'SOLD OUT' : tomateMoney(currentPublicTier.unitPrice)}</strong>
+        </span>
+        <BuyButton label={eventSoldOut ? 'SOLD OUT' : 'Comprar entrada'} soldOut={eventSoldOut} />
       </div>
     </main>
   )

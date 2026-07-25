@@ -6,6 +6,7 @@ import { ArrowLeft, Check, Clock3, Gift, Mail, Minus, Plus, ShieldCheck, Ticket 
 import {
   TOMATE_EVENT,
   TOMATE_EVENT_TERMS_PATH,
+  tomateEventIsSoldOut,
   tomateMoney,
   type TicketBreakdown,
   type TicketInventoryTier,
@@ -196,7 +197,8 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
     if (initialTiers.length === 0) void refreshAvailability()
   }, [initialTiers.length, refreshAvailability])
 
-  const currentTier = tiers.find((tier) => tier.available === null || tier.available > 0) ?? tiers.at(-1)
+  const soldOut = tomateEventIsSoldOut(tiers)
+  const currentTier = tiers.find((tier) => tier.available === null || tier.available > 0)
   const releaseQuote = useCallback(async (reservation: Quote) => {
     try {
       await fetch(`/api/events/tomate/checkout-intents/${reservation.intentId}`, {
@@ -244,10 +246,11 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
       setConfirmation(null)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'No pudimos reservar las entradas.')
+      void refreshAvailability()
     } finally {
       setPreparing(false)
     }
-  }, [promoCode, quantity, termsAccepted])
+  }, [promoCode, quantity, refreshAvailability, termsAccepted])
 
   const goBack = useCallback(async () => {
     if (!quote || confirming) return
@@ -400,6 +403,13 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
               {confirming && <div className={styles.confirmingMessage}>Confirmando el pago y creando tus QR…</div>}
               <CheckoutFrame product={product} onSuccess={handleSuccess} onError={handlePaymentError} />
               <p className={styles.paymentFinePrint}>El precio queda congelado en esta reserva. Nunca guardamos los datos de tu tarjeta.</p>
+            </div>
+          ) : soldOut ? (
+            <div className={styles.checkoutSoldOut} data-testid="checkout-sold-out" role="status">
+              <p className={styles.checkoutEyebrow}>Entradas</p>
+              <h3>SOLD OUT</h3>
+              <p>Se agotaron las entradas para Pasito Walking Club x TOMATE.</p>
+              <p>Gracias a todos los que van a ser parte.</p>
             </div>
           ) : (
             <div data-testid="checkout-quantity">
