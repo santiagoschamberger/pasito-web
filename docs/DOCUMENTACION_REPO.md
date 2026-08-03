@@ -62,6 +62,10 @@ Variables usadas por el repo:
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: anon key para llamar Edge Functions publicas de reserva.
 - `SUPABASE_SERVICE_ROLE_KEY`: service role para operaciones server-side privilegiadas: waitlist, embajadores, tienda y desafios.
 - `RESEND_API_KEY`: habilita envio de emails.
+- `PASITO_PROMO_SIGNING_SECRET`: secreto aleatorio server-side de al menos 32
+  caracteres para firmar los codigos de verificacion de promociones. Generar
+  uno por ambiente con `openssl rand -base64 48`; nunca usar una variable
+  `NEXT_PUBLIC_*` para este valor.
 - `RESEND_AUDIENCE_ID_WAITLIST`: opcional; agrega contactos de waitlist a una audiencia de Resend.
 - `NEXT_PUBLIC_APP_STORE_URL`: override para el link de App Store.
 - `NEXT_PUBLIC_PLAY_STORE_URL`: override para Google Play.
@@ -396,6 +400,23 @@ Por que existe:
 
 - Resuelve referidos de la app mobile en web.
 - Evita perder atribucion en Android deferred install.
+
+### Promocion web `PASITO50`
+
+- Landing publica: `https://www.pasito.app/promo/pasito50`.
+- El usuario descarga o abre la app, copia el ID de 8 caracteres visible en
+  `Tu perfil` y valida un codigo de un solo uso que llega al email ya asociado
+  a la cuenta. El email nunca se muestra en la landing. No requiere un build
+  mobile.
+- Solo acredita cuentas creadas hace menos de 5 dias y una vez por cuenta.
+- Los codigos vencen a los 10 minutos, admiten hasta 5 intentos, se guardan
+  solo como HMAC y se consumen una vez. Las respuestas de solicitud no revelan
+  si el ID/email existe o es elegible.
+- Las funciones privadas `prepare_pasito_link_challenge` y
+  `claim_pasito_link_with_challenge` verifican propiedad, serializan las
+  acreditaciones, suman 50 Pasitos y limitan la campana a 100 usos exitosos.
+- La pieza imprimible vive en `/qr/pasito50` y el PNG descargable en
+  `/qr/pasito50.png`; ambos apuntan a la landing, no al deep link de referidos.
 
 ### `/r/[token]`
 

@@ -7,7 +7,6 @@ import {
   buildReferralInviteUrl,
   buildReferralPlayStoreUrl,
   normalizeReferralCode,
-// @ts-expect-error Node's type-stripping test runner resolves the TS source directly.
 } from '../app/i/[code]/referral-link.ts'
 
 test('normalizes referral codes for public invite URLs', () => {
