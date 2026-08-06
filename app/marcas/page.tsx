@@ -5,6 +5,10 @@ import { ArrowRight, BarChart3, CalendarDays, Check, MousePointerClick, Target }
 import styles from '../marketing.module.css'
 import { BRANDS_WHATSAPP_URL, DISNEY_LOGO_URL, MarketingFooter, MarketingNav, NumberedOverline } from '@/components/marketing/Marketing'
 import { MarketingMotion } from '@/components/marketing/MarketingMotion'
+import { formatCompactCountryCount, formatCountryCount, formatCountrySnapshotDate } from '@/lib/country-audience'
+import { getCountryAudienceMetrics } from '@/lib/country-audience-metrics'
+
+export const revalidate = 259_200
 
 export const metadata: Metadata = {
   title: 'Pasito para Marcas — Convertí movimiento en participación',
@@ -20,31 +24,6 @@ const AUDIENCE = [
   { value: '64%', age: '18 a 34', title: 'Jóvenes urbanos y activos.', body: 'Fintech, bebidas, indumentaria, telco, food y entretenimiento.' },
   { value: '19%', age: '35 a 49', title: 'Poder de consumo y decisión.', body: 'Bancos, retail, autos, salud, educación y turismo.' },
   { value: '11%', age: '50+', title: 'Adultos que caminan todos los días.', body: 'Seguros, farma, obras sociales y bienestar.' },
-]
-
-const COUNTRY_AUDIENCE = [
-  {
-    code: 'AR',
-    name: 'Argentina',
-    registered: '539.864',
-    active: '+403 mil',
-    young: '68%',
-    averageAge: '29',
-    cities: [['CABA', '157 mil'], ['La Plata', '11,8 mil'], ['Córdoba', '9,9 mil'], ['Rosario', '5,5 mil']],
-    neighborhoods: [['Palermo', '49,2 mil'], ['Recoleta', '18,4 mil'], ['Caballito', '18,1 mil'], ['Belgrano', '18 mil']],
-    interests: [{ label: 'Gastronomía', share: 77 }, { label: 'Cafeterías', share: 75 }, { label: 'Cine', share: 58 }, { label: 'Deportes', share: 36 }],
-  },
-  {
-    code: 'UY',
-    name: 'Uruguay',
-    registered: '87.346',
-    active: '+79 mil',
-    young: '67%',
-    averageAge: '29',
-    cities: [['Montevideo', '66,1 mil'], ['Ciudad de la Costa', '3 mil'], ['Canelones', '1,1 mil'], ['Maldonado', '1,1 mil']],
-    neighborhoods: [['Pocitos', '7,6 mil'], ['Cordón', '6,2 mil'], ['Centro', '5,6 mil'], ['Malvín', '2,7 mil']],
-    interests: [{ label: 'Gastronomía', share: 77 }, { label: 'Cafeterías', share: 74 }, { label: 'Cine', share: 59 }, { label: 'Deportes', share: 43 }],
-  },
 ]
 
 function CountrySilhouette({ code }: { code: 'AR' | 'UY' }) {
@@ -87,7 +66,12 @@ const SOCIAL_PROOF_BRANDS: SocialProofBrand[] = [
 
 const MEASUREMENTS = ['Alcance en la app', 'Participantes registrados', 'Pasos generados', 'Clicks al link', 'Canjes', 'Historias compartidas', 'Segmentación por ciudad, barrio y edad', 'Aprendizajes para la próxima campaña']
 
-export default function MarcasPage() {
+export default async function MarcasPage() {
+  const countryAudience = await getCountryAudienceMetrics()
+  const countryAudienceCutoff = countryAudience.reduce((latest, country) => (
+    country.refreshedAt > latest ? country.refreshedAt : latest
+  ), countryAudience[0]?.refreshedAt ?? '')
+
   return (
     <main className={styles.page} data-marketing-page>
       <MarketingMotion />
@@ -219,31 +203,31 @@ export default function MarcasPage() {
         <p className={styles.brandsFinePrint}>Los grupos principales representan el 94% de la audiencia. Segmentable por barrio, ciudad y edad: no le hablás a cualquiera, le hablás a personas activas donde realmente te importa.</p>
 
         <div className={styles.countryAudienceGrid}>
-          {COUNTRY_AUDIENCE.map((country) => (
+          {countryAudience.map((country) => (
             <article className={styles.countryAudienceCard} key={country.code}>
               <header>
                 <div>
                   <span>{country.name}</span>
-                  <strong>{country.registered}</strong>
+                  <strong>{formatCountryCount(country.registered)}</strong>
                   <small>personas registradas</small>
                 </div>
                 <CountrySilhouette code={country.code as 'AR' | 'UY'} />
               </header>
 
               <div className={styles.countryAudienceStats}>
-                <div><strong>{country.active}</strong><span>activas en 30 días</span></div>
-                <div><strong>{country.young}</strong><span>tiene entre 18 y 34</span></div>
-                <div><strong>{country.averageAge}</strong><span>años de edad promedio</span></div>
+                <div><strong>+{formatCompactCountryCount(country.active30d)}</strong><span>activas en 30 días</span></div>
+                <div><strong>{country.youngShare}%</strong><span>tiene entre 18 y 34</span></div>
+                <div><strong>+{formatCompactCountryCount(country.newUsers30d)}</strong><span>nuevas en 30 días</span></div>
               </div>
 
               <div className={styles.countryAudienceDetails}>
                 <section>
                   <h4>Ciudades con densidad</h4>
-                  <div className={styles.countryAudiencePlaces}>{country.cities.map(([name, value]) => <span key={name}><b>{name}</b><small>{value} activos</small></span>)}</div>
+                  <div className={styles.countryAudiencePlaces}>{country.cities.map(({ label, count }) => <span key={label}><b>{label}</b><small>{formatCompactCountryCount(count)} perfiles</small></span>)}</div>
                 </section>
                 <section>
                   <h4>Barrios que ya se mueven</h4>
-                  <div className={styles.countryAudiencePlaces}>{country.neighborhoods.map(([name, value]) => <span key={name}><b>{name}</b><small>{value} activos</small></span>)}</div>
+                  <div className={styles.countryAudiencePlaces}>{country.neighborhoods.map(({ label, count }) => <span key={label}><b>{label}</b><small>{formatCompactCountryCount(count)} perfiles</small></span>)}</div>
                 </section>
                 <section className={styles.countryAudienceInterests}>
                   <h4>Afinidades declaradas</h4>
@@ -253,7 +237,7 @@ export default function MarcasPage() {
             </article>
           ))}
         </div>
-        <p className={styles.countryAudienceSource}>Fuente: datos agregados y anónimos de perfiles y actividad de Pasito en Supabase. Activos durante los últimos 30 días, corte 11 de julio de 2026. Ciudades y barrios según ubicación declarada; afinidades sobre usuarios activos de cada país.</p>
+        <p className={styles.countryAudienceSource}>Fuente: datos agregados y anónimos de Pasito en Supabase. Corte {formatCountrySnapshotDate(countryAudienceCutoff)}; esta sección se actualiza automáticamente cada 3 días. Actividad sobre los últimos 30 días; ciudades, barrios y afinidades sobre perfiles que declararon esos datos.</p>
       </section>
 
       <section id="formatos" className={styles.brandsFormatsSection}>

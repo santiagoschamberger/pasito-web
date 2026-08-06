@@ -7,7 +7,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "event:decathlon:emails": "node --env-file=.env.local --experimental-strip-types scripts/send-decathlon-registration-confirmations.mts",
-    "test": "node --experimental-strip-types --test tests/marketing-event-nav.test.mjs tests/pasito50-promo.test.mts tests/pasito50-security.test.mts tests/tomate-support-id.test.mts tests/tomate-ticket-tier-status.test.mts tests/tomate-terms-acceptance.test.mts tests/email-retry.test.mts tests/email-delivery-tracking.test.mts tests/rebill-payment-amount.test.mts tests/rebill-webhook-routing.test.mjs tests/decathlon-registration-email.test.mts tests/partner-event-withdrawal.test.mts"
+    "test": "node --experimental-strip-types --test tests/marketing-event-nav.test.mjs tests/country-audience-metrics.test.mts tests/pasito50-promo.test.mts tests/pasito50-security.test.mts tests/tomate-support-id.test.mts tests/tomate-ticket-tier-status.test.mts tests/tomate-terms-acceptance.test.mts tests/email-retry.test.mts tests/email-delivery-tracking.test.mts tests/rebill-payment-amount.test.mts tests/rebill-webhook-routing.test.mjs tests/decathlon-registration-email.test.mts tests/partner-event-withdrawal.test.mts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
