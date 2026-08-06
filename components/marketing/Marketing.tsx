@@ -15,11 +15,11 @@ export const DISNEY_LOGO_URL = 'https://upload.wikimedia.org/wikipedia/commons/c
 
 type PressLogo = {
   name: string
-  src: string
   href: string
-  width: number
-  height: number
-  remote?: boolean
+  src?: string
+  width?: number
+  height?: number
+  wordmark?: 'el-destape' | 'empre'
 }
 
 const PRESS_LOGOS: PressLogo[] = [
@@ -46,11 +46,8 @@ const PRESS_LOGOS: PressLogo[] = [
   },
   {
     name: 'El Destape',
-    src: 'https://www.eldestapeweb.com/img/estructura/logo.png',
     href: 'https://www.eldestapeweb.com/sociedad/pasito-lanzan-una-aplicacion-que-te-regala-comida-y-entradas-para-el-cine-solo-por-caminar-202655182940',
-    width: 330,
-    height: 94,
-    remote: true,
+    wordmark: 'el-destape',
   },
   {
     name: 'El Observador',
@@ -68,11 +65,8 @@ const PRESS_LOGOS: PressLogo[] = [
   },
   {
     name: 'Empre.AR',
-    src: 'https://empre.ar/wp-content/uploads/2025/05/Diseno-sin-titulo-16.png',
     href: 'https://empre.ar/podcast/pasito-la-app-que-paga-por-caminar/',
-    width: 146,
-    height: 70,
-    remote: true,
+    wordmark: 'empre',
   },
 ]
 
@@ -282,9 +276,13 @@ export function PressSection() {
               rel="noopener noreferrer"
               aria-label={`Leer la nota de ${logo.name} sobre Pasito`}
             >
-              {logo.remote
-                ? <img src={logo.src} alt={logo.name} width={logo.width} height={logo.height} loading="lazy" decoding="async" />
-                : <Image src={logo.src} alt={logo.name} width={logo.width} height={logo.height} unoptimized />}
+              {logo.src ? (
+                <Image src={logo.src} alt={logo.name} width={logo.width} height={logo.height} unoptimized />
+              ) : (
+                <span className={`${styles.pressWordmark} ${logo.wordmark === 'el-destape' ? styles.pressWordmarkDestape : styles.pressWordmarkEmpre}`} aria-hidden="true">
+                  {logo.wordmark === 'el-destape' ? <>el <b>DESTAPE</b></> : <>empre<span>.ar</span></>}
+                </span>
+              )}
             </a>
           ))}
         </div>

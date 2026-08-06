@@ -16,5 +16,13 @@ test('the shared desktop and mobile menus no longer promote the finished event',
 test('the public marketing numbers and brands promise use the current copy', () => {
   assert.match(homeSource, /value: '552\.000', label: 'usuarios activos diarios'/)
   assert.match(brandsSource, /No vendemos espacios\. Conectamos marcas con personas en movimiento\./)
+  assert.match(brandsSource, /name: 'Açaí Brasil', src: '\/marketing\/brands\/acai-brasil\.png'/)
   assert.doesNotMatch(brandsSource, /Vendemos personas/)
+})
+
+test('press wordmarks do not depend on the broken third-party image URLs', () => {
+  assert.match(navSource, /wordmark: 'el-destape'/)
+  assert.match(navSource, /wordmark: 'empre'/)
+  assert.doesNotMatch(navSource, /eldestapeweb\.com\/img\/estructura\/logo\.png/)
+  assert.doesNotMatch(navSource, /Diseno-sin-titulo-16\.png/)
 })
