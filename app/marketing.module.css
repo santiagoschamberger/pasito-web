@@ -668,6 +668,32 @@
 .brandsFlow article { display: grid; grid-template-columns: 54px 1fr; align-items: center; gap: 18px; padding: 20px 0; border-bottom: 1px solid var(--surface-stroke); }
 .brandsFlow span { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 12px; background: #e7f5ed; color: var(--brand-primary); font-family: var(--font-bricolage), system-ui, sans-serif; font-size: 16px; font-weight: 800; line-height: 20px; }
 .brandsFlow p { margin: 0; color: var(--neutral-700); font-size: 20px; font-weight: 600; line-height: 26px; }
+.brandsPerformanceSection { background: #f3ecff; }
+.brandsPerformance { padding-top: 118px; padding-bottom: 126px; }
+.brandsPerformanceHeading { display: grid; grid-template-columns: 1.1fr .9fr; align-items: end; gap: 72px; }
+.brandsPerformanceHeading .sectionTitle { max-width: 720px; }
+.brandsPerformanceHeading > p { max-width: 520px; margin: 0 0 5px; color: #51435d; font-size: 18px; line-height: 27px; }
+.brandsPerformanceGrid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 22px; margin-top: 58px; }
+.brandsPerformanceGrid article { min-width: 0; overflow: hidden; border-radius: 30px; }
+.brandsPerformanceGrid article > header { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.brandsPerformanceGrid article > header > span { font-size: 12px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; }
+.brandsBannerProof { display: flex; flex-direction: column; min-height: 390px; padding: 38px; background: var(--brand-dark); color: #fff; box-shadow: 0 24px 60px rgb(0 64 39 / 18%); }
+.brandsBannerProof header { color: var(--brand-accent); }
+.brandsBannerStats { display: grid; grid-template-columns: 1.35fr .65fr; margin-top: 56px; }
+.brandsBannerStats > div { min-width: 0; }
+.brandsBannerStats > div + div { padding-left: 34px; border-left: 1px solid rgb(255 255 255 / 20%); }
+.brandsBannerStats strong,.brandsBannerStats span { display: block; }
+.brandsBannerStats strong { color: #fff; font-family: var(--font-bricolage), system-ui, sans-serif; font-size: clamp(54px, 6vw, 78px); font-weight: 800; line-height: .9; letter-spacing: -3px; white-space: nowrap; }
+.brandsBannerStats > div:last-child strong { color: var(--brand-pink); }
+.brandsBannerStats span { margin-top: 13px; color: rgb(255 255 255 / 64%); font-size: 13px; font-weight: 650; line-height: 18px; }
+.brandsBannerProof > p { max-width: 590px; margin: auto 0 0; padding-top: 40px; color: rgb(255 255 255 / 70%); font-size: 15px; line-height: 22px; }
+.brandsEventProof { display: flex; flex-direction: column; min-height: 390px; padding: 38px; border: 1px solid rgb(64 2 36 / 8%); background: var(--brand-pink); color: var(--brand-burgundy); }
+.brandsEventProof header { color: #7d1555; }
+.brandsEventLogo { display: flex; align-items: center; width: fit-content; min-height: 58px; margin-top: 34px; padding: 10px 16px; border-radius: 14px; background: #fff; }
+.brandsEventLogo img { display: block; width: 132px; height: auto; }
+.brandsEventProof > strong { display: block; margin-top: auto; padding-top: 38px; font-family: var(--font-bricolage), system-ui, sans-serif; font-size: 44px; font-weight: 800; line-height: 46px; letter-spacing: -1.6px; }
+.brandsEventProof h3 { margin: 4px 0 0; color: #7d1555; font-family: var(--font-bricolage), system-ui, sans-serif; font-size: 27px; font-weight: 750; line-height: 31px; letter-spacing: -.7px; }
+.brandsEventProof > p { margin: 16px 0 0; color: rgb(64 2 36 / 70%); font-size: 13px; line-height: 19px; }
 .brandsChangeSection { margin-top: 0; background: var(--brand-dark); color: #fff; }
 .brandsChangeInner { padding-top: 110px; padding-bottom: 120px; }
 .brandsChangeInner .sectionTitle { max-width: 840px; font-size: clamp(48px, 5vw, 68px); line-height: .98; }
@@ -762,13 +788,17 @@
 .brandsFormatsSection { margin-top: 150px; background: #f3ecff; }
 .brandsFormats { padding-top: 118px; padding-bottom: 126px; text-align: center; }
 .brandsFormats .sectionTitle { margin-right: auto; margin-left: auto; }
-.brandsFormatsGrid { display: grid; grid-template-columns: repeat(3, 1fr); align-items: stretch; gap: 24px; margin-top: 58px; text-align: left; }
+.brandsFormatsGrid { display: grid; grid-template-columns: repeat(2, 1fr); align-items: stretch; gap: 24px; margin-top: 58px; text-align: left; }
 .brandsFormatsGrid article { display: flex; flex-direction: column; min-height: 330px; padding: 38px 32px; border: 1px solid var(--surface-stroke); border-radius: 24px; background: #fff; }
 .brandsFormatsGrid article:nth-child(1) { border-color: #f0cce7; background: #fff5fc; }
 .brandsFormatsGrid article:nth-child(2) { border-color: transparent; background: #e8dcff; color: #32145c; }
 .brandsFormatsGrid article:nth-child(2) ul { color: rgb(50 20 92 / 74%); }
 .brandsFormatsGrid article:nth-child(2) li svg { color: #7b3fbd; }
 .brandsFormatsGrid article:nth-child(2) > a { box-shadow: inset 0 0 0 1.5px #52258d; color: #52258d; }
+.brandsFormatsGrid article:nth-child(4) { border-color: #efe08c; background: #fffbe4; color: #4d430c; }
+.brandsFormatsGrid article:nth-child(4) ul { color: rgb(77 67 12 / 74%); }
+.brandsFormatsGrid article:nth-child(4) li svg { color: #89760c; }
+.brandsFormatsGrid article:nth-child(4) > a { box-shadow: inset 0 0 0 1.5px #6f610e; color: #6f610e; }
 .brandsFormatLead { min-height: 48px; margin: 28px 0 0; font-family: var(--font-bricolage), system-ui, sans-serif; font-size: 22px; font-weight: 700; line-height: 27px; letter-spacing: -.45px; }
 .brandsFormatsGrid ul { display: flex; flex-direction: column; gap: 13px; margin: 28px 0 34px; padding: 0; color: var(--neutral-700); font-size: 14px; line-height: 20px; list-style: none; }
 .brandsFormatsGrid li { display: flex; gap: 8px; }
@@ -896,6 +926,9 @@
   .brandsWordmarks { grid-template-columns: repeat(4, 1fr); }
   .brandsHowItWorks,.brandsMeasurement { grid-template-columns: 1fr; gap: 56px; }
   .brandsHowItWorks { padding-bottom: 120px; }
+  .brandsPerformanceHeading { grid-template-columns: 1fr; align-items: start; gap: 28px; }
+  .brandsPerformanceGrid { grid-template-columns: 1fr; }
+  .brandsBannerProof,.brandsEventProof { min-height: 360px; }
   .brandsResults { padding-top: 88px; padding-bottom: 88px; }
   .brandsMeasurement { padding: 48px; }
   .brandsComparisonGrid { grid-template-columns: 1fr; gap: 0; }
@@ -1038,7 +1071,7 @@
   .brandsHeroArt { width: 300px; height: 405px; }
   .brandsHeroPhone { top: -4px; right: auto; left: 50%; width: 210px; transform: translateX(-50%) rotate(6deg); }
   .brandsMarqueeTrack span { padding-top: 16px; padding-bottom: 16px; font-size: 13px; }
-  .brandsSocialProof,.brandsContext,.brandsHowItWorks,.brandsAudience,.brandsFormats,.brandsScarcity { padding-top: 96px; }
+  .brandsSocialProof,.brandsContext,.brandsHowItWorks,.brandsPerformance,.brandsAudience,.brandsFormats,.brandsScarcity { padding-top: 96px; }
   .brandsSocialProof,.brandsContext { gap: 36px; }
   .brandsSocialProof h2 { font-size: 31px; line-height: 36px; }
   .brandsWordmarks { grid-template-columns: 1fr 1fr; gap: 0; }
@@ -1055,6 +1088,16 @@
   .brandsHowItWorks { gap: 40px; }
   .brandsFlow article { grid-template-columns: 42px 1fr; gap: 12px; }
   .brandsFlow p { font-size: 17px; line-height: 23px; }
+  .brandsPerformance { padding-bottom: 96px; }
+  .brandsPerformanceHeading { gap: 22px; }
+  .brandsPerformanceHeading > p { font-size: 16px; line-height: 24px; }
+  .brandsPerformanceGrid { margin-top: 42px; }
+  .brandsBannerProof,.brandsEventProof { min-height: 330px; padding: 28px 22px; border-radius: 24px; }
+  .brandsBannerStats { grid-template-columns: 1fr; gap: 28px; margin-top: 42px; }
+  .brandsBannerStats > div + div { padding-top: 28px; padding-left: 0; border-top: 1px solid rgb(255 255 255 / 20%); border-left: 0; }
+  .brandsBannerStats strong { font-size: 58px; line-height: 58px; letter-spacing: -2px; }
+  .brandsEventProof > strong { font-size: 39px; line-height: 42px; }
+  .brandsEventProof h3 { font-size: 24px; line-height: 29px; }
   .brandsChangeSection,.brandsChallengesSection { margin-top: 0; }
   .brandsChangeInner,.brandsChallengesInner { padding-top: 76px; padding-bottom: 80px; }
   .brandsComparisonGrid,.brandsAudienceGrid,.brandsCaseStudy { grid-template-columns: 1fr; }

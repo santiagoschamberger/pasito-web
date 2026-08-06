@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import { ArrowRight, BarChart3, Check, Target } from 'lucide-react'
+import { ArrowRight, BarChart3, CalendarDays, Check, MousePointerClick, Target } from 'lucide-react'
 
 import styles from '../marketing.module.css'
 import { BRANDS_WHATSAPP_URL, DISNEY_LOGO_URL, MarketingFooter, MarketingNav, NumberedOverline } from '@/components/marketing/Marketing'
@@ -65,6 +65,7 @@ const FORMATS = [
   { name: 'Presencia Always-On', lead: 'Tu marca siempre a la vista, cerca de la decisión.', features: ['Banner en la home', 'Pin destacado en el mapa', 'Ideal para retail, comercios y puntos físicos'], accent: false },
   { name: 'Activación Segmentada', lead: 'Una invitación directa a la audiencia que elegís.', features: ['Push + mail segmentados', 'Por ciudad, barrio y edad', 'Ideal para lanzamientos, aperturas y fechas clave'], accent: false },
   { name: 'Desafío de Marca', lead: 'La comunidad camina por tu marca.', features: ['Awareness, engagement y data', 'Objetivo y recompensa a medida', 'Participación, clicks, pasos y canjes medibles'], accent: true },
+  { name: 'Promoción de Eventos', lead: 'Convertí atención en inscripciones.', features: ['Presencia en la home y en Eventos', 'Push + mail para impulsar la convocatoria', 'Inscripciones y resultados medibles'], accent: false },
 ]
 
 const CHALLENGES = [
@@ -152,9 +153,40 @@ export default function MarcasPage() {
         </div>
       </section>
 
+      <section className={styles.brandsPerformanceSection}>
+        <div className={`${styles.container} ${styles.brandsPerformance}`}>
+          <div className={styles.brandsPerformanceHeading}>
+            <div>
+              <NumberedOverline number="03">Resultados en la app</NumberedOverline>
+              <h2 className={styles.sectionTitle}>Alcance para mirar. Motivos para actuar.</h2>
+            </div>
+            <p>Pasito combina espacios de alta visibilidad con experiencias que convierten esa atención en clicks, inscripciones y participación real.</p>
+          </div>
+
+          <div className={styles.brandsPerformanceGrid}>
+            <article className={styles.brandsBannerProof}>
+              <header><span>Banners en la app</span><MousePointerClick size={22} /></header>
+              <div className={styles.brandsBannerStats}>
+                <div><strong>560 mil</strong><span>impresiones por día</span></div>
+                <div><strong>1,5%</strong><span>CTR</span></div>
+              </div>
+              <p>Presencia diaria frente a una comunidad activa, dentro de una experiencia que las personas eligen abrir.</p>
+            </article>
+
+            <article className={styles.brandsEventProof}>
+              <header><span>Promoción de eventos</span><CalendarDays size={22} /></header>
+              <div className={styles.brandsEventLogo}><Image src="/marketing/brands/decathlon.svg" alt="Decathlon" width={154} height={36} unoptimized /></div>
+              <strong>500 entradas</strong>
+              <h3>Agotadas en 1 h 30 min.</h3>
+              <p>El primer evento que promocionamos fue junto a Decathlon.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section className={styles.brandsChangeSection}>
         <div className={`${styles.container} ${styles.brandsChangeInner}`}>
-          <NumberedOverline number="03" light>El cambio</NumberedOverline>
+          <NumberedOverline number="04" light>El cambio</NumberedOverline>
           <h2 className={styles.sectionTitle}>De exposición a participación.</h2>
           <p className={styles.brandsChangeLead}>La diferencia no está solamente en cuántas personas alcanzás. Está en lo que hacen después.</p>
           <div className={styles.brandsComparisonGrid}>
@@ -227,7 +259,7 @@ export default function MarcasPage() {
       <section id="formatos" className={styles.brandsFormatsSection}>
         <div className={`${styles.container} ${styles.brandsFormats}`}>
           <NumberedOverline number="05">Formatos</NumberedOverline>
-          <h2 className={styles.sectionTitle}>Tres formas de entrar.</h2>
+          <h2 className={styles.sectionTitle}>Cuatro formas de entrar.</h2>
           <div className={styles.brandsFormatsGrid}>
             {FORMATS.map((format) => <article className={format.accent ? styles.brandsFormatFeatured : ''} key={format.name}><span className={styles.overline}>{format.name}</span><p className={styles.brandsFormatLead}>{format.lead}</p><ul>{format.features.map((feature) => <li key={feature}><Check size={16} />{feature}</li>)}</ul><a href={BRANDS_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">Consultar formato <ArrowRight size={16} /></a></article>)}
           </div>
