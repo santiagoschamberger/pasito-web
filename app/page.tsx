@@ -87,7 +87,7 @@ export default async function HomePage() {
   const newUsersPerDay = formatRoundedMarketingMetric(metrics.newUsersLast24Hours, 1_000)
   const stats = [
     { value: totalUsers, label: 'personas ya caminan con Pasito' },
-    { value: '388.000', label: 'usuarios activos diarios' },
+    { value: '552.000', label: 'usuarios activos diarios' },
     { value: formatRoundedMarketingMetric(metrics.totalPartners, 100), label: 'comercios para descubrir' },
     { value: 'App #1', label: 'en Argentina y Uruguay' },
   ]

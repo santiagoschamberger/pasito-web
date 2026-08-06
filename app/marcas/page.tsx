@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: 'Pasito conecta marcas con personas activas en el momento en que buscan una recompensa, con activaciones medibles dentro y fuera de la app.',
   openGraph: {
     title: 'Pasito para Marcas — Convertí movimiento en participación',
-    description: 'No vendemos espacios. Vendemos personas en movimiento.',
+    description: 'No vendemos espacios. Conectamos marcas con personas en movimiento.',
     type: 'website',
   },
 }
@@ -95,7 +95,7 @@ export default function MarcasPage() {
       <header className={`${styles.hero} ${styles.brandsHero}`}>
         <div className={styles.heroInner}>
           <div>
-            <h1 className={`${styles.heroTitle} ${styles.brandsHeroTitle}`}>No vendemos espacios. <span className={styles.accent}>Vendemos personas</span> en movimiento.</h1>
+            <h1 className={`${styles.heroTitle} ${styles.brandsHeroTitle}`}>No vendemos espacios. <span className={styles.accent}>Conectamos marcas</span> con personas en movimiento.</h1>
             <p className={styles.heroText}>Personas abren Pasito para buscar dónde usar lo que ganaron caminando. Tu marca puede ser esa recompensa.</p>
             <div className={styles.heroButtons}>
               <a className={`${styles.pinkButton} ${styles.heroPrimary}`} href={BRANDS_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">Reservá tu activación <ArrowRight size={18} /></a>
