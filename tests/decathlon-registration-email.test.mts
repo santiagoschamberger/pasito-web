@@ -39,3 +39,17 @@ test('test email is visibly marked and points at a non-mutating preview', () => 
   assert.match(email.html, /no puede cancelar ninguna inscripción/i)
   assert.match(email.html, /preview=1/)
 })
+
+test('reminder email keeps the confirmed place and withdrawal CTA clear', () => {
+  const email = renderDecathlonRegistrationEmail({
+    displayName: 'Santiago',
+    withdrawalUrl: 'https://example.test/withdraw?token=reminder123',
+    isReminder: true,
+  })
+
+  assert.equal(email.subject, 'Recordatorio · Todos a Decathlon')
+  assert.match(email.html, /Tu lugar sigue confirmado/)
+  assert.match(email.html, /Te recordamos que tenés tu lugar/)
+  assert.match(email.html, /No puedo asistir, quiero liberar mi cupo/)
+  assert.match(email.text, /reminder123/)
+})

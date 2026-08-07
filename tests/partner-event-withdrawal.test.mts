@@ -53,10 +53,12 @@ test('opening the email link cannot withdraw; only the confirmation POST mutates
 })
 
 test('bulk sender requires the explicit sendable-recipient count and supports safe test mode', () => {
-  assert.match(sender, /--send-all --confirm-count=\$\{EXPECTED_RECIPIENTS\}/)
+  assert.match(sender, /--send-all --confirm-count=<audiencia exacta>/)
+  assert.match(sender, /Number\.isInteger\(expectedRecipients\)/)
+  assert.match(sender, /p_limit: Math\.min\(25, remainingRecipients\)/)
   assert.match(sender, /--test-email=email/)
   assert.match(sender, /preview=1/)
   assert.match(sender, /partner_event_record_confirmation_email_attempt/)
   assert.match(sender, /Pasito <soporte@pasito\.app>/)
-  assert.match(sender, /const EXPECTED_RECIPIENTS = 459/)
+  assert.match(sender, /const CAMPAIGN = 'attendance_reminder_2026_08_07'/)
 })

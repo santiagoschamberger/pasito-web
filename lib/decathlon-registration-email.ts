@@ -33,11 +33,19 @@ export function renderDecathlonRegistrationEmail(params: {
   displayName?: string | null
   withdrawalUrl: string
   isTest?: boolean
+  isReminder?: boolean
 }): DecathlonRegistrationEmail {
   const name = firstName(params.displayName)
   const greeting = name ? `¡Hola, ${escapeHtml(name)}!` : '¡Hola!'
   const textGreeting = name ? `¡Hola, ${name}!` : '¡Hola!'
   const safeWithdrawalUrl = escapeHtml(params.withdrawalUrl)
+  const heading = params.isReminder ? 'Tu lugar sigue confirmado' : '¡Tu inscripción está confirmada!'
+  const introduction = params.isReminder
+    ? `${greeting} Te recordamos que tenés tu lugar en <strong>${DECATHLON_EVENT_EMAIL.title}</strong>.`
+    : `${greeting} Ya tenés tu lugar en <strong>${DECATHLON_EVENT_EMAIL.title}</strong>.`
+  const textIntroduction = params.isReminder
+    ? `${textGreeting} Te recordamos que tenés tu lugar en ${DECATHLON_EVENT_EMAIL.title}.`
+    : `${textGreeting} Ya tenés tu lugar en ${DECATHLON_EVENT_EMAIL.title}.`
   const testBanner = params.isTest
     ? '<div style="margin:0 0 22px;padding:12px 15px;border-radius:12px;background:#fff3cd;color:#684f00;font-size:13px;font-weight:800;">PRUEBA INTERNA · Este botón no puede cancelar ninguna inscripción.</div>'
     : ''
@@ -53,8 +61,8 @@ export function renderDecathlonRegistrationEmail(params: {
         <div style="padding:30px 26px 34px;border-radius:0 0 24px 24px;background:#fff;">
           ${testBanner}
           <p style="margin:0 0 9px;color:#0c6b45;font-size:12px;font-weight:850;text-transform:uppercase;letter-spacing:.09em;">${DECATHLON_EVENT_EMAIL.subtitle}</p>
-          <h1 style="margin:0 0 14px;font-size:29px;line-height:1.12;letter-spacing:-.025em;">¡Tu inscripción está confirmada!</h1>
-          <p style="margin:0 0 18px;color:#52655b;font-size:16px;line-height:1.65;">${greeting} Ya tenés tu lugar en <strong>${DECATHLON_EVENT_EMAIL.title}</strong>.</p>
+          <h1 style="margin:0 0 14px;font-size:29px;line-height:1.12;letter-spacing:-.025em;">${heading}</h1>
+          <p style="margin:0 0 18px;color:#52655b;font-size:16px;line-height:1.65;">${introduction}</p>
 
           <div style="margin:0 0 24px;padding:18px;border-radius:15px;background:#effa7a;color:#17382a;">
             <p style="margin:0 0 6px;font-size:15px;font-weight:850;">${DECATHLON_EVENT_EMAIL.date} · ${DECATHLON_EVENT_EMAIL.time}</p>
@@ -79,8 +87,8 @@ export function renderDecathlonRegistrationEmail(params: {
 
   const text = [
     params.isTest ? 'PRUEBA INTERNA: este enlace no puede cancelar ninguna inscripción.' : null,
-    '¡Tu inscripción está confirmada!',
-    `${textGreeting} Ya tenés tu lugar en ${DECATHLON_EVENT_EMAIL.title}.`,
+    heading,
+    textIntroduction,
     `${DECATHLON_EVENT_EMAIL.date}, de ${DECATHLON_EVENT_EMAIL.time}.`,
     'Punto de encuentro: cartel corpóreo de Vicente López.',
     'Llegá a las 9:30 para acreditarte desde la app, recibir tu pulsera y tu pasaporte.',
@@ -91,7 +99,7 @@ export function renderDecathlonRegistrationEmail(params: {
   ].filter(Boolean).join('\n\n')
 
   return {
-    subject: `${params.isTest ? '[PRUEBA] ' : ''}Inscripción confirmada · ${DECATHLON_EVENT_EMAIL.title}`,
+    subject: `${params.isTest ? '[PRUEBA] ' : ''}${params.isReminder ? 'Recordatorio' : 'Inscripción confirmada'} · ${DECATHLON_EVENT_EMAIL.title}`,
     html,
     text,
   }

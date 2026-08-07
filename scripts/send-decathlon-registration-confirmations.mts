@@ -4,9 +4,8 @@ import { Resend } from 'resend'
 import { renderDecathlonRegistrationEmail } from '../lib/decathlon-registration-email.ts'
 
 const EVENT_SLUG = 'todos-a-decathlon'
-const CAMPAIGN = 'registration_confirmation_2026'
-// Production preflight on 2026-08-04: 460 active registrations, 459 with email.
-const EXPECTED_RECIPIENTS = 459
+const CAMPAIGN = 'attendance_reminder_2026_08_07'
+const MAX_CONFIRMED_RECIPIENTS = 500
 const DEFAULT_FUNCTION_URL = 'https://trsbowwcigzayhdpfxvd.supabase.co/functions/v1/partner-event-registration'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const FROM = 'Pasito <soporte@pasito.app>'
@@ -49,6 +48,7 @@ async function sendTestEmail(testEmail: string, resend: Resend, functionUrl: str
     displayName: 'Santiago',
     withdrawalUrl: `${functionUrl}?preview=1`,
     isTest: true,
+    isReminder: true,
   })
   const { data, error } = await resend.emails.send({
     from: FROM,
@@ -65,9 +65,9 @@ async function sendTestEmail(testEmail: string, resend: Resend, functionUrl: str
 }
 
 async function sendAll(resend: Resend, functionUrl: string): Promise<void> {
-  const confirmation = Number(argument('confirm-count'))
-  if (confirmation !== EXPECTED_RECIPIENTS) {
-    throw new Error(`Para el envío real usá --send-all --confirm-count=${EXPECTED_RECIPIENTS}.`)
+  const expectedRecipients = Number(argument('confirm-count'))
+  if (!Number.isInteger(expectedRecipients) || expectedRecipients < 1 || expectedRecipients > MAX_CONFIRMED_RECIPIENTS) {
+    throw new Error(`Para el envío real usá --send-all --confirm-count=<audiencia exacta>, entre 1 y ${MAX_CONFIRMED_RECIPIENTS}.`)
   }
 
   const supabase = createClient(
@@ -80,10 +80,13 @@ async function sendAll(resend: Resend, functionUrl: string): Promise<void> {
   const attemptedDeliveryIds = new Set<string>()
 
   for (;;) {
+    const remainingRecipients = expectedRecipients - attemptedDeliveryIds.size
+    if (remainingRecipients <= 0) break
+
     const { data, error } = await supabase.rpc('partner_event_claim_confirmation_email_batch', {
       p_event_slug: EVENT_SLUG,
       p_campaign: CAMPAIGN,
-      p_limit: 25,
+      p_limit: Math.min(25, remainingRecipients),
     })
     if (error) throw error
     const batch = (data ?? []) as ClaimedDelivery[]
@@ -99,6 +102,7 @@ async function sendAll(resend: Resend, functionUrl: string): Promise<void> {
         const email = renderDecathlonRegistrationEmail({
           displayName: delivery.display_name,
           withdrawalUrl: `${functionUrl}?token=${delivery.token}`,
+          isReminder: true,
         })
         const result = await resend.emails.send({
           from: FROM,
@@ -108,7 +112,7 @@ async function sendAll(resend: Resend, functionUrl: string): Promise<void> {
           html: email.html,
           text: email.text,
         }, {
-          idempotencyKey: `decathlon-registration-${delivery.delivery_id}-${delivery.attempt_number}`,
+          idempotencyKey: `decathlon-attendance-reminder-${delivery.delivery_id}-${delivery.attempt_number}`,
         })
         if (result.error) throw new Error(result.error.message)
         if (!result.data?.id) throw new Error('Resend no devolvió un identificador de email.')
@@ -128,13 +132,12 @@ async function sendAll(resend: Resend, functionUrl: string): Promise<void> {
       await wait(550)
     }
 
-    console.log(`Progreso: ${sent} enviados, ${failed} fallidos, ${attemptedDeliveryIds.size}/${EXPECTED_RECIPIENTS} procesados.`)
-    if (attemptedDeliveryIds.size >= EXPECTED_RECIPIENTS) break
+    console.log(`Progreso: ${sent} enviados, ${failed} fallidos, ${attemptedDeliveryIds.size}/${expectedRecipients} procesados.`)
   }
 
   console.log(`Envío terminado: ${sent} enviados, ${failed} fallidos.`)
-  if (attemptedDeliveryIds.size !== EXPECTED_RECIPIENTS) {
-    throw new Error(`La audiencia procesada fue ${attemptedDeliveryIds.size}; se esperaban ${EXPECTED_RECIPIENTS}.`)
+  if (attemptedDeliveryIds.size !== expectedRecipients) {
+    throw new Error(`La audiencia procesada fue ${attemptedDeliveryIds.size}; se esperaban ${expectedRecipients}.`)
   }
   if (failed > 0) process.exitCode = 1
 }
