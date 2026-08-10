@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
+import Link from 'next/link'
 import { ArrowRight, BarChart3, CalendarDays, Check, MousePointerClick, Target } from 'lucide-react'
 
 import styles from '../marketing.module.css'
@@ -85,7 +86,7 @@ export default async function MarcasPage() {
             <p className={styles.heroText}>Personas abren Pasito para buscar dónde usar lo que ganaron caminando. Tu marca puede ser esa recompensa.</p>
             <div className={styles.heroButtons}>
               <a className={`${styles.pinkButton} ${styles.heroPrimary}`} href={BRANDS_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">Reservá tu activación <ArrowRight size={18} /></a>
-              <a className={styles.outlineButton} href="#formatos">Ver formatos</a>
+              <Link className={styles.outlineButton} href="/marcas/calculadora">Calculá tu campaña</Link>
             </div>
             <p className={styles.heroNote}>Activaciones con alcance, participación y medición en una sola experiencia.</p>
           </div>

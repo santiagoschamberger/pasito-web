@@ -367,6 +367,8 @@
 .finalCta .heroButtons { justify-content: center; }
 .finalStorePrompt { position: relative; margin: 16px 0 0; color: rgb(255 255 255 / 66%); font-size: 13px; font-weight: 650; line-height: 18px; }
 .pressSection { margin-top: 130px; border-top: 1px solid #ded2ef; border-bottom: 1px solid #ded2ef; background: #f3ecff; }
+.pressSection.pressSectionWhite { margin-top: 0; border-top: 0; border-bottom-color: var(--surface-stroke); background: #fff; }
+.pressSectionWhite .pressLogos { background: #fbfaf8; box-shadow: 0 18px 52px rgb(50 20 92 / 6%); }
 .pressInner { padding-top: 88px; padding-bottom: 92px; }
 .pressHeading { display: grid; grid-template-columns: 1.05fr .95fr; align-items: end; gap: 64px; }
 .pressHeading h2 { max-width: 640px; margin: 0; color: #32145c; font-family: var(--font-bricolage), system-ui, sans-serif; font-size: 52px; font-weight: 800; line-height: 54px; letter-spacing: -1.8px; }

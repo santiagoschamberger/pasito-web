@@ -70,18 +70,25 @@ const PRESS_LOGOS: PressLogo[] = [
   },
 ]
 
-export function MarketingNav({ active = 'home' }: { active?: 'home' | 'comercios' | 'empresas' | 'marcas' | 'merch' }) {
+export function MarketingNav({
+  active = 'home',
+  contextualLink,
+}: {
+  active?: 'home' | 'comercios' | 'empresas' | 'marcas' | 'merch'
+  contextualLink?: { href: string; label: string }
+}) {
   const isCommerce = active === 'comercios'
   const isEnterprise = active === 'empresas'
   const isBrands = active === 'marcas'
   const isMerch = active === 'merch'
-  const contextualLink = isCommerce
+  const defaultContextualLink = isCommerce
     ? { href: '#planes', label: 'Ver planes' }
     : isEnterprise
       ? { href: '#como-funciona', label: 'Cómo funciona' }
       : isBrands
         ? { href: '#formatos', label: 'Ver formatos' }
         : null
+  const resolvedContextualLink = contextualLink ?? defaultContextualLink
 
   return (
     <nav className={styles.navbar} aria-label="Navegación principal">
@@ -96,7 +103,7 @@ export function MarketingNav({ active = 'home' }: { active?: 'home' | 'comercios
           <Link className={`${styles.navLink} ${isMerch ? styles.navLinkActive : ''}`} href="/tienda">Merch</Link>
         </div>
         <div className={styles.navActions}>
-          {contextualLink && <a className={styles.navTextButton} href={contextualLink.href}>{contextualLink.label}</a>}
+          {resolvedContextualLink && <a className={styles.navTextButton} href={resolvedContextualLink.href}>{resolvedContextualLink.label}</a>}
           <a
             className={styles.navLogin}
             href={PARTNERS_URL}
@@ -125,7 +132,7 @@ export function MarketingNav({ active = 'home' }: { active?: 'home' | 'comercios
               <Link className={`${styles.mobileNavLink} ${isBrands ? styles.mobileNavLinkActive : ''}`} href="/marcas">Marcas</Link>
               <Link className={`${styles.mobileNavLink} ${isEnterprise ? styles.mobileNavLinkActive : ''}`} href="/empresas">Empresas</Link>
               <Link className={`${styles.mobileNavLink} ${isMerch ? styles.mobileNavLinkActive : ''}`} href="/tienda">Merch</Link>
-              {contextualLink && <a className={styles.mobileNavContext} href={contextualLink.href}>{contextualLink.label}</a>}
+              {resolvedContextualLink && <a className={styles.mobileNavContext} href={resolvedContextualLink.href}>{resolvedContextualLink.label}</a>}
             </div>
             <div className={styles.mobileNavActions}>
               <a className={styles.mobileNavLogin} href={PARTNERS_URL} target="_blank" rel="noopener noreferrer">Iniciar sesión</a>
@@ -258,9 +265,11 @@ export function FinalCta({ commerce = false, title, storePrompt }: { commerce?: 
   )
 }
 
-export function PressSection() {
+type PressTone = 'lavender' | 'white'
+
+export function PressSection({ tone = 'lavender' }: { tone?: PressTone }) {
   return (
-    <section className={styles.pressSection} aria-labelledby="press-heading">
+    <section className={`${styles.pressSection} ${tone === 'white' ? styles.pressSectionWhite : ''}`} aria-labelledby="press-heading">
       <div className={`${styles.container} ${styles.pressInner}`}>
         <div className={styles.pressHeading}>
           <h2 id="press-heading">Pasito en las <span>noticias</span></h2>
@@ -291,10 +300,20 @@ export function PressSection() {
   )
 }
 
-export function MarketingFooter({ commerce = false, enterprise = false, brands = false }: { commerce?: boolean; enterprise?: boolean; brands?: boolean }) {
+export function MarketingFooter({
+  commerce = false,
+  enterprise = false,
+  brands = false,
+  pressTone = 'lavender',
+}: {
+  commerce?: boolean
+  enterprise?: boolean
+  brands?: boolean
+  pressTone?: PressTone
+}) {
   return (
     <>
-      <PressSection />
+      <PressSection tone={pressTone} />
       <footer className={`${styles.container} ${styles.footer}`}>
         <Link href="/" className={styles.logo} aria-label="Pasito, inicio">
           <Image src="/brand/logo-green.svg" alt="Pasito" width={96} height={23} />
