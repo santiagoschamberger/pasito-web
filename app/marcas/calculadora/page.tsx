@@ -6,10 +6,8 @@ import marketingStyles from '../../marketing.module.css'
 import { MarketingFooter, MarketingNav } from '@/components/marketing/Marketing'
 import {
   BANNER_PRICE_VALID_UNTIL,
-  BANNER_PLACEMENTS,
   MINIMUM_CAMPAIGN_ARS,
   MINIMUM_CAMPAIGN_USD,
-  getBannerPlacementCpm,
 } from '@/lib/banner-campaign-pricing'
 import { formatCompactCountryCount, formatCountryCount } from '@/lib/country-audience'
 import { getCountryAudienceMetrics } from '@/lib/country-audience-metrics'
@@ -28,19 +26,17 @@ function formatUsd(value: number) {
 export const revalidate = 259_200
 
 export const metadata: Metadata = {
-  title: 'Calculadora de banners — Pasito para Marcas',
-  description: 'Estimá inversión, impresiones y resultados para una campaña de banners en Pasito.',
+  title: 'Banners en Pasito — Pasito para Marcas',
+  description: 'Conocé las ubicaciones, el alcance y las especificaciones de una campaña de banners en Pasito.',
   openGraph: {
-    title: 'Calculadora de banners — Pasito para Marcas',
-    description: 'Elegí ubicación, mercado y duración para estimar tu campaña en Pasito.',
+    title: 'Banners en Pasito — Pasito para Marcas',
+    description: 'Explorá las ubicaciones disponibles para tu campaña en Pasito.',
     type: 'website',
   },
 }
 
 export default async function BannerCalculatorPage() {
   const countryAudience = await getCountryAudienceMetrics()
-  const lowestArgentinaCpm = Math.min(...BANNER_PLACEMENTS.map((placement) => getBannerPlacementCpm(placement.id, 'AR')))
-  const lowestUruguayCpm = Math.min(...BANNER_PLACEMENTS.map((placement) => getBannerPlacementCpm(placement.id, 'UY')))
 
   return (
     <main className={marketingStyles.page}>
@@ -51,13 +47,13 @@ export default async function BannerCalculatorPage() {
         <div className={styles.container}>
           <Link className={styles.backLink} href="/marcas"><ArrowLeft size={16} /> Pasito para Marcas</Link>
           <div className={styles.heroCopy}>
-            <span className={styles.eyebrow}>Planificador de campaña</span>
-            <h1>Elegí dónde aparecer.<br /><span>Calculá cuánto invertir.</span></h1>
-            <p>Armá una campaña a medida según ubicación, mercado y duración. En menos de un minuto tenés una estimación lista para compartir.</p>
+            <span className={styles.eyebrow}>Banners en Pasito</span>
+            <h1>Elegí dónde aparecer.<br /><span>Conocé cada ubicación.</span></h1>
+            <p>Compará las ubicaciones disponibles, su alcance por mercado y el formato de la pieza que necesitamos.</p>
           </div>
           <div className={styles.heroFacts}>
-            <div><strong>Desde {formatArs(lowestArgentinaCpm)}</strong><span>CPM vigente en Argentina</span></div>
-            <div><strong>Desde {formatUsd(lowestUruguayCpm)}</strong><span>CPM vigente en Uruguay</span></div>
+            <div><strong>USD 3</strong><span>cada 1.000 impresiones · Argentina</span></div>
+            <div><strong>USD 5</strong><span>cada 1.000 impresiones · Uruguay</span></div>
             <div><strong>{formatArs(MINIMUM_CAMPAIGN_ARS)} / {formatUsd(MINIMUM_CAMPAIGN_USD)}</strong><span>inversión mínima por mercado</span></div>
           </div>
           <p className={styles.priceValidity}>Tarifas vigentes hasta el {BANNER_PRICE_VALID_UNTIL}.</p>
@@ -71,14 +67,14 @@ export default async function BannerCalculatorPage() {
           <div className={styles.sectionHeading}>
             <span>Alcance por país</span>
             <h2 id="market-audience-title">Dos mercados.<br />Dos escalas distintas.</h2>
-            <p>La calculadora adapta moneda y precio según el país. Estas cifras ayudan a entender el tamaño disponible antes de segmentar.</p>
+            <p>Cada mercado tiene su propia escala y tarifa. Estas cifras ayudan a entender el alcance disponible antes de segmentar.</p>
           </div>
           <div className={styles.audienceGrid}>
             {countryAudience.map((country) => (
               <article key={country.code}>
                 <header>
                   <div><span>{country.name}</span><strong>{formatCountryCount(country.registered)}</strong><small>personas registradas</small></div>
-                  <em>{country.code === 'AR' ? 'Precios vigentes en ARS' : 'Precios vigentes en USD'}</em>
+                  <em>{country.code === 'AR' ? 'USD 3 por mil' : 'USD 5 por mil'}</em>
                 </header>
                 <div className={styles.audienceStats}>
                   <div><strong>+{formatCompactCountryCount(country.active30d)}</strong><span>activas en 30 días</span></div>

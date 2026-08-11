@@ -21,10 +21,14 @@ const baseInput = {
   durationDays: 7,
 }
 
-test('usa el inventario diario informado para cada ubicación', () => {
+test('usa el inventario diario informado para cada ubicación y mercado', () => {
   assert.deepEqual(
-    BANNER_PLACEMENTS.map(({ dailyImpressions }) => dailyImpressions),
+    BANNER_PLACEMENTS.map(({ dailyImpressions }) => dailyImpressions.AR),
     [600_000, 500_000, 390_000, 351_000, 351_000, 351_000, 351_000, 351_000],
+  )
+  assert.deepEqual(
+    BANNER_PLACEMENTS.map(({ dailyImpressions }) => dailyImpressions.UY),
+    [100_000, 500_000, 390_000, 351_000, 351_000, 351_000, 351_000, 351_000],
   )
 })
 
@@ -88,7 +92,7 @@ test('prioridad conserva el inventario pero aumenta inversión y clicks proyecta
   )
 })
 
-test('Uruguay conserva su tarifa vigente frente a la tarifa argentina de agosto', () => {
+test('Uruguay usa 100 mil impresiones diarias en el banner principal de Inicio', () => {
   const argentinaEquivalentCpmUsd = BANNER_PLACEMENTS[0].cpmArs / USD_TO_ARS_REFERENCE
   const uruguayCpm = getBannerPlacementCpm('home', 'UY')
   const result = calculateBannerPricing({ ...baseInput, marketId: 'UY' })
@@ -96,9 +100,10 @@ test('Uruguay conserva su tarifa vigente frente a la tarifa argentina de agosto'
   assert.equal(uruguayCpm, 3.03)
   assert.ok(Math.abs(uruguayCpm - (argentinaEquivalentCpmUsd * URUGUAY_CPM_PREMIUM)) <= 0.005)
   assert.equal(result.currency, 'USD')
-  assert.equal(result.investment, 11_850)
-  assert.equal(result.impressions, 4_200_000)
-  assert.equal(result.clicksLow, 33_600)
+  assert.equal(result.dailyImpressions, 100_000)
+  assert.equal(result.investment, 2_100)
+  assert.equal(result.impressions, 700_000)
+  assert.equal(result.clicksLow, 5_600)
 })
 
 test('todas las combinaciones mantienen moneda, inventario y valores finitos', () => {
@@ -113,8 +118,8 @@ test('todas las combinaciones mantienen moneda, inventario y valores finitos', (
         })
 
         assert.equal(result.currency, market.currency)
-        assert.equal(result.dailyImpressions, placement.dailyImpressions)
-        assert.equal(result.impressions, placement.dailyImpressions * 14)
+        assert.equal(result.dailyImpressions, placement.dailyImpressions[market.id])
+        assert.equal(result.impressions, placement.dailyImpressions[market.id] * 14)
         assert.ok(Number.isFinite(result.investment))
         assert.ok(Number.isFinite(result.clicksLow))
         assert.ok(result.clicksHigh >= result.clicksLow)

@@ -34,7 +34,7 @@ export const BANNER_PLACEMENTS = [
     label: 'Inicio — debajo de Grupos',
     shortLabel: 'Inicio · Grupos',
     cpmArs: BANNER_CPM_LEVELS_ARS.homePrimary,
-    dailyImpressions: 600_000,
+    dailyImpressions: { AR: 600_000, UY: 100_000 },
     description: 'La primera gran pieza comercial al entrar a Inicio.',
     location: 'Debajo de los grupos y antes de los contenidos destacados.',
     family: 'Inicio',
@@ -46,7 +46,7 @@ export const BANNER_PLACEMENTS = [
     label: 'Inicio — antes de Premios',
     shortLabel: 'Inicio · Premios',
     cpmArs: BANNER_CPM_LEVELS_ARS.homeSecondary,
-    dailyImpressions: 500_000,
+    dailyImpressions: { AR: 500_000, UY: 500_000 },
     description: 'Presencia contextual justo antes de explorar premios.',
     location: 'Entre Eventos y la sección Premios que te copan.',
     family: 'Inicio',
@@ -58,7 +58,7 @@ export const BANNER_PLACEMENTS = [
     label: 'Catálogo — todas las tabs',
     shortLabel: 'Todo Catálogo',
     cpmArs: BANNER_CPM_LEVELS_ARS.catalog,
-    dailyImpressions: 390_000,
+    dailyImpressions: { AR: 390_000, UY: 390_000 },
     description: 'Cobertura amplia mientras las personas exploran el catálogo.',
     location: 'Debajo de los filtros, en todas las tabs del Catálogo.',
     family: 'Catálogo',
@@ -70,7 +70,7 @@ export const BANNER_PLACEMENTS = [
     label: 'Catálogo — tab Locales',
     shortLabel: 'Tab Locales',
     cpmArs: BANNER_CPM_LEVELS_ARS.catalogTab,
-    dailyImpressions: 351_000,
+    dailyImpressions: { AR: 351_000, UY: 351_000 },
     description: 'Personas buscando opciones físicas cercanas.',
     location: 'Debajo de los filtros cuando la tab Locales está seleccionada.',
     family: 'Catálogo',
@@ -82,7 +82,7 @@ export const BANNER_PLACEMENTS = [
     label: 'Catálogo — tab Online',
     shortLabel: 'Tab Online',
     cpmArs: BANNER_CPM_LEVELS_ARS.catalogTab,
-    dailyImpressions: 351_000,
+    dailyImpressions: { AR: 351_000, UY: 351_000 },
     description: 'Audiencia abierta a comprar o convertir digitalmente.',
     location: 'Debajo de los filtros cuando la tab Online está seleccionada.',
     family: 'Catálogo',
@@ -94,7 +94,7 @@ export const BANNER_PLACEMENTS = [
     label: 'Catálogo — tab Premios',
     shortLabel: 'Tab Premios',
     cpmArs: BANNER_CPM_LEVELS_ARS.catalogTab,
-    dailyImpressions: 351_000,
+    dailyImpressions: { AR: 351_000, UY: 351_000 },
     description: 'Alta intención mientras la persona elige qué canjear.',
     location: 'Debajo de los filtros cuando la tab Premios está seleccionada.',
     family: 'Catálogo',
@@ -106,7 +106,7 @@ export const BANNER_PLACEMENTS = [
     label: 'Catálogo — tab Descuentos',
     shortLabel: 'Tab Descuentos',
     cpmArs: BANNER_CPM_LEVELS_ARS.catalogTab,
-    dailyImpressions: 351_000,
+    dailyImpressions: { AR: 351_000, UY: 351_000 },
     description: 'Usuarios explorando beneficios y oportunidades concretas.',
     location: 'Debajo de los filtros cuando la tab Descuentos está seleccionada.',
     family: 'Catálogo',
@@ -118,7 +118,7 @@ export const BANNER_PLACEMENTS = [
     label: 'Catálogo — tab Reservas',
     shortLabel: 'Tab Reservas',
     cpmArs: BANNER_CPM_LEVELS_ARS.catalogTab,
-    dailyImpressions: 351_000,
+    dailyImpressions: { AR: 351_000, UY: 351_000 },
     description: 'La ubicación más próxima a una acción o transacción.',
     location: 'Debajo de los filtros cuando la tab Reservas está seleccionada.',
     family: 'Catálogo',
@@ -242,7 +242,8 @@ export function calculateBannerPricing(input: BannerPricingInput): BannerPricing
     market.cpmRounding,
   )
 
-  const impressions = placement.dailyImpressions * durationDays
+  const dailyImpressions = placement.dailyImpressions[market.id]
+  const impressions = dailyImpressions * durationDays
   const requestedInvestment = priceImpressions(impressions, listCpm)
   const investment = Math.max(
     market.minimumInvestment,
@@ -257,7 +258,7 @@ export function calculateBannerPricing(input: BannerPricingInput): BannerPricing
     currency: market.currency,
     investment,
     impressions,
-    dailyImpressions: placement.dailyImpressions,
+    dailyImpressions,
     clicksLow: Math.floor(impressions * EXPECTED_CTR.low * priority.clickMultiplier),
     clicksHigh: Math.ceil(impressions * EXPECTED_CTR.high * priority.clickMultiplier),
     listCpm,
@@ -273,6 +274,13 @@ export function getBannerPlacementCpm(placementId: BannerPlacementId, marketId: 
   const market = findById(BANNER_MARKETS, marketId)
 
   return roundToIncrement(placement.cpmArs * market.cpmFactor, market.cpmRounding)
+}
+
+export function getBannerDailyImpressions(
+  placementId: BannerPlacementId,
+  marketId: BannerMarketId,
+) {
+  return findById(BANNER_PLACEMENTS, placementId).dailyImpressions[marketId]
 }
 
 export function getBannerPlacement(id: BannerPlacementId) {

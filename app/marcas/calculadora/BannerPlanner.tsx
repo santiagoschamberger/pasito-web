@@ -1,13 +1,6 @@
-'use client'
-
-import { useState } from 'react'
 import Image from 'next/image'
 
-import {
-  BANNER_PLACEMENTS,
-  type BannerPlacementId,
-} from '@/lib/banner-campaign-pricing'
-import { BannerCalculator } from './BannerCalculator'
+import { BANNER_PLACEMENTS } from '@/lib/banner-campaign-pricing'
 import styles from './calculator.module.css'
 
 const PLACEMENT_GUIDE = [
@@ -36,88 +29,52 @@ const PLACEMENT_GUIDE = [
   },
 ] as const
 
-function guideIsSelected(guidePlacementId: BannerPlacementId, selectedPlacementId: BannerPlacementId) {
-  if (guidePlacementId === 'all') {
-    return selectedPlacementId !== 'home' && selectedPlacementId !== 'home_before_rewards'
-  }
-
-  return guidePlacementId === selectedPlacementId
-}
-
 function formatDailyImpressions(value: number) {
   return `${new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(value / 1_000)} mil`
 }
 
 export function BannerPlanner() {
-  const [placementId, setPlacementId] = useState<BannerPlacementId>('home')
-
-  const selectFromPreview = (nextPlacementId: BannerPlacementId) => {
-    setPlacementId(nextPlacementId)
-    window.requestAnimationFrame(() => {
-      document.getElementById('calculadora-banners')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    })
-  }
-
   return (
-    <>
-      <section className={`${styles.container} ${styles.placementGuide}`} aria-labelledby="placement-guide-title">
-        <div className={styles.sectionHeading}>
-          <span>Ubicaciones en la app</span>
-          <h2 id="placement-guide-title">Mirá exactamente dónde aparece.</h2>
-          <p>Hacé click en una preview para elegirla. Todas las ubicaciones comparten el mismo CPM base; el precio cambia según las impresiones diarias de cada una.</p>
-        </div>
-        <div className={styles.guideGrid}>
-          {PLACEMENT_GUIDE.map(({ placement, badge, copy, ...guide }) => {
-            const isSelected = guideIsSelected(placement.id, placementId)
-
-            return (
-              <article className={isSelected ? styles.guideSelected : undefined} key={placement.id}>
-                <button
-                  type="button"
-                  className={styles.guideVisualButton}
-                  aria-label={`Elegir ${placement.label}`}
-                  aria-pressed={isSelected}
-                  onClick={() => selectFromPreview(placement.id)}
-                >
-                  <span className={styles.guideVisual} data-placement-preview={placement.id}>
-                    <Image src={placement.previewSrc} alt={placement.previewAlt} width={1392} height={2880} sizes="(max-width: 760px) 82vw, 31vw" loading="eager" />
-                    <span className={styles.guidePin}>Tu banner</span>
-                    <span className={styles.guideChoice}>{isSelected ? 'Seleccionado' : 'Elegir ubicación'}</span>
-                  </span>
-                </button>
-                <div className={styles.guideBody}>
-                  <div><span>{placement.family}</span><em>{badge}</em></div>
-                  <h3>{placement.label}</h3>
-                  <p>{copy}</p>
-                  <div className={styles.guideInventory}>
-                    <strong>{formatDailyImpressions(placement.dailyImpressions)}</strong>
-                    <span>{placement.id === 'all' ? 'impresiones/día en Catálogo general' : 'impresiones por día'}</span>
-                  </div>
-                  {'tabs' in guide && guide.tabs && (
-                    <div className={styles.guideTabs} aria-label="Elegir una tab del Catálogo">
-                      {guide.tabs.map((tab) => (
-                        <button
-                          type="button"
-                          aria-pressed={placementId === tab.id}
-                          onClick={() => selectFromPreview(tab.id)}
-                          key={tab.id}
-                        >
-                          {tab.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+    <section className={`${styles.container} ${styles.placementGuide}`} aria-labelledby="placement-guide-title">
+      <div className={styles.sectionHeading}>
+        <span>Ubicaciones en la app</span>
+        <h2 id="placement-guide-title">Mirá exactamente dónde aparece.</h2>
+        <p>Compará las ubicaciones disponibles y su inventario diario. Dentro de cada mercado, todas comparten la misma tarifa.</p>
+      </div>
+      <div className={styles.guideGrid}>
+        {PLACEMENT_GUIDE.map(({ placement, badge, copy, ...guide }) => (
+          <article key={placement.id}>
+            <div className={styles.guideVisual} data-placement-preview={placement.id}>
+              <Image src={placement.previewSrc} alt={placement.previewAlt} width={1392} height={2880} sizes="(max-width: 760px) 78vw, 31vw" loading="eager" />
+              <span className={styles.guidePin}>Tu banner</span>
+            </div>
+            <div className={styles.guideBody}>
+              <div><span>{placement.family}</span><em>{badge}</em></div>
+              <h3>{placement.label}</h3>
+              <p>{copy}</p>
+              <div className={styles.guideInventory}>
+                <strong>
+                  {placement.id === 'home'
+                    ? `${formatDailyImpressions(placement.dailyImpressions.AR)} AR · ${formatDailyImpressions(placement.dailyImpressions.UY)} UY`
+                    : formatDailyImpressions(placement.dailyImpressions.AR)}
+                </strong>
+                <span>
+                  {placement.id === 'home'
+                    ? 'impresiones por día según mercado'
+                    : placement.id === 'all'
+                      ? 'impresiones/día en Catálogo general'
+                      : 'impresiones por día'}
+                </span>
+              </div>
+              {'tabs' in guide && guide.tabs && (
+                <div className={styles.guideTabs} aria-label="Tabs disponibles en el Catálogo">
+                  {guide.tabs.map((tab) => <span key={tab.id}>{tab.label}</span>)}
                 </div>
-              </article>
-            )
-          })}
-        </div>
-      </section>
-
-      <section id="calculadora-banners" className={`${styles.container} ${styles.calculatorSection}`}>
-        <BannerCalculator placementId={placementId} onPlacementChange={setPlacementId} />
-        <p className={styles.segmentDisclaimer}>Se puede segmentar por barrio, ciudad, provincia y edad. La disponibilidad se confirma antes de activar la campaña.</p>
-      </section>
-    </>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
   )
 }

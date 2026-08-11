@@ -211,7 +211,7 @@ export function BannerCalculator({ placementId, onPlacementChange }: BannerCalcu
         <div className={styles.delivery}>
           <Layers3 size={17} />
           <div>
-            <strong>{formatInteger(placement.dailyImpressions)} impresiones por día</strong>
+            <strong>{formatInteger(result.dailyImpressions)} impresiones por día</strong>
             <span>Base informada para {placement.shortLabel}; el total se multiplica por la duración elegida.</span>
           </div>
         </div>
