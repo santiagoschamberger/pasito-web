@@ -6,12 +6,13 @@ Antes de publicar la versión que incluye `app/api/rebill/webhook/[secret]`, con
 
 ```text
 REBILL_WEBHOOK_SECRET=<secreto-aleatorio-largo>
+REBILL_NEW_WEBHOOK_SECRET=<otro-secreto-aleatorio-largo>
 ```
 
-Luego, en Rebill > Developer Center > Webhooks, crear un webhook HTTPS con la URL:
+La cuenta anterior conserva el primer secreto. En la cuenta nueva, crear un webhook HTTPS con la URL:
 
 ```text
-https://pasito.app/api/rebill/webhook/<el-mismo-secreto>
+https://pasito.app/api/rebill/webhook/<REBILL_NEW_WEBHOOK_SECRET>
 ```
 
 Seleccionar estos eventos:

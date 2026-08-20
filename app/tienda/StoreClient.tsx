@@ -41,8 +41,8 @@ const CURRENCY = 'ARS' // ARS | USD | BRL | CLP | COP | MXN
 // usando instant-product porque el total depende de cantidad + entrega, pero
 // guardamos la referencia correcta en cada pago para poder reconciliarlo.
 const REBILL_PRODUCT_REFERENCE = {
-  retiro: 'prd_936db4129964428d9377bda54608d012',
-  envio: 'prd_916d9bf2683e40b4abf1c2a9c94e3145',
+  retiro: 'prd_1fe10f86e66f45a18f2817d4cf2ae207',
+  envio: 'prd_ff7aa494f84a445d97c03f16fe2ee49c',
 } as const
 
 const SIZES = ['S', 'M', 'L', 'XL'] as const

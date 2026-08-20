@@ -21,6 +21,7 @@ import {
   retryEmailDelivery,
 } from '@/lib/email-retry'
 import { isRebillPaymentAmountValid } from '@/lib/rebill-payment-validation'
+import { getRebillPayment, type RebillPayment } from '@/lib/tomate-rebill'
 
 /* Debe coincidir con la config de la tienda (app/tienda/StoreClient.tsx). */
 const PRICE = 35000
@@ -30,10 +31,9 @@ const BASES = ['blanca', 'negra'] as const
 const PRINTS = ['verde', 'blanca'] as const
 const SIZES = ['S', 'M', 'L', 'XL'] as const
 const DELIVERIES = ['retiro', 'envio'] as const
-const REBILL_API = 'https://api.rebill.com/v3'
 const REBILL_PRODUCT_REFERENCE = {
-  retiro: 'prd_936db4129964428d9377bda54608d012',
-  envio: 'prd_916d9bf2683e40b4abf1c2a9c94e3145',
+  retiro: 'prd_1fe10f86e66f45a18f2817d4cf2ae207',
+  envio: 'prd_ff7aa494f84a445d97c03f16fe2ee49c',
 } as const
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
@@ -188,23 +188,9 @@ export async function POST(req: NextRequest) {
   }
 
   // 1) Verificar el pago directamente con Rebill (fuente de verdad).
-  let pay: {
-    status?: string
-    amount?: number | string
-    currency?: string
-    installments?: number | null
-    metadata?: Record<string, unknown>
-    customer?: { email?: string; firstName?: string; lastName?: string }
-  }
+  let pay: RebillPayment
   try {
-    const res = await fetch(`${REBILL_API}/payments/${encodeURIComponent(paymentId)}`, {
-      headers: { 'x-api-key': process.env.REBILL_SECRET_KEY },
-      cache: 'no-store',
-    })
-    if (!res.ok) {
-      return NextResponse.json({ error: 'No se pudo verificar el pago.' }, { status: 402 })
-    }
-    pay = await res.json()
+    pay = await getRebillPayment(paymentId)
   } catch (err) {
     console.error('[orders] Error verificando pago:', err)
     return NextResponse.json({ error: 'No se pudo verificar el pago.' }, { status: 502 })

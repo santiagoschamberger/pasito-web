@@ -50,8 +50,11 @@ function pendingEmailResponse() {
  */
 export async function POST(request: NextRequest, context: { params: Promise<{ secret: string }> }) {
   const { secret } = await context.params
-  const expectedSecret = process.env.REBILL_WEBHOOK_SECRET
-  if (!expectedSecret || secret !== expectedSecret) return new NextResponse(null, { status: 404 })
+  const expectedSecrets = [
+    process.env.REBILL_WEBHOOK_SECRET,
+    process.env.REBILL_NEW_WEBHOOK_SECRET,
+  ].map((value) => value?.trim()).filter(Boolean)
+  if (!expectedSecrets.includes(secret)) return new NextResponse(null, { status: 404 })
 
   let payload: WebhookPayload
   try {

@@ -17,6 +17,12 @@ test('commerce plans use the unified public names and current benefits', () => {
   assert.match(pricingSource, /Soporte 24\/7/)
 })
 
+test('paid commerce plans disclose that VAT is added to monthly prices', () => {
+  assert.match(pricingSource, /`\$\{prices\.ventas\}\/mes \+IVA`/)
+  assert.match(pricingSource, /`\$\{prices\.destacado\}\/mes \+IVA`/)
+  assert.match(pricingSource, /<span className=\{styles\.perMonth\}>\/mes \+IVA<\/span>/)
+})
+
 test('commerce plan copy avoids the retired public names and hard wording', () => {
   assert.doesNotMatch(commerceCopy, />Starter</)
   assert.doesNotMatch(commerceCopy, />Ventas</)

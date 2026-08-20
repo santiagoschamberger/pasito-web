@@ -78,7 +78,7 @@ export function PricingPlans() {
   const priceFor = (priceKey: (typeof PLANS)[number]['priceKey']) => (
     priceKey === 'starter' ? 'Gratis' : prices[priceKey]
   )
-  const priceRow = ['Precio', 'Gratis', `${prices.ventas}/mes`, `${prices.destacado}/mes`]
+  const priceRow = ['Precio', 'Gratis', `${prices.ventas}/mes +IVA`, `${prices.destacado}/mes +IVA`]
 
   return (
     <>
@@ -112,7 +112,7 @@ export function PricingPlans() {
             <span className={styles.overline} style={{ color: plan.featured ? 'rgba(255,255,255,.65)' : '#7c7c65' }}>{plan.name}</span>
             <div className={styles.planPrice} aria-live="polite" aria-atomic="true">
               {priceFor(plan.priceKey)}
-              {plan.priceKey !== 'starter' && <span className={styles.perMonth}>/mes</span>}
+              {plan.priceKey !== 'starter' && <span className={styles.perMonth}>/mes +IVA</span>}
             </div>
             <p className={styles.planLead}>{plan.lead}</p>
             {plan.extra && <p className={styles.planExtra}>{plan.extra}</p>}
