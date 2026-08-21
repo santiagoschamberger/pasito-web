@@ -40,6 +40,7 @@ const RULES = [
 
 const FAQS = [
   { q: '¿Cuánto cuesta el plan Gratis?', a: 'Nada. Para mantenerlo activo, ofrecés un premio sin compra adicional con un cupo disponible de al menos 5 canjes por día.' },
+  { q: '¿Los precios incluyen IVA?', a: 'Los planes pagos se muestran sin IVA. Al contratar, el cobro mensual suma IVA: 21% en Argentina y 22% en Uruguay.' },
   { q: '¿Qué puedo ofrecer como premio?', a: 'Un producto, un servicio, una clase o una experiencia. Lo que mejor represente a tu comercio.' },
   { q: '¿Tengo que ofrecer un premio gratuito?', a: 'En el plan Gratis, sí: para mantenerlo activo necesitás publicar al menos un premio sin compra adicional, con un cupo disponible de 5 canjes por día. En Standard y Destacado, los premios gratuitos son opcionales.' },
   { q: '¿Cómo valido un canje?', a: 'Con un código fijo de 4 números que te asigna Pasito. Si trabajás con cupones propios, podés cargar tus códigos y validarlos en tu sistema.' },

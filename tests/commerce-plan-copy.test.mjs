@@ -21,6 +21,8 @@ test('paid commerce plans disclose that VAT is added to monthly prices', () => {
   assert.match(pricingSource, /`\$\{prices\.ventas\}\/mes \+IVA`/)
   assert.match(pricingSource, /`\$\{prices\.destacado\}\/mes \+IVA`/)
   assert.match(pricingSource, /<span className=\{styles\.perMonth\}>\/mes \+IVA<\/span>/)
+  assert.match(commercePageSource, /¿Los precios incluyen IVA\?/)
+  assert.match(commercePageSource, /21% en Argentina y 22% en Uruguay/)
 })
 
 test('commerce plan copy avoids the retired public names and hard wording', () => {
