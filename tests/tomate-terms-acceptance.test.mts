@@ -22,7 +22,7 @@ test('published event terms include the material participation conditions', () =
   assert.doesNotMatch(terms, /dieciocho \(18\) años|menores de edad|mayor(?:es)? de edad/i)
   assert.match(terms, /DATOS PERSONALES Y CONSENTIMIENTO PARA SU COMUNICACIÓN A LOS SPONSORS/i)
   assert.match(terms, /CANCELACIONES, REEMBOLSOS Y CAMBIOS DE TITULARIDAD/i)
-  assert.match(terms, /Última actualización: Julio de 2026/i)
+  assert.match(terms, /Última actualización: 25 de agosto de 2026/i)
 })
 
 test('event page publishes the included menu, product kit and purchase raffles', () => {
