@@ -39,11 +39,11 @@ import {
 } from 'lucide-react'
 import type {
   ActivityTimelineDatum,
-  BrandDataSnapshot,
+  BrandDataRoomGa4Metric,
   CountDatum,
   TopChallengeDatum,
-  TopRewardDatum,
 } from '@/lib/data-room/types'
+import type { PublicBrandDataSnapshot } from '@/lib/data-room/public-snapshot'
 import { withRollingAverage } from '@/lib/data-room/trends'
 import { DataRoomViewTracker } from './DataRoomViewTracker'
 
@@ -70,13 +70,6 @@ function percentage(value: number, total: number) {
 function formatChange(value: number | null) {
   if (value == null) return 'Sin período comparable'
   return `${value > 0 ? '+' : ''}${percentFormatter.format(value)}%`
-}
-
-function formatMonth(value: string) {
-  const [year, month] = value.split('-').map(Number)
-  return new Intl.DateTimeFormat('es-AR', { month: 'short', year: '2-digit', timeZone: 'UTC' })
-    .format(new Date(Date.UTC(year, month - 1, 1)))
-    .replace('.', '')
 }
 
 function formatDay(value: string) {
@@ -351,33 +344,6 @@ function RankedList({
   )
 }
 
-function TopRewardsTable({ rows }: { rows: TopRewardDatum[] }) {
-  if (!rows.length) return <p className="py-6 text-sm text-[#79817C]">Todavía no hay canjes.</p>
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[520px] text-left text-sm">
-        <thead>
-          <tr className="border-b border-[#E8EDE9] text-[11px] uppercase tracking-[0.06em] text-[#66706B]">
-            <th className="pb-2 font-semibold">Premio</th>
-            <th className="pb-2 font-semibold">Comercio</th>
-            <th className="pb-2 text-right font-semibold">Canjes</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={`${row.partner}-${row.label}`} className="border-b border-[#EEF1EF] last:border-0">
-              <td className="py-3 pr-4 font-semibold text-[#27302B]">{row.label}</td>
-              <td className="py-3 pr-4 text-[#66706B]">{row.partner}</td>
-              <td className="py-3 text-right font-semibold tabular-nums text-[#171D1A]">{formatNumber(row.count)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
 function ChallengeTable({ rows }: { rows: TopChallengeDatum[] }) {
   if (!rows.length) {
     return <p className="py-7 text-sm text-[#79817C]">Todavía no hubo desafíos de marca en este país.</p>
@@ -423,10 +389,12 @@ export function DataRoomDashboard({
   brandName,
   slug,
   snapshots,
+  ga4Metrics,
 }: {
   brandName: string
   slug: string
-  snapshots: BrandDataSnapshot[]
+  snapshots: PublicBrandDataSnapshot[]
+  ga4Metrics: BrandDataRoomGa4Metric[]
 }) {
   const router = useRouter()
   const [isLoggingOut, startLogout] = useTransition()
@@ -483,14 +451,31 @@ export function DataRoomDashboard({
     mixpanelPlatformSessions: [],
     mixpanelCatalogSurfaces: [],
     mixpanelCatalogTabs: [],
-    mixpanelFilterTypes: [],
-    mixpanelTopViewedRewards: [],
-    mixpanelTopViewedPartners: [],
-    mixpanelCoverageStartDate: null,
-    mixpanelDataThroughDate: null,
-    mixpanelMetricsRefreshedAt: null,
     mixpanelBehaviorStatus: 'pending' as const,
   }
+  const activeUsers30d = marketing.mau30d || h.activeUsers30d
+  const currentGa4 = ga4Metrics.find((row) => row.scope === countryCode)
+  const networkGa4 = ga4Metrics.find((row) => row.scope === 'ALL')
+  const network = useMemo(() => snapshots.reduce((total, item) => {
+    const itemMarketing = item.payload.marketing
+    return {
+      registeredUsers: total.registeredUsers + item.payload.headline.registeredUsers,
+      activeUsers30d: total.activeUsers30d + (itemMarketing?.mau30d ?? item.payload.headline.activeUsers30d),
+      newUsers30d: total.newUsers30d + item.payload.headline.newUsers30d,
+      redemptions30d: total.redemptions30d + item.payload.headline.redemptions30d,
+      mixpanelSessions30d: total.mixpanelSessions30d + (itemMarketing?.mixpanelSessions30d ?? 0),
+      mixpanelFirstOpens30d: total.mixpanelFirstOpens30d + (itemMarketing?.mixpanelFirstOpens30d ?? 0),
+      mixpanelSignUps30d: total.mixpanelSignUps30d + (itemMarketing?.mixpanelSignUps30d ?? 0),
+    }
+  }, {
+    registeredUsers: 0,
+    activeUsers30d: 0,
+    newUsers30d: 0,
+    redemptions30d: 0,
+    mixpanelSessions30d: 0,
+    mixpanelFirstOpens30d: 0,
+    mixpanelSignUps30d: 0,
+  }), [snapshots])
   const challenge = data.challengePerformance ?? {
     challenges: 0,
     participantUsers: 0,
@@ -527,14 +512,10 @@ export function DataRoomDashboard({
     }
     return markerDates
   }, [activityTimeline])
-  const extraPurchaseRate = percentage(data.survey.extraPurchases, data.survey.responses)
-  const likedRate = percentage(data.survey.liked, data.survey.likedResponses)
   const valueCoverage = percentage(h.valueSampleSize, h.redemptionsTotal)
   const pushOpenRate = percentage(marketing.pushOpens30d, marketing.pushSends30d)
   const recentRedeemers = h.redeemingUsers30d ?? 0
-  const repeatRedeemers = h.repeatRedeemers ?? 0
-  const recentConversionRate = percentage(recentRedeemers, h.activeUsers30d)
-  const repeatRate = percentage(repeatRedeemers, h.redeemingUsers)
+  const recentConversionRate = percentage(recentRedeemers, activeUsers30d)
   const sessionsPerActive = marketing.mau30d > 0
     ? marketing.mixpanelSessions30d / marketing.mau30d
     : 0
@@ -598,7 +579,7 @@ export function DataRoomDashboard({
               </p>
               <p className="mt-5 text-xs text-white/55">
                 Actualizado {formatRefreshDate(snapshot.refreshed_at)}
-                {' · '}refresco automático 5 veces por día
+                {' · '}base general diaria 09:00 · actividad actualizada durante el día
               </p>
             </div>
 
@@ -628,6 +609,63 @@ export function DataRoomDashboard({
       </header>
 
       <div className="mx-auto max-w-[1240px] px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+        <section className="mb-12" aria-labelledby="network-summary-title">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.13em] text-[#006D42]">Fuentes reconciliadas</p>
+              <h2 id="network-summary-title" className="mt-1 text-xl font-bold tracking-[-0.03em] text-[#102A1E]">
+                Toda la red · Argentina + Uruguay
+              </h2>
+            </div>
+            <p className="max-w-xl text-xs leading-5 text-[#66706B]">
+              Cada fuente conserva su definición. Usuarios, dispositivos y sesiones no se suman entre sí.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <SignalCard
+              icon={<UsersRound size={18} aria-hidden />}
+              label="Perfiles registrados"
+              value={formatLargeNumber(network.registeredUsers)}
+              helper={`${formatLargeNumber(network.activeUsers30d)} cuentas activas en 30 días completos · Supabase`}
+              pink
+            />
+            <SignalCard
+              icon={<Activity size={18} aria-hidden />}
+              label="Altas confirmadas · 30 días"
+              value={formatLargeNumber(network.newUsers30d)}
+              helper={`Mixpanel registró ${formatLargeNumber(network.mixpanelSignUps30d)} eventos sign_up en el mismo tipo de ventana`}
+            />
+            {networkGa4 ? (
+              <SignalCard
+                icon={<Smartphone size={18} aria-hidden />}
+                label="Usuarios activos GA4 · 30 días"
+                value={formatLargeNumber(networkGa4.active_users)}
+                helper="Identidades analíticas de la app; no se suman a los perfiles registrados"
+                pink
+              />
+            ) : null}
+            <SignalCard
+              icon={<Clock3 size={18} aria-hidden />}
+              label="Sesiones Mixpanel · 30 días"
+              value={formatLargeNumber(network.mixpanelSessions30d)}
+              helper={networkGa4 ? `GA4 registró ${formatLargeNumber(networkGa4.sessions)} sesiones para contraste` : 'Sesiones automáticas consolidadas por país'}
+            />
+            <SignalCard
+              icon={<Compass size={18} aria-hidden />}
+              label="Primeras aperturas · 30 días"
+              value={formatLargeNumber(network.mixpanelFirstOpens30d)}
+              helper={networkGa4 ? `Mixpanel; GA4 registró ${formatLargeNumber(networkGa4.first_opens)} eventos first_open` : 'Dispositivos medidos por Mixpanel'}
+              pink
+            />
+            <SignalCard
+              icon={<WalletCards size={18} aria-hidden />}
+              label="Canjes confirmados · 30 días"
+              value={formatLargeNumber(network.redemptions30d)}
+              helper="Cupones efectivamente usados · Supabase"
+            />
+          </div>
+        </section>
+
         <section aria-labelledby="executive-summary-title">
           <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
             <div>
@@ -648,18 +686,18 @@ export function DataRoomDashboard({
               helper={`personas registradas en ${data.countryName}`}
             >
               <div className="grid grid-cols-2 gap-4">
-                <SummaryStat label="Activas · 30 días" value={formatNumber(h.activeUsers30d)} inverse />
+                <SummaryStat label="Activas · 30 días" value={formatNumber(activeUsers30d)} inverse />
                 <SummaryStat label="Nuevas · 30 días" value={formatNumber(h.newUsers30d)} inverse />
               </div>
               <div className="mt-4">
                 <div className="mb-2 flex justify-between gap-3 text-[11px] text-white/55">
                   <span>Base activa</span>
-                  <strong className="text-[#FFC2F4]">{percentage(h.activeUsers30d, h.registeredUsers)}</strong>
+                  <strong className="text-[#FFC2F4]">{percentage(activeUsers30d, h.registeredUsers)}</strong>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
                   <span
                     className="block h-full rounded-full bg-[#FFC2F4]"
-                    style={{ width: `${Math.min((h.activeUsers30d / Math.max(h.registeredUsers, 1)) * 100, 100)}%` }}
+                    style={{ width: `${Math.min((activeUsers30d / Math.max(h.registeredUsers, 1)) * 100, 100)}%` }}
                   />
                 </div>
               </div>
@@ -773,7 +811,7 @@ export function DataRoomDashboard({
                 icon={<UsersRound size={18} aria-hidden />}
                 label="Audiencia recurrente"
                 value={formatLargeNumber(engagement.recurrentUsers30d)}
-                helper={`${percentage(engagement.recurrentUsers30d, h.activeUsers30d)} usó Pasito 8 días o más`}
+                helper={`${percentage(engagement.recurrentUsers30d, activeUsers30d)} usó Pasito 8 días o más`}
               />
               <SignalCard
                 icon={<Footprints size={18} aria-hidden />}
@@ -987,6 +1025,62 @@ export function DataRoomDashboard({
             </div>
           </Section>
 
+          {currentGa4 ? (
+            <Section
+              title="Alcance y uso medido por Google Analytics"
+              description="GA4 mide identidades analíticas y dispositivos. Se muestra separado de cuentas, sesiones de Mixpanel y canjes para evitar doble conteo."
+            >
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <SignalCard
+                  icon={<UsersRound size={18} aria-hidden />}
+                  label="Usuarios activos · 30 días"
+                  value={formatLargeNumber(currentGa4.active_users)}
+                  helper="Usuarios analíticos distintos con actividad en la app"
+                  pink
+                />
+                <SignalCard
+                  icon={<UserPlus size={18} aria-hidden />}
+                  label="Usuarios nuevos · 30 días"
+                  value={formatLargeNumber(currentGa4.new_users)}
+                  helper="Usuarios que interactuaron por primera vez según GA4"
+                />
+                <SignalCard
+                  icon={<Smartphone size={18} aria-hidden />}
+                  label="Primeras aperturas · 30 días"
+                  value={formatLargeNumber(currentGa4.first_opens)}
+                  helper="Eventos first_open registrados por Firebase / GA4"
+                  pink
+                />
+                <SignalCard
+                  icon={<Activity size={18} aria-hidden />}
+                  label="Sesiones · 30 días"
+                  value={formatLargeNumber(currentGa4.sessions)}
+                  helper="Sesiones iniciadas con session_start"
+                />
+                <SignalCard
+                  icon={<Clock3 size={18} aria-hidden />}
+                  label="Duración media por sesión"
+                  value={formatDuration(currentGa4.average_session_seconds)}
+                  helper="Tiempo medio de sesión informado por GA4"
+                  pink
+                />
+                <SignalCard
+                  icon={<Compass size={18} aria-hidden />}
+                  label="Vistas de pantalla · 30 días"
+                  value={formatLargeNumber(currentGa4.screen_page_views)}
+                  helper="Pantallas vistas en Android e iOS"
+                />
+              </div>
+              <div className="mt-4 flex gap-3 rounded-2xl border border-[#DDE6DF] bg-white p-4 text-sm leading-6 text-[#59635D]">
+                <Smartphone className="mt-0.5 shrink-0 text-[#006D42]" size={18} aria-hidden />
+                <p>
+                  Fuente: Google Analytics 4. Período completo del <strong>{formatDay(currentGa4.period_start)}</strong> al <strong>{formatDay(currentGa4.period_end)}</strong>.
+                  {' '}Sincronizado {formatRefreshDate(currentGa4.refreshed_at)}.
+                </p>
+              </div>
+            </Section>
+          ) : null}
+
           <Section
             title="Comportamiento e intención"
             description="Señales de uso, descubrimiento e intención registradas en Mixpanel durante los últimos 30 días completos."
@@ -1076,27 +1170,6 @@ export function DataRoomDashboard({
                   />
                 </div>
 
-                <div className="mt-4 grid gap-4 lg:grid-cols-3">
-                  <Panel title="Filtros más usados" helper="Qué criterio activa la audiencia para decidir.">
-                    <RankedList rows={translateMarketingRows(marketing.mixpanelFilterTypes)} />
-                  </Panel>
-                  <Panel title="Premios más vistos" helper="Vistas de detalle en los últimos 30 días completos.">
-                    <RankedList rows={marketing.mixpanelTopViewedRewards} />
-                  </Panel>
-                  <Panel title="Comercios más vistos" helper="Vistas de detalle en los últimos 30 días completos.">
-                    <RankedList rows={marketing.mixpanelTopViewedPartners} />
-                  </Panel>
-                </div>
-
-                <div className="mt-4 flex gap-3 rounded-2xl border border-[#F3D4EB] bg-[#FFF8FD] p-4 text-sm leading-6 text-[#59424F]">
-                  <Activity className="mt-0.5 shrink-0 text-[#A12B77]" size={18} aria-hidden />
-                  <p>
-                    Estos datos se consolidan por país y sólo guardan totales y nombres públicos de premios o comercios.
-                    {marketing.mixpanelCoverageStartDate && marketing.mixpanelDataThroughDate && (
-                      <> Cobertura del <strong>{formatDay(marketing.mixpanelCoverageStartDate)}</strong> al <strong>{formatDay(marketing.mixpanelDataThroughDate)}</strong>.</>
-                    )}
-                  </p>
-                </div>
               </>
             ) : (
               <Panel title="Sincronizando comportamiento de marketing">
@@ -1105,72 +1178,6 @@ export function DataRoomDashboard({
                 </p>
               </Panel>
             )}
-          </Section>
-
-          <Section title="Conversión y economía" description="Del uso de la app al canje confirmado y al consumo en el comercio.">
-            <div className="mb-4 grid gap-3 sm:grid-cols-3">
-              <SignalCard
-                icon={<MousePointerClick size={18} aria-hidden />}
-                label="Canjeadores 30 días"
-                value={formatLargeNumber(recentRedeemers)}
-                helper={`${recentConversionRate} de las personas activas llegó al canje`}
-              />
-              <SignalCard
-                icon={<Repeat2 size={18} aria-hidden />}
-                label="Canjeadores recurrentes"
-                value={formatLargeNumber(repeatRedeemers)}
-                helper={`${repeatRate} volvió a canjear al menos una vez`}
-                pink
-              />
-              <SignalCard
-                icon={<Megaphone size={18} aria-hidden />}
-                label="Compra incremental"
-                value={extraPurchaseRate}
-                helper={`${formatNumber(data.survey.responses)} respuestas post-canje`}
-              />
-            </div>
-
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
-              <Panel title="Canjes por mes">
-                <div className="h-[280px] w-full">
-                  <ClientOnlyChart>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data.redemptionTrend} margin={{ top: 8, right: 12, left: -10, bottom: 0 }}>
-                      <CartesianGrid vertical={false} stroke="#E8EDE9" />
-                      <XAxis dataKey="month" tickFormatter={formatMonth} axisLine={false} tickLine={false} tick={{ fill: '#66706B', fontSize: 11 }} />
-                      <YAxis tickFormatter={(value) => compactFormatter.format(Number(value))} axisLine={false} tickLine={false} tick={{ fill: '#66706B', fontSize: 11 }} />
-                      <Tooltip
-                        contentStyle={tooltipStyle}
-                        labelFormatter={(label) => formatMonth(String(label))}
-                        formatter={(value) => [formatNumber(Number(value)), 'Canjes']}
-                      />
-                      <Line type="monotone" dataKey="count" stroke="#0B6B43" strokeWidth={3} dot={{ r: 3, fill: '#0B6B43' }} activeDot={{ r: 5 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                  </ClientOnlyChart>
-                </div>
-              </Panel>
-              <Panel title="Economía del canje" helper="Valor comercial declarado en el premio.">
-                <dl className="divide-y divide-[#E8EDE9]">
-                  <div className="flex items-end justify-between gap-4 py-3 first:pt-0">
-                    <dt className="text-sm text-[#66706B]">Valor promedio</dt>
-                    <dd className="text-xl font-bold">{h.averageRedeemedValue == null ? '—' : moneyFormatter.format(h.averageRedeemedValue)}</dd>
-                  </div>
-                  <div className="flex items-end justify-between gap-4 py-3">
-                    <dt className="text-sm text-[#66706B]">Mediana</dt>
-                    <dd className="text-xl font-bold">{h.medianRedeemedValue == null ? '—' : moneyFormatter.format(h.medianRedeemedValue)}</dd>
-                  </div>
-                  <div className="flex items-end justify-between gap-4 py-3">
-                    <dt className="text-sm text-[#66706B]">Pasitos promedio</dt>
-                    <dd className="text-xl font-bold">{formatNumber(h.averagePasitosSpent)}</dd>
-                  </div>
-                  <div className="flex items-end justify-between gap-4 py-3">
-                    <dt className="text-sm text-[#66706B]">Muestra con valor</dt>
-                    <dd className="text-sm font-bold">{formatNumber(h.valueSampleSize)} ({valueCoverage})</dd>
-                  </div>
-                </dl>
-              </Panel>
-            </div>
           </Section>
 
           <Section
@@ -1242,45 +1249,19 @@ export function DataRoomDashboard({
             </div>
           </Section>
 
-          <Section title="Gustos y preferencias" description={`Intereses declarados por ${formatNumber(data.dataCoverage.interestUsers)} personas y favoritos guardados en la app.`}>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Panel title="Intereses declarados"><RankedList rows={data.interests} /></Panel>
-              <Panel title="Categorías más guardadas"><RankedList rows={data.favoriteCategories} /></Panel>
-            </div>
-          </Section>
-
-          <Section title="Qué y dónde canjean" description="Canjes confirmados, agrupados por categoría, premio y comercio.">
-            <div className="grid gap-4 lg:grid-cols-3">
-              <Panel title="Categorías canjeadas"><RankedList rows={data.redemptionCategories} /></Panel>
-              <Panel title="Comercios con más canjes"><RankedList rows={data.topPartners} /></Panel>
-              <Panel title="Compra adicional" helper={`${formatNumber(data.survey.responses)} respuestas a la encuesta post-canje.`}>
-                <div className="rounded-lg bg-[#F2F6F1] p-4">
-                  <p className="text-4xl font-bold tracking-[-0.04em] text-[#0B6B43]">{extraPurchaseRate}</p>
-                  <p className="mt-2 text-sm font-semibold">compró algo adicional</p>
-                  <p className="mt-1 text-xs text-[#66706B]">{formatNumber(data.survey.extraPurchases)} respuestas afirmativas</p>
-                </div>
-                <div className="mt-3 rounded-lg border border-[#E1E8E3] p-4">
-                  <p className="text-2xl font-bold">{likedRate}</p>
-                  <p className="mt-1 text-xs text-[#66706B]">dijo que le gustó el comercio ({formatNumber(data.survey.likedResponses)} respuestas)</p>
-                </div>
-              </Panel>
-            </div>
-            <Panel title="Premios más canjeados" className="mt-4">
-              <TopRewardsTable rows={data.topRewards} />
-            </Panel>
-          </Section>
         </div>
 
         <footer className="mt-14 rounded-2xl border border-[#DDE6DF] bg-white p-5 text-xs leading-5 text-[#66706B]">
           <p className="font-semibold text-[#004027]">Cómo leer estos datos</p>
           <p className="mt-1 max-w-5xl">
-            La base corresponde a perfiles registrados en {data.countryName}. “Activas 30 días” usa la última fecha de actividad registrada.
-            DAU es el promedio diario de personas activas en 30 días completos; WAU y MAU son personas únicas en 7 y 30 días completos. El día en curso se excluye.
+            La base detallada corresponde a perfiles registrados en {data.countryName}; la vista de red suma Argentina y Uruguay únicamente.
+            “Activas 30 días”, DAU, WAU y MAU usan personas únicas con actividad diaria sincronizada durante días completos. El día en curso se excluye.
             La curva de DAU muestra un promedio móvil de 7 días para reducir oscilaciones puntuales; el tooltip conserva el valor diario real sin modificar.
             Stickiness es DAU promedio dividido MAU. Una “jornada activa” es una persona con apertura y actividad sincronizada ese día; no equivale a una impresión publicitaria.
             Las notificaciones “enviadas” son aceptadas por el proveedor de push y las “aperturas” requieren una interacción registrada.
             Los canjes incluyen únicamente cupones confirmados como usados. Los pasos de desafíos se suman por activación y pueden superponerse si una persona participó en desafíos simultáneos.
-            Mixpanel aporta sesiones, duración, primeras aperturas, altas, navegación, intención y vistas de contenido; se guardan sólo agregados por país y nombres públicos de premios o comercios.
+            Mixpanel aporta sesiones, duración, primeras aperturas, altas, navegación e intención; en esta sala se exhiben únicamente métricas agregadas por país.
+            GA4 aporta usuarios analíticos, usuarios nuevos, sesiones, primeras aperturas, duración y vistas de pantalla. Sus usuarios pueden representar dispositivos o identidades analíticas y no se suman a los perfiles de Supabase.
             No se infieren impresiones publicitarias ni búsquedas escritas cuando no existe un evento auditable para medirlas.
             Los grupos demográficos o geográficos con menos de 20 personas se omiten.
             No se muestran nombres, emails, teléfonos ni ningún otro dato personal. Pasito no registra género, por eso esa dimensión no aparece.

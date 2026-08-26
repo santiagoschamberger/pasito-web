@@ -161,3 +161,17 @@ export type BrandDataSnapshot = {
   payload: BrandDataSnapshotPayload
   refreshed_at: string
 }
+
+export type BrandDataRoomGa4Metric = {
+  scope: 'ALL' | 'AR' | 'UY'
+  period_start: string
+  period_end: string
+  active_users: number
+  new_users: number
+  sessions: number
+  first_opens: number
+  average_session_seconds: number | null
+  screen_page_views: number
+  source: 'ga4'
+  refreshed_at: string
+}

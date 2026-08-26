@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { getDataRoomClient, getValidDataRoomSession } from '@/lib/data-room/server'
-import type { BrandDataSnapshot } from '@/lib/data-room/types'
+import type { BrandDataRoomGa4Metric, BrandDataSnapshot } from '@/lib/data-room/types'
+import { toPublicBrandDataSnapshot } from '@/lib/data-room/public-snapshot'
 import { DataRoomDashboard } from './DataRoomDashboard'
 import { DataRoomLogin } from './DataRoomLogin'
 
@@ -29,11 +30,20 @@ export default async function DataRoomPage({
     return <DataRoomLogin slug={slug} />
   }
 
-  const { data: snapshotRows, error } = await getDataRoomClient()
-    .from('brand_data_room_snapshots')
-    .select('country_code, payload, refreshed_at')
-    .in('country_code', ['AR', 'UY'])
-    .order('country_code', { ascending: true })
+  const db = getDataRoomClient()
+  const [snapshotResult, ga4Result] = await Promise.all([
+    db
+      .from('brand_data_room_snapshots')
+      .select('country_code, payload, refreshed_at')
+      .in('country_code', ['AR', 'UY'])
+      .order('country_code', { ascending: true }),
+    db
+      .from('brand_data_room_ga4_metrics')
+      .select('scope, period_start, period_end, active_users, new_users, sessions, first_opens, average_session_seconds, screen_page_views, source, refreshed_at')
+      .in('scope', ['ALL', 'AR', 'UY'])
+      .order('scope', { ascending: true }),
+  ])
+  const { data: snapshotRows, error } = snapshotResult
 
   if (error || !snapshotRows?.length) {
     return (
@@ -46,11 +56,14 @@ export default async function DataRoomPage({
     )
   }
 
+  const publicSnapshots = (snapshotRows as BrandDataSnapshot[]).map(toPublicBrandDataSnapshot)
+
   return (
     <DataRoomDashboard
       brandName={session.brandName}
       slug={session.slug}
-      snapshots={snapshotRows as BrandDataSnapshot[]}
+      snapshots={publicSnapshots}
+      ga4Metrics={(ga4Result.data as BrandDataRoomGa4Metric[] | null) ?? []}
     />
   )
 }
