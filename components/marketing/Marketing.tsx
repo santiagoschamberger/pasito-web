@@ -345,7 +345,7 @@ export function MarketingFooter({
           <div className={styles.footerLegalLinks} aria-label="Enlaces legales">
             <Link className={styles.footerLegalLink} href="/privacidad">Política de privacidad</Link>
             <Link className={styles.footerLegalLink} href="/terminos">Términos y condiciones</Link>
-            <Link className={styles.footerLegalLink} href="/terminos/clv">Términos del desafío</Link>
+            <Link className={styles.footerLegalLink} href="/terminos/decathlon">Términos de Road to 21K</Link>
           </div>
         </div>
       </footer>

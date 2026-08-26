@@ -15,7 +15,10 @@ test('the shared desktop and mobile menus no longer promote the finished event',
 
 test('the public marketing numbers and brands promise use the current copy', () => {
   assert.match(homeSource, /value: '552\.000', label: 'usuarios activos diarios'/)
-  assert.match(brandsSource, /No vendemos espacios\. Conectamos marcas con personas en movimiento\./)
+  assert.match(brandsSource, /El próximo <span>pasito<\/span> de tu marca\./)
+  assert.match(brandsSource, /<strong>620 mil<\/strong><span>personas registradas<\/span>/)
+  assert.match(brandsSource, /<strong>255 mil<\/strong><span>activos por día<\/span>/)
+  assert.match(brandsSource, /<strong>7,6 M<\/strong><span>contactos por mes<\/span>/)
   assert.match(brandsSource, /name: 'Açaí Brasil', src: '\/marketing\/brands\/acai-brasil\.png'/)
   assert.doesNotMatch(brandsSource, /Vendemos personas/)
 })

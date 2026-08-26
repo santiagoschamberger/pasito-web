@@ -72,6 +72,8 @@ Variables usadas por el repo:
 - `NEXT_PUBLIC_APP_STORE_ID`: habilita meta `apple-itunes-app` para Smart App Banner.
 - `NEXT_PUBLIC_REBILL_PUBLIC_KEY`: override de public key de Rebill en la tienda.
 - `REBILL_SECRET_KEY`: clave server-side para verificar pagos en Rebill.
+- `REBILL_LEGACY_SECRET_KEY`: fallback temporal para verificar pagos creados en la cuenta anterior.
+- `REBILL_WEBHOOK_SECRET` y `REBILL_NEW_WEBHOOK_SECRET`: rutas privadas para aceptar webhooks de ambas cuentas durante la transición.
 - `TEST_BASE_URL`, `TEST_VALID_TOKEN`, `TEST_EXPIRED_TOKEN`, `TEST_REJECT_TOKEN`: variables usadas por tests E2E de reservas.
 
 Hay fallbacks hardcodeados para algunos valores de Supabase y stores. Eso permite que ciertas paginas rendericen, pero las operaciones reales dependen de claves validas.
@@ -606,13 +608,13 @@ Incluye:
 
 Lee `content/terminos-y-condiciones.txt` y lo muestra en un `<pre>` con wrapping.
 
-### `/terminos/clv`
-
-Lee `content/terminos-clv.txt` y lo muestra. Corresponde al desafio "Cuan Lejos Voy".
-
 ### `/terminos/decathlon`
 
-Redirige a `/terminos/clv`. Es compatibilidad con una ruta legacy.
+Lee `content/terminos-road-to-21k.txt` y muestra los terminos del desafio "Road to 21K" de Decathlon x Pasito.
+
+### `/terminos/clv`
+
+Redirige a `/terminos/decathlon` para que los enlaces anteriores muestren los terminos vigentes.
 
 ### `/eliminar-cuenta`
 

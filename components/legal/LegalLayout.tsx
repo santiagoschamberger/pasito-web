@@ -49,7 +49,7 @@ export function LegalLayout({
             <Link href="/privacidad">Política de privacidad</Link>
             <Link href="/terminos">Términos y condiciones</Link>
             <Link href="/terminos/evento-pasito">Bases del evento Pasito x TOMATE</Link>
-            <Link href="/terminos/clv">Términos del desafío</Link>
+            <Link href="/terminos/decathlon">Términos de Road to 21K</Link>
           </aside>
           <article className={styles.document}>{children}</article>
         </div>
@@ -64,7 +64,7 @@ export function LegalLayout({
           <Link href="/privacidad">Privacidad</Link>
           <Link href="/terminos">Términos y condiciones</Link>
           <Link href="/terminos/evento-pasito">Bases del evento</Link>
-          <Link href="/terminos/clv">Términos del desafío</Link>
+          <Link href="/terminos/decathlon">Términos de Road to 21K</Link>
         </div>
       </footer>
     </div>

@@ -1,299 +1,313 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, BarChart3, CalendarDays, Check, MousePointerClick, Target } from 'lucide-react'
+import { ArrowDown, ArrowRight } from 'lucide-react'
 
-import styles from '../marketing.module.css'
-import { BRANDS_WHATSAPP_URL, DISNEY_LOGO_URL, MarketingFooter, MarketingNav, NumberedOverline } from '@/components/marketing/Marketing'
+import styles from './marcas.module.css'
 import { MarketingMotion } from '@/components/marketing/MarketingMotion'
-import { formatCompactCountryCount, formatCountryCount, formatCountrySnapshotDate } from '@/lib/country-audience'
-import { getCountryAudienceMetrics } from '@/lib/country-audience-metrics'
 
-export const revalidate = 259_200
+const BRANDS_WHATSAPP_URL = 'https://wa.me/5491136491620?text=Hola%2C%20quiero%20reservar%20una%20activaci%C3%B3n%20de%20marca%20en%20Pasito.'
 
 export const metadata: Metadata = {
-  title: 'Pasito para Marcas — Convertí movimiento en participación',
-  description: 'Pasito conecta marcas con personas activas en el momento en que buscan una recompensa, con activaciones medibles dentro y fuera de la app.',
+  title: 'Pasito para Marcas — El próximo pasito de tu marca',
+  description: 'Beneficios, comunicación, desafíos y experiencias para activar una comunidad que se mueve todos los días.',
   openGraph: {
-    title: 'Pasito para Marcas — Convertí movimiento en participación',
-    description: 'No vendemos espacios. Conectamos marcas con personas en movimiento.',
+    title: 'Pasito para Marcas — El próximo pasito de tu marca',
+    description: 'Convertí movimiento en visitas, participación y resultados medibles.',
     type: 'website',
   },
 }
 
-const AUDIENCE = [
-  { value: '64%', age: '18 a 34', title: 'Jóvenes urbanos y activos.', body: 'Fintech, bebidas, indumentaria, telco, food y entretenimiento.' },
-  { value: '19%', age: '35 a 49', title: 'Poder de consumo y decisión.', body: 'Bancos, retail, autos, salud, educación y turismo.' },
-  { value: '11%', age: '50+', title: 'Adultos que caminan todos los días.', body: 'Seguros, farma, obras sociales y bienestar.' },
-]
-
-function CountrySilhouette({ code }: { code: 'AR' | 'UY' }) {
-  return (
-    <div className={`${styles.countryMap} ${code === 'AR' ? styles.countryMapArgentina : styles.countryMapUruguay}`} aria-hidden="true">
-      <Image
-        src={code === 'AR' ? '/marketing/brands/argentina-map.png' : '/marketing/brands/uruguay-map.png'}
-        alt=""
-        width={code === 'AR' ? 724 : 1600}
-        height={code === 'AR' ? 1586 : 1737}
-        unoptimized
-      />
-    </div>
-  )
-}
-
 const FORMATS = [
-  { name: 'Presencia Always-On', lead: 'Tu marca siempre a la vista, cerca de la decisión.', features: ['Banner en la home', 'Pin destacado en el mapa', 'Ideal para retail, comercios y puntos físicos'], accent: false },
-  { name: 'Activación Segmentada', lead: 'Una invitación directa a la audiencia que elegís.', features: ['Push + mail segmentados', 'Por ciudad, barrio y edad', 'Ideal para lanzamientos, aperturas y fechas clave'], accent: false },
-  { name: 'Desafío de Marca', lead: 'La comunidad camina por tu marca.', features: ['Awareness, engagement y data', 'Objetivo y recompensa a medida', 'Participación, clicks, pasos y canjes medibles'], accent: true },
-  { name: 'Promoción de Eventos', lead: 'Convertí atención en inscripciones.', features: ['Presencia en la home y en Eventos', 'Push + mail para impulsar la convocatoria', 'Inscripciones y resultados medibles'], accent: false },
+  {
+    number: '01',
+    objective: 'Visitas y canjes',
+    title: 'Beneficio en Pasito',
+    body: 'Convertí Pasitos en visitas al local, compras online o reservas de servicios.',
+    detail: 'Puntos físicos · E-commerce · Servicios',
+  },
+  {
+    number: '02',
+    objective: 'Descubrimiento local',
+    title: 'Punto destacado en el mapa',
+    body: 'Ganá visibilidad cuando una persona está eligiendo dónde ir cerca suyo.',
+    detail: 'Prioridad por zona · Pin con foto · Sucursales estratégicas',
+  },
+  {
+    number: '03',
+    objective: 'Alcance segmentado',
+    title: 'Banners y notificaciones',
+    body: 'Banners y notificaciones para activar a la audiencia que realmente te interesa.',
+    detail: 'País · Ciudad · Barrio · Edad',
+  },
+  {
+    number: '04',
+    objective: 'Producto estrella',
+    title: 'Desafío de pasos',
+    body: 'La comunidad camina por un objetivo y una recompensa definidos con tu marca.',
+    detail: '24 horas · 3 días · 7 días · A medida',
+    featured: true,
+  },
+  {
+    number: '05',
+    objective: 'Convocatoria',
+    title: 'Evento dentro de Pasito',
+    body: 'Publicá tu evento para que la comunidad lo descubra y se inscriba desde la app.',
+    detail: 'Publicación · Registro · Banners · Notificaciones',
+  },
+  {
+    number: '06',
+    objective: 'Experiencia compartida',
+    title: 'Pasito Walking Club',
+    body: 'Integrá tu marca a una experiencia que combina movimiento, bienestar y comunidad.',
+    detail: 'Main sponsor · Sponsor de actividad · Activación',
+  },
+  {
+    number: '07',
+    objective: 'Llave en mano',
+    title: 'El evento de tu marca',
+    body: 'Diseñamos una experiencia propia y llevamos la comunidad hasta tu objetivo.',
+    detail: 'Concepto · Mecánica · Tecnología · Convocatoria · Medición',
+  },
+  {
+    number: '08',
+    objective: 'Bienestar corporativo',
+    title: 'Pasito Empresas',
+    body: 'Una herramienta para activar equipos con metas compartidas y desafíos internos.',
+    detail: 'Desafíos · Rankings · Reconocimientos · Métricas',
+  },
 ]
 
-const CHALLENGES = [
-  { name: 'Desafío 7 días', detail: '2 notificaciones + colaboración en redes.', body: '~35.000 personas anotadas caminando por tu marca durante una semana.', tone: 'accent' },
-  { name: 'Desafío 3 días', detail: '1 notificación.', body: 'Una activación corta y potente para lanzamientos o fechas clave.', tone: 'pink' },
-  { name: 'Express 24 hs', detail: '1 notificación.', body: 'Ideal para probar el canal y transformar una fecha puntual en participación.', tone: 'green' },
-  { name: 'Main Sponsor', detail: 'Visibilidad principal durante todo el desafío.', body: 'Tu marca destacada por encima de cada momento de la experiencia.', tone: 'dark' },
+const MEASUREMENT = [
+  { title: 'Alcance', detail: 'Usuarios, impresiones y aperturas.' },
+  { title: 'Participación', detail: 'Inscriptos, pasos y finalización.' },
+  { title: 'Acción', detail: 'Clics, registros, canjes y visitas.' },
+  { title: 'Comunidad', detail: 'Asistencia, contenido y recurrencia.' },
 ]
 
-type SocialProofBrand =
-  | { name: string; src: string; width: number; height: number; remote?: boolean }
-
-const SOCIAL_PROOF_BRANDS: SocialProofBrand[] = [
-  { name: 'Disney', src: DISNEY_LOGO_URL, width: 142, height: 58, remote: true },
+const BRAND_LOGOS = [
   { name: 'Decathlon', src: '/marketing/brands/decathlon.svg', width: 154, height: 36 },
-  { name: 'KFC', src: '/marketing/brands/kfc.svg', width: 98, height: 36 },
-  { name: "Wendy's", src: '/marketing/brands/wendys.svg', width: 96, height: 44 },
+  { name: 'KFC', src: '/marketing/brands/kfc.svg', width: 94, height: 34 },
+  { name: "Wendy's", src: '/marketing/brands/wendys.svg', width: 92, height: 44 },
   { name: 'Açaí Brasil', src: '/marketing/brands/acai-brasil.png', width: 150, height: 38 },
 ]
 
-const MEASUREMENTS = ['Alcance en la app', 'Participantes registrados', 'Pasos generados', 'Clicks al link', 'Canjes', 'Historias compartidas', 'Segmentación por ciudad, barrio y edad', 'Aprendizajes para la próxima campaña']
-
-export default async function MarcasPage() {
-  const countryAudience = await getCountryAudienceMetrics()
-  const countryAudienceCutoff = countryAudience.reduce((latest, country) => (
-    country.refreshedAt > latest ? country.refreshedAt : latest
-  ), countryAudience[0]?.refreshedAt ?? '')
-
+export default function MarcasPage() {
   return (
     <main className={styles.page} data-marketing-page>
       <MarketingMotion />
-      <MarketingNav active="marcas" />
 
-      <header className={`${styles.hero} ${styles.brandsHero}`}>
+      <nav className={styles.nav} aria-label="Navegación principal">
+        <div className={styles.navInner}>
+          <Link href="/" aria-label="Pasito, inicio">
+            <Image src="/brand/logo-lime.svg" alt="Pasito" width={118} height={28} priority />
+          </Link>
+          <div className={styles.navLinks}>
+            <a href="#formatos">Formatos</a>
+            <a href="#casos">Casos</a>
+            <a className={styles.navCta} href={BRANDS_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+              Hablemos <ArrowRight size={17} aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+      </nav>
+
+      <header className={styles.hero}>
         <div className={styles.heroInner}>
-          <div>
-            <h1 className={`${styles.heroTitle} ${styles.brandsHeroTitle}`}>No vendemos espacios. <span className={styles.accent}>Conectamos marcas</span> con personas en movimiento.</h1>
-            <p className={styles.heroText}>Personas abren Pasito para buscar dónde usar lo que ganaron caminando. Tu marca puede ser esa recompensa.</p>
-            <div className={styles.heroButtons}>
-              <a className={`${styles.pinkButton} ${styles.heroPrimary}`} href={BRANDS_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">Reservá tu activación <ArrowRight size={18} /></a>
-              <Link className={styles.outlineButton} href="/marcas/calculadora">Calculá tu campaña</Link>
+          <div className={styles.heroCopy}>
+            <p className={styles.eyebrow}>Pasito para marcas</p>
+            <h1>El próximo <span>pasito</span> de tu marca.</h1>
+            <p className={styles.heroLead}>Activá una comunidad que se mueve todos los días. Convertí pasos en visitas, participación y experiencias medibles.</p>
+            <div className={styles.heroActions}>
+              <a className={styles.primaryButton} href={BRANDS_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+                Contanos tu objetivo <ArrowRight size={19} aria-hidden="true" />
+              </a>
+              <a className={styles.textButton} href="#como-funciona">
+                Ver cómo funciona <ArrowDown size={17} aria-hidden="true" />
+              </a>
             </div>
-            <p className={styles.heroNote}>Activaciones con alcance, participación y medición en una sola experiencia.</p>
           </div>
 
-          <div className={styles.brandsHeroArt} data-hero-tilt>
-            <Image className={styles.brandsHeroPhone} src="/marketing/device-premios-list.png" alt="Pasito mostrando recompensas y comercios" width={696} height={1440} priority unoptimized />
+          <div className={styles.heroVisual} data-hero-tilt>
+            <span className={styles.heroCircle} aria-hidden="true" />
+            <Image
+              className={styles.heroPhone}
+              src="/marketing/device-premios-list.png"
+              alt="Beneficios disponibles dentro de la app de Pasito"
+              width={696}
+              height={1440}
+              sizes="(max-width: 760px) 72vw, 360px"
+              priority
+              unoptimized
+            />
+            <Image className={styles.heroPaloma} src="/paloma-corriendo.png" alt="" width={220} height={220} aria-hidden="true" />
           </div>
+        </div>
+
+        <div className={styles.heroStats} aria-label="Pasito en números">
+          <div><strong>620 mil</strong><span>personas registradas</span></div>
+          <div><strong>255 mil</strong><span>activos por día</span></div>
+          <div><strong>7,6 M</strong><span>contactos por mes</span></div>
+          <p>Argentina · corte julio 2026</p>
         </div>
       </header>
 
-      <section className={styles.brandsSocialProofSection}>
-        <div className={`${styles.container} ${styles.brandsSocialProof}`}>
-          <div className={styles.brandsSocialProofIntro}><h2>Ya activaron con nosotros</h2></div>
-          <div className={styles.brandsWordmarks} aria-label="Marcas que activaron con Pasito">
-            {SOCIAL_PROOF_BRANDS.map((brand) => (
-              <div className={styles.brandsWordmark} key={brand.name}>
-                {brand.remote ? <img src={brand.src} alt={brand.name} width={brand.width} height={brand.height} /> : <Image src={brand.src} alt={brand.name} width={brand.width} height={brand.height} unoptimized />}
-              </div>
+      <section id="como-funciona" className={styles.mechanism}>
+        <div className={styles.container}>
+          <div className={styles.sectionHeading}>
+            <p className={styles.kicker}>Movimiento → intención</p>
+            <h2>Tu marca aparece cuando la persona está lista para elegir.</h2>
+          </div>
+
+          <div className={styles.steps}>
+            <article>
+              <span>01</span>
+              <h3>Camina.</h3>
+              <p>La persona se mueve todos los días.</p>
+            </article>
+            <article>
+              <span>02</span>
+              <h3>Gana.</h3>
+              <p>Su actividad se convierte en Pasitos.</p>
+            </article>
+            <article>
+              <span>03</span>
+              <h3>Elige.</h3>
+              <p>Abre la app y descubre dónde usarlos.</p>
+            </article>
+          </div>
+
+          <div className={styles.conversionBand}>
+            <div>
+              <strong>114.718</strong>
+              <span>canjes confirmados</span>
+            </div>
+            <div>
+              <strong>47%</strong>
+              <span>con compra adicional</span>
+            </div>
+            <p>La recompensa abre la puerta. La marca convierte la visita.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="formatos" className={styles.solutions}>
+        <div className={styles.container}>
+          <div className={styles.solutionsHeading}>
+            <p className={styles.kicker}>Formatos de activación</p>
+            <h2>Elegí qué querés que pase.</h2>
+            <p>Desde una visita o un canje hasta una experiencia completa. Podés elegir un formato o combinarlos.</p>
+          </div>
+
+          <div className={styles.solutionsGrid}>
+            {FORMATS.map((format) => (
+              <article className={format.featured ? styles.formatFeatured : undefined} key={format.number}>
+                <div className={styles.formatMeta}>
+                  <span className={styles.solutionNumber}>{format.number}</span>
+                  <span className={styles.formatObjective}>{format.objective}</span>
+                </div>
+                <h3>{format.title}</h3>
+                <p>{format.body}</p>
+                <small>{format.detail}</small>
+              </article>
+            ))}
+          </div>
+
+          <div className={styles.commerceCallout}>
+            <p><strong>¿Tenés un comercio físico?</strong> Podés empezar gratis o destacarte en tu zona.</p>
+            <Link href="/comercios">Ver planes para comercios <ArrowRight size={17} aria-hidden="true" /></Link>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.brandProof} aria-label="Marcas que ya activaron con Pasito">
+        <div className={styles.container}>
+          <p>Marcas que ya se movieron con Pasito</p>
+          <div className={styles.brandLogos}>
+            {BRAND_LOGOS.map((brand) => (
+              <Image key={brand.name} src={brand.src} alt={brand.name} width={brand.width} height={brand.height} unoptimized />
             ))}
           </div>
         </div>
       </section>
 
-      <section className={styles.brandsContextSection}>
-        <div className={`${styles.container} ${styles.brandsContext}`}>
-          <div><h2 className={styles.sectionTitle}>El alcance solo ya no alcanza.</h2><p className={styles.brandsLead}>Las marcas necesitan algo más que visibilidad: participación, datos, visitas y acciones medibles. Pasito suma esa capa a tu plan de marketing.</p></div>
-        </div>
-      </section>
-
-      <section className={styles.brandsInterlude}>
+      <section id="casos" className={styles.cases}>
         <div className={styles.container}>
-          <p>
-            <span className={styles.brandsInterludeViolet}>El problema no es la falta de intención.</span>
-            <span className={styles.brandsInterludePink}>Es la falta de un sistema que convierta intención en acción.</span>
-            <span className={styles.brandsInterludeViolet}>Pasito es ese sistema.</span>
-          </p>
-        </div>
-      </section>
-
-      <section className={styles.brandsHowItWorksSection}>
-        <div className={`${styles.container} ${styles.brandsHowItWorks}`}>
-          <div>
-            <NumberedOverline number="02">Cómo funciona</NumberedOverline>
-            <h2 className={styles.sectionTitle}>Convertimos movimiento en intención.</h2>
-            <p className={styles.sectionBody}>Tu marca aparece en el mejor momento posible: cuando la persona ya hizo el esfuerzo y busca su recompensa.</p>
-          </div>
-          <div className={styles.brandsFlow}>
-            {['La persona se mueve y gana Pasitos.', 'Abre la app motivada.', 'Busca dónde usarlos.', 'Encuentra tu marca.', 'Canjea, participa y comparte.'].map((step, index) => <article key={step}><span>{String(index + 1).padStart(2, '0')}</span><p>{step}</p></article>)}
-          </div>
-        </div>
-      </section>
-
-      <section className={styles.brandsPerformanceSection}>
-        <div className={`${styles.container} ${styles.brandsPerformance}`}>
-          <div className={styles.brandsPerformanceHeading}>
-            <div>
-              <NumberedOverline number="03">Resultados en la app</NumberedOverline>
-              <h2 className={styles.sectionTitle}>Alcance para mirar. Motivos para actuar.</h2>
-            </div>
-            <p>Pasito combina espacios de alta visibilidad con experiencias que convierten esa atención en clicks, inscripciones y participación real.</p>
+          <div className={styles.sectionHeading}>
+            <p className={styles.kicker}>Casos reales</p>
+            <h2>De la pantalla a la calle.</h2>
           </div>
 
-          <div className={styles.brandsPerformanceGrid}>
-            <article className={styles.brandsBannerProof}>
-              <header><span>Banners en la app</span><MousePointerClick size={22} /></header>
-              <div className={styles.brandsBannerStats}>
-                <div><strong>560 mil</strong><span>impresiones por día</span></div>
-                <div><strong>1,5%</strong><span>CTR</span></div>
+          <div className={styles.caseGrid}>
+            <article className={styles.challengeCase}>
+              <div className={styles.caseTag}>Desafío de pasos</div>
+              <Image src="/marketing/brands/decathlon.svg" alt="Decathlon" width={180} height={42} unoptimized />
+              <h3>Miles de personas caminando por una marca.</h3>
+              <p>Un desafío convierte objetivo, recompensa y comunicación en una experiencia completa.</p>
+              <div className={styles.caseStats}>
+                <div><strong>53.000</strong><span>inscriptos</span></div>
+                <div><strong>~1.000</strong><span>historias compartidas</span></div>
               </div>
-              <p>Presencia diaria frente a una comunidad activa, dentro de una experiencia que las personas eligen abrir.</p>
             </article>
 
-            <article className={styles.brandsEventProof}>
-              <header><span>Promoción de eventos</span><CalendarDays size={22} /></header>
-              <div className={styles.brandsEventLogo}><Image src="/marketing/brands/decathlon.svg" alt="Decathlon" width={154} height={36} unoptimized /></div>
-              <strong>500 entradas</strong>
-              <h3>Agotadas en 1 h 30 min.</h3>
-              <p>El primer evento que promocionamos fue junto a Decathlon.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section className={styles.brandsChangeSection}>
-        <div className={`${styles.container} ${styles.brandsChangeInner}`}>
-          <NumberedOverline number="04" light>El cambio</NumberedOverline>
-          <h2 className={styles.sectionTitle}>De exposición a participación.</h2>
-          <p className={styles.brandsChangeLead}>La diferencia no está solamente en cuántas personas alcanzás. Está en lo que hacen después.</p>
-          <div className={styles.brandsComparisonGrid}>
-            <article>
-              <div className={styles.brandsComparisonHeader}><span className={styles.overline}>Pauta digital</span><span className={styles.brandsComparisonMode}>Contacto pasivo</span></div>
-              <h3>La persona ve.</h3>
-              <p className={styles.brandsComparisonKicker}>Alcance sin acción.</p>
-              <ul><li>El contacto dura un scroll.</li><li>La medición termina en clicks.</li><li>La marca necesita interrumpir.</li></ul>
-              <span className={styles.brandsComparisonNumber} aria-hidden="true">01</span>
-            </article>
-            <div className={styles.brandsComparisonShift} aria-hidden="true"><span>De ver</span><ArrowRight size={18} /><strong>A hacer</strong></div>
-            <article className={styles.brandsComparisonPasito}>
-              <div className={styles.brandsComparisonHeader}><span className={styles.overline}>Pasito</span><span className={styles.brandsComparisonMode}>Contacto activo</span></div>
-              <h3>La persona participa.</h3>
-              <p className={styles.brandsComparisonKicker}>Una acción que deja señal.</p>
-              <ul><li>Camina por un objetivo.</li><li>Medís pasos, canjes, clicks y visitas.</li><li>La marca aparece como recompensa.</li></ul>
-              <span className={styles.brandsComparisonNumber} aria-hidden="true">02</span>
-            </article>
-          </div>
-          <p className={styles.brandsChangeClose}>No reemplazamos tu pauta. <span>La hacemos caminar.</span></p>
-        </div>
-      </section>
-
-      <section className={`${styles.container} ${styles.brandsAudience}`}>
-        <h2 className={`${styles.sectionTitle} ${styles.brandsAudienceTitle}`}>Dos países. Dos audiencias.</h2>
-        <p className={styles.brandsAudienceLead}>Edades, ciudades e intereses distintos. Una misma plataforma para elegir dónde, a quién y con qué mensaje activar.</p>
-        <div className={styles.brandsAudienceGrid}>
-          {AUDIENCE.map((group) => <article key={group.age}><strong>{group.value}</strong><span>{group.age}</span><h3>{group.title}</h3><p>{group.body}</p></article>)}
-        </div>
-        <p className={styles.brandsFinePrint}>Los grupos principales representan el 94% de la audiencia. Segmentable por barrio, ciudad y edad: no le hablás a cualquiera, le hablás a personas activas donde realmente te importa.</p>
-
-        <div className={styles.countryAudienceGrid}>
-          {countryAudience.map((country) => (
-            <article className={styles.countryAudienceCard} key={country.code}>
-              <header>
-                <div>
-                  <span>{country.name}</span>
-                  <strong>{formatCountryCount(country.registered)}</strong>
-                  <small>personas registradas</small>
+            <article className={styles.eventCase}>
+              <div className={styles.eventImage}>
+                <Image src="/evento-pasito/og.png" alt="Pasito Walking Club" fill sizes="(max-width: 760px) 100vw, 50vw" />
+              </div>
+              <div className={styles.eventCopy}>
+                <div className={styles.caseTag}>Experiencia de marca</div>
+                <h3>La comunidad también elige encontrarse.</h3>
+                <p>Walking Club reunió movimiento, bienestar, gastronomía, música y marcas en una misma jornada.</p>
+                <div className={styles.caseStats}>
+                  <div><strong>+300</strong><span>personas</span></div>
+                  <div><strong>+15</strong><span>marcas integradas</span></div>
                 </div>
-                <CountrySilhouette code={country.code as 'AR' | 'UY'} />
-              </header>
-
-              <div className={styles.countryAudienceStats}>
-                <div><strong>+{formatCompactCountryCount(country.active30d)}</strong><span>activas en 30 días</span></div>
-                <div><strong>{country.youngShare}%</strong><span>tiene entre 18 y 34</span></div>
-                <div><strong>+{formatCompactCountryCount(country.newUsers30d)}</strong><span>nuevas en 30 días</span></div>
-              </div>
-
-              <div className={styles.countryAudienceDetails}>
-                <section>
-                  <h4>Ciudades con densidad</h4>
-                  <div className={styles.countryAudiencePlaces}>{country.cities.map(({ label, count }) => <span key={label}><b>{label}</b><small>{formatCompactCountryCount(count)} perfiles</small></span>)}</div>
-                </section>
-                <section>
-                  <h4>Barrios que ya se mueven</h4>
-                  <div className={styles.countryAudiencePlaces}>{country.neighborhoods.map(({ label, count }) => <span key={label}><b>{label}</b><small>{formatCompactCountryCount(count)} perfiles</small></span>)}</div>
-                </section>
-                <section className={styles.countryAudienceInterests}>
-                  <h4>Afinidades declaradas</h4>
-                  <div>{country.interests.map((interest) => <span key={interest.label}><b>{interest.label}</b><i><em style={{ width: `${interest.share}%` }} /></i><small>{interest.share}%</small></span>)}</div>
-                </section>
               </div>
             </article>
-          ))}
-        </div>
-        <p className={styles.countryAudienceSource}>Fuente: datos agregados y anónimos de Pasito en Supabase. Corte {formatCountrySnapshotDate(countryAudienceCutoff)}; esta sección se actualiza automáticamente cada 3 días. Actividad sobre los últimos 30 días; ciudades, barrios y afinidades sobre perfiles que declararon esos datos.</p>
-      </section>
-
-      <section id="formatos" className={styles.brandsFormatsSection}>
-        <div className={`${styles.container} ${styles.brandsFormats}`}>
-          <NumberedOverline number="05">Formatos</NumberedOverline>
-          <h2 className={styles.sectionTitle}>Cuatro formas de entrar.</h2>
-          <div className={styles.brandsFormatsGrid}>
-            {FORMATS.map((format) => <article className={format.accent ? styles.brandsFormatFeatured : ''} key={format.name}><span className={styles.overline}>{format.name}</span><p className={styles.brandsFormatLead}>{format.lead}</p><ul>{format.features.map((feature) => <li key={feature}><Check size={16} />{feature}</li>)}</ul><a href={BRANDS_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">Consultar formato <ArrowRight size={16} /></a></article>)}
           </div>
         </div>
       </section>
 
-      <section className={styles.brandsChallengesSection}>
-        <div className={`${styles.container} ${styles.brandsChallengesInner}`}>
-          <div><NumberedOverline number="06" light>Desafíos de marca</NumberedOverline><h2 className={styles.sectionTitle}>Miles de personas caminando por tu marca.</h2></div>
-          <div className={styles.brandsChallengeGrid}>{CHALLENGES.map((challenge, index) => <article className={styles[`brandsChallenge${challenge.tone[0].toUpperCase()}${challenge.tone.slice(1)}`]} key={challenge.name}><span className={styles.brandsChallengeIndex}>{String(index + 1).padStart(2, '0')}</span><div><h3>{challenge.name}</h3><p>{challenge.detail}</p></div><small>{challenge.body}</small></article>)}</div>
-        </div>
-      </section>
-
-      <section className={styles.brandsResultsSection}>
-        <div className={`${styles.container} ${styles.brandsResults}`}>
-          <div className={styles.brandsCaseStudy}>
-            <div className={styles.brandsCaseLogo}><Image src="/marketing/brands/decathlon.svg" alt="Decathlon" width={158} height={38} unoptimized /></div>
-            <div><NumberedOverline number="07">Caso real</NumberedOverline><h2 className={styles.sectionTitle}>Decathlon lo probó.</h2><p className={styles.sectionBody}>La gente caminó, participó y difundió la marca por elección propia.</p></div>
-            <div className={styles.brandsCaseStats}><div><strong>53.000</strong><span>personas se anotaron y caminaron por la marca.</span></div><div><strong>~1.000</strong><span>compartieron la historia en Instagram.</span></div></div>
+      <section className={styles.measurement}>
+        <div className={styles.container}>
+          <div className={styles.measurementHeading}>
+            <p className={styles.kicker}>Medición e impacto</p>
+            <h2>Cada activación termina con resultados.</h2>
           </div>
-
-          <div className={styles.brandsMeasurement}>
-            <div>
-              <NumberedOverline number="08" light>Medición</NumberedOverline>
-              <h2 className={styles.sectionTitle}>Cada activación termina con datos, no con sensaciones.</h2>
-              <p className={styles.brandsMeasurementBody}>Tu equipo recibe una lectura clara de qué pasó, quién participó y qué conviene optimizar en la próxima campaña.</p>
-            </div>
-            <ul className={styles.brandsMeasurementList} aria-label="Datos incluidos en cada activación">
-              {MEASUREMENTS.map((measurement) => <li key={measurement}><span><BarChart3 size={17} /></span><strong>{measurement}</strong></li>)}
-            </ul>
+          <div className={styles.measurementGrid}>
+            {MEASUREMENT.map((item) => (
+              <article key={item.title}>
+                <h3>{item.title}</h3>
+                <p>{item.detail}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className={`${styles.container} ${styles.brandsScarcity}`}>
-        <Target size={28} /><div><h2>Cada activación tiene que sentirse bien.</h2><p>No abrimos campañas ilimitadas. Limitamos las marcas activas por mes para no saturar la app ni quemar la experiencia del usuario.</p></div><div className={styles.brandsScarcityPills}><span>Menos ruido</span><span>Más visibilidad</span><span>Más impacto</span></div>
-      </section>
-
-      <section className={`${styles.container} ${styles.finalWrap} ${styles.brandsFinalWrap}`}>
-        <div className={styles.finalCta}>
-          <span className={styles.orbOne} aria-hidden="true" /><span className={styles.orbTwo} aria-hidden="true" />
-          <h2 className={styles.finalTitle}>Cada paso es una señal.<br />Cada recompensa es una visita.<br /><span className={styles.accent}>Cada visita es comercio.</span></h2>
-          <p className={styles.finalText}>La marca no interrumpe. La marca recompensa. Reservá tu lugar antes de que se llene el mes.</p>
-          <div className={styles.finalActions}><a className={`${styles.pinkButton} ${styles.heroPrimary}`} href={BRANDS_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">Reservá tu activación <ArrowRight size={18} /></a></div>
+      <section className={styles.finalCta}>
+        <div className={styles.container}>
+          <div>
+            <p className={styles.kicker}>Una propuesta a medida</p>
+            <h2>Tu objetivo. Nuestra comunidad. Una experiencia que se pueda medir.</h2>
+          </div>
+          <div className={styles.finalAction}>
+            <a className={styles.darkButton} href={BRANDS_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+              Hablemos <ArrowRight size={20} aria-hidden="true" />
+            </a>
+            <span>partners.pasito.app</span>
+          </div>
         </div>
       </section>
 
-      <MarketingFooter brands />
+      <footer className={styles.footer}>
+        <div className={styles.container}>
+          <Link href="/" aria-label="Pasito, inicio">
+            <Image src="/brand/logo-lime.svg" alt="Pasito" width={100} height={24} />
+          </Link>
+          <p>© 2026 Pasito. Argentina · Uruguay.</p>
+        </div>
+      </footer>
     </main>
   )
 }
