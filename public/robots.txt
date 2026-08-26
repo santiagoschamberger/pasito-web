@@ -1,0 +1,4 @@
+# Challenge detail pages stay crawlable so search engines can observe their
+# noindex response directives and remove any previously indexed winner pages.
+User-agent: *
+Allow: /

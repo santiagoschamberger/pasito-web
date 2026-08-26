@@ -26,8 +26,6 @@ export type BrandPrize = {
 export type ChallengeWinner = {
   rank: number | null
   drawOrder: number | null
-  displayName: string
-  barrio: string | null
   prizeType: 'physical' | 'pasitos' | 'none'
   pasitosAwarded: number
   prizeTitle: string | null
@@ -121,28 +119,12 @@ export async function fetchChallengeWithWinners(
     .eq('won', true)
 
   const winnerRows = parts ?? []
-  const userIds = winnerRows.map((r) => r.user_id as string)
+  const { data: raffle } = await supabase
+    .from('challenge_raffle_entries')
+    .select('user_id, draw_order')
+    .eq('challenge_id', id)
+    .eq('selected', true)
 
-  const [{ data: profiles }, { data: raffle }] = await Promise.all([
-    userIds.length
-      ? supabase
-          .from('profiles')
-          .select('id, display_name, barrio, hide_from_leaderboard')
-          .in('id', userIds)
-      : Promise.resolve({ data: [] as unknown[] }),
-    supabase
-      .from('challenge_raffle_entries')
-      .select('user_id, draw_order')
-      .eq('challenge_id', id)
-      .eq('selected', true),
-  ])
-
-  const profileById = new Map(
-    (profiles ?? []).map((p) => [
-      (p as Record<string, unknown>).id as string,
-      p as Record<string, unknown>,
-    ]),
-  )
   const drawOrderByUser = new Map(
     (raffle ?? []).map((r) => [
       (r as Record<string, unknown>).user_id as string,
@@ -154,25 +136,12 @@ export async function fetchChallengeWithWinners(
 
   const winners: ChallengeWinner[] = winnerRows.map((r) => {
     const userId = r.user_id as string
-    const profile = profileById.get(userId)
-    const hidden = profile?.hide_from_leaderboard === true
-    const rawName =
-      typeof profile?.display_name === 'string'
-        ? (profile.display_name as string).trim()
-        : ''
-    const displayName = hidden || !rawName ? 'Pasitero' : rawName
-    const barrio =
-      !hidden && typeof profile?.barrio === 'string' && (profile.barrio as string).trim()
-        ? (profile.barrio as string).trim()
-        : null
     const drawOrder = drawOrderByUser.get(userId) ?? null
     const prizeType = (r.winner_prize_type as ChallengeWinner['prizeType']) ?? 'none'
     const position = isRaffle ? drawOrder : (r.final_rank as number | null)
     return {
       rank: (r.final_rank as number | null) ?? null,
       drawOrder,
-      displayName,
-      barrio,
       prizeType,
       pasitosAwarded: (r.pasitos_awarded as number | null) ?? 0,
       prizeTitle:

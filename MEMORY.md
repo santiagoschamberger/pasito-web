@@ -1,6 +1,6 @@
 # Pasito Web Memory
 
-Last updated: 2026-07-10 19:10 America/Argentina/Buenos_Aires.
+Last updated: 2026-08-25 19:05 America/Argentina/Buenos_Aires.
 
 ## Project Context
 
@@ -59,6 +59,8 @@ Todo lo de esta sección impacta directamente la app mobile en producción. La a
 - `curl https://pasito.app/.well-known/assetlinks.json` → los dos fingerprints reales intactos.
 
 ## Progress Log
+
+- 2026-08-25 19:05 America/Argentina/Buenos_Aires: Contained H-08 (public challenge winner privacy) and deployed it to production from an isolated clean worktree. Root cause: `app/challenges/challenges-data.ts` used the service-role client to join winning participant IDs to `profiles.display_name` and `profiles.barrio`, and `/challenges/[id]` server-rendered those fields without crawler exclusions. The public loader now never queries `profiles`; the detail page renders only `Ganador/a N`, has Next metadata `noindex/nofollow/noarchive/nosnippet/noimageindex`, and `next.config.mjs` sends an independent `X-Robots-Tag` plus `private, no-store` only on challenge detail routes. Added `public/robots.txt` with `Allow: /` deliberately so crawlers can revisit detail pages and observe `noindex`, plus `tests/challenge-public-privacy.test.ts` in the npm test command. Vercel production deployment `dpl_27wxmEBQr3L1zw2wxxCVeGDLP49G` (`pasito-waitlist-buv3hg8ut-pasito-aa7e95c2.vercel.app`) was promoted to `www.pasito.app`. Live verification: challenge HTTP 200; 20 anonymous labels; zero prior identity labels; both robots meta and header present; `/robots.txt` HTTP 200; `/challenges` listing remains indexable; `/g/test-token` and `/i/DA315F73` remain HTTP 200; AASA retains `/g/*`, `/i/*`, `/challenges`, `/challenges/*`; Android asset links retain both fingerprints. Remote Vercel compile and TypeScript passed. Targeted security/referral tests passed 5/5. The full local npm suite passed 50/51, with one unrelated pre-existing failure caused by the dirty `app/marcas/page.tsx` copy change; standalone `tsc` still has unrelated missing `@playwright/test` types. No commit or push was made and unrelated dirty files were not deployed.
 
 - 2026-06-03 15:25 America/Argentina/Buenos_Aires: Fixed, pushed, and deployed the production referral-link 404. Root cause: the deployed Vercel site for `www.pasito.app` did not include the public `/i/[code]` route even though the mobile app generated referral URLs as `https://www.pasito.app/i/<CODE>`. Before the fix, live `https://www.pasito.app/i/DA315F73` returned HTTP 404 with `x-matched-path: /404`, while `https://www.pasito.app/g/test-token` returned HTTP 200 with `x-matched-path: /g/[token]`, proving the domain and Vercel deployment were healthy but the referral route was missing.
 - 2026-06-03 15:25 America/Argentina/Buenos_Aires: Commit `d81f160 Add referral invite route` was created on `main` and pushed to `origin/main`. The commit intentionally includes only the scoped referral fix: `app/i/[code]/page.tsx`, `app/i/[code]/ReferralRedirect.tsx`, `app/i/[code]/referral-link.ts`, `tests/referral-link.test.ts`, and `public/.well-known/apple-app-site-association`. Unrelated dirty waitlist files were left unstaged.

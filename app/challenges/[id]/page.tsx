@@ -38,6 +38,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const meta: Metadata = {
     title,
     description,
+    robots: {
+      index: false,
+      follow: false,
+      noarchive: true,
+      nosnippet: true,
+      noimageindex: true,
+    },
     openGraph: { title, description, url: webUrl, type: 'website' },
   }
   if (appStoreId) {
@@ -163,7 +170,6 @@ function WinnerRow({ winner, index }: { winner: ChallengeWinner; index: number }
       : winner.pasitosAwarded > 0
         ? `${winner.pasitosAwarded} Pasitos`
         : null,
-    winner.barrio,
   ]
     .filter(Boolean)
     .join(' · ')
@@ -181,7 +187,7 @@ function WinnerRow({ winner, index }: { winner: ChallengeWinner; index: number }
       </div>
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-white truncate">
-          {winner.displayName}
+          {`Ganador/a ${index + 1}`}
         </p>
         {subtitle ? (
           <p className="text-xs truncate" style={{ color: 'rgba(255,255,255,0.6)' }}>
