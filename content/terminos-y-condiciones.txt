@@ -3,7 +3,7 @@ TÉRMINOS Y CONDICIONES DE USO
 (i) INFORMACIÓN GENERAL
  
 Los presentes Términos y Condiciones de Uso (los “Términos”) regulan el acceso, registro, descarga y utilización de la aplicación móvil PASITO y del sitio web asociado (conjuntamente, la “Plataforma”).
-La Plataforma es operada por PASITO APP S.A.S., CUIT 30-71944461-6, con domicilio en la República Argentina (en adelante “PASITO”).
+La Plataforma es operada por PASITO APP S.A.S., CUIT 30-71944461-6, con domicilio en la República Argentina, y por PASITO URUGUAY SAS, RUT 220975490017, con domicilio en la República Oriental del Uruguay (en adelante, en conjunto, "PASITO").
 Toda persona que acceda, navegue, se registre o utilice la Plataforma adquiere la condición de Usuario y acepta íntegramente estos Términos, la Política de Privacidad y toda normativa complementaria publicada por PASITO.
 La utilización de la Plataforma implica la aceptación expresa, libre e informada de dichos documentos.
  
@@ -162,11 +162,17 @@ Estos Términos se regirán por las leyes de la República Argentina.
 Toda controversia será sometida a los tribunales competentes conforme la normativa de defensa del consumidor aplicable.
  
 (xx) CONTACTO
- 
+
+Operadores:
+
 PASITO APP S.A.S.
 CUIT 30-71944461-6
+Domicilio legal: Vedia 3892, Piso 1, posición 19, C1430, CABA, Argentina.
+
+PASITO URUGUAY SAS
+RUT 220975490017
+
 Correo electrónico: contacto@pasito.app
 Asunto sugerido: "Consulta T&C" o "Reclamo"
-Domicilio legal del operador: Vedia 3892, Piso 1, posición 19, C1430, CABA, Argentina.
  
 Última actualización: 25 de agosto de 2026
