@@ -34,7 +34,7 @@ const REBILL_SDK_SRC = 'https://unpkg.com/rebill@1.17.28/dist/rebill/rebill.esm.
 
 const PRODUCT_NAME = 'Remera Pasito'
 const PRICE = 35000 // ⬅️ precio unitario
-const SHIPPING = 5000 // ⬅️ costo de envío a domicilio
+const SHIPPING = 7000 // ⬅️ costo de envío a domicilio
 const CURRENCY = 'ARS' // ARS | USD | BRL | CLP | COP | MXN
 
 // Referencias de los productos persistentes en Rebill. El checkout sigue

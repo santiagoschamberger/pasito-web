@@ -258,7 +258,7 @@ Producto:
 - Nombre: `Remera Pasito`.
 - Precio unitario: `35000`.
 - Moneda: `ARS`.
-- Envio a domicilio: `5000`.
+- Envio a domicilio: `7000`.
 - Retiro: gratis. Antes de pagar se debe elegir exactamente un punto: Belgrano o Palermo. La ubicacion exacta y el horario se informan de forma privada despues de la compra.
 - Los envios se despachan dentro de 5-6 dias habiles.
 - Maximo por orden: `10`.

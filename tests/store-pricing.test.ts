@@ -7,7 +7,7 @@ const ordersRoute = readFileSync(new URL('../app/api/orders/route.ts', import.me
 const docs = readFileSync(new URL('../docs/DOCUMENTACION_REPO.md', import.meta.url), 'utf8')
 
 test('the storefront and payment verification use the same shipping price', () => {
-  assert.match(store, /const SHIPPING = 5000/)
-  assert.match(ordersRoute, /const SHIPPING = 5000/)
-  assert.match(docs, /Envio a domicilio: `5000`/)
+  assert.match(store, /const SHIPPING = 7000/)
+  assert.match(ordersRoute, /const SHIPPING = 7000/)
+  assert.match(docs, /Envio a domicilio: `7000`/)
 })
