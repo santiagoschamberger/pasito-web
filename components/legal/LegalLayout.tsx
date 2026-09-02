@@ -48,8 +48,7 @@ export function LegalLayout({
             <span>Documentos</span>
             <Link href="/privacidad">Política de privacidad</Link>
             <Link href="/terminos">Términos y condiciones</Link>
-            <Link href="/terminos/evento-pasito">Bases del evento Pasito x TOMATE</Link>
-            <Link href="/terminos/decathlon">Términos de Road to 21K</Link>
+            <Link href="/terminos#desafio-black-eyed-peas">Bases del desafío Black Eyed Peas</Link>
           </aside>
           <article className={styles.document}>{children}</article>
         </div>
@@ -63,8 +62,7 @@ export function LegalLayout({
         <div className={styles.footerLinks}>
           <Link href="/privacidad">Privacidad</Link>
           <Link href="/terminos">Términos y condiciones</Link>
-          <Link href="/terminos/evento-pasito">Bases del evento</Link>
-          <Link href="/terminos/decathlon">Términos de Road to 21K</Link>
+          <Link href="/terminos#desafio-black-eyed-peas">Bases del desafío Black Eyed Peas</Link>
         </div>
       </footer>
     </div>

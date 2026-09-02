@@ -24,7 +24,18 @@ export function LegalDocument({ content }: { content: string }) {
     <div className={styles.legalDocument}>
       {blocks.map((block, index) => {
         if (index === 0) return <p className={styles.documentTitle} key={`${index}-${block.slice(0, 20)}`}>{block}</p>
-        if (isHeading(block)) return <h2 key={`${index}-${block.slice(0, 20)}`}>{block}</h2>
+        if (isHeading(block)) {
+          const isBlackEyedPeasSection = /BLACK EYED PEAS/i.test(block)
+          return (
+            <h2 
+              key={`${index}-${block.slice(0, 20)}`}
+              id={isBlackEyedPeasSection ? 'desafio-black-eyed-peas' : undefined}
+              style={isBlackEyedPeasSection ? { scrollMarginTop: '120px' } : undefined}
+            >
+              {block}
+            </h2>
+          )
+        }
         if (/^Última actualización:/i.test(block)) return <p className={styles.lastUpdated} key={`${index}-${block.slice(0, 20)}`}>{block}</p>
         return <p key={`${index}-${block.slice(0, 20)}`}>{block}</p>
       })}
