@@ -9,6 +9,12 @@ const termsFilePath = path.join(
   'terminos-y-condiciones.txt',
 )
 
+const bepFilePath = path.join(
+  process.cwd(),
+  'content',
+  'terminos-black-eyed-peas.txt',
+)
+
 export const metadata = {
   title: 'Términos y Condiciones — Pasito',
   description: 'Términos y condiciones de uso de Pasito',
@@ -16,6 +22,7 @@ export const metadata = {
 
 export default async function TerminosPage() {
   const termsContent = await readFile(termsFilePath, 'utf8')
+  const bepContent = await readFile(bepFilePath, 'utf8')
 
   return (
     <LegalLayout
@@ -25,6 +32,12 @@ export default async function TerminosPage() {
       updatedAt="Última actualización: 2 de septiembre de 2026"
     >
       <LegalDocument content={termsContent} />
+      <div
+        id="desafio-black-eyed-peas"
+        style={{ scrollMarginTop: '120px' }}
+      >
+        <LegalDocument content={bepContent} />
+      </div>
     </LegalLayout>
   )
 }
