@@ -11,7 +11,7 @@ export default function PrivacidadPage() {
       eyebrow="Pasito / Legal"
       title="Política de privacidad"
       description="Cómo cuidamos y usamos la información necesaria para que Pasito funcione para vos."
-      updatedAt="Versión 1.4 · Vigente desde el 11 de julio de 2026"
+      updatedAt="Versión 1.5 · Vigente desde el 2 de septiembre de 2026"
     >
         <div className="prose prose-lg max-w-none space-y-8">
           <section>
@@ -54,7 +54,7 @@ export default function PrivacidadPage() {
               Para crear y mantener tu cuenta en Pasito, recopilamos:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-gray-700">
-              <li>Nombre y dirección de correo electrónico, según el método de registro elegido: Apple Sign-In, Google Sign-In o inicio de sesión por email.</li>
+              <li>Nombre, foto de perfil —si la incorporás— y dirección de correo electrónico, según el método de registro elegido: Apple Sign-In, Google Sign-In o inicio de sesión por email.</li>
               <li>Edad (para verificar que cumplís con la edad mínima requerida).</li>
               <li>Intereses seleccionados voluntariamente durante la configuración del perfil.</li>
               <li>Meta diaria de pasos configurada por el usuario.</li>
@@ -62,7 +62,20 @@ export default function PrivacidadPage() {
             </ul>
 
             <h3 className="text-xl font-semibold mb-3 mt-6" style={{ color: '#0C6B45' }}>
-              3.2 Datos de salud y actividad física
+              3.2 Perfil público y alcance de la publicación
+            </h3>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              La configuración funcional prevista por Pasito es que el perfil sea público por defecto. Cuando habilitás esta función, otros usuarios de la Plataforma pueden ver exclusivamente tu foto de perfil —si la incorporaste—, tu nombre, tu cantidad de Pasitos y tu cantidad de pasos. No se publican tu correo electrónico, ubicación, recorridos, historial diario de actividad ni otros datos personales.
+            </p>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              Antes de activar por primera vez la visibilidad pública, te informaremos su alcance en forma expresa y destacada y te pediremos una manifestación afirmativa, específica e informada cuando corresponda. Si se aplica la normativa uruguaya, la elección se presentará mediante opciones claras no premarcadas y, mientras no elijas habilitarla, tu perfil permanecerá privado. Una vez habilitada, la configuración predeterminada será pública hasta que la modifiques.
+            </p>
+            <p className="text-gray-700 leading-relaxed">
+              Podés desactivar la visibilidad pública en cualquier momento y sin cargo desde Configuración. El cambio no afectará el uso general de Pasito, aunque algunas funciones que requieren identificación pública, como ciertos rankings o dinámicas sociales, podrían dejar de estar disponibles.
+            </p>
+
+            <h3 className="text-xl font-semibold mb-3 mt-6" style={{ color: '#0C6B45' }}>
+              3.3 Datos de salud y actividad física
             </h3>
             <p className="text-gray-700 leading-relaxed mb-4">
               La Aplicación solicita acceso de solo lectura al conteo de pasos diarios almacenado en Apple HealthKit (iOS), Google Health Connect (Android) o el sensor de pasos nativo de Android cuando esté habilitado. Esta información se utiliza exclusivamente para:
@@ -72,13 +85,14 @@ export default function PrivacidadPage() {
               <li>Mostrar el progreso diario y el historial de actividad dentro de la Aplicación.</li>
               <li>Registrar el streak (racha) de días consecutivos activos.</li>
               <li>Mantener tu saldo y tu historial vinculados a tu cuenta de Pasito.</li>
+              <li>Mostrar la cantidad de pasos indicada en tu perfil cuando hayas habilitado su visibilidad pública.</li>
             </ul>
             <p className="text-gray-700 leading-relaxed mt-4">
-              <strong>Importante:</strong> Pasito no recopila ningún otro dato de salud (frecuencia cardíaca, sueño, peso, calorías, etc.). Los datos de pasos no se comparten con anunciantes ni se utilizan con fines publicitarios. No se venden. Solo pueden ser procesados por proveedores técnicos necesarios para operar el servicio.
+              <strong>Importante:</strong> Pasito no recopila ningún otro dato de salud (frecuencia cardíaca, sueño, peso, calorías, etc.). Fuera de la cantidad de pasos visible en un perfil público habilitado por el usuario, los datos de actividad no se comparten con otros usuarios ni con anunciantes, no se utilizan con fines publicitarios y no se venden. Solo pueden ser procesados por proveedores técnicos necesarios para operar el servicio.
             </p>
 
             <h3 className="text-xl font-semibold mb-3 mt-6" style={{ color: '#0C6B45' }}>
-              3.3 Datos de ubicación
+              3.4 Datos de ubicación
             </h3>
             <p className="text-gray-700 leading-relaxed mb-4">
               Para mostrarte comercios adheridos y premios cercanos a tu posición actual, la Aplicación solicita acceso a tu ubicación aproximada o precisa únicamente cuando abrís el mapa de comercios cercanos (permiso "Solo al usar la app").
@@ -92,7 +106,7 @@ export default function PrivacidadPage() {
             </ul>
 
             <h3 className="text-xl font-semibold mb-3 mt-6" style={{ color: '#0C6B45' }}>
-              3.4 Datos de canje y actividad en la Aplicación
+              3.5 Datos de canje y actividad en la Aplicación
             </h3>
             <p className="text-gray-700 leading-relaxed mb-4">
               Cuando realizás un canje, registramos:
@@ -108,7 +122,7 @@ export default function PrivacidadPage() {
             </p>
 
             <h3 className="text-xl font-semibold mb-3 mt-6" style={{ color: '#0C6B45' }}>
-              3.5 Datos técnicos y de uso
+              3.6 Datos técnicos y de uso
             </h3>
             <p className="text-gray-700 leading-relaxed mb-4">
               Como parte del funcionamiento normal de la Aplicación, podemos recopilar o almacenar:
@@ -121,7 +135,7 @@ export default function PrivacidadPage() {
             </ul>
 
             <h3 className="text-xl font-semibold mb-3 mt-6" style={{ color: '#0C6B45' }}>
-              3.6 Datos que NO recopilamos
+              3.7 Datos que NO recopilamos
             </h3>
             <p className="text-gray-700 leading-relaxed mb-4">
               Pasito no recopila ni almacena:
@@ -145,12 +159,14 @@ export default function PrivacidadPage() {
               <li>Prestar el servicio de la Aplicación: calcular Pasitos, gestionar el saldo, habilitar canjes.</li>
               <li>Garantizar la seguridad y prevenir el fraude.</li>
               <li>Enviar notificaciones push relacionadas con el servicio.</li>
+              <li>Administrar la visibilidad pública del perfil y las funciones sociales o rankings que el usuario decida habilitar.</li>
+              <li>Realizar marketing directo por correo electrónico, conforme a las preferencias y consentimientos del usuario.</li>
               <li>Mostrarte comercios adheridos cercanos a tu posición y ordenar las recomendaciones por distancia cuando abrís el mapa.</li>
               <li>Medir estabilidad, errores, rendimiento y uso básico de la Aplicación mediante servicios de analítica y diagnóstico.</li>
               <li>Cumplir con las obligaciones legales aplicables en la República Argentina, la República Oriental del Uruguay y, cuando corresponda, en otros países donde la Aplicación esté disponible.</li>
             </ul>
             <p className="text-gray-700 leading-relaxed mt-4">
-              Pasito no realiza marketing directo, no cede datos a anunciantes y no utiliza los datos para perfilado publicitario de ningún tipo.
+              Pasito sí realiza marketing directo por correo electrónico para comunicar novedades, promociones, beneficios, premios, desafíos, eventos, productos o servicios propios, de comercios adheridos o de Sponsors. Para ello utiliza el nombre y el correo electrónico, pero no usa datos de salud, conteos de pasos, geolocalización ni recorridos para elaborar perfiles publicitarios. Cuando resulte exigible, solicitaremos antes del primer envío un consentimiento libre, previo, expreso, informado y acreditable mediante una opción específica y no premarcada. Podés retirar ese consentimiento en cualquier momento desde Configuración, mediante el enlace de baja incluido en cada correo o escribiendo a contacto@pasito.app, sin que ello afecte el uso general de la Aplicación ni las comunicaciones operativas indispensables.
             </p>
           </section>
 
@@ -159,7 +175,10 @@ export default function PrivacidadPage() {
               5. Compartición de Datos con Terceros
             </h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              Pasito no vende, alquila ni comercializa datos personales. La única información que puede estar disponible para los comercios adheridos es de carácter estadístico y agregado, sin ningún dato que permita identificar a un usuario en particular.
+              Pasito no vende, alquila ni comercializa datos personales. Fuera de los datos limitados que el usuario haya habilitado en su perfil público, la información disponible para los comercios adheridos es de carácter estadístico y agregado, sin datos que permitan identificar a un usuario en particular.
+            </p>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              Pasito no comunica tu correo electrónico a comercios adheridos o Sponsors para que realicen su propio marketing, salvo que otorgues un consentimiento previo, específico e informado que identifique al destinatario o su clase y la finalidad de la comunicación.
             </p>
             <p className="text-gray-700 leading-relaxed mb-4">
               Para operar el servicio, Pasito utiliza los siguientes proveedores de tecnología:
@@ -172,9 +191,10 @@ export default function PrivacidadPage() {
               <li>Google Maps Platform – Mapas y visualización de comercios cercanos (EE.UU.)</li>
               <li>Apple – Autenticación via Sign in with Apple (EE.UU.)</li>
               <li>Google – Autenticación via Google Sign-In (EE.UU.)</li>
+              <li>Resend – Infraestructura para el envío de correos electrónicos operativos y comerciales (EE.UU.)</li>
             </ul>
             <p className="text-gray-700 leading-relaxed mt-4">
-              Todos estos proveedores procesan datos en servidores ubicados fuera de la Argentina (principalmente en Estados Unidos). Al aceptar esta política, el usuario consiente expresamente la transferencia internacional de sus datos en los términos del artículo 12 de la Ley 25.326.
+              Estos proveedores pueden procesar datos fuera de la Argentina y del Uruguay, principalmente en Estados Unidos. Pasito implementará las garantías y recabará los consentimientos que correspondan para las transferencias internacionales conforme al artículo 12 de la Ley argentina N.º 25.326 y al artículo 23 de la Ley uruguaya N.º 18.331 y sus normas reglamentarias.
             </p>
           </section>
 
@@ -189,7 +209,7 @@ export default function PrivacidadPage() {
               <li><strong>Acceso de solo lectura:</strong> la Aplicación nunca escribe ni modifica datos en HealthKit ni Health Connect.</li>
               <li><strong>Solo conteo de pasos:</strong> no se accede a ningún otro tipo de dato de salud.</li>
               <li><strong>Vinculado a tu cuenta:</strong> los pasos sincronizados se asocian a tu cuenta de Pasito para calcular saldo, historial y rachas.</li>
-              <li><strong>No se comparte con fines comerciales:</strong> los datos de pasos no se transfieren a anunciantes, socios comerciales ni se usan para fines distintos al funcionamiento de Pasito.</li>
+              <li><strong>No se comparte con fines publicitarios:</strong> salvo la cantidad de pasos visible en un perfil público habilitado por el usuario, los datos de actividad no se transfieren a anunciantes o socios comerciales ni se usan para marketing.</li>
               <li><strong>No se venden:</strong> bajo ninguna circunstancia los datos de salud se venden ni se usan con fines comerciales o publicitarios.</li>
               <li>Podés revocar el acceso en cualquier momento desde la configuración de tu dispositivo.</li>
             </ul>
@@ -218,7 +238,7 @@ export default function PrivacidadPage() {
               <li><strong>Acceso:</strong> podés solicitar qué datos personales tuyos tenemos almacenados.</li>
               <li><strong>Rectificación:</strong> podés corregir datos inexactos o incompletos desde la propia Aplicación o contactándonos.</li>
               <li><strong>Cancelación / Supresión:</strong> podés solicitar la eliminación de tu cuenta y tus datos. También podés hacerlo desde la pantalla de perfil dentro de la Aplicación.</li>
-              <li><strong>Oposición:</strong> podés oponerte al tratamiento de tus datos para determinadas finalidades.</li>
+              <li><strong>Oposición:</strong> podés oponerte al tratamiento de tus datos para determinadas finalidades, desactivar la visibilidad pública de tu perfil y retirar o bloquear el uso de tus datos para marketing directo.</li>
             </ul>
             <p className="text-gray-700 leading-relaxed mt-4">
               Si residís en España o en la Unión Europea, también podés ejercer los derechos de portabilidad, limitación del tratamiento, oposición en los casos previstos por el Reglamento General de Protección de Datos, y presentar un reclamo ante la autoridad de control competente.
@@ -250,6 +270,9 @@ export default function PrivacidadPage() {
             </h2>
             <p className="text-gray-700 leading-relaxed mb-4">
               La Aplicación está dirigida a personas de 16 años o más. Los usuarios de entre 16 y 18 años pueden utilizar la Aplicación con el consentimiento expreso de su representante legal o tutor, quien asume la responsabilidad por el uso que el menor realice.
+            </p>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              Cuando corresponda, el consentimiento del representante legal o tutor deberá comprender expresamente la visibilidad pública del perfil y la recepción de marketing directo por correo electrónico.
             </p>
             <p className="text-gray-700 leading-relaxed">
               No recopilamos intencionalmente datos de menores de 16 años. Si tomamos conocimiento de que un menor de esa edad ha creado una cuenta sin autorización, procederemos a eliminar sus datos de forma inmediata. Si sos padre, madre o tutor y creés que tu hijo/a se registró sin tu autorización, contactanos a{' '}
@@ -283,7 +306,7 @@ export default function PrivacidadPage() {
               11. Modificaciones a esta Política
             </h2>
             <p className="text-gray-700 leading-relaxed">
-              Podemos actualizar esta Política de Privacidad periódicamente. Cuando lo hagamos, actualizaremos la fecha de vigencia al inicio del documento y, si los cambios son significativos, te notificaremos mediante un aviso en la Aplicación o por correo electrónico. El uso continuado de la Aplicación tras la notificación implica la aceptación de la política actualizada.
+              Podemos actualizar esta Política de Privacidad periódicamente. Cuando lo hagamos, actualizaremos la fecha de vigencia al inicio del documento y, si los cambios son significativos, te notificaremos mediante un aviso en la Aplicación o por correo electrónico. Si una actualización incorpora una finalidad nueva o amplía sustancialmente la publicidad de tus datos, solicitaremos el consentimiento específico que corresponda antes de aplicarla; el mero uso continuado no reemplazará ese consentimiento.
             </p>
           </section>
 

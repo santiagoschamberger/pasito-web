@@ -9,7 +9,7 @@ function formatBlock(block: string) {
 }
 
 function isHeading(value: string) {
-  return /^(\d+\.-|vi\.\d+\.|[a-z]\)\s*[A-ZÁÉÍÓÚÑ]{3,})/i.test(value)
+  return /^(\d+\.-|[ivxlcdm]+\.\d+\.|[a-z]\)\s*[A-ZÁÉÍÓÚÑ]{3,})/i.test(value)
     || /^\([ivxlcdm]+\)\s+[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ\s.,-]{3,}$/.test(value)
 }
 

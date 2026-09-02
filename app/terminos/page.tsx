@@ -22,7 +22,7 @@ export default async function TerminosPage() {
       eyebrow="Pasito / Legal"
       title="Términos y condiciones"
       description="Las reglas que hacen que la experiencia de Pasito sea clara, justa y segura para todas las personas."
-      updatedAt="Última actualización: junio de 2026"
+      updatedAt="Última actualización: 2 de septiembre de 2026"
     >
       <LegalDocument content={termsContent} />
     </LegalLayout>
