@@ -450,8 +450,8 @@
 .planCard:hover { transform: translateY(-6px); box-shadow: 0 24px 56px rgb(0 64 39 / 10%); }
 .planFeatured { position: relative; border: 0; background: var(--brand-dark); color: #fff; box-shadow: 0 24px 56px rgb(0 64 39 / 28%); }
 .planBadge { position: absolute; top: -13px; left: 28px; padding: 6px 12px; border-radius: 999px; background: var(--brand-accent); color: var(--brand-dark); }
-.planPrice { margin-top: 12px; font-family: var(--font-bricolage), system-ui, sans-serif; font-size: 40px; font-weight: 800; line-height: 44px; letter-spacing: -1px; }
-.perMonth { margin-left: 6px; color: var(--neutral-600); font-family: var(--font-google-sans), system-ui, sans-serif; font-size: 14px; font-weight: 400; letter-spacing: 0; }
+.planPrice { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 8px; margin-top: 12px; font-family: var(--font-bricolage), system-ui, sans-serif; font-size: 40px; font-weight: 800; line-height: 44px; letter-spacing: -1px; }
+.perMonth { margin-left: 0; color: var(--neutral-600); font-family: var(--font-google-sans), system-ui, sans-serif; font-size: 14px; font-weight: 400; letter-spacing: 0; }
 .planFeatured .perMonth { color: rgb(255 255 255 / 65%); }
 .planLead { margin: 16px 0 0; font-size: 16px; font-weight: 600; line-height: 24px; }
 .planExtra { margin: 22px 0 0; color: var(--neutral-600); font-size: 12px; font-weight: 600; line-height: 16px; }

@@ -4,18 +4,35 @@ import { useState } from 'react'
 
 import styles from '../marketing.module.css'
 import { CheckIcon, PARTNERS_REGISTER_URL } from '@/components/marketing/Marketing'
+import {
+  formatPaidPlanPrice,
+  formatPartnerPlanListAmount,
+  getPartnerPlanChargeAmount,
+  type PartnerBillingCountryCode,
+  type PartnerPlanCurrency,
+} from '@/lib/partner-plan-pricing'
 
 type Country = 'argentina' | 'uruguay'
 
-const PRICE_BY_COUNTRY: Record<Country, { ventas: string; destacado: string; description: string }> = {
+const PRICE_BY_COUNTRY: Record<Country, {
+  countryCode: PartnerBillingCountryCode
+  currency: PartnerPlanCurrency
+  ventas: number
+  destacado: number
+  description: string
+}> = {
   argentina: {
-    ventas: '$69.000',
-    destacado: '$190.000',
+    countryCode: 'AR',
+    currency: 'ARS',
+    ventas: 69_000,
+    destacado: 190_000,
     description: 'Precios mensuales en pesos argentinos',
   },
   uruguay: {
-    ventas: 'USD 50',
-    destacado: 'USD 150',
+    countryCode: 'UY',
+    currency: 'USD',
+    ventas: 50,
+    destacado: 150,
     description: 'Precios mensuales en dólares estadounidenses',
   },
 }
@@ -76,9 +93,22 @@ export function PricingPlans() {
   const [country, setCountry] = useState<Country>('argentina')
   const prices = PRICE_BY_COUNTRY[country]
   const priceFor = (priceKey: (typeof PLANS)[number]['priceKey']) => (
-    priceKey === 'starter' ? 'Gratis' : prices[priceKey]
+    priceKey === 'starter' ? 'Gratis' : formatPartnerPlanListAmount(prices[priceKey], prices.currency)
   )
-  const priceRow = ['Precio', 'Gratis', `${prices.ventas}/mes +IVA`, `${prices.destacado}/mes +IVA`]
+  const paidPriceSuffix = (listAmount: number) => {
+    const total = getPartnerPlanChargeAmount(listAmount, prices.countryCode)
+    return (
+      <span className={styles.perMonth}>
+        /mes + IVA (total {formatPartnerPlanListAmount(total, prices.currency)})
+      </span>
+    )
+  }
+  const priceRow = [
+    'Precio',
+    'Gratis',
+    formatPaidPlanPrice(prices.ventas, prices.countryCode),
+    formatPaidPlanPrice(prices.destacado, prices.countryCode),
+  ]
 
   return (
     <>
@@ -112,7 +142,7 @@ export function PricingPlans() {
             <span className={styles.overline} style={{ color: plan.featured ? 'rgba(255,255,255,.65)' : '#7c7c65' }}>{plan.name}</span>
             <div className={styles.planPrice} aria-live="polite" aria-atomic="true">
               {priceFor(plan.priceKey)}
-              {plan.priceKey !== 'starter' && <span className={styles.perMonth}>/mes +IVA</span>}
+              {plan.priceKey !== 'starter' && paidPriceSuffix(prices[plan.priceKey])}
             </div>
             <p className={styles.planLead}>{plan.lead}</p>
             {plan.extra && <p className={styles.planExtra}>{plan.extra}</p>}
