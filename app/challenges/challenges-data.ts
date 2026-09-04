@@ -2,13 +2,15 @@
 // segment. Uses SUPABASE_SERVICE_ROLE_KEY (no NEXT_PUBLIC_ prefix), so it is
 // never bundled into client JS.
 import { createClient } from '@supabase/supabase-js'
+import { isChallengeId } from './challenge-link.ts'
+
+export { isChallengeId } from './challenge-link.ts'
 
 const SUPABASE_URL =
   process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'https://trsbowwcigzayhdpfxvd.supabase.co'
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
 
-// Service-role client. Server-only (this module imports `server-only`), never
-// shipped to the browser. We use the service role because the challenge
+// Service-role client, imported only by server components. We use it because the challenge
 // leaderboard RPCs are granted to `authenticated` only, and these pages are
 // public (no user session).
 function admin() {
@@ -24,6 +26,7 @@ export type BrandPrize = {
 }
 
 export type ChallengeWinner = {
+  displayName: string | null
   rank: number | null
   drawOrder: number | null
   prizeType: 'physical' | 'pasitos' | 'none'
@@ -41,6 +44,7 @@ export type ChallengeSummary = {
 }
 
 export type ChallengeWithWinners = ChallengeSummary & {
+  resultsStatus: 'pending' | 'published' | 'unavailable'
   winnerSelectionMode: string
   topNWinners: number
   pasitosPerWinner: number
@@ -49,12 +53,9 @@ export type ChallengeWithWinners = ChallengeSummary & {
   pasitosWinners: ChallengeWinner[]
 }
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-
-export function isChallengeId(value: string): boolean {
-  return UUID_RE.test(value.trim())
-}
+// Public names were requested for this campaign only. Other challenge pages
+// retain anonymous results; never opt campaigns in based on editable titles.
+const PUBLIC_WINNER_NAMES = new Set(['b10109f4-823b-4195-8efe-97a5cf27831e'])
 
 function parseBrandPrizes(raw: unknown): BrandPrize[] {
   if (!Array.isArray(raw)) return []
@@ -96,6 +97,7 @@ export async function fetchChallengeWithWinners(
   id: string,
 ): Promise<ChallengeWithWinners | null> {
   if (!isChallengeId(id)) return null
+  id = id.trim().toLowerCase()
   const supabase = admin()
   if (!supabase) return null
 
@@ -110,29 +112,75 @@ export async function fetchChallengeWithWinners(
 
   if (error || !ch) return null
 
+  const challenge: ChallengeWithWinners = {
+    id: ch.id as string,
+    title: ch.title as string,
+    brandName: (ch.brand_name as string | null) ?? null,
+    brandLogoUrl: (ch.brand_logo_url as string | null) ?? null,
+    isClosed: ch.is_closed === true,
+    endDate: (ch.end_date as string | null) ?? null,
+    winnerSelectionMode: (ch.winner_selection_mode as string) ?? 'ranking_top_n',
+    topNWinners: (ch.top_n_winners as number | null) ?? 0,
+    pasitosPerWinner: (ch.pasitos_per_winner as number | null) ?? 0,
+    physicalPrizeWinnerCount: (ch.physical_prize_winner_count as number | null) ?? 0,
+    resultsStatus: 'pending',
+    physicalWinners: [],
+    pasitosWinners: [],
+  }
+  // Do not publish partial results while a challenge is still being closed.
+  if (!challenge.isClosed) return challenge
+
   const prizes = parseBrandPrizes(ch.brand_prizes)
+  const isRaffle = ch.winner_selection_mode === 'raffle_top_n'
 
-  const { data: parts } = await supabase
-    .from('challenge_participants')
-    .select('user_id, final_rank, pasitos_awarded, won, winner_prize_type')
-    .eq('challenge_id', id)
-    .eq('won', true)
+  const [participants, raffle] = await Promise.all([
+    supabase
+      .from('challenge_participants')
+      .select('user_id, final_rank, pasitos_awarded, won, winner_prize_type')
+      .eq('challenge_id', id)
+      .eq('won', true),
+    isRaffle
+      ? supabase
+          .from('challenge_raffle_entries')
+          .select('user_id, draw_order')
+          .eq('challenge_id', id)
+          .eq('selected', true)
+      : Promise.resolve({ data: [], error: null }),
+  ])
 
-  const winnerRows = parts ?? []
-  const { data: raffle } = await supabase
-    .from('challenge_raffle_entries')
-    .select('user_id, draw_order')
-    .eq('challenge_id', id)
-    .eq('selected', true)
+  if (participants.error || raffle.error) {
+    return { ...challenge, resultsStatus: 'unavailable' }
+  }
+  const winnerRows = participants.data ?? []
+  if (winnerRows.length === 0) return challenge
 
   const drawOrderByUser = new Map(
-    (raffle ?? []).map((r) => [
+    (raffle.data ?? []).map((r) => [
       (r as Record<string, unknown>).user_id as string,
       (r as Record<string, unknown>).draw_order as number,
     ]),
   )
 
-  const isRaffle = ch.winner_selection_mode === 'raffle_top_n'
+  // A raffle result must have a recorded draw position; never substitute the
+  // steps ranking or a provisional participant flag for the actual draw.
+  if (isRaffle && winnerRows.some((row) => (drawOrderByUser.get(row.user_id) ?? 0) <= 0)) {
+    return { ...challenge, resultsStatus: 'unavailable' }
+  }
+
+  const namesByUser = new Map<string, string>()
+  if (PUBLIC_WINNER_NAMES.has(id)) {
+    const { data: profiles, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, display_name')
+      .in('id', winnerRows.map((row) => row.user_id as string))
+      .eq('hide_from_leaderboard', false)
+
+    if (profileError) return { ...challenge, resultsStatus: 'unavailable' }
+    for (const profile of profiles ?? []) {
+      const name = typeof profile.display_name === 'string' ? profile.display_name.trim() : ''
+      if (name) namesByUser.set(profile.id as string, name)
+    }
+  }
 
   const winners: ChallengeWinner[] = winnerRows.map((r) => {
     const userId = r.user_id as string
@@ -140,6 +188,7 @@ export async function fetchChallengeWithWinners(
     const prizeType = (r.winner_prize_type as ChallengeWinner['prizeType']) ?? 'none'
     const position = isRaffle ? drawOrder : (r.final_rank as number | null)
     return {
+      displayName: namesByUser.get(userId) ?? null,
       rank: (r.final_rank as number | null) ?? null,
       drawOrder,
       prizeType,
@@ -150,8 +199,8 @@ export async function fetchChallengeWithWinners(
   })
 
   const sortByPosition = (a: ChallengeWinner, b: ChallengeWinner) => {
-    const av = a.drawOrder ?? a.rank ?? Number.MAX_SAFE_INTEGER
-    const bv = b.drawOrder ?? b.rank ?? Number.MAX_SAFE_INTEGER
+    const av = (isRaffle ? a.drawOrder : a.rank) ?? Number.MAX_SAFE_INTEGER
+    const bv = (isRaffle ? b.drawOrder : b.rank) ?? Number.MAX_SAFE_INTEGER
     return av - bv
   }
 
@@ -163,16 +212,8 @@ export async function fetchChallengeWithWinners(
     .sort(sortByPosition)
 
   return {
-    id: ch.id as string,
-    title: ch.title as string,
-    brandName: (ch.brand_name as string | null) ?? null,
-    brandLogoUrl: (ch.brand_logo_url as string | null) ?? null,
-    isClosed: ch.is_closed === true,
-    endDate: (ch.end_date as string | null) ?? null,
-    winnerSelectionMode: (ch.winner_selection_mode as string) ?? 'ranking_top_n',
-    topNWinners: (ch.top_n_winners as number | null) ?? 0,
-    pasitosPerWinner: (ch.pasitos_per_winner as number | null) ?? 0,
-    physicalPrizeWinnerCount: (ch.physical_prize_winner_count as number | null) ?? 0,
+    ...challenge,
+    resultsStatus: 'published',
     physicalWinners,
     pasitosWinners,
   }

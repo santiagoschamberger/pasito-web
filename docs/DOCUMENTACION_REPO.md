@@ -528,9 +528,10 @@ Detalle:
 
 - Valida que el `id` sea UUID.
 - Lee desafio activo por id.
-- Lee participantes ganadores.
-- Lee perfiles de usuarios ganadores.
-- Lee entradas de sorteo seleccionadas.
+- Lee participantes ganadores solamente cuando el desafio esta cerrado.
+- Lee entradas de sorteo seleccionadas; si falta su orden, no inventa resultados a partir del ranking de pasos.
+- Para BEP (`b10109f4-823b-4195-8efe-97a5cf27831e`), muestra el nombre visible completo de los ganadores, por pedido de publicacion de esta campana. La lista permitida vive en `challenges-data.ts`; las demas campanas siguen anonimas.
+- Solo consulta `id, display_name` de esos ganadores con `hide_from_leaderboard = false`. No publica identificadores ni datos de contacto o barrio.
 
 Reglas de ganadores:
 
@@ -538,8 +539,15 @@ Reglas de ganadores:
 - Si no, la posicion sale de `final_rank`.
 - Los premios fisicos se asignan segun `brand_prizes` y `winner_count`.
 - Ganadores fisicos y ganadores de Pasitos se muestran en grupos separados.
-- Si el perfil tiene `hide_from_leaderboard = true` o no tiene nombre, muestra `Pasitero`.
-- Si el perfil esta oculto, no muestra barrio.
+- Si el perfil esta oculto, no tiene nombre o la campana no permite nombres publicos, muestra `Ganador/a N`.
+- Distingue resultados pendientes de errores de carga. Conserva las directivas de no indexacion y no cache de la pagina.
+
+Enlaces a la app:
+
+- El enlace compartible sigue siendo `/challenges/<id>`, compatible con los Universal Links y App Links existentes. La app muestra los ganadores en el detalle cuando el desafio esta cerrado.
+- `ChallengeAppLink.tsx` agrega un acceso manual: esquema de la app en iOS, intent HTTPS en Android, enlace al dominio apex como alternativa.
+- Si Android no encuentra la app, vuelve a la landing de resultados. La web no redirige automaticamente a las tiendas ni oculta los resultados.
+- La apertura automatica depende del sistema, del navegador y de las preferencias del usuario. Validar en dispositivos con y sin la app antes de una campana; las pruebas de escritorio solo verifican la pagina y el formato de los enlaces.
 
 Por que existe:
 
