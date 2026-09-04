@@ -4,18 +4,11 @@ import {
   fetchChallengeWithWinners,
   type ChallengeWinner,
 } from '../challenges-data'
+import { AppDownloadButtons } from '@/components/app-download-buttons'
 
 type PageProps = {
   params: Promise<{ id: string }>
 }
-
-const appStoreUrl =
-  process.env.NEXT_PUBLIC_APP_STORE_URL ??
-  'https://apps.apple.com/ar/search?term=pasito'
-
-const playStoreUrl =
-  process.env.NEXT_PUBLIC_PLAY_STORE_URL ??
-  'https://play.google.com/store/apps/details?id=ar.pasito.pasito'
 
 const appStoreId = process.env.NEXT_PUBLIC_APP_STORE_ID
 
@@ -106,32 +99,10 @@ export default async function ChallengeDetailPage({ params }: PageProps) {
           </div>
         ) : null}
 
-        <div className="w-full grid gap-3 pt-1">
-          <div className="grid grid-cols-2 gap-3">
-            <a
-              href={appStoreUrl}
-              className="h-11 rounded-full flex items-center justify-center text-xs font-semibold"
-              style={{
-                background: 'rgba(255,255,255,0.12)',
-                color: '#FFFFFF',
-                border: '1px solid rgba(255,255,255,0.22)',
-              }}
-            >
-              App Store
-            </a>
-            <a
-              href={playStoreUrl}
-              className="h-11 rounded-full flex items-center justify-center text-xs font-semibold"
-              style={{
-                background: 'rgba(255,255,255,0.12)',
-                color: '#FFFFFF',
-                border: '1px solid rgba(255,255,255,0.22)',
-              }}
-            >
-              Google Play
-            </a>
-          </div>
-        </div>
+        <AppDownloadButtons 
+          deepLinkPath={`/challenges/${challengeId}`} 
+          autoOpenOnAndroid={true}
+        />
       </div>
     </main>
   )
