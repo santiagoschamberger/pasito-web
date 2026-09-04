@@ -8,7 +8,6 @@ import {
   fetchChallengeWithWinners,
   type ChallengeWinner,
 } from '../challenges-data'
-import { AppDownloadButtons } from '@/components/app-download-buttons'
 
 type PageProps = {
   params: Promise<{ id: string }>
@@ -92,17 +91,6 @@ export default async function ChallengeDetailPage({ params }: PageProps) {
           </p>
         </div>
 
-        {challenge ? (
-          <div className="grid w-full gap-2 text-center">
-            <ChallengeAppLink challengeId={challenge.id} isClosed={challenge.isClosed} />
-            <p className="text-xs text-white/70">
-              {hasWinners
-                ? 'También podés ver los resultados acá, sin descargar la app.'
-                : 'Si tenés Pasito, abrí el desafío desde tu celular.'}
-            </p>
-          </div>
-        ) : null}
-
         {challenge?.isClosed && !hasWinners ? (
           <p className="text-center text-sm text-white/80" role="status">
             {challenge.resultsStatus === 'unavailable'
@@ -129,10 +117,7 @@ export default async function ChallengeDetailPage({ params }: PageProps) {
           </section>
         ) : null}
 
-        <AppDownloadButtons
-          deepLinkPath={challenge?.isClosed ? undefined : `/challenges/${challengeId}`}
-          autoOpenOnAndroid={challenge?.isClosed === false}
-        />
+        {challenge ? <ChallengeAppLink challengeId={challenge.id} /> : null}
       </div>
     </main>
   )

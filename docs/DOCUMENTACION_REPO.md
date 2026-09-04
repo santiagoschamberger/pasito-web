@@ -545,7 +545,8 @@ Reglas de ganadores:
 Enlaces a la app:
 
 - El enlace compartible sigue siendo `/challenges/<id>`, compatible con los Universal Links y App Links existentes. La app muestra los ganadores en el detalle cuando el desafio esta cerrado.
-- `ChallengeAppLink.tsx` agrega un acceso manual: esquema de la app en iOS, intent HTTPS en Android, enlace al dominio apex como alternativa.
+- La landing muestra primero el listado y un unico boton `Ver en app` al final. No incluye botones de tiendas ni intentos automaticos de abrir la app, incluso en navegadores internos como Instagram.
+- `ChallengeAppLink.tsx` agrega ese acceso manual: esquema de la app en iOS, intent HTTPS en Android, enlace al dominio apex como alternativa. Solo se intenta abrir la app al tocar el boton.
 - Si Android no encuentra la app, vuelve a la landing de resultados. La web no redirige automaticamente a las tiendas ni oculta los resultados.
 - La apertura automatica depende del sistema, del navegador y de las preferencias del usuario. Validar en dispositivos con y sin la app antes de una campana; las pruebas de escritorio solo verifican la pagina y el formato de los enlaces.
 

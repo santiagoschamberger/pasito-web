@@ -5,10 +5,8 @@ import { buildChallengeAppUrl } from './challenge-link'
 
 export default function ChallengeAppLink({
   challengeId,
-  isClosed,
 }: {
   challengeId: string
-  isClosed: boolean
 }) {
   const [platform, setPlatform] = useState<'ios' | 'android' | 'desktop'>('desktop')
 
@@ -26,7 +24,7 @@ export default function ChallengeAppLink({
       className="flex min-h-12 w-full items-center justify-center rounded-full px-5 text-sm font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
       style={{ background: '#EEFA7A', color: '#0C6B45' }}
     >
-      {isClosed ? 'Ver ganadores en la app' : 'Abrir desafío en la app'}
+      Ver en app
     </a>
   )
 }
