@@ -1,6 +1,8 @@
 import type { BrandDataSnapshot, BrandDataSnapshotPayload } from './types'
 
 const REMOVED_PAYLOAD_KEYS = [
+  'dailyActiveTrend',
+  'activityTimeline',
   'interests',
   'favoriteCategories',
   'redemptionCategories',

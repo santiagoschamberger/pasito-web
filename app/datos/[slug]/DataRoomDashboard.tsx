@@ -6,8 +6,6 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -38,13 +36,11 @@ import {
   WalletCards,
 } from 'lucide-react'
 import type {
-  ActivityTimelineDatum,
   BrandDataRoomGa4Metric,
   CountDatum,
   TopChallengeDatum,
 } from '@/lib/data-room/types'
 import type { PublicBrandDataSnapshot } from '@/lib/data-room/public-snapshot'
-import { withRollingAverage } from '@/lib/data-room/trends'
 import { DataRoomViewTracker } from './DataRoomViewTracker'
 
 const numberFormatter = new Intl.NumberFormat('es-AR')
@@ -85,32 +81,6 @@ function inclusiveDayCount(startDate: string | null, endDate: string | null) {
   const end = Date.parse(`${endDate}T00:00:00.000Z`)
   if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return 0
   return Math.floor((end - start) / 86_400_000) + 1
-}
-
-const activityEventTone: Record<ActivityTimelineDatum['kind'], {
-  dot: string
-  pill: string
-  stroke: string
-  prefix: string
-}> = {
-  challenge_start: {
-    dot: 'bg-[#007A4A]',
-    pill: 'border-[#B8DCCA] bg-[#EDF8F1] text-[#005C38]',
-    stroke: '#007A4A',
-    prefix: 'Inicio',
-  },
-  challenge_end: {
-    dot: 'bg-[#A62C78]',
-    pill: 'border-[#EFA6DF] bg-[#FFF0FB] text-[#702353]',
-    stroke: '#A62C78',
-    prefix: 'Fin',
-  },
-  context: {
-    dot: 'bg-[#400224]',
-    pill: 'border-[#DFA5CC] bg-[#FFC2F4] text-[#400224]',
-    stroke: '#400224',
-    prefix: 'Contexto',
-  },
 }
 
 function formatRefreshDate(value: string) {
@@ -490,28 +460,6 @@ export function DataRoomDashboard({
     usuarios: row.count,
     canjeadores: data.redeemerAgeDistribution.find((item) => item.label === row.label)?.count ?? 0,
   })), [data.ageDistribution, data.redeemerAgeDistribution])
-  const dailyActiveTrend = useMemo(
-    () => withRollingAverage(data.dailyActiveTrend ?? []),
-    [data.dailyActiveTrend],
-  )
-  const lastRollingDau = dailyActiveTrend.at(-1)?.rollingAverage ?? 0
-  const dailyActiveDomain = useMemo<[number, number]>(() => {
-    const counts = dailyActiveTrend.map((row) => row.rollingAverage)
-    if (!counts.length) return [0, 1]
-    const minimum = Math.min(...counts)
-    const maximum = Math.max(...counts)
-    const padding = Math.max((maximum - minimum) * 0.12, maximum * 0.04, 1)
-    return [Math.max(0, Math.floor(minimum - padding)), Math.ceil(maximum + padding)]
-  }, [dailyActiveTrend])
-  const activityTimeline = data.activityTimeline ?? []
-  const activityMarkers = useMemo(() => {
-    const markerDates = new Map<string, ActivityTimelineDatum['kind']>()
-    for (const event of activityTimeline) {
-      const existing = markerDates.get(event.date)
-      if (!existing || event.kind === 'context') markerDates.set(event.date, event.kind)
-    }
-    return markerDates
-  }, [activityTimeline])
   const valueCoverage = percentage(h.valueSampleSize, h.redemptionsTotal)
   const pushOpenRate = percentage(marketing.pushOpens30d, marketing.pushSends30d)
   const recentRedeemers = h.redeemingUsers30d ?? 0
@@ -767,9 +715,9 @@ export function DataRoomDashboard({
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <SignalCard
                 icon={<Activity size={18} aria-hidden />}
-                label="DAU promedio"
+                label="DAU promedio · 30 días"
                 value={formatLargeNumber(marketing.averageDau30d)}
-                helper={`${formatNumber(lastRollingDau)} de tendencia móvil · 7 días`}
+                helper="Usuarios activos por día · últimos 30 días completos"
                 pink
               />
               <SignalCard
@@ -822,121 +770,16 @@ export function DataRoomDashboard({
               />
             </div>
 
-            <div className="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,1.75fr)_minmax(320px,1fr)]">
-              <Panel title="Tendencia de DAU" helper="Promedio móvil de 7 días sobre jornadas completas; el valor real de cada día aparece al pasar el cursor.">
-                <div className="grid gap-2 rounded-2xl bg-[#FFF0FB] p-3 sm:grid-cols-2 sm:p-4">
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#702353]">Promedio · 30 días</p>
-                    <p className="mt-1 text-2xl font-bold tracking-[-0.04em] text-[#400224]">{formatLargeNumber(marketing.averageDau30d)}</p>
-                  </div>
-                  <div className="sm:border-l sm:border-[#400224]/10 sm:pl-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#702353]">Tendencia móvil · 7 días</p>
-                    <p className="mt-1 text-2xl font-bold tracking-[-0.04em] text-[#400224]">{formatLargeNumber(lastRollingDau)}</p>
-                  </div>
+            <div className="mt-4 grid items-start gap-4 lg:grid-cols-2">
+              <Panel title="Promedio de usuarios activos · 30 días" helper="Personas únicas con actividad registrada cada día.">
+                <div className="rounded-2xl bg-[#FFF0FB] p-5 sm:p-6">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#702353]">Promedio diario · 30 días</p>
+                  <p className="mt-2 text-4xl font-bold tracking-[-0.04em] text-[#400224] sm:text-5xl">{formatLargeNumber(marketing.averageDau30d)}</p>
+                  <p className="mt-3 text-sm leading-5 text-[#6F3157]">usuarios activos por día</p>
                 </div>
-                <div className="mt-4 h-[245px] w-full">
-                  <ClientOnlyChart>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={dailyActiveTrend} margin={{ top: 24, right: 12, left: -8, bottom: 0 }}>
-                      <CartesianGrid vertical={false} stroke="#E8EDE9" />
-                      <XAxis dataKey="date" tickFormatter={formatDay} interval="preserveStartEnd" minTickGap={32} tickMargin={8} axisLine={false} tickLine={false} tick={{ fill: '#66706B', fontSize: 11 }} />
-                      <YAxis domain={dailyActiveDomain} tickFormatter={(value) => compactFormatter.format(Number(value))} axisLine={false} tickLine={false} tick={{ fill: '#66706B', fontSize: 11 }} />
-                      <Tooltip
-                        contentStyle={tooltipStyle}
-                        labelFormatter={(label) => formatDay(String(label))}
-                        formatter={(value, name) => [formatNumber(Number(value)), name]}
-                      />
-                      <Line
-                        type="linear"
-                        dataKey="count"
-                        name="DAU diario real"
-                        stroke="transparent"
-                        dot={false}
-                        activeDot={false}
-                        isAnimationActive={false}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="rollingAverage"
-                        name="Tendencia móvil · 7 días"
-                        stroke="#A62C78"
-                        strokeWidth={3}
-                        dot={(props: { cx?: number; cy?: number; payload?: { date?: string } }) => {
-                          const date = props.payload?.date
-                          const kind = date ? activityMarkers.get(date) : undefined
-                          if (!kind || props.cx == null || props.cy == null) return <g />
-                          const tone = activityEventTone[kind]
-                          return (
-                            <g>
-                              <line
-                                x1={props.cx}
-                                x2={props.cx}
-                                y1={12}
-                                y2={218}
-                                stroke={tone.stroke}
-                                strokeDasharray={kind === 'context' ? '3 3' : '2 5'}
-                                strokeOpacity={kind === 'context' ? 0.9 : 0.45}
-                              />
-                              <circle cx={props.cx} cy={props.cy} r={4} fill={tone.stroke} stroke="white" strokeWidth={2} />
-                              {kind === 'context' ? (
-                                <text
-                                  x={props.cx - 6}
-                                  y={17}
-                                  textAnchor="end"
-                                  fill="#400224"
-                                  fontSize={10}
-                                  fontWeight={700}
-                                >
-                                  Mundial
-                                </text>
-                              ) : null}
-                            </g>
-                          )
-                        }}
-                        activeDot={{ r: 5, fill: '#FFC2F4', stroke: '#400224', strokeWidth: 2 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                  </ClientOnlyChart>
-                </div>
-                {activityTimeline.length ? (
-                  <div className="mt-4 border-t border-[#E8EDE9] pt-4">
-                    <div className="flex flex-wrap items-end justify-between gap-2">
-                      <div>
-                        <p className="text-xs font-bold text-[#102A1E]">Eventos para interpretar la curva</p>
-                        <p className="mt-1 text-[11px] leading-4 text-[#66706B]">Los hitos dan contexto; por sí solos no prueban causalidad.</p>
-                      </div>
-                      <div className="flex flex-wrap gap-3 text-[10px] font-semibold text-[#66706B]">
-                        {(['challenge_start', 'challenge_end', 'context'] as const).map((kind) => (
-                          <span key={kind} className="inline-flex items-center gap-1.5">
-                            <span className={`size-2 rounded-full ${activityEventTone[kind].dot}`} />
-                            {activityEventTone[kind].prefix}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="mt-3 flex gap-2 overflow-x-auto pb-1" aria-label="Eventos del período">
-                      {activityTimeline.map((event, index) => {
-                        const tone = activityEventTone[event.kind]
-                        return (
-                          <div
-                            key={`${event.date}-${event.kind}-${event.label}-${index}`}
-                            className={`min-w-[190px] rounded-xl border px-3 py-2.5 ${tone.pill}`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <span className={`size-2 rounded-full ${tone.dot}`} />
-                              <p className="text-[10px] font-bold uppercase tracking-[0.08em]">
-                                {formatDay(event.date)} · {tone.prefix}
-                              </p>
-                            </div>
-                            <p className="mt-1.5 text-xs font-bold leading-4">{event.label}</p>
-                            {event.detail ? <p className="mt-1 text-[10px] leading-4 opacity-70">{event.detail}</p> : null}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                ) : null}
+                <p className="mt-4 text-xs leading-5 text-[#66706B]">
+                  Calculado sobre los últimos 30 días completos. El día en curso se excluye del promedio.
+                </p>
               </Panel>
 
               <Panel title="Alcance directo por push" helper="Envíos aceptados por el proveedor y aperturas registradas durante 30 días completos.">
@@ -1256,7 +1099,7 @@ export function DataRoomDashboard({
           <p className="mt-1 max-w-5xl">
             La base detallada corresponde a perfiles registrados en {data.countryName}; la vista de red suma Argentina y Uruguay únicamente.
             “Activas 30 días”, DAU, WAU y MAU usan personas únicas con actividad diaria sincronizada durante días completos. El día en curso se excluye.
-            La curva de DAU muestra un promedio móvil de 7 días para reducir oscilaciones puntuales; el tooltip conserva el valor diario real sin modificar.
+            El DAU promedio es la media de usuarios activos diarios de los últimos 30 días completos.
             Stickiness es DAU promedio dividido MAU. Una “jornada activa” es una persona con apertura y actividad sincronizada ese día; no equivale a una impresión publicitaria.
             Las notificaciones “enviadas” son aceptadas por el proveedor de push y las “aperturas” requieren una interacción registrada.
             Los canjes incluyen únicamente cupones confirmados como usados. Los pasos de desafíos se suman por activación y pueden superponerse si una persona participó en desafíos simultáneos.
