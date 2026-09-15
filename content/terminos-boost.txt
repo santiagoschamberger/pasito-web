@@ -1,0 +1,51 @@
+TÉRMINOS Y CONDICIONES PARTICULARES - BOOST DE PASOS POR QR
+
+1.- ORGANIZADOR Y ALCANCE
+
+Las presentes bases particulares (las “Bases”) rigen las campañas de multiplicación de pasos activadas mediante un código QR de PASITO (el “Boost”). El organizador es PASITO APP S.A.S., CUIT 30-71944461-6, con domicilio en Vedia 3892, Piso 1, posición 19, C1430, CABA, Argentina, y, cuando corresponda, PASITO URUGUAY SAS (en conjunto, “PASITO”).
+
+La participación implica la aceptación de estas Bases, de los Términos y Condiciones Generales de Uso de PASITO y de la Política de Privacidad vigentes en https://pasito.app/terminos y https://pasito.app/privacidad.
+
+Cada Boost concreto (nombre comercial, multiplicador, duración, ventana de activación, tope de Pasitos extra y comercios asociados) se informa en la landing de la campaña dentro de la aplicación PASITO.
+
+2.- CÓMO PARTICIPAR
+
+Pueden participar personas humanas, mayores de 13 años, con una cuenta activa de PASITO y la aplicación actualizada a la versión mínima informada para Boosts.
+
+El código QR solo abre la campaña. Escanear el QR, abrir el enlace o ver la landing NO activa el Boost. Para que los pasos extra cuenten, la persona participante debe tocar el botón de activación en la aplicación (“Activar”) dentro de la ventana informada.
+
+PASITO no exige geolocalización ni prueba de presencia en el predio para activar el Boost, salvo que una campaña particular lo indique expresamente en su landing.
+
+3.- MECÁNICA, PASOS Y ACREDITACIÓN
+
+Una vez activado, el Boost multiplica los pasos verificados por PASITO durante la duración informada, con el tope de Pasitos extra indicado en la campaña.
+
+La unidad de crédito sigue la regla general de PASITO: cada 1.000 pasos verificados equivalen a 1 Pasito. El extra del Boost se calcula sobre esa misma regla, con el multiplicador de la campaña, y no es dinero en efectivo.
+
+El extra se acredita después de la ventana, cuando PASITO verifica la actividad al reabrir la aplicación. Si en la ventana no hay al menos 1.000 pasos verificados, el extra puede ser cero.
+
+Los pasos considerados son los que PASITO valida a través de las fuentes de actividad habilitadas por la persona usuaria. PASITO puede rechazar o recortar actividad que no resulte confiable.
+
+4.- CUPOS, VENTANA Y FINALIZACIÓN
+
+PASITO puede limitar la cantidad de activaciones, la ventana horaria y el tope de Pasitos extra. Agotado el cupo o vencida la ventana de activación, no se podrán iniciar Boosts nuevos de esa campaña.
+
+PASITO puede suspender, modificar o cancelar un Boost por razones operativas, de integridad de la plataforma o de fuerza mayor, sin que ello genere derecho a compensación, sin perjuicio de los derechos irrenunciables de las personas consumidoras.
+
+5.- COMERCIOS ASOCIADOS
+
+Cuando la campaña identifique comercios de un shopping u otro predio, esa mención es informativa para canjes posteriores con Pasitos. La activación del Boost no implica descuento automático, reserva ni obligación de compra en esos comercios.
+
+Los canjes de Pasitos en comercios se rigen por las condiciones del premio o promoción correspondiente y por la disponibilidad de stock.
+
+6.- INTEGRIDAD Y EXCLUSIONES
+
+PASITO puede invalidar activaciones, créditos o participaciones obtenidas de forma fraudulenta, automatizada, con manipulación de sensores, cuentas múltiples o cualquier abuso de la mecánica.
+
+El Boost no es un sorteo ni un desafío de ranking, salvo que la landing de una campaña particular indique otra mecánica.
+
+7.- DATOS PERSONALES Y CONTACTO
+
+El tratamiento de datos se rige por la Política de Privacidad de PASITO. Consultas sobre estas Bases: hola@pasito.app.
+
+Última actualización: 14 de septiembre de 2026.

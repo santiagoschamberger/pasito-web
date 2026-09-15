@@ -1,7 +1,13 @@
 import Image from 'next/image'
 import type { Metadata } from 'next'
+import ChallengeRedirect from './ChallengeRedirect'
+import {
+  buildChallengeWebUrl,
+  normalizeChallengeId,
+} from './challenge-link'
 import {
   fetchChallengeWithWinners,
+  fetchStepBoostForChallenge,
   type ChallengeWinner,
 } from '../challenges-data'
 
@@ -19,21 +25,38 @@ const playStoreUrl =
 
 const appStoreId = process.env.NEXT_PUBLIC_APP_STORE_ID
 
-// Winners can keep changing right after close; don't cache the page output.
 export const dynamic = 'force-dynamic'
 
-function cleanId(raw: string): string {
-  return raw.trim()
+function formatBoostWhen(iso: string): string {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return ''
+  return new Intl.DateTimeFormat('es-AR', {
+    timeZone: 'America/Argentina/Buenos_Aires',
+    day: 'numeric',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params
-  const webUrl = `https://www.pasito.app/challenges/${encodeURIComponent(cleanId(id))}`
-  const challenge = await fetchChallengeWithWinners(cleanId(id))
-  const title = challenge ? `${challenge.title} — Pasito` : 'Desafío en Pasito'
-  const description = challenge?.isClosed
-    ? `Mirá quiénes ganaron en ${challenge.brandName ?? 'Pasito'}.`
-    : 'Mirá el desafío y quiénes ganaron los premios en Pasito.'
+  const challengeId = normalizeChallengeId(id) ?? id.trim()
+  const webUrl = buildChallengeWebUrl(challengeId)
+  const [challenge, boost] = await Promise.all([
+    fetchChallengeWithWinners(challengeId),
+    fetchStepBoostForChallenge(challengeId),
+  ])
+  const title = challenge
+    ? `${challenge.title} — Pasito`
+    : boost
+      ? 'Boost de pasos — Pasito'
+      : 'Desafío en Pasito'
+  const description = boost
+    ? 'Escaneaste el QR. En la app tocá Activar para que tus pasos cuenten extra.'
+    : challenge?.isClosed
+      ? `Mirá quiénes ganaron en ${challenge.brandName ?? 'Pasito'}.`
+      : 'Mirá el desafío y abrí Pasito para participar.'
 
   const meta: Metadata = {
     title,
@@ -57,12 +80,31 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ChallengeDetailPage({ params }: PageProps) {
   const { id } = await params
-  const challengeId = cleanId(id)
-  const challenge = await fetchChallengeWithWinners(challengeId)
+  const challengeId = normalizeChallengeId(id) ?? id.trim()
+  const challengeUrl = buildChallengeWebUrl(challengeId)
+  const [challenge, boost] = await Promise.all([
+    fetchChallengeWithWinners(challengeId),
+    fetchStepBoostForChallenge(challengeId),
+  ])
 
   const hasWinners =
     !!challenge &&
     (challenge.physicalWinners.length > 0 || challenge.pasitosWinners.length > 0)
+  const startsAt = boost ? new Date(boost.activationStartsAt) : null
+  const scheduled =
+    !!boost && !!startsAt && !Number.isNaN(startsAt.getTime()) && startsAt.getTime() > Date.now()
+  const startLabel = boost ? formatBoostWhen(boost.activationStartsAt) : ''
+
+  const headline = challenge?.title ?? 'Desafío en Pasito'
+  const body = boost
+    ? scheduled
+      ? `El boost arranca el ${startLabel}. El QR ya abre Pasito, pero el x${boost.multiplier} recién se activa cuando toques Activar.`
+      : `Escaneaste el QR. Eso no alcanza: en la app tenés que tocar Activar para que tus pasos cuenten x${boost.multiplier}. Si Pasito no abre, actualizá la app.`
+    : challenge?.isClosed
+      ? hasWinners
+        ? 'Desafío terminado — estos son los ganadores'
+        : 'Desafío terminado'
+      : 'Abrí la app para participar y ver el ranking en vivo.'
 
   return (
     <main
@@ -81,14 +123,10 @@ export default async function ChallengeDetailPage({ params }: PageProps) {
 
         <div className="grid gap-2 text-center">
           <p className="text-2xl font-extrabold leading-tight text-white">
-            {challenge?.title ?? 'Desafío en Pasito'}
+            {headline}
           </p>
           <p className="text-sm" style={{ color: 'rgba(255,255,255,0.86)' }}>
-            {challenge?.isClosed
-              ? hasWinners
-                ? 'Desafío terminado — estos son los ganadores'
-                : 'Desafío terminado'
-              : 'Abrí la app para participar y ver el ranking en vivo.'}
+            {body}
           </p>
         </div>
 
@@ -106,32 +144,12 @@ export default async function ChallengeDetailPage({ params }: PageProps) {
           </div>
         ) : null}
 
-        <div className="w-full grid gap-3 pt-1">
-          <div className="grid grid-cols-2 gap-3">
-            <a
-              href={appStoreUrl}
-              className="h-11 rounded-full flex items-center justify-center text-xs font-semibold"
-              style={{
-                background: 'rgba(255,255,255,0.12)',
-                color: '#FFFFFF',
-                border: '1px solid rgba(255,255,255,0.22)',
-              }}
-            >
-              App Store
-            </a>
-            <a
-              href={playStoreUrl}
-              className="h-11 rounded-full flex items-center justify-center text-xs font-semibold"
-              style={{
-                background: 'rgba(255,255,255,0.12)',
-                color: '#FFFFFF',
-                border: '1px solid rgba(255,255,255,0.22)',
-              }}
-            >
-              Google Play
-            </a>
-          </div>
-        </div>
+        <ChallengeRedirect
+          challengeId={challengeId}
+          challengeUrl={challengeUrl}
+          appStoreUrl={appStoreUrl}
+          playStoreUrl={playStoreUrl}
+        />
       </div>
     </main>
   )

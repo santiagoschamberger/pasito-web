@@ -105,7 +105,6 @@ export async function fetchChallengeWithWinners(
       'id, title, brand_name, brand_logo_url, is_closed, end_date, winner_selection_mode, top_n_winners, pasitos_per_winner, physical_prize_winner_count, brand_prizes',
     )
     .eq('id', id)
-    .eq('is_active', true)
     .maybeSingle()
 
   if (error || !ch) return null
@@ -175,6 +174,41 @@ export async function fetchChallengeWithWinners(
     physicalPrizeWinnerCount: (ch.physical_prize_winner_count as number | null) ?? 0,
     physicalWinners,
     pasitosWinners,
+  }
+}
+
+export type StepBoostLanding = {
+  multiplier: number
+  activationStartsAt: string
+  activationEndsAt: string
+}
+
+export async function fetchStepBoostForChallenge(
+  id: string,
+): Promise<StepBoostLanding | null> {
+  if (!isChallengeId(id)) return null
+  const supabase = admin()
+  if (!supabase) return null
+
+  const { data, error } = await supabase
+    .from('step_boost_campaigns')
+    .select('multiplier, activation_starts_at, activation_ends_at')
+    .eq('challenge_id', id)
+    .maybeSingle()
+
+  if (error || !data) return null
+
+  const activationStartsAt = String(data.activation_starts_at ?? '')
+  const activationEndsAt = String(data.activation_ends_at ?? '')
+  const multiplier = Number(data.multiplier)
+  if (!activationStartsAt || !activationEndsAt || !Number.isInteger(multiplier)) {
+    return null
+  }
+
+  return {
+    multiplier,
+    activationStartsAt,
+    activationEndsAt,
   }
 }
 
