@@ -9,13 +9,6 @@ import {
   type ShippingAddress,
 } from '@/lib/store-shipping'
 import {
-  isPickupLocation,
-  pickupLabel,
-  pickupWhatsAppUrl as buildPickupWhatsAppUrl,
-  type PickupLocation,
-} from '@/lib/store-fulfillment'
-import { pickupCoordinationBlockHtml } from '@/lib/store-pickup-email'
-import {
   EmailDeliveryError,
   emailDeliveryErrorMessage,
   retryEmailDelivery,
@@ -30,11 +23,8 @@ const CURRENCY = 'ARS'
 const BASES = ['blanca', 'negra'] as const
 const PRINTS = ['verde', 'blanca'] as const
 const SIZES = ['S', 'M', 'L', 'XL'] as const
-const DELIVERIES = ['retiro', 'envio'] as const
-const REBILL_PRODUCT_REFERENCE = {
-  retiro: 'prd_1fe10f86e66f45a18f2817d4cf2ae207',
-  envio: 'prd_ff7aa494f84a445d97c03f16fe2ee49c',
-} as const
+// Solo envío disponible
+const REBILL_PRODUCT_REFERENCE = 'prd_ff7aa494f84a445d97c03f16fe2ee49c'
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 type StoreOrderRow = {
@@ -63,8 +53,8 @@ function getSupabase() {
   return supabase
 }
 
-function expectedAmount(qty: number, delivery: string) {
-  return PRICE * qty + (delivery === 'envio' ? SHIPPING : 0)
+function expectedAmount(qty: number) {
+  return PRICE * qty + SHIPPING
 }
 
 function escapeHtml(value: string) {
@@ -86,27 +76,17 @@ function orderConfirmationHtml(params: {
   variant: string
   size: string
   qty: number
-  delivery: string
-  pickupLocation?: PickupLocation | null
   amount: number
-  shippingAddress?: ShippingAddress | null
+  shippingAddress: ShippingAddress
 }): string {
-  const deliveryText =
-    params.delivery === 'retiro'
-      ? pickupLabel(params.pickupLocation)
-      : 'Envío a domicilio'
+  const deliveryText = 'Envío a domicilio'
   const shippingAddress = params.shippingAddress
-  const shippingDetails = shippingAddress
-    ? `
+  const shippingDetails = `
       <p style="font-size:14px;color:#555;margin:0 0 6px;">Dirección: ${escapeHtml(formatShippingAddress(shippingAddress))}</p>
       <p style="font-size:14px;color:#555;margin:0 0 6px;">Teléfono: ${escapeHtml(shippingAddress.phone)}</p>
       ${shippingAddress.notes ? `<p style="font-size:14px;color:#555;margin:0 0 6px;">Indicaciones: ${escapeHtml(shippingAddress.notes)}</p>` : ''}
     `
-    : ''
-  const deliveryInstructions =
-    params.delivery === 'retiro'
-      ? pickupCoordinationBlockHtml(params.customerName, params.pickupLocation)
-      : `<p style="font-size:14px;color:#555;margin:0 0 8px;line-height:1.6;">Tu dirección quedó guardada. Vamos a despachar el pedido dentro de <strong>5–6 días hábiles</strong>.</p>`
+  const deliveryInstructions = `<p style="font-size:14px;color:#555;margin:0 0 8px;line-height:1.6;">Tu dirección quedó guardada. Vamos a despachar el pedido dentro de <strong>5–6 días hábiles</strong>.</p>`
   const money = new Intl.NumberFormat('es-AR', {
     style: 'currency',
     currency: CURRENCY,
@@ -158,18 +138,14 @@ export async function POST(req: NextRequest) {
   const size = String(body.size ?? '')
   const qty = Number(body.qty ?? 0)
   const delivery = String(body.delivery ?? '')
-  const rawPickupLocation = body.pickupLocation
-  const pickupLocation = isPickupLocation(rawPickupLocation) ? rawPickupLocation : null
 
-  // Validación básica de entrada.
+  // Validación básica de entrada - solo envío permitido.
   if (
     !paymentId ||
     !BASES.includes(base as (typeof BASES)[number]) ||
     !PRINTS.includes(print as (typeof PRINTS)[number]) ||
     !SIZES.includes(size as (typeof SIZES)[number]) ||
-    !DELIVERIES.includes(delivery as (typeof DELIVERIES)[number]) ||
-    (delivery === 'retiro' && !pickupLocation) ||
-    (delivery === 'envio' && rawPickupLocation !== undefined && rawPickupLocation !== null && rawPickupLocation !== '') ||
+    delivery !== 'envio' ||
     !Number.isInteger(qty) ||
     qty < 1 ||
     qty > 10
@@ -200,7 +176,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'El pago no está aprobado.' }, { status: 402 })
   }
 
-  const expected = expectedAmount(qty, delivery)
+  const expected = expectedAmount(qty)
   if (!isRebillPaymentAmountValid(pay.amount, expected, pay.installments) || (pay.currency ?? '').toUpperCase() !== CURRENCY) {
     return NextResponse.json({ error: 'El monto del pago no coincide.' }, { status: 400 })
   }
@@ -208,22 +184,16 @@ export async function POST(req: NextRequest) {
   // Instant Checkout persiste toda la selección en metadata. La exigimos y
   // validamos contra el pedido recibido para no confiar sólo en el cliente.
   const metadata = pay.metadata
-  const paidPickupLocation = isPickupLocation(metadata?.pickupLocation) ? metadata.pickupLocation : null
-  const checkoutIntentId =
-    delivery === 'envio' && typeof metadata?.checkoutIntentId === 'string'
-      ? metadata.checkoutIntentId.trim()
-      : null
+  const checkoutIntentId = typeof metadata?.checkoutIntentId === 'string' ? metadata.checkoutIntentId.trim() : null
   if (
     !metadata ||
-    metadata.catalogProductId !== REBILL_PRODUCT_REFERENCE[delivery as keyof typeof REBILL_PRODUCT_REFERENCE] ||
+    metadata.catalogProductId !== REBILL_PRODUCT_REFERENCE ||
     metadata.base !== base ||
     metadata.print !== print ||
     metadata.size !== size ||
     String(metadata.qty) !== String(qty) ||
-    metadata.delivery !== delivery ||
-    (delivery === 'retiro' && paidPickupLocation !== pickupLocation) ||
-    (delivery === 'envio' && metadata.pickupLocation !== undefined) ||
-    (delivery === 'envio' && (!checkoutIntentId || !UUID_PATTERN.test(checkoutIntentId)))
+    metadata.delivery !== 'envio' ||
+    (!checkoutIntentId || !UUID_PATTERN.test(checkoutIntentId))
   ) {
     return NextResponse.json({ error: 'El pago no coincide con la selección de la tienda.' }, { status: 400 })
   }
@@ -240,13 +210,13 @@ export async function POST(req: NextRequest) {
     p_print: print,
     p_size: size,
     p_qty: qty,
-    p_delivery: delivery,
+    p_delivery: 'envio',
     p_amount: expected,
     p_currency: CURRENCY,
     p_email: email,
     p_customer_name: customerName,
     p_checkout_intent_id: checkoutIntentId,
-    p_pickup_location: pickupLocation,
+    p_pickup_location: null,
   })
 
   if (error) {
@@ -264,13 +234,6 @@ export async function POST(req: NextRequest) {
   if (result === 'invalid_checkout_intent') {
     return NextResponse.json(
       { error: 'El pago fue recibido, pero necesitamos verificar la dirección de envío.', result },
-      { status: 409 },
-    )
-  }
-
-  if (result === 'invalid_pickup_location') {
-    return NextResponse.json(
-      { error: 'El pago fue recibido, pero necesitamos verificar el punto de retiro elegido.', result },
       { status: 409 },
     )
   }
@@ -296,17 +259,20 @@ export async function POST(req: NextRequest) {
   }
   const confirmedOrder = rawConfirmedOrder as StoreOrderRow
 
-  const shippingAddress: ShippingAddress | null = delivery === 'envio'
-    ? normalizeShippingAddress({
-        line1: confirmedOrder.shipping_address_line1,
-        line2: confirmedOrder.shipping_address_line2 ?? '',
-        city: confirmedOrder.shipping_city,
-        province: confirmedOrder.shipping_province,
-        postalCode: confirmedOrder.shipping_postal_code,
-        phone: confirmedOrder.shipping_phone,
-        notes: confirmedOrder.shipping_notes ?? '',
-      })
-    : null
+  const shippingAddress: ShippingAddress | null = normalizeShippingAddress({
+    line1: confirmedOrder.shipping_address_line1,
+    line2: confirmedOrder.shipping_address_line2 ?? '',
+    city: confirmedOrder.shipping_city,
+    province: confirmedOrder.shipping_province,
+    postalCode: confirmedOrder.shipping_postal_code,
+    phone: confirmedOrder.shipping_phone,
+    notes: confirmedOrder.shipping_notes ?? '',
+  })
+
+  if (!shippingAddress) {
+    console.error('[orders] Dirección de envío inválida para orden confirmada')
+    return NextResponse.json({ error: 'No se pudo cargar la dirección de envío.' }, { status: 500 })
+  }
 
   // 3) Mail de confirmación. También se intenta en callbacks duplicados si
   // un intento anterior no quedó registrado como enviado.
@@ -331,8 +297,6 @@ export async function POST(req: NextRequest) {
               variant,
               size,
               qty,
-              delivery,
-              pickupLocation,
               amount: expected,
               shippingAddress,
             }),
@@ -377,8 +341,5 @@ export async function POST(req: NextRequest) {
     ok: true,
     result,
     emailPending,
-    ...(delivery === 'retiro'
-      ? { pickupWhatsAppUrl: buildPickupWhatsAppUrl(customerName, pickupLocation) }
-      : {}),
   })
 }

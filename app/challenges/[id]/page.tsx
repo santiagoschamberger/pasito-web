@@ -1,10 +1,10 @@
 import Image from 'next/image'
 import type { Metadata } from 'next'
+import { cache } from 'react'
+import { notFound } from 'next/navigation'
 import ChallengeRedirect from './ChallengeRedirect'
-import {
-  buildChallengeWebUrl,
-  normalizeChallengeId,
-} from './challenge-link'
+import ChallengeAppLink from '../ChallengeAppLink'
+import { buildChallengeUrl, isChallengeId } from '../challenge-link'
 import {
   fetchChallengeWithWinners,
   fetchStepBoostForChallenge,
@@ -24,7 +24,10 @@ const playStoreUrl =
   'https://play.google.com/store/apps/details?id=ar.pasito.pasito'
 
 const appStoreId = process.env.NEXT_PUBLIC_APP_STORE_ID
+const getChallenge = cache(fetchChallengeWithWinners)
+const getBoost = cache(fetchStepBoostForChallenge)
 
+// Winners can keep changing right after close; don't cache the page output.
 export const dynamic = 'force-dynamic'
 
 function formatBoostWhen(iso: string): string {
@@ -41,11 +44,12 @@ function formatBoostWhen(iso: string): string {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params
-  const challengeId = normalizeChallengeId(id) ?? id.trim()
-  const webUrl = buildChallengeWebUrl(challengeId)
+  if (!isChallengeId(id)) notFound()
+  const challengeId = id.trim().toLowerCase()
+  const webUrl = buildChallengeUrl(challengeId)
   const [challenge, boost] = await Promise.all([
-    fetchChallengeWithWinners(challengeId),
-    fetchStepBoostForChallenge(challengeId),
+    getChallenge(challengeId),
+    getBoost(challengeId),
   ])
   const title = challenge
     ? `${challenge.title} — Pasito`
@@ -80,11 +84,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ChallengeDetailPage({ params }: PageProps) {
   const { id } = await params
-  const challengeId = normalizeChallengeId(id) ?? id.trim()
-  const challengeUrl = buildChallengeWebUrl(challengeId)
+  if (!isChallengeId(id)) notFound()
+  const challengeId = id.trim().toLowerCase()
+  const challengeUrl = buildChallengeUrl(challengeId)
   const [challenge, boost] = await Promise.all([
-    fetchChallengeWithWinners(challengeId),
-    fetchStepBoostForChallenge(challengeId),
+    getChallenge(challengeId),
+    getBoost(challengeId),
   ])
 
   const hasWinners =
@@ -122,18 +127,30 @@ export default async function ChallengeDetailPage({ params }: PageProps) {
         />
 
         <div className="grid gap-2 text-center">
-          <p className="text-2xl font-extrabold leading-tight text-white">
+          <h1 className="text-2xl font-extrabold leading-tight text-white">
             {headline}
-          </p>
+          </h1>
           <p className="text-sm" style={{ color: 'rgba(255,255,255,0.86)' }}>
             {body}
           </p>
         </div>
 
+        {challenge?.isClosed && !hasWinners ? (
+          <p className="text-center text-sm text-white/80" role="status">
+            {challenge.resultsStatus === 'unavailable'
+              ? 'No pudimos cargar los resultados. Volvé a intentar en unos minutos o abrí la app.'
+              : 'Los ganadores todavía no están publicados. Volvé a consultar en unos minutos.'}
+          </p>
+        ) : null}
+
         {hasWinners && challenge ? (
-          <div className="w-full grid gap-5">
+          <section id="ganadores" aria-label="Ganadores del desafío" className="w-full grid gap-5">
+            <p className="text-center text-sm font-semibold text-white">
+              {challenge.physicalWinners.length + challenge.pasitosWinners.length} ganadores
+              {challenge.winnerSelectionMode === 'raffle_top_n' ? ' · Por orden de sorteo' : ''}
+            </p>
             {challenge.physicalWinners.length > 0 ? (
-              <WinnerGroup title="Primeros premios" winners={challenge.physicalWinners} />
+              <WinnerGroup title="Ganadores de premios" winners={challenge.physicalWinners} />
             ) : null}
             {challenge.pasitosWinners.length > 0 ? (
               <WinnerGroup
@@ -141,15 +158,19 @@ export default async function ChallengeDetailPage({ params }: PageProps) {
                 winners={challenge.pasitosWinners}
               />
             ) : null}
-          </div>
+          </section>
         ) : null}
 
-        <ChallengeRedirect
-          challengeId={challengeId}
-          challengeUrl={challengeUrl}
-          appStoreUrl={appStoreUrl}
-          playStoreUrl={playStoreUrl}
-        />
+        {boost ? (
+          <ChallengeRedirect
+            challengeId={challengeId}
+            challengeUrl={challengeUrl}
+            appStoreUrl={appStoreUrl}
+            playStoreUrl={playStoreUrl}
+          />
+        ) : challenge ? (
+          <ChallengeAppLink challengeId={challenge.id} />
+        ) : null}
       </div>
     </main>
   )
@@ -164,12 +185,12 @@ function WinnerGroup({
 }) {
   return (
     <div className="grid gap-2">
-      <p
+      <h2
         className="text-xs font-extrabold uppercase tracking-wide"
         style={{ color: 'rgba(255,255,255,0.6)' }}
       >
         {title}
-      </p>
+      </h2>
       <div className="grid gap-2">
         {winners.map((w, i) => (
           <WinnerRow key={`${title}-${i}`} winner={w} index={i} />
@@ -204,8 +225,8 @@ function WinnerRow({ winner, index }: { winner: ChallengeWinner; index: number }
         {index + 1}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-white truncate">
-          {`Ganador/a ${index + 1}`}
+        <p className="text-sm font-semibold text-white break-words">
+          {winner.displayName ?? `Ganador/a ${index + 1}`}
         </p>
         {subtitle ? (
           <p className="text-xs truncate" style={{ color: 'rgba(255,255,255,0.6)' }}>

@@ -192,9 +192,9 @@ test('brand engagement uses verified first-party sources and Pasito branding', (
   assert.match(dashboard, /logo-lime\.svg/)
   assert.match(dashboard, /Audiencia de marketing/)
   assert.match(dashboard, /DAU promedio/)
-  assert.match(dashboard, /Tendencia de DAU/)
-  assert.match(dashboard, /promedio móvil de 7 días/i)
-  assert.match(dashboard, /DAU diario real/)
+  assert.match(dashboard, /DAU promedio · 30 días/)
+  assert.match(dashboard, /formatLargeNumber\(marketing\.averageDau30d\)/)
+  assert.match(dashboard, /últimos 30 días completos/)
   assert.match(dashboard, /WAU · 7 días/)
   assert.match(dashboard, /MAU · 30 días/)
   assert.match(dashboard, /Vistas de detalle y clicks de catálogo/)
@@ -207,11 +207,11 @@ test('brand engagement uses verified first-party sources and Pasito branding', (
   assert.match(dashboard, /Pasos validados/)
   assert.match(dashboard, /Activaciones de marca/)
   assert.match(dashboard, /no equivale a una impresión publicitaria/)
-  assert.match(dashboard, /Eventos para interpretar la curva/)
-  assert.match(dashboard, /por sí solos no prueban causalidad/)
 })
 
 test('removed data-room detail sections stay out of the public dashboard', () => {
+  assert.doesNotMatch(dashboard, /Tendencia de DAU|tendencia móvil|rollingAverage|LineChart/i)
+  assert.doesNotMatch(dashboard, /Eventos para interpretar la curva|activityTimeline/)
   assert.doesNotMatch(dashboard, /Filtros más usados/)
   assert.doesNotMatch(dashboard, /Premios más vistos/)
   assert.doesNotMatch(dashboard, /Comercios más vistos/)
@@ -227,9 +227,12 @@ test('removed data-room details are not serialized to the browser', () => {
     country_code: 'AR',
     refreshed_at: '2026-08-26T12:00:00.000Z',
     payload: {
+      dailyActiveTrend: [{ date: '2026-08-25', count: 200 }],
+      activityTimeline: [{ date: '2026-08-25', kind: 'challenge_start', label: 'Desafío' }],
       headline: { repeatRedeemers: 12 },
       dataCoverage: { interestUsers: 34 },
       marketing: {
+        averageDau30d: 315236,
         mixpanelFilterTypes: [{ label: 'category', count: 56 }],
         mixpanelTopViewedRewards: [{ label: 'Premio', count: 78 }],
         mixpanelTopViewedPartners: [{ label: 'Comercio', count: 90 }],
@@ -248,8 +251,9 @@ test('removed data-room details are not serialized to the browser', () => {
   } as unknown as BrandDataSnapshot
 
   const result = toPublicBrandDataSnapshot(snapshot)
+  assert.equal(result.payload.marketing?.averageDau30d, 315236)
 
-  for (const key of ['interests', 'favoriteCategories', 'redemptionCategories', 'redemptionTrend', 'topRewards', 'topPartners', 'survey']) {
+  for (const key of ['dailyActiveTrend', 'activityTimeline', 'interests', 'favoriteCategories', 'redemptionCategories', 'redemptionTrend', 'topRewards', 'topPartners', 'survey']) {
     assert.equal(key in result.payload, false)
   }
   assert.equal('repeatRedeemers' in result.payload.headline, false)

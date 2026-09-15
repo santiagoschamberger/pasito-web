@@ -19,10 +19,12 @@ const robots = readFileSync(
   'utf8',
 )
 
-test('public challenge winners never query or render profile identity fields', () => {
-  assert.doesNotMatch(dataSource, /\.from\(['"]profiles['"]\)/)
-  assert.doesNotMatch(dataSource, /display_name|hide_from_leaderboard|\bbarrio\b/)
-  assert.doesNotMatch(detailPage, /winner\.displayName|winner\.barrio/)
+test('public names are restricted to the requested campaign and visible winners', () => {
+  assert.match(dataSource, /PUBLIC_WINNER_NAMES\.has\(id\)/)
+  assert.match(dataSource, /\.eq\('hide_from_leaderboard', false\)/)
+  assert.match(dataSource, /\.select\('id, display_name'\)/)
+  assert.doesNotMatch(dataSource, /\bbarrio\b|\bemail\b|\bphone\b/)
+  assert.doesNotMatch(detailPage, /winner\.barrio|winner\.userId/)
   assert.match(detailPage, /Ganador\/a \$\{index \+ 1\}/)
 })
 

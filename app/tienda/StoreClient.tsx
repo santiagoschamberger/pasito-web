@@ -8,17 +8,6 @@ import {
   normalizeShippingAddress,
   type ShippingAddress,
 } from '@/lib/store-shipping'
-import {
-  PICKUP_LABEL,
-  PICKUP_LOCATIONS,
-  PICKUP_NOTE,
-  PICKUP_WHATSAPP_NUMBER_DISPLAY,
-  pickupConfirmation,
-  pickupLabel,
-  pickupLocationName,
-  pickupWhatsAppUrl,
-  type PickupLocation,
-} from '@/lib/store-fulfillment'
 import styles from './tienda.module.css'
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -37,13 +26,10 @@ const PRICE = 35000 // ⬅️ precio unitario
 const SHIPPING = 7000 // ⬅️ costo de envío a domicilio
 const CURRENCY = 'ARS' // ARS | USD | BRL | CLP | COP | MXN
 
-// Referencias de los productos persistentes en Rebill. El checkout sigue
-// usando instant-product porque el total depende de cantidad + entrega, pero
+// Referencia del producto persistente en Rebill. El checkout sigue
+// usando instant-product porque el total depende de cantidad, pero
 // guardamos la referencia correcta en cada pago para poder reconciliarlo.
-const REBILL_PRODUCT_REFERENCE = {
-  retiro: 'prd_1fe10f86e66f45a18f2817d4cf2ae207',
-  envio: 'prd_ff7aa494f84a445d97c03f16fe2ee49c',
-} as const
+const REBILL_PRODUCT_REFERENCE = 'prd_ff7aa494f84a445d97c03f16fe2ee49c'
 
 const SIZES = ['S', 'M', 'L', 'XL'] as const
 type Size = (typeof SIZES)[number]
@@ -81,11 +67,9 @@ const BASES: Base[] = [
   },
 ]
 
-type Delivery = 'retiro' | 'envio'
-const DELIVERY_OPTIONS: { id: Delivery; label: string; note: string; cost: number }[] = [
-  { id: 'retiro', label: PICKUP_LABEL, note: PICKUP_NOTE, cost: 0 },
-  { id: 'envio', label: 'Envío a domicilio', note: 'Despacho en 5–6 días hábiles', cost: SHIPPING },
-]
+// Solo envío a domicilio disponible
+const DELIVERY_LABEL = 'Envío a domicilio'
+const DELIVERY_NOTE = 'Despacho en 5–6 días hábiles'
 
 const ARGENTINA_PROVINCES = [
   'Buenos Aires',
@@ -390,14 +374,11 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
   const [imgIdx, setImgIdx] = useState(0)
   const [size, setSize] = useState<Size>(() => firstAvailableSize(inventory, BASES[0].id))
   const [qty, setQty] = useState(1)
-  const [delivery, setDelivery] = useState<Delivery>('retiro')
-  const [pickupLocation, setPickupLocation] = useState<PickupLocation | null>(null)
   const [open, setOpen] = useState(false)
   const [done, setDone] = useState<{
     paymentId?: string
     needsSupport?: boolean
     emailPending?: boolean
-    pickupWhatsAppUrl?: string
   } | null>(null)
   const [checkoutReady, setCheckoutReady] = useState(false)
   const [checkoutError, setCheckoutError] = useState<string | null>(null)
@@ -414,12 +395,12 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
   const available = inventoryKnown ? stockFor(inventory, base.id, size) : null
   const soldOut = available !== null && available <= 0
   const canBuy = available !== null && available > 0
-  const canStartCheckout = canBuy && (delivery !== 'retiro' || pickupLocation !== null)
+  const canStartCheckout = canBuy
   const maxQty = available === null ? 1 : Math.max(1, Math.min(MAX_PER_ORDER, available))
-  const shippingCost = delivery === 'envio' ? SHIPPING : 0
+  const shippingCost = SHIPPING
   const subtotal = PRICE * qty
   const total = subtotal + shippingCost
-  const checkoutShippingAddress = delivery === 'envio' ? normalizeShippingAddress(shippingAddress) : null
+  const checkoutShippingAddress = normalizeShippingAddress(shippingAddress)
 
   const selectBase = useCallback(
     (b: Base) => {
@@ -439,8 +420,8 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
   const openCheckout = useCallback(async () => {
     if (!canStartCheckout) return
 
-    const address = delivery === 'envio' ? normalizeShippingAddress(shippingAddress) : null
-    if (delivery === 'envio' && !address) {
+    const address = normalizeShippingAddress(shippingAddress)
+    if (!address) {
       setShippingAddressError('Completá calle y número, localidad, provincia, código postal y un teléfono válido.')
       return
     }
@@ -451,24 +432,22 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
 
     try {
       let nextIntentId: string | null = null
-      if (delivery === 'envio') {
-        const response = await fetch('/api/orders/intent', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            base: base.id,
-            print: base.print.id,
-            size,
-            qty,
-            address,
-          }),
-        })
-        const payload = await response.json().catch(() => ({})) as { checkoutIntentId?: string; error?: string }
-        if (!response.ok || !payload.checkoutIntentId) {
-          throw new Error(payload.error || 'No pudimos guardar la dirección. Probá de nuevo.')
-        }
-        nextIntentId = payload.checkoutIntentId
+      const response = await fetch('/api/orders/intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          base: base.id,
+          print: base.print.id,
+          size,
+          qty,
+          address,
+        }),
+      })
+      const payload = await response.json().catch(() => ({})) as { checkoutIntentId?: string; error?: string }
+      if (!response.ok || !payload.checkoutIntentId) {
+        throw new Error(payload.error || 'No pudimos guardar la dirección. Probá de nuevo.')
       }
+      nextIntentId = payload.checkoutIntentId
 
       setCheckoutIntentId(nextIntentId)
       setDone(null)
@@ -481,7 +460,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
     } finally {
       setPreparingCheckout(false)
     }
-  }, [base, canStartCheckout, delivery, qty, shippingAddress, size])
+  }, [base, canStartCheckout, qty, shippingAddress, size])
 
   const closeCheckout = useCallback(() => {
     setOpen(false)
@@ -511,19 +490,16 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
             print: base.print.id,
             size,
             qty,
-            delivery,
-            pickupLocation,
+            delivery: 'envio',
           }),
         })
         const payload = await response.json().catch(() => ({})) as {
           emailPending?: boolean
-          pickupWhatsAppUrl?: string
         }
         if (!response.ok) throw new Error('No se pudo confirmar la orden.')
         setDone({
           paymentId,
           emailPending: payload.emailPending,
-          pickupWhatsAppUrl: payload.pickupWhatsAppUrl,
         })
       } catch {
         // El pago puede estar aprobado aunque la acreditación o el descuento de
@@ -534,34 +510,32 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
         setRegisteringOrder(false)
       }
     },
-    [base, size, qty, delivery, pickupLocation],
+    [base, size, qty],
   )
 
   const handleError = useCallback((detail: unknown) => setCheckoutError(rebillErrorMessage(detail)), [])
   const handleCheckoutReady = useCallback(() => setCheckoutReady(true), [])
 
   const variantText = `Remera ${base.label} · estampa ${base.print.label}`
-  const deliveryLabel = delivery === 'retiro' ? pickupLabel(pickupLocation) : 'Envío a domicilio'
 
   const instantProduct = {
     name: [{ language: 'es', text: `${PRODUCT_NAME} · ${variantText} · Talle ${size}` }],
     description: [
       {
         language: 'es',
-        text: `${qty} ${qty === 1 ? 'unidad' : 'unidades'} · ${deliveryLabel}`,
+        text: `${qty} ${qty === 1 ? 'unidad' : 'unidades'} · ${DELIVERY_LABEL}`,
       },
     ],
-    amount: total, // incluye envío si corresponde
+    amount: total, // incluye envío
     currency: CURRENCY,
     metadata: {
-      catalogProductId: REBILL_PRODUCT_REFERENCE[delivery],
+      catalogProductId: REBILL_PRODUCT_REFERENCE,
       base: base.id,
       print: base.print.id,
       size,
       qty: String(qty),
-      delivery,
-      ...(pickupLocation ? { pickupLocation } : {}),
-      ...(checkoutIntentId ? { checkoutIntentId } : {}),
+      delivery: 'envio',
+      checkoutIntentId,
     },
   }
 
@@ -609,8 +583,8 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
               <span>{money(subtotal)}</span>
             </div>
             <div className="flex justify-between" style={{ color: '#5B5B54' }}>
-              <span>{deliveryLabel}</span>
-              <span>{shippingCost === 0 ? 'Gratis' : money(shippingCost)}</span>
+              <span>{DELIVERY_LABEL}</span>
+              <span>{money(shippingCost)}</span>
             </div>
             <div className="flex justify-between pt-1 text-base font-semibold" style={{ color: '#1B1B1B' }}>
               <span>Total</span>
@@ -637,37 +611,9 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
               {done.needsSupport
                 ? 'Estamos terminando de verificar la acreditación y te contactaremos por email. No hace falta que vuelvas a pagar.'
                 : done.emailPending
-                  ? <>Tu compra está confirmada. El email quedó pendiente y lo vamos a reintentar automáticamente. {delivery === 'retiro' ? pickupConfirmation(pickupLocation) : 'Tu dirección quedó guardada y despacharemos el pedido dentro de 5–6 días hábiles.'}</>
-                : <>Te enviamos la confirmación por email. {delivery === 'retiro' ? pickupConfirmation(pickupLocation) : 'Tu dirección quedó guardada y despacharemos el pedido dentro de 5–6 días hábiles.'}</>}
+                  ? <>Tu compra está confirmada. El email quedó pendiente y lo vamos a reintentar automáticamente. Tu dirección quedó guardada y despacharemos el pedido dentro de 5–6 días hábiles.</>
+                : <>Te enviamos la confirmación por email. Tu dirección quedó guardada y despacharemos el pedido dentro de 5–6 días hábiles.</>}
             </p>
-            {!done.needsSupport && delivery === 'retiro' && (
-              <section className={styles.pickupConfirmation} aria-labelledby="pickup-confirmation-title">
-                <div className={styles.pickupConfirmationIcon} aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 11.5a8.4 8.4 0 0 1-9 8.5 9.5 9.5 0 0 1-4-.9L3 21l1.9-4.8a8.5 8.5 0 1 1 16.1-4.7Z" />
-                    <path d="M8.2 8.5c.3 2.7 2.5 4.8 5.2 5.2" />
-                  </svg>
-                </div>
-                <div>
-                  <h2 id="pickup-confirmation-title">Coordiná tu {pickupLabel(pickupLocation).toLowerCase()} por WhatsApp</h2>
-                  <p>
-                    Enviá un mensaje al <strong>{PICKUP_WHATSAPP_NUMBER_DISPLAY}</strong> indicando tu nombre y apellido, qué día y a qué hora vas a pasar a buscarla.
-                  </p>
-                  <a
-                    href={done.pickupWhatsAppUrl ?? pickupWhatsAppUrl(null, pickupLocation)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.pickupWhatsAppButton}
-                  >
-                    Ir a WhatsApp
-                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="m9 18 6-6-6-6" />
-                    </svg>
-                  </a>
-                  <small>Revisá tu nombre y completá [DÍA] y [HORA] antes de enviarlo.</small>
-                </div>
-              </section>
-            )}
             {done.paymentId && (
               <p className="mt-3 text-[11px]" style={{ color: '#B4B4AC' }}>
                 ID de pago: {done.paymentId}
@@ -762,7 +708,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
             {money(PRICE)}
           </span>
           <span className="text-sm" style={{ color: '#9A9A92' }}>
-            retiro gratis en Belgrano o Palermo · envío {money(SHIPPING)}
+            envío {money(SHIPPING)}
           </span>
         </div>
 
@@ -836,77 +782,11 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
           </p>
         </div>
 
-        {/* Entrega */}
+        {/* Dirección de envío */}
         <div className="mt-6">
-          <div className="mb-2 text-sm font-medium" style={{ color: '#1B1B1B' }}>
-            Entrega
-          </div>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {DELIVERY_OPTIONS.map((o) => {
-              const selected = o.id === delivery
-              return (
-                <button
-                  key={o.id}
-                  type="button"
-                  onClick={() => {
-                    setDelivery(o.id)
-                    if (o.id === 'envio') setPickupLocation(null)
-                    setShippingAddressError(null)
-                    setCheckoutIntentId(null)
-                  }}
-                  aria-pressed={selected}
-                  className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left transition-colors"
-                  style={
-                    selected
-                      ? { border: '1.5px solid #0C6B45', background: '#F1F7F4' }
-                      : { border: '1px solid #E2E2DA', background: '#fff' }
-                  }
-                >
-                  <span className="min-w-0">
-                    <span className="block text-sm font-medium" style={{ color: '#1B1B1B' }}>
-                      {o.label}
-                    </span>
-                    <span className="block text-xs" style={{ color: '#9A9A92' }}>
-                      {o.note}
-                    </span>
-                  </span>
-                  <span className="shrink-0 text-sm font-semibold" style={{ color: o.cost === 0 ? '#0C6B45' : '#1B1B1B' }}>
-                    {o.cost === 0 ? 'Gratis' : money(o.cost)}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-
-          {delivery === 'retiro' && (
-            <fieldset className={styles.pickupLocationFieldset}>
-              <legend>Elegí dónde retirar</legend>
-              <div className={styles.pickupLocationOptions}>
-                {PICKUP_LOCATIONS.map((location) => {
-                  const selected = location === pickupLocation
-                  const locationName = pickupLocationName(location)
-                  return (
-                    <button
-                      key={location}
-                      type="button"
-                      onClick={() => setPickupLocation(location)}
-                      aria-pressed={selected}
-                      data-selected={selected ? 'true' : undefined}
-                    >
-                      <span>{locationName}</span>
-                      <small>Gratis</small>
-                    </button>
-                  )
-                })}
-              </div>
-              <p>Seleccioná una de las dos zonas para continuar. El punto exacto y el horario se coordinan después de la compra.</p>
-            </fieldset>
-          )}
-
-          {delivery === 'envio' && (
-            <fieldset className={styles.shippingForm} aria-describedby={shippingAddressError ? 'shipping-address-error' : undefined}>
-              <legend>Dirección de envío</legend>
-              <p className={styles.shippingFormIntro}>La guardamos de forma segura para preparar y entregar este pedido.</p>
+          <fieldset className={styles.shippingForm} aria-describedby={shippingAddressError ? 'shipping-address-error' : undefined}>
+            <legend>Dirección de envío</legend>
+            <p className={styles.shippingFormIntro}>La guardamos de forma segura para preparar y entregar este pedido.</p>
               <div className={styles.shippingGrid}>
                 <label className={styles.shippingFieldFull}>
                   <span>Calle y número</span>
@@ -994,8 +874,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
               {shippingAddressError && <p className={styles.shippingError} id="shipping-address-error" role="alert">{shippingAddressError}</p>}
               <p className={styles.shippingPrivacy}>Solo usamos estos datos para gestionar la entrega de tu compra.</p>
             </fieldset>
-          )}
-        </div>
+          </div>
 
         {/* Cantidad */}
         <div className="mt-6">
@@ -1037,14 +916,12 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
           style={{ background: canStartCheckout ? '#0C6B45' : '#9A9A92' }}
         >
           {preparingCheckout
-            ? (delivery === 'envio' ? 'Guardando dirección…' : 'Preparando pago…')
+            ? 'Guardando dirección…'
             : !inventoryKnown
               ? 'Stock no disponible'
               : soldOut
                 ? 'Talle agotado'
-                : delivery === 'retiro' && !pickupLocation
-                  ? 'Elegí dónde retirar'
-                  : `Asegurar mi talle · ${money(total)}`}
+                : `Asegurar mi talle · ${money(total)}`}
         </button>
         <p className="mt-3 text-center text-xs" style={{ color: '#9A9A92' }}>
           Pago seguro con Rebill · Confirmación por email
