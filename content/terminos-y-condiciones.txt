@@ -1,20 +1,20 @@
 TÉRMINOS Y CONDICIONES DE USO
- 
+
 (i) INFORMACIÓN GENERAL
- 
-Los presentes Términos y Condiciones de Uso (los “Términos”) regulan el acceso, registro, descarga y utilización de la aplicación móvil PASITO y del sitio web asociado (conjuntamente, la “Plataforma”).
-La Plataforma es operada por PASITO APP S.A.S., CUIT 30-71944461-6, con domicilio en la República Argentina, y por PASITO URUGUAY SAS, RUT 220975490017, con domicilio en la República Oriental del Uruguay (en adelante, en conjunto, "PASITO").
+
+Los presentes Términos y Condiciones de Uso (los "Términos") regulan el acceso, registro, descarga y utilización de la aplicación móvil PASITO y del sitio web asociado (conjuntamente, la "Plataforma").
+La Plataforma es operada por PASITO APP S.A.S., CUIT 30-71944461-6, con domicilio en la República Argentina (en adelante "PASITO").
 Toda persona que acceda, navegue, se registre o utilice la Plataforma adquiere la condición de Usuario y acepta íntegramente estos Términos, la Política de Privacidad y toda normativa complementaria publicada por PASITO.
 La utilización de la Plataforma implica la aceptación expresa, libre e informada de dichos documentos.
- 
+
 (ii) DESCRIPCIÓN DEL SERVICIO
- 
-PASITO es una plataforma digital de tipo move-to-earn que permite a los Usuarios acumular puntos virtuales denominados “Pasitos” mediante la realización de actividad física registrada a través de los servicios de salud y actividad física del dispositivo móvil.
+
+PASITO es una plataforma digital de tipo move-to-earn que permite a los Usuarios acumular puntos virtuales denominados "Pasitos" mediante la realización de actividad física registrada a través de los servicios de salud y actividad física del dispositivo móvil.
 Los Pasitos podrán ser utilizados exclusivamente dentro del ecosistema PASITO para acceder a promociones, beneficios, premios, descuentos, experiencias, eventos y demás recompensas ofrecidas por comercios, marcas y organizaciones adheridas.
 PASITO podrá incorporar nuevas funcionalidades, modificar servicios existentes o discontinuar determinados servicios en cualquier momento.
- 
+
 (iii) REGISTRO DE USUARIO
- 
+
 Para utilizar determinadas funcionalidades será necesario crear una cuenta personal.
 El Usuario declara que:
 a) posee capacidad legal suficiente para contratar;
@@ -23,28 +23,20 @@ c) mantendrá la confidencialidad de sus credenciales de acceso;
 d) será responsable por toda actividad realizada desde su cuenta.
 PASITO podrá requerir información adicional para verificar la identidad del Usuario.
 
-iii.1. PERFIL PÚBLICO Y VISIBILIDAD
-
-La configuración funcional prevista por PASITO es que el perfil del Usuario sea público por defecto. El perfil público mostrará exclusivamente: a) la foto de perfil, si el Usuario hubiera incorporado una; b) el nombre informado en la cuenta; c) la cantidad de Pasitos; y d) la cantidad de pasos registrada por la Plataforma. No se publicarán la dirección de correo electrónico, la ubicación, los recorridos, el historial diario de actividad ni otros datos personales del Usuario.
-
-Antes de habilitar por primera vez la visibilidad pública, PASITO informará esta finalidad y su alcance de manera expresa y destacada y recabará una manifestación afirmativa, específica, informada y susceptible de ser acreditada cuando así lo exija la normativa aplicable. En particular, cuando corresponda aplicar la normativa uruguaya, la elección se presentará mediante opciones claras no premarcadas; mientras el Usuario no elija habilitarla, el perfil permanecerá privado. Una vez habilitada, la configuración predeterminada será pública hasta que el Usuario la modifique.
-
-El Usuario podrá desactivar la visibilidad pública en cualquier momento, de forma gratuita, desde la sección Configuración de la Plataforma. A partir de esa modificación, los datos indicados dejarán de estar visibles para otros Usuarios, sin afectar el acceso a las funcionalidades generales, salvo aquellas que requieran necesariamente identificación pública, como determinados rankings o dinámicas sociales.
- 
 (iv) DATOS DE ACTIVIDAD FÍSICA
- 
+
 El funcionamiento de la Plataforma requiere acceder a información relativa a la actividad física registrada por el dispositivo del Usuario mediante Apple HealthKit, Google Health Connect o herramientas equivalentes.
 PASITO accede únicamente a la información necesaria para calcular los Pasitos y operar las funcionalidades de la Plataforma.
 Los datos serán tratados conforme a la Política de Privacidad.
- 
+
 (v) GEOLOCALIZACIÓN
- 
-La Plataforma podrá solicitar acceso a la ubicación del dispositivo del Usuario con el objeto de identificar beneficios, promociones, premios, eventos o comercios cercanos, así como para validar la efectiva realización de la actividad física y participación en desafíos.
+
+La Plataforma podrá solicitar acceso a la ubicación del dispositivo del Usuario con el objeto de identificar beneficios, promociones, premios, eventos o comercios cercanos, así como para validar la efectiva realización de la actividad física, participación en desafíos y la presencia del Usuario dentro del alcance geográfico de una Activación Especial conforme la Cláusula (vi.4).
 El Usuario reconoce y acepta que, para el correcto funcionamiento de la modalidad move-to-earn y el cómputo de sus Pasitos, la Plataforma podrá requerir el acceso a la geolocalización en segundo plano (es decir, cuando la aplicación no se encuentre activa en pantalla, esté minimizada o el dispositivo se encuentre con la pantalla bloqueada o en el bolsillo del Usuario).
 PASITO no realiza un seguimiento permanente con fines de vigilancia ni almacena historiales permanentes de desplazamiento geográfico ajenos a la finalidad del servicio. El Usuario podrá revocar este permiso desde la configuración de su dispositivo en cualquier momento, reconociendo que dicha revocación podrá impedir la correcta sincronización y generación de Pasitos.
- 
+
 (vi) SISTEMA DE PASITOS
- 
+
 Los Pasitos constituyen una unidad virtual de recompensa interna de la Plataforma.
 Los Pasitos:
 a) no poseen valor monetario;
@@ -53,35 +45,35 @@ c) no generan intereses;
 d) no son transferibles entre Usuarios;
 e) no pueden venderse ni canjearse por dinero.
 PASITO podrá modificar las reglas de acumulación, expiración, equivalencia, cálculo o utilización de los Pasitos. Cuando dichas modificaciones alteren de manera sustancial el valor o las condiciones de los Pasitos ya acumulados por los Usuarios, PASITO notificará dichos cambios a través de la Plataforma con una antelación mínima de 30 (treinta) días corridos a su entrada en vigencia, a fin de que los Usuarios puedan utilizar sus saldos bajo las condiciones anteriores si así lo desearan.
- 
-vi.1. GENERACIÓN DE PASITOS
 
-Los Pasitos son generados a partir de la actividad física registrada por el dispositivo móvil del Usuario mediante los sistemas Apple HealthKit, Google Health Connect o herramientas equivalentes.
+vi.1. Generación de Pasitos: Los Pasitos son generados a partir de la   actividad física registrada por el dispositivo móvil del Usuario mediante los sistemas Apple HealthKit, Google Health Connect o herramientas equivalentes.
 La cantidad de Pasitos obtenidos, los criterios de conversión, límites  diarios,  períodos de vigencia, mecanismos de sincronización y demás parámetros operativos serán definidos por PASITO y podrán consultarse en la Plataforma.
 PASITO podrá modificar dichos parámetros cuando resulte necesario  por  razones comerciales, técnicas, de seguridad o vinculadas al funcionamiento general del ecosistema.
- 
-vi.2. EXPIRACIÓN DE PASITOS
 
-Los Pasitos acumulados vencen a los 60 (sesenta) días corridos desde la fecha en que fueron ganados. Una vez vencidos, los Pasitos se eliminan automáticamente del saldo del usuario y no pueden ser recuperados ni reclamados.
- 
-vi.3. SISTEMA DE CANJE DE PASITOS
+vi.2. Expiración de Pasitos: Los Pasitos acumulados vencen a los 60 (sesenta) días corridos desde   la fecha en que fueron ganados. Una vez vencidos, los Pasitos se eliminan automáticamente del saldo del usuario y no pueden ser recuperados ni reclamados.
 
-Los Pasitos podrán canjearse por premios, beneficios, descuentos, productos, servicios o experiencias ofrecidas por comercios y organizaciones adheridas.
+vi.3. Sistema de Canje de Pasitos: Los Pasitos podrán canjearse por premios, beneficios, descuentos, productos, servicios o experiencias ofrecidas por comercios y organizaciones adheridas.
 El valor en "Pasitos" requerido para acceder a cada premio, descuento o beneficio será determinado libre y exclusivamente por PASITO (o en su caso, en acuerdo con el comercio adherido), y podrá ser modificado en cualquier momento sin previo aviso. La cantidad de Pasitos necesarios para un canje se exhibirá de manera clara en la interfaz de la Plataforma. Los Pasitos no representan, ni son equivalentes, ni guardan una paridad fija con el Peso Argentino ni con ninguna otra moneda de curso legal, siendo únicamente unidades de medida para programas de fidelidad y gamificación corporativa.
 Cada beneficio podrá encontrarse sujeto a cupos, límites de uso, restricciones geográficas, períodos de vigencia, disponibilidad horaria y demás condiciones particulares establecidas por el proveedor correspondiente.
 La confirmación del canje requerirá el cumplimiento de los mecanismos de validación implementados por PASITO. Hasta tanto el canje no resulte validado, los Pasitos no serán debitados de la cuenta del Usuario.
-Límite por local: 1 canje por usuario cada 15 (quince) días corridos por comercio.
+Límite por local: 1 canje por usuario cada 15 (quince) días corridos por comercio. 
 Validación: El PIN del comercio debe ser correcto para completar el canje.
 En caso de que un canje sea debidamente validado en la Plataforma pero el comercio adherido se encuentre imposibilitado de entregar el premio o beneficio por razones de fuerza mayor, falta de stock o cualquier otra causa imputable exclusivamente a dicho tercero, el Usuario acepta que la responsabilidad de PASITO se limitará única y exclusivamente a reintegrar al saldo de la cuenta del Usuario la cantidad exacta de Pasitos que le hubieran sido debitados por dicho canje, quedando PASITO eximida de cualquier otra obligación de hacer, indemnizar o compensar.
 Reservas de servicios: Para los premios consistentes en bienes, productos o beneficios de entrega inmediata en comercios adheridos, la validación del canje podrá requerir el ingreso del código PIN o cualquier otro mecanismo de verificación implementado por PASITO conforme apartado anterior.
- 
+
 Cuando el premio consista en la prestación de un servicio, experiencia, actividad con cupo limitado, clase o prestación que requiera coordinación previa con el Usuario, PASITO podrá implementar un sistema de reservas. En estos casos, al solicitar la reserva, la cantidad correspondiente de Pasitos será retenida temporalmente en la cuenta del Usuario y no podrá ser utilizada para otros beneficios.
 La reserva quedará sujeta a la aceptación y confirmación del prestador del servicio a través de los mecanismos habilitados en la Plataforma. Una vez confirmada la reserva por el prestador, la misma se considerará un canje efectivamente realizado y los Pasitos retenidos serán debitados de manera definitiva e irreversible, sin necesidad de ingreso de PIN por parte del Usuario.
 En caso de rechazo de la reserva, imposibilidad de coordinación, cancelación por parte del prestador o cualquier otra circunstancia que impida la prestación del servicio antes de su confirmación, los Pasitos retenidos serán reintegrados automáticamente al saldo del Usuario.
- 
- 
+
+vi.4. Multiplicadores y Activaciones Especiales de Pasitos:
+
+PASITO podrá, por sí o mediante convenios celebrados con comercios adheridos, shoppings, marcas, organizaciones o cualquier tercero (cada uno, un "Partner de Activación"), establecer mecanismos de cómputo especial, diferencial o multiplicado de Pasitos ("Activaciones Especiales"), aplicables respecto de: (a) una zona geográfica determinada - previa presencia verificada mediante geolocalización, escaneo de un código QR u otro mecanismo de validación equivalente-; (b) una ventana horaria o período determinado; y/o (c) cualquier otro criterio objetivo que PASITO establezca.
+Las condiciones de cada Activación Especial -multiplicador aplicable, zona geográfica, horario, vigencia, requisitos de validación, límites máximos de Pasitos computables por Usuario y demás condiciones particulares- serán publicadas por PASITO a través de la Plataforma con carácter previo a su implementación, y estarán disponibles, en igualdad de condiciones, para todo Usuario que se encuentre dentro del alcance geográfico y temporal de la Activación Especial y cumpla los requisitos de validación establecidos.
+El Usuario reconoce y acepta que el criterio general de generación de Pasitos descripto en la Cláusula (vi.1) constituye la regla ordinaria del sistema, y no un derecho adquirido inmodificable ni excluyente, pudiendo coexistir con Activaciones Especiales de alcance geográfico, temporal o promocional limitado. La implementación, modificación o finalización de una Activación Especial conforme a su vigencia oportunamente publicada no configura una "modificación sustancial" en los términos de la Cláusula (vi) precedente, ni requiere la antelación de treinta (30) días allí prevista, atento su carácter accesorio, adicional y transitorio respecto de la regla general de generación de Pasitos. Asimismo, la existencia de Activaciones Especiales no genera derecho a reclamo, compensación ni equiparación a favor de los Usuarios que no se encuentren alcanzados por su ámbito geográfico o temporal, en tanto responda a criterios objetivos, transparentes y de acceso general bajo las mismas condiciones para cualquier Usuario que las cumpla.
+Cuando una Activación Especial implique la comunicación de datos personales identificables del Usuario al Partner de Activación, resultará de aplicación, en lo pertinente, el mecanismo de consentimiento previsto en la Cláusula (viii). Cuando la Activación Especial se limite a un mecanismo de multiplicación o bonificación de Pasitos sin cesión de datos personales identificables, no será necesario el consentimiento específico allí previsto, sin perjuicio de que PASITO pueda compartir con el Partner de Activación reportes agregados y disociados conforme lo establecido en dicha Cláusula. 
+
 (vii) DESAFÍOS, CAMPAÑAS Y EVENTOS
- 
+
 PASITO podrá organizar:
 a) desafíos deportivos;
 b) campañas promocionales;
@@ -89,24 +81,25 @@ c) eventos presenciales;
 d) eventos virtuales;
 e) competencias;
 f) programas patrocinados por terceros.
-La participación será voluntaria. Si para una actividad determinada resultara necesario comunicar el correo electrónico del Usuario a la marca auspiciante, PASITO solicitará previamente un consentimiento separado, expreso e informado, que identifique al destinatario o su clase y la finalidad de la comunicación. El Usuario podrá retirar ese consentimiento y solicitar la baja de las comunicaciones comerciales en cualquier momento.
+Cada actividad podrá contar con Bases y Condiciones particulares que complementarán estos Términos. 
+La participación será voluntaria.
 La aceptación de las Bases específicas constituirá condición indispensable para participar.
 Los desafíos podrán incluir clasificaciones, rankings, metas individuales o colectivas, premios por desempeño y otras dinámicas de gamificación. Los criterios de medición y validación serán determinados exclusivamente por PASITO sobre la base de los datos registrados por la Plataforma. En caso de que algún desafío o campaña incluya sorteos o mecanismos donde intervenga total o parcialmente el azar, dicha actividad se organizará bajo la modalidad "Sin Obligación de Compra" y se regirá de manera estricta por los requisitos exigidos por la normativa de Lealtad Comercial aplicable en la República Argentina y las reglamentaciones de las jurisdicciones locales correspondientes.
- 
+
 (viii) SPONSORS Y TERCEROS ORGANIZADORES
- 
-El Usuario reconoce y acepta que la Plataforma podrá incluir contenido patrocinado, promociones, beneficios, campañas publicitarias, eventos o desafíos desarrollados conjuntamente con sponsors, marcas y organizaciones asociadas.
+
+El Usuario reconoce y acepta que la Plataforma podrá incluir contenido patrocinado, promociones, beneficios, campañas publicitarias, eventos o desafíos desarrollados conjuntamente con sponsors, marcas y organizaciones asociadas. 
 Cuando el Usuario decida participar voluntariamente en un desafío, campaña o evento patrocinado por un tercero (en adelante, el "Sponsor"), PASITO no transferirá ni cederá sus datos personales identificables a dicho Sponsor, a menos que el Usuario otorgue su consentimiento expreso, previo e informado al momento de inscribirse o aceptar las Bases Particulares de dicha actividad.
 En caso de que el Usuario no otorgue dicho consentimiento para la cesión de datos, podrá verse imposibilitado de participar en el desafío específico patrocinado, sin que ello afecte su uso regular de la Plataforma. PASITO podrá, no obstante, compartir con los Sponsors reportes con datos agregados, disociados y de carácter estrictamente estadístico (por ejemplo: cantidad total de participantes, promedio de pasos globales, métricas de visualización), los cuales no permiten identificar a ningún Usuario de forma individual.
- 
+
 (ix) COMERCIOS ADHERIDOS
- 
+
 Los premios, beneficios y promociones publicados en la Plataforma podrán ser ofrecidos por terceros independientes.
-PASITO opera exclusivamente como un canal de intermediación tecnológica y publicitaria entre los comercios adheridos y los Usuarios. PASITO no produce, no vende, no distribuye ni garantiza los productos, servicios, experiencias o premios ofrecidos por los comercios o Sponsors. Cualquier reclamo relativo a la calidad, cantidad, idoneidad, falta de stock, fallas, demoras en la entrega o daños derivados del uso o consumo de los premios obtenidos mediante el canje de Pasitos deberá ser dirigido exclusivamente contra el comercio emisor o proveedor de dicho bien o servicio.
+PASITO opera exclusivamente como un canal de intermediación tecnológica y publicitaria entre los comercios adheridos y los Usuarios. PASITO no produce, no vende, no distribuye ni garantiza los productos, servicios, experiencias o premios ofrecidos por los comercios o Sponsors. Cualquier reclamo relativo a la calidad, cantidad, idoneidad, falta de stock, fallas, demoras en la entrega o daños derivados del uso o consumo de los premios obtenidos mediante el canje de Pasitos deberá ser dirigido exclusivamente contra el comercio emisor o proveedor de dicho bien o servicio. 
 La responsabilidad de PASITO frente a los Usuarios se limitará al alcance de su intervención como operador tecnológico de la Plataforma, sin perjuicio de los derechos irrenunciables que pudieran corresponder a los Usuarios conforme la normativa de defensa del consumidor aplicable
- 
+
 (x) CONDUCTAS PROHIBIDAS
- 
+
 Queda prohibido:
 a) simular actividad física a través de dispositivos o artefactos biomecánicos o mecánicos;
 b) manipular sensores;
@@ -118,23 +111,23 @@ g) utilizar la Plataforma con fines ilícitos.
 h) utilizar nombres de usuario, imágenes de perfil, mensajes, comentarios o cualquier otro contenido que resulte discriminatorio, violento, ofensivo, intimidatorio, pornográfico, contrario al orden público, a la moral y buenas costumbres, o que promueva el odio por motivos de raza, nacionalidad, religión, género, orientación sexual, identidad de género, discapacidad o cualquier otra condición protegida por la normativa aplicable;
 i) realizar conductas agresivas, irrespetuosas, discriminatorias, fraudulentas o contrarias a las normas de convivencia dentro de los comercios adheridos, eventos, desafíos o actividades organizadas por PASITO o sus sponsors.
 PASITO podrá utilizar mecanismos automáticos y algoritmos de detección de fraude, patrones de comportamiento anómalos, inconsistencias biomecánicas (frecuencias de paso humanas físicamente imposibles o sospechosas), simulación de actividad física, utilización de dispositivos automatizados o inconsistencias en los registros de actividad. Ante la detección razonable de irregularidades, PASITO podrá, suspender preventivamente la cuenta, anular la totalidad de los Pasitos acumulados, cancelar los beneficios en proceso de canje, excluir al Usuario de campañas y desafíos, y/o proceder al cierre y cancelación definitiva de la cuenta, perdiendo el Usuario todo derecho sobre los puntos virtuales acumulados en caso de detección de fraude.
- 
+
 (xi) PROPIEDAD INTELECTUAL
- 
+
 La Plataforma, el software, algoritmos, interfaces, marcas, logotipos, diseños, contenidos y desarrollos asociados constituyen propiedad exclusiva de PASITO o de sus licenciantes.
 Ninguna disposición de estos Términos implica cesión de derechos de propiedad intelectual.
- 
+
 (xii) LICENCIA DE USO
- 
+
 PASITO concede al Usuario una licencia limitada, personal, revocable, no exclusiva e intransferible para utilizar la Plataforma conforme a estos Términos.
- 
+
 (xiii) DISPONIBILIDAD DEL SERVICIO
- 
+
 PASITO no garantiza disponibilidad continua e ininterrumpida.
 La Plataforma podrá sufrir interrupciones por mantenimiento, actualizaciones, fallas técnicas o causas ajenas a PASITO.
- 
+
 (xiv) EXCLUSIÓN Y LIMITACIÓN DE RESPONSABILIDAD
- 
+
 En la máxima medida permitida por la legislación aplicable, PASITO no será responsable por:
 a) errores en servicios de terceros;
 b) fallas de Apple, Google o proveedores tecnológicos;
@@ -142,51 +135,45 @@ c) errores en el conteo de pasos efectuado por aplicaciones externas;
 d) indisponibilidad de premios;
 e) daños indirectos o lucro cesante.
 f) diferencias, retrasos, errores o inconsistencias en el registro de pasos, sincronización de actividad física, actualización de saldos de Pasitos o acreditación de recompensas que tengan origen en fallas temporales de la Plataforma, del sistema operativo del dispositivo, de Apple HealthKit, Google Health Connect, sensores del dispositivo u otros servicios tecnológicos de terceros.
- 
+
 PASITO realizará esfuerzos razonables para corregir errores verificables del sistema cuando estos sean debidamente reportados por el Usuario, sin que ello implique una garantía absoluta de disponibilidad, exactitud o funcionamiento ininterrumpido de los servicios tecnológicos involucrados.
 Nada de lo dispuesto limita derechos irrenunciables reconocidos por la legislación de defensa del consumidor.
- 
+
 (xv) MENORES DE EDAD.
- 
-La aplicación está destinada a personas de 16 años o más. Los usuarios de entre 16 y 18 años requieren el consentimiento previo de su representante legal o tutor, quien asume la responsabilidad por el cumplimiento de estos Términos. Ese consentimiento deberá comprender expresamente, cuando corresponda, la visibilidad pública del perfil y la recepción de comunicaciones comerciales por correo electrónico.
- 
+
+La aplicación está destinada a personas de 16 años o más. Los usuarios de entre 16 y 18 años requieren el consentimiento previo de su representante legal o tutor, quien asume la responsabilidad por el cumplimiento de estos Términos. 
+
 Sin perjuicio de lo anterior, determinados premios, beneficios, productos, servicios o experiencias ofrecidos a través de la Plataforma pueden encontrarse sujetos a restricciones legales de edad. En tales casos, será responsabilidad exclusiva del Usuario acreditar el cumplimiento de los requisitos de edad exigidos por la normativa aplicable y/o por el comercio adherido.
- 
+
 PASITO y los comercios adheridos podrán requerir la exhibición de documentación identificatoria al momento del retiro, consumo o utilización del beneficio, pudiendo rechazar la entrega del premio o prestación del servicio cuando el Usuario no cumpla con la edad mínima requerida, sin que ello genere derecho a indemnización o reclamo alguno frente a PASITO.
- 
+
 (xvi) APTITUD FÍSICA Y ASUNCIÓN DE RIESGO
- 
+
 La Plataforma tiene como única finalidad fomentar hábitos de vida saludables mediante la gamificación, y no proporciona consejos médicos, diagnósticos ni planes de entrenamiento personalizados. El Usuario es el único responsable de evaluar su propio estado de salud y aptitud física antes de utilizar la Plataforma, caminar o participar en cualquier desafío, campaña o evento (presencial o virtual).
 PASITO recomienda enfáticamente a los Usuarios consultar a un profesional de la salud de manera periódica. El Usuario asume en forma exclusiva todos los riesgos asociados a la actividad física que realice en el marco del uso de la Plataforma (incluyendo descompensaciones, lesiones o accidentes en la vía pública). PASITO no será responsable bajo ninguna circunstancia por daños directos o indirectos, lesiones personales o afecciones a la salud que sufran los Usuarios con motivo o en ocasión de la realización de los pasos o actividades físicas tendientes a acumular Pasitos o cumplir desafíos.
- 
+
 (xvii) SUSPENSIÓN Y BAJA DE CUENTAS
- 
+
 PASITO podrá suspender o cancelar cuentas por incumplimiento de estos Términos.
 El Usuario podrá solicitar la eliminación de su cuenta en cualquier momento desde la misma aplicación.
- 
+
 (xviii) COMUNICACIONES Y MODIFICACIONES
- 
-PASITO podrá enviar comunicaciones operativas o transaccionales relacionadas con la cuenta, la seguridad, los desafíos, los canjes, los premios y las funcionalidades de la Plataforma. Estas comunicaciones son necesarias para prestar el servicio y son independientes de las comunicaciones comerciales.
-PASITO realizará marketing directo por correo electrónico para comunicar novedades, promociones, beneficios, premios, desafíos, eventos, productos o servicios propios, de comercios adheridos o de Sponsors. Para esta finalidad utilizará el nombre y la dirección de correo electrónico del Usuario, pero no empleará datos de salud, conteos de pasos, geolocalización ni recorridos para elaborar perfiles publicitarios.
-Cuando resulte exigible, PASITO recabará antes del primer envío un consentimiento libre, previo, expreso, informado y susceptible de ser acreditado, mediante una opción específica y no premarcada, separada de la aceptación general de estos Términos. Negarse a recibir marketing no impedirá crear o mantener una cuenta ni utilizar las funcionalidades generales de la Plataforma.
-Cada correo de marketing identificará a PASITO como remitente y responsable, indicará su naturaleza publicitaria cuando corresponda e incluirá un mecanismo sencillo y gratuito para cancelar la suscripción o solicitar el retiro o bloqueo de los datos para esta finalidad. El Usuario también podrá modificar su preferencia desde Configuración o escribir a contacto@pasito.app. La baja de marketing no afectará las comunicaciones operativas o transaccionales indispensables para el servicio.
-PASITO no comunicará la dirección de correo electrónico a comercios adheridos o Sponsors para que éstos realicen su propio marketing, salvo que el Usuario otorgue un consentimiento previo, específico e informado que identifique al destinatario o su clase y la finalidad de la comunicación. El tratamiento para publicidad y el derecho de retiro se regirán, según corresponda, por el artículo 27 de la Ley argentina N.º 25.326, su Decreto Reglamentario N.º 1558/2001 y la Disposición DNPDP N.º 4/2009, y por el artículo 21 de la Ley uruguaya N.º 18.331 y su Decreto Reglamentario N.º 414/009.
+
+PASITO podrá enviar notificaciones relacionadas con actividad de la cuenta, desafíos, premios, campañas, promociones y funcionalidades de la Plataforma. Las comunicaciones comerciales se sujetarán a las preferencias y consentimientos otorgados por el Usuario.
 PASITO podrá modificar estos Términos. Las modificaciones serán informadas mediante la Plataforma.
-La continuidad en el uso implicará aceptación de los cambios que no requieran un nuevo consentimiento. Cuando una modificación introduzca una nueva finalidad de tratamiento o amplíe sustancialmente la publicidad de datos personales, PASITO recabará el consentimiento específico que corresponda antes de aplicarla.
- 
+La continuidad en el uso implicará aceptación de los cambios.
+
 (xix) LEY APLICABLE Y JURISDICCIÓN
- 
-Estos Términos se regirán por las leyes de la República Argentina, sin perjuicio de las normas imperativas que resulten aplicables por el domicilio del Usuario o por el lugar en que el servicio produzca efectos. Los Usuarios ubicados en la República Oriental del Uruguay conservarán, en particular, los derechos reconocidos por la Ley N.º 17.250 de Relaciones de Consumo, la Ley N.º 18.331 de Protección de Datos Personales y Acción de Habeas Data y sus normas reglamentarias.
-Toda controversia será sometida a los tribunales competentes conforme la normativa de defensa del consumidor aplicable, sin imponer al Usuario una prórroga de jurisdicción que limite sus derechos irrenunciables.
- 
+
+Estos Términos se regirán por las leyes de la República Argentina.
+Toda controversia será sometida a los tribunales competentes conforme la normativa de defensa del consumidor aplicable.
+
 (xx) CONTACTO
 
-Operadores:
+PASITO APP S.A.S.
+CUIT 30-71944461-6
+Correo electrónico: contacto@pasito.app
+Asunto sugerido: "Consulta T&C" o "Reclamo"
+Domicilio legal del operador: Gallo 1645, 5 Ciudad Autónoma de Buenos Aires, República Argentina.
 
-PASITO APP S.A.S. CUIT 30-71944461-6 Domicilio legal: Vedia 3892, Piso 1, posición 19, C1430, CABA, Argentina.
-
-PASITO URUGUAY SAS RUT 220975490017
-
-Correo electrónico: contacto@pasito.app Asunto sugerido: "Consulta T&C" o "Reclamo"
-
-Última actualización: 10 de septiembre de 2026
+Última actualización: Septiembre de 2026
