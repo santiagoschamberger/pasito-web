@@ -11,7 +11,7 @@ export default function PrivacidadPage() {
       eyebrow="Pasito / Legal"
       title="Política de privacidad"
       description="Cómo cuidamos y usamos la información necesaria para que Pasito funcione para vos."
-      updatedAt="Versión 1.5 · Vigente desde el 2 de septiembre de 2026"
+      updatedAt="Versión 1.6 · Vigente desde el 16 de septiembre de 2026"
     >
         <div className="prose prose-lg max-w-none space-y-8">
           <section>
@@ -132,6 +132,7 @@ export default function PrivacidadPage() {
               <li>Versión instalada de la app, plataforma, estado de permisos, eventos básicos de uso y diagnóstico, necesarios para operar, medir estabilidad y mejorar la experiencia.</li>
               <li>Identificador técnico del dispositivo, datos de integridad, lecturas del sensor de pasos nativo de Android y telemetría de sincronización de pasos, necesarios para prevenir fraude, evitar duplicaciones y corregir errores de conteo.</li>
               <li>Datos técnicos mínimos necesarios para autenticarte, sincronizar tus pasos y operar la app de forma segura.</li>
+              <li>En los correos comerciales, eventos de envío, entrega, demora, rechazo, rebote, queja, baja, apertura estimada y clics en enlaces, asociados a la campaña y al destinatario. La apertura y algunos clics son indicadores aproximados: las funciones de privacidad, los bloqueadores y los servidores intermediarios del proveedor de correo pueden impedirlos o generarlos sin una lectura humana.</li>
             </ul>
 
             <h3 className="text-xl font-semibold mb-3 mt-6" style={{ color: '#0C6B45' }}>
@@ -192,6 +193,8 @@ export default function PrivacidadPage() {
               <li>Apple – Autenticación via Sign in with Apple (EE.UU.)</li>
               <li>Google – Autenticación via Google Sign-In (EE.UU.)</li>
               <li>Resend – Infraestructura para el envío de correos electrónicos operativos y comerciales (EE.UU.)</li>
+              <li>Amazon Web Services – Amazon Simple Email Service (SES) para el envío de correos comerciales y el registro de eventos operativos de entrega (EE.UU.).</li>
+              <li>Railway – Alojamiento de la herramienta autogestionada listmonk y de la base de suscripciones, preferencias, bajas y métricas de campañas de correo (EE.UU.).</li>
             </ul>
             <p className="text-gray-700 leading-relaxed mt-4">
               Estos proveedores pueden procesar datos fuera de la Argentina y del Uruguay, principalmente en Estados Unidos. Pasito implementará las garantías y recabará los consentimientos que correspondan para las transferencias internacionales conforme al artículo 12 de la Ley argentina N.º 25.326 y al artículo 23 de la Ley uruguaya N.º 18.331 y sus normas reglamentarias.
@@ -224,6 +227,9 @@ export default function PrivacidadPage() {
             </p>
             <p className="text-gray-700 leading-relaxed">
               Los datos de actividad física se conservan mientras la cuenta esté activa y se eliminan junto con la cuenta. Los datos agregados y anonimizados pueden conservarse indefinidamente, dado que no permiten identificar a ningún usuario.
+            </p>
+            <p className="text-gray-700 leading-relaxed mt-4">
+              Los eventos identificables de campañas de correo se conservan por hasta 400 días para gestionar entregabilidad, bajas, quejas, seguridad y medición histórica. Las direcciones dadas de baja, con quejas o con rebotes permanentes podrán conservarse en una lista de supresión durante el tiempo necesario para respetar esa elección y evitar nuevos envíos. Después de esos plazos, las métricas podrán conservarse únicamente de forma agregada o anonimizada.
             </p>
           </section>
 
