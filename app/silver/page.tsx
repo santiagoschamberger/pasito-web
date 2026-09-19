@@ -108,6 +108,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const origin = `${protocol}://${host}`
   const title = 'Silver Walks - Pasito × Kiwell'
   const description = 'Caminar, aprender y desayunar. Domingo 27 de septiembre en Augusta, Palermo. Entradas a $45.000.'
+  const ogImage = `${origin}/silver/og.jpg`
 
   return {
     title,
@@ -119,11 +120,13 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
       url: `${origin}/silver`,
       locale: 'es_AR',
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+      images: [ogImage],
     },
   }
 }
@@ -216,6 +219,16 @@ export default async function SilverWalksPage() {
       </nav>
 
       <header className={styles.hero}>
+        <div className={styles.heroImage}>
+          <Image
+            src="/silver/hero.jpg"
+            alt="Silver Walks - Pasito × Kiwell"
+            fill
+            priority
+            sizes="100vw"
+            className={styles.heroImg}
+          />
+        </div>
         <div className={styles.heroInner}>
           <div className={styles.heroCopy}>
             <p className={styles.kicker}>Pasito Walking Club <span aria-hidden="true">×</span> Kiwell</p>
@@ -293,6 +306,56 @@ export default async function SilverWalksPage() {
             <a className={styles.mapLink} href={AUGUSTA_MAP_URL} target="_blank" rel="noopener noreferrer">
               Abrir en Google Maps <ArrowRight size={17} aria-hidden="true" />
             </a>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.augustaGallery} aria-label="Fotos de Augusta">
+        <div className={styles.galleryGrid}>
+          <div className={styles.galleryItem}>
+            <Image
+              src="/silver/augusta/01.jpg"
+              alt="Deck con vistas al campo de golf"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className={styles.galleryImage}
+            />
+          </div>
+          <div className={styles.galleryItem}>
+            <Image
+              src="/silver/augusta/02.jpg"
+              alt="Terrace al atardecer"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className={styles.galleryImage}
+            />
+          </div>
+          <div className={styles.galleryItem}>
+            <Image
+              src="/silver/augusta/03.jpg"
+              alt="Terraza con iluminación"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className={styles.galleryImage}
+            />
+          </div>
+          <div className={styles.galleryItem}>
+            <Image
+              src="/silver/augusta/04-augusta-sign.jpg"
+              alt="Entrada Augusta"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className={styles.galleryImage}
+            />
+          </div>
+          <div className={styles.galleryItem}>
+            <Image
+              src="/silver/augusta/05.jpg"
+              alt="Lounge al atardecer"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className={styles.galleryImage}
+            />
           </div>
         </div>
       </section>
