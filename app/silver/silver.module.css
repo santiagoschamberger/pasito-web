@@ -157,6 +157,9 @@
   font-size: 18px;
 }
 
+.heroCopy {
+}
+
 .heroCopy h1 {
   max-width: 840px;
   margin-top: 18px;
@@ -283,6 +286,9 @@
   text-transform: uppercase;
 }
 
+.scheduleIntro {
+}
+
 .scheduleIntro h2 {
   margin-top: 14px;
   font-size: 44px;
@@ -375,6 +381,9 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 32px;
+}
+
+.locationCopy {
 }
 
 .locationCopy h2 {
@@ -559,6 +568,9 @@
   max-width: 760px;
 }
 
+.ticketCopy {
+}
+
 .ticketCopy h2 {
   margin-top: 14px;
   font-size: 44px;
@@ -625,6 +637,9 @@
   grid-template-columns: .9fr 1.1fr;
   align-items: start;
   gap: 64px;
+}
+
+.checkoutIntro {
 }
 
 .checkoutIntro h2 {
@@ -1014,6 +1029,9 @@
   font-size: 16px;
   font-weight: 750;
   line-height: 20px;
+}
+
+.quoteDiscount {
 }
 
 .quoteDiscount span {
