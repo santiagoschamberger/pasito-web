@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { getTomateSupabase } from '@/lib/tomate-server'
-import { verifyIntentToken } from '@/lib/tomate-ticket-security'
+import { readIntentToken } from '@/lib/tomate-ticket-security'
 
 export async function DELETE(
   request: NextRequest,
@@ -19,8 +19,8 @@ export async function DELETE(
     return NextResponse.json({ error: 'Cancelación inválida.' }, { status: 400 })
   }
 
-  const intentToken = typeof body.intentToken === 'string' ? body.intentToken.trim() : ''
-  if (!verifyIntentToken(id, intentToken)) {
+  const tokenId = typeof body.intentToken === 'string' ? readIntentToken(body.intentToken) : null
+  if (!tokenId || tokenId !== id) {
     return NextResponse.json({ error: 'Token de intención inválido.' }, { status: 403 })
   }
 

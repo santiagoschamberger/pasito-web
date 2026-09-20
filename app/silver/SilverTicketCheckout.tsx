@@ -319,7 +319,7 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
           <h2 id="checkout-title">Tu entrada,<br /><span>en dos minutos.</span></h2>
           <p>Elegí cuántas entradas querés y confirmá el valor antes de pagar.</p>
           <ul>
-            <ShieldCheck size={20} /> Pago procesado por Rebill</li>
+            <li><ShieldCheck size={20} /> Pago procesado por Rebill</li>
             <li><Mail size={20} /> QR y código directo a tu email</li>
             <li><Ticket size={20} /> Hasta {SILVER_EVENT.maxTicketsPerOrder} entradas por compra</li>
           </ul>
