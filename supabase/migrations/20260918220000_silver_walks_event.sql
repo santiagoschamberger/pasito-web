@@ -1,4 +1,5 @@
 -- Silver Walks: single-tier event with 200 capacity at ARS 45.000
+
 begin;
 
 insert into public.event_ticket_tiers (event_slug, position, name, unit_price, capacity)
