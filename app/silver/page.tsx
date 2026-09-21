@@ -432,6 +432,14 @@ export default function SilverWalksPage() {
                 height={76}
               />
             </div>
+            <div className={styles.bydLogo}>
+              <Image
+                src="/silver/sponsors/byd.svg"
+                alt="BYD"
+                width={135}
+                height={28}
+              />
+            </div>
           </div>
           <div className={styles.organizers}>
             <p>ORGANIZAN EN COLABORACIÓN</p>
