@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowRight, Check, Download } from 'lucide-react'
 
 import styles from '@/app/marketing.module.css'
+import { PARTNER_BRANDS, type MarketingBrand } from '@/lib/marketing-brands'
 
 export const APP_STORE_URL = 'https://apps.apple.com/ar/app/pasito/id6760863724'
 export const GOOGLE_PLAY_URL = 'https://play.google.com/store/apps/details?id=ar.pasito.pasito&hl=es'
@@ -217,20 +218,21 @@ export function RulesList({ rules }: { rules: string[] }) {
 }
 
 export function BrandRow({ light = false }: { light?: boolean }) {
-  const brands: ({ name: string; src: string; width: number; height: number; remote?: boolean })[] = [
+  const brands: (MarketingBrand & { remote?: boolean })[] = [
     { name: 'Disney', src: DISNEY_LOGO_URL, width: 126, height: 54, remote: true },
     { name: 'Decathlon', src: '/marketing/brands/decathlon.svg', width: 124, height: 28 },
     { name: 'KFC', src: '/marketing/brands/kfc.svg', width: 86, height: 30 },
     { name: "Wendy's", src: '/marketing/brands/wendys.svg', width: 84, height: 42 },
+    ...PARTNER_BRANDS,
   ]
   return (
-    <div className={styles.brandRow} data-motion-item>
+    <div className={styles.brandRow} data-motion-item role="list" aria-label="Marcas que acompañan a Pasito">
       {brands.map((brand) => (
-        <div className={`${styles.brandTile} ${light ? styles.brandTileLight : ''}`} key={brand.name} data-motion-item>
+        <div className={`${styles.brandTile} ${light ? styles.brandTileLight : ''}`} key={brand.name} data-motion-item role="listitem">
           {brand.remote ? (
             <img className={styles.brandLogo} src={brand.src} alt={brand.name} width={brand.width} height={brand.height} />
           ) : (
-            <Image className={styles.brandLogo} src={brand.src} alt={brand.name} width={brand.width} height={brand.height} unoptimized />
+            <Image className={styles.brandLogo} style={brand.monochrome ? { filter: 'brightness(0)' } : undefined} src={brand.src} alt={brand.name} width={brand.width} height={brand.height} unoptimized />
           )}
         </div>
       ))}

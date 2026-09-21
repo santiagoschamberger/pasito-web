@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ArrowDown, ArrowRight } from 'lucide-react'
 
 import styles from './marcas.module.css'
+import { PARTNER_BRANDS, type MarketingBrand } from '@/lib/marketing-brands'
 import { MarketingMotion } from '@/components/marketing/MarketingMotion'
 
 const BRANDS_WHATSAPP_URL = 'https://wa.me/5491136491620?text=Hola%2C%20quiero%20reservar%20una%20activaci%C3%B3n%20de%20marca%20en%20Pasito.'
@@ -85,11 +86,12 @@ const MEASUREMENT = [
   { title: 'Comunidad', detail: 'Asistencia, contenido y recurrencia.' },
 ]
 
-const BRAND_LOGOS = [
+const BRAND_LOGOS: MarketingBrand[] = [
   { name: 'Decathlon', src: '/marketing/brands/decathlon.svg', width: 154, height: 36 },
   { name: 'KFC', src: '/marketing/brands/kfc.svg', width: 94, height: 34 },
   { name: "Wendy's", src: '/marketing/brands/wendys.svg', width: 92, height: 44 },
   { name: 'Açaí Brasil', src: '/marketing/brands/acai-brasil.png', width: 150, height: 38 },
+  ...PARTNER_BRANDS,
 ]
 
 export default function MarcasPage() {

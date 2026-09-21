@@ -338,9 +338,7 @@
 .centeredBody { max-width: 560px; margin-right: auto; margin-left: auto; color: rgb(255 255 255 / 72%); }
 .homeChallengeTitle { max-width: 760px; margin-right: auto; margin-left: auto; font-size: 56px; font-weight: 800; line-height: 60px; letter-spacing: -2px; }
 .challengeStat { display: inline-flex; max-width: none; margin: 32px auto 0; padding: 13px 22px; border: 1px solid rgb(235 250 97 / 28%); border-radius: 999px; background: rgb(235 250 97 / 10%); color: var(--brand-accent); font-family: var(--font-bricolage), system-ui, sans-serif; font-size: 16px; font-weight: 650; line-height: 21px; white-space: nowrap; }
-.brandRow { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(150px, 180px); justify-content: center; gap: 24px; margin-top: 48px; padding: 8px 2px 12px; overflow-x: auto; overscroll-behavior-inline: contain; scroll-snap-type: inline proximity; }
-.brandRow::-webkit-scrollbar { height: 5px; }
-.brandRow::-webkit-scrollbar-thumb { border-radius: 999px; background: rgb(124 124 101 / 24%); }
+.brandRow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 20px; max-width: 1000px; margin: 48px auto 0; padding: 8px 2px 12px; }
 .brandTile { display: flex; align-items: center; justify-content: center; min-width: 0; height: 76px; overflow: hidden; border: 1px solid rgb(255 255 255 / 18%); border-radius: 16px; background: #fff; scroll-snap-align: center; transition: transform .26s cubic-bezier(.2,.7,.2,1), box-shadow .26s ease; }
 .brandTile:hover { transform: translateY(-4px); box-shadow: 0 16px 34px rgb(0 64 39 / 12%); }
 .brandTileLight { border-color: var(--surface-stroke); }

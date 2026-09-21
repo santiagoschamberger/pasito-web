@@ -535,9 +535,10 @@
 
 .brandProof .container {
   display: grid;
-  grid-template-columns: .65fr 1.35fr;
+  grid-template-columns: 1fr;
   align-items: center;
-  gap: 70px;
+  gap: 40px;
+  text-align: center;
 }
 
 .brandProof p {
@@ -551,7 +552,7 @@
 
 .brandLogos {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   align-items: center;
   gap: 34px;
   filter: grayscale(1) brightness(0) invert(1);
@@ -559,9 +560,9 @@
 
 .brandLogos img {
   width: auto;
-  max-width: 138px;
+  max-width: min(138px, 100%);
   height: auto;
-  max-height: 40px;
+  max-height: 54px;
   justify-self: center;
   object-fit: contain;
 }
