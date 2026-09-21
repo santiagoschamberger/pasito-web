@@ -1378,6 +1378,18 @@
   }
 }
 @media (max-width: 760px) {
+  .page {
+    --mobile-heading-size: clamp(30px, 7.5vw, 36px);
+  }
+  .page h2 {
+    font-size: var(--mobile-heading-size);
+    line-height: 1.12;
+    letter-spacing: -0.035em;
+  }
+  .page h3 {
+    font-size: 22px;
+    line-height: 1.16;
+  }
   .announcement {
     font-size: 8px;
     letter-spacing: 0.09em;
@@ -1425,7 +1437,9 @@
     padding: 34px 24px 30px;
   }
   .hero h1 {
-    font-size: clamp(72px, 15vw, 105px);
+    font-size: clamp(44px, 11.5vw, 58px);
+    line-height: 1.04;
+    letter-spacing: -0.045em;
     margin-top: 10px;
   }
   .kicker {
@@ -1436,13 +1450,12 @@
     margin-top: 16px;
   }
   .heroLead {
-    font-size: 17px;
+    font-size: 16px;
     max-width: 470px;
     margin-top: 21px !important;
   }
   .heroActions {
-    gap: 24px;
-    margin-top: 24px;
+    display: none;
   }
   .heroByline {
     margin-top: 25px;
@@ -1528,7 +1541,7 @@
     margin-bottom: 14px;
   }
   .pillars h3 {
-    font-size: 26px;
+    font-size: 22px;
   }
   .agendaSection {
     padding-block: 60px;
@@ -1540,7 +1553,7 @@
     display: none;
   }
   .agendaIntro h2 {
-    font-size: 46px;
+    font-size: var(--mobile-heading-size);
   }
   .agendaIntro > p:not(.overline) {
     margin-top: 20px;
@@ -1558,7 +1571,7 @@
     padding: 23px 0;
   }
   .timeline h3 {
-    font-size: 24px;
+    font-size: 22px;
   }
   .timeline p {
     font-size: 15px;
@@ -1574,7 +1587,7 @@
     align-items: stretch;
   }
   .locationCopy h2 {
-    font-size: 48px;
+    font-size: var(--mobile-heading-size);
   }
   .locationCopy > p:not(.overline) {
     font-size: 16px;
@@ -1588,7 +1601,7 @@
     padding-block: 46px;
   }
   .sponsorsSection h2 {
-    font-size: 36px;
+    font-size: var(--mobile-heading-size);
   }
   .sponsorGrid {
     display: flex;
@@ -1636,7 +1649,7 @@
     margin-top: 28px;
   }
   .priceDisplay strong {
-    font-size: 58px;
+    font-size: 44px;
   }
   .checkoutSection {
     padding-bottom: 0;
@@ -1650,7 +1663,7 @@
     border-inline: 0;
   }
   .checkoutIntro h2 {
-    font-size: 37px;
+    font-size: var(--mobile-heading-size);
   }
   .checkoutIntro ul {
     margin-top: 20px;
@@ -1660,14 +1673,14 @@
     padding: 24px 20px;
   }
   .checkoutCard h3 {
-    font-size: 27px;
+    font-size: 24px;
   }
   .questions {
     display: block;
     padding-block: 60px;
   }
   .questions h2 {
-    font-size: 42px;
+    font-size: var(--mobile-heading-size);
   }
   .questionList {
     margin-top: 20px;
@@ -1682,7 +1695,7 @@
     font-size: 8px;
   }
   .closing h2 {
-    font-size: 42px;
+    font-size: var(--mobile-heading-size);
   }
   .footer {
     flex-direction: column;
