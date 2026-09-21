@@ -53,3 +53,10 @@ Run the repository test suite, `node --experimental-strip-types --test tests/sil
 - 87 tests passed, including real QR generation, signed URL validation, multiple-ticket delivery payloads, provider errors, missing acknowledgement, and empty bundles. Production build passed.
 - A generated QR was independently scanned with Apple Vision and decoded to the expected signed Silver ticket URL. Delivery was mocked; no test emails were sent to buyers and no payment was charged.
 - Resend reports sending enabled and verified DKIM/SPF for pasito.app. Its optional tracking CNAME is failed, but click and open tracking are both disabled.
+
+### Bank-transfer confirmation recovery
+
+- Rebill SDK 1.17.28 emits APM success with its original checkout response, which can omit `data.result.paymentId` even though its internal payment status is approved. Card responses include that ID. Verified against the pinned SDK source (`handlePaymentStatusChange`).
+- Any success callback stops the reservation countdown and removes payment controls. Cards still use server-side payment verification; missing IDs and transient confirmation failures recover the webhook-confirmed order through `/api/events/silver/orders/status`.
+- Status requires the signed reservation token, scopes the lookup to Silver, and returns ticket links only for approved orders with a complete, non-void ticket bundle. Refunded/inactive orders expose no QR links. The endpoint only reads existing orders; it does not create payments, issue tickets, or send emails.
+- The browser polls up to 30 times, aborts on unmount, and offers manual verification if still pending. Automated tests cover unauthorized access, other events, pending email, refunds, and database failures; browser scenarios mock all payment and reservation requests.

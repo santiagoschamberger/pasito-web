@@ -174,6 +174,9 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
   const [preparing, setPreparing] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [paymentReceived, setPaymentReceived] = useState(false)
+  const [paymentId, setPaymentId] = useState<string | null>(null)
+  const [verificationAttempt, setVerificationAttempt] = useState(0)
+  const [inactivePayment, setInactivePayment] = useState<'refunded' | 'inactive' | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [remainingSeconds, setRemainingSeconds] = useState(0)
 
@@ -237,6 +240,8 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
       if (!response.ok || !payload.intentId) throw new Error(payload.error || 'No pudimos reservar las entradas.')
       setQuote(payload)
       setPaymentReceived(false)
+      setPaymentId(null)
+      setInactivePayment(null)
       setConfirmation(null)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'No pudimos reservar las entradas.')
@@ -254,33 +259,62 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
     void refreshAvailability()
   }, [confirming, quote, refreshAvailability, releaseQuote])
 
-  const handleSuccess = useCallback(async (detail: unknown) => {
+  const handleSuccess = useCallback((detail: unknown) => {
     if (!quote) return
-    const paymentId = (detail as { data?: { result?: { paymentId?: string } } })?.data?.result?.paymentId
-    if (!paymentId) {
-      setError('El pago se inició, pero no recibimos su identificador. Escribinos para revisarlo.')
-      return
-    }
-
+    const id = (detail as { data?: { result?: { paymentId?: unknown } } })?.data?.result?.paymentId
+    setPaymentId(typeof id === 'string' && id.trim() ? id.trim() : null)
+    // Stop the reservation countdown and remove payment controls even when an
+    // approved bank transfer has no ID in the SDK success payload.
     setPaymentReceived(true)
-    setConfirming(true)
     setError(null)
-    try {
-      const response = await fetch('/api/events/silver/orders/confirm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentId, intentId: quote.intentId }),
-      })
-      const payload = await response.json().catch(() => ({})) as Confirmation & { error?: string }
-      if (!response.ok || !payload.tickets) throw new Error(payload.error || 'No pudimos terminar la confirmación.')
-      setConfirmation(payload)
-      void refreshAvailability()
-    } catch {
-      setPaymentReceived(true)
-    } finally {
-      setConfirming(false)
+  }, [quote])
+
+  useEffect(() => {
+    if (!paymentReceived || !quote || confirmation || inactivePayment) return
+    const controller = new AbortController()
+    let timer: ReturnType<typeof setTimeout> | undefined
+    let attempts = 0
+    setConfirming(true)
+
+    const verify = async () => {
+      try {
+        const confirmDirectly = attempts === 0 && paymentId
+        const response = await fetch(`/api/events/silver/orders/${confirmDirectly ? 'confirm' : 'status'}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(confirmDirectly
+            ? { paymentId, intentId: quote.intentId }
+            : { intentToken: quote.intentToken }),
+          signal: AbortSignal.any([controller.signal, AbortSignal.timeout(10_000)]),
+        })
+        const payload = await response.json() as Confirmation & { status?: string; refunded?: boolean }
+        if (controller.signal.aborted) return
+        if (response.ok && payload.tickets?.length) {
+          setConfirmation(payload)
+          setConfirming(false)
+          void refreshAvailability()
+          return
+        }
+        if (response.ok && payload.status === 'inactive') {
+          setInactivePayment(payload.refunded ? 'refunded' : 'inactive')
+          setConfirming(false)
+          return
+        }
+      } catch {
+        // The verified webhook can finish after the browser callback or a
+        // transient network failure. Keep recovering the same reservation.
+      }
+      if (controller.signal.aborted) return
+      attempts += 1
+      if (attempts < 30) timer = setTimeout(() => void verify(), 2000)
+      else setConfirming(false)
     }
-  }, [quote, refreshAvailability])
+    void verify()
+    return () => {
+      controller.abort()
+      clearTimeout(timer)
+    }
+  }, [paymentReceived, paymentId, quote, confirmation, inactivePayment, verificationAttempt, refreshAvailability])
 
   const handlePaymentError = useCallback((detail: unknown) => {
     setError(checkoutErrorMessage(detail))
@@ -306,6 +340,8 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
     setQuote(null)
     setConfirmation(null)
     setPaymentReceived(false)
+    setPaymentId(null)
+    setInactivePayment(null)
     setError(null)
     setQuantity(1)
     setPromoCode('')
@@ -345,11 +381,12 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
               <button type="button" className={styles.checkoutPrimary} onClick={reset}>Comprar otra entrada</button>
             </div>
           ) : paymentReceived ? (
-            <div className={styles.purchaseSuccess} data-testid="payment-received">
-              <span className={styles.successIcon}><Check size={30} /></span>
-              <p className={styles.checkoutEyebrow}>Pago recibido</p>
-              <h3>{confirming ? 'Estamos verificando tu pago…' : 'Estamos terminando de confirmarlo.'}</h3>
-              <p>No vuelvas a pagar. Estamos verificando la operación. Si no recibís las entradas por email, escribinos para que podamos ayudarte.</p>
+            <div className={styles.purchaseSuccess} data-testid="payment-received" aria-live="polite">
+              <span className={styles.successIcon}>{inactivePayment ? <Ticket size={30} /> : <Clock size={30} />}</span>
+              <p className={styles.checkoutEyebrow}>Estado de tu compra</p>
+              <h3>{inactivePayment === 'refunded' ? 'El pago fue reembolsado.' : inactivePayment ? 'Esta compra no está activa.' : confirming ? 'Estamos verificando tu pago…' : 'Estamos terminando de confirmarlo.'}</h3>
+              <p>{inactivePayment ? 'Las entradas de esta compra ya no están habilitadas. Si necesitás ayuda, escribinos.' : 'No vuelvas a pagar. Estamos verificando la operación. Tus entradas aparecerán acá cuando se confirme la compra.'}</p>
+              {!confirming && !inactivePayment && <button type="button" className={styles.checkoutPrimary} onClick={() => setVerificationAttempt(value => value + 1)}>Volver a verificar</button>}
               <a className={styles.checkoutPrimary} href="/contacto">Contactar a Pasito</a>
             </div>
           ) : quote && product ? (
