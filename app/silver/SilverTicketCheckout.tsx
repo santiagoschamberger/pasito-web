@@ -394,9 +394,6 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
             <div data-testid="checkout-quantity">
               <p className={styles.checkoutEyebrow}>Elegí la cantidad</p>
               <h3>Entrada general</h3>
-              {currentTier && currentTier.capacity !== null && currentTier.available !== null && (
-                <p className={styles.availabilityCopy}>Disponibilidad ahora: quedan {currentTier.available}. Las reservas sin pagar se liberan a los 5 minutos.</p>
-              )}
               <div className={styles.quantityPicker} aria-label="Cantidad de entradas">
                 <button type="button" onClick={() => setQuantity((value) => Math.max(1, value - 1))} disabled={quantity === 1} aria-label="Restar una entrada"><Minus size={22} /></button>
                 <span><strong>{quantity}</strong><small>{quantity === 1 ? 'entrada' : 'entradas'}</small></span>
