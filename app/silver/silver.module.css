@@ -261,7 +261,7 @@
 }
 .dateStamp {
   position: absolute;
-  right: 24px;
+  left: 24px;
   top: 25px;
   width: 108px;
   height: 126px;
@@ -1478,7 +1478,7 @@
   .dateStamp {
     width: 88px;
     height: 102px;
-    right: 20px;
+    left: 20px;
     top: 23px;
   }
   .dateStamp strong {
