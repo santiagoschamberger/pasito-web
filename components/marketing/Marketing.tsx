@@ -116,11 +116,11 @@ export function MarketingNav({
           </a>
           <a
             className={`${styles.pinkButton} ${styles.navCta}`}
-            href={PARTNERS_REGISTER_URL}
+            href={isBrands ? BRANDS_WHATSAPP_URL : PARTNERS_REGISTER_URL}
             target="_blank"
             rel="noopener noreferrer"
           >
-            Sumar mi comercio
+            {isBrands ? 'Hablemos' : 'Sumar mi comercio'}
           </a>
         </div>
         <details className={styles.mobileNav}>
@@ -139,7 +139,7 @@ export function MarketingNav({
             </div>
             <div className={styles.mobileNavActions}>
               <a className={styles.mobileNavLogin} href={PARTNERS_URL} target="_blank" rel="noopener noreferrer">Iniciar sesión</a>
-              <a className={`${styles.pinkButton} ${styles.mobileNavRegister}`} href={PARTNERS_REGISTER_URL} target="_blank" rel="noopener noreferrer">Sumar mi comercio</a>
+              <a className={`${styles.pinkButton} ${styles.mobileNavRegister}`} href={isBrands ? BRANDS_WHATSAPP_URL : PARTNERS_REGISTER_URL} target="_blank" rel="noopener noreferrer">{isBrands ? 'Hablemos' : 'Sumar mi comercio'}</a>
             </div>
           </div>
         </details>
