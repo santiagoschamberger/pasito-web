@@ -5,8 +5,8 @@ import Image from 'next/image'
 import marketingStyles from '@/app/marketing.module.css'
 
 export const metadata: Metadata = {
-  title: 'Términos y condiciones - Silver Walks',
-  description: 'Términos y condiciones del evento Silver Walks.',
+  title: 'Términos y condiciones - Silver Walks by Nutren',
+  description: 'Términos y condiciones del evento Silver Walks by Nutren.',
 }
 
 export default function SilverWalksTermsPage() {
@@ -57,7 +57,7 @@ export default function SilverWalksTermsPage() {
           lineHeight: '52px',
           letterSpacing: '-1.5px'
         }}>
-          Silver Walks
+          Silver Walks by Nutren
         </h1>
         <p style={{ marginTop: '14px', color: '#7c7c65', fontSize: '15px', lineHeight: '22px' }}>
           Versión vigente: septiembre de 2026
@@ -74,11 +74,11 @@ export default function SilverWalksTermsPage() {
             1. Descripción del evento
           </h2>
           <p style={{ marginTop: '14px', color: '#585843', fontSize: '16px', lineHeight: '26px' }}>
-            Silver Walks es un encuentro organizado por Pasito en colaboración con Kiwell que incluye:
+            Silver Walks by Nutren es un encuentro organizado por Pasito + Kiwell en colaboración que incluye:
           </p>
           <ul style={{ marginTop: '12px', paddingLeft: '24px', color: '#585843', fontSize: '16px', lineHeight: '26px' }}>
             <li>Caminata activa guiada</li>
-            <li>Sesión de stretching y relajación</li>
+            <li>Sesión de elongación y relajación</li>
             <li>Charla sobre Medicina 3.0 y longevidad</li>
             <li>Brunch buffet en Augusta</li>
             <li>Kit de productos de marcas participantes</li>
@@ -213,7 +213,7 @@ export default function SilverWalksTermsPage() {
             fontSize: '14px',
             fontWeight: 650
           }}>
-            ← Volver a Silver Walks
+            ← Volver a Silver Walks by Nutren
           </Link>
         </div>
       </article>

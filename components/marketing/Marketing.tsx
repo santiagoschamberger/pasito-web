@@ -97,6 +97,7 @@ export function MarketingNav({
           <Image src="/brand/logo-green.svg" alt="Pasito" width={96} height={23} priority />
         </Link>
         <div className={styles.navLinks}>
+          <Link className={styles.navLink} href="/eventos">Eventos</Link>
           <Link className={`${styles.navLink} ${isCommerce ? styles.navLinkActive : ''}`} href="/comercios">Comercios</Link>
           <Link className={`${styles.navLink} ${isBrands ? styles.navLinkActive : ''}`} href="/marcas">Marcas</Link>
           <Link className={`${styles.navLink} ${isEnterprise ? styles.navLinkActive : ''}`} href="/empresas">Empresas</Link>
@@ -128,6 +129,7 @@ export function MarketingNav({
           </summary>
           <div className={styles.mobileNavPanel}>
             <div className={styles.mobileNavLinks}>
+              <Link className={styles.mobileNavLink} href="/eventos">Eventos</Link>
               <Link className={`${styles.mobileNavLink} ${isCommerce ? styles.mobileNavLinkActive : ''}`} href="/comercios">Comercios</Link>
               <Link className={`${styles.mobileNavLink} ${isBrands ? styles.mobileNavLinkActive : ''}`} href="/marcas">Marcas</Link>
               <Link className={`${styles.mobileNavLink} ${isEnterprise ? styles.mobileNavLinkActive : ''}`} href="/empresas">Empresas</Link>

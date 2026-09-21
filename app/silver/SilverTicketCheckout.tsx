@@ -5,6 +5,7 @@ import { ArrowLeft, Check, Clock, Mail, Minus, Plus, ShieldCheck, Ticket } from 
 
 import {
   SILVER_EVENT,
+  SILVER_TICKET_TIERS,
   SILVER_EVENT_TERMS_PATH,
   silverEventIsSoldOut,
   silverMoney,
@@ -13,7 +14,7 @@ import {
 } from '@/lib/silver-event'
 import styles from './silver.module.css'
 
-const REBILL_PUBLIC_KEY = process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY ?? ''
+const REBILL_PUBLIC_KEY = process.env.NEXT_PUBLIC_SILVER_REBILL_PUBLIC_KEY ?? ''
 const REBILL_SDK_SRC = 'https://unpkg.com/rebill@1.17.28/dist/rebill/rebill.esm.js'
 const CHECKOUT_DISPLAY = JSON.stringify({ checkoutSummary: false, logo: false })
 const CHECKOUT_CSS = `
@@ -261,6 +262,7 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
       return
     }
 
+    setPaymentReceived(true)
     setConfirming(true)
     setError(null)
     try {
@@ -316,7 +318,7 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
       <div className={styles.checkoutBackdrop} aria-hidden="true" />
       <div className={`${styles.container} ${styles.checkoutLayout}`}>
         <div className={styles.checkoutIntro}>
-          <h2 id="checkout-title">Tu entrada,<br /><span>en dos minutos.</span></h2>
+          <h2 id="checkout-title">Tu próximo<br /><span>buen plan.</span></h2>
           <p>Elegí cuántas entradas querés y confirmá el valor antes de pagar.</p>
           <ul>
             <li><ShieldCheck size={20} /> Pago procesado por Rebill</li>
@@ -331,7 +333,7 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
               <span className={styles.successIcon}><Check size={30} /></span>
               <p className={styles.checkoutEyebrow}>Compra confirmada</p>
               <h3>¡Tus entradas ya son tuyas!</h3>
-              <p>{confirmation.emailPending ? 'El email quedó pendiente y lo vamos a reintentar automáticamente.' : 'Te enviamos los QR y códigos por email.'} También podés abrirlos ahora:</p>
+              <p>{confirmation.emailPending ? 'El envío del email quedó pendiente. Guardá tus entradas desde los enlaces de abajo.' : 'Te enviamos los QR y códigos por email.'} También podés abrirlos ahora:</p>
               <div className={styles.successTickets}>
                 {confirmation.tickets.map((ticket) => (
                   <a href={ticket.url} target="_blank" rel="noopener noreferrer" key={ticket.code}>
@@ -346,8 +348,8 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
             <div className={styles.purchaseSuccess} data-testid="payment-received">
               <span className={styles.successIcon}><Check size={30} /></span>
               <p className={styles.checkoutEyebrow}>Pago recibido</p>
-              <h3>Estamos terminando de confirmarlo.</h3>
-              <p>No vuelvas a pagar. El webhook de Rebill completa la compra y te envía las entradas al email usado en el pago.</p>
+              <h3>{confirming ? 'Estamos verificando tu pago…' : 'Estamos terminando de confirmarlo.'}</h3>
+              <p>No vuelvas a pagar. Estamos verificando la operación. Si no recibís las entradas por email, escribinos para que podamos ayudarte.</p>
               <a className={styles.checkoutPrimary} href="/contacto">Contactar a Pasito</a>
             </div>
           ) : quote && product ? (
@@ -391,7 +393,7 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
           ) : (
             <div data-testid="checkout-quantity">
               <p className={styles.checkoutEyebrow}>Elegí la cantidad</p>
-              <h3>{currentTier ? `Entradas a ${silverMoney(currentTier.unitPrice)}` : 'Reservá tus entradas'}</h3>
+              <h3>Entrada general</h3>
               {currentTier && currentTier.capacity !== null && currentTier.available !== null && (
                 <p className={styles.availabilityCopy}>Disponibilidad ahora: quedan {currentTier.available}. Las reservas sin pagar se liberan a los 5 minutos.</p>
               )}
@@ -400,8 +402,9 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
                 <span><strong>{quantity}</strong><small>{quantity === 1 ? 'entrada' : 'entradas'}</small></span>
                 <button type="button" onClick={() => setQuantity((value) => Math.min(SILVER_EVENT.maxTicketsPerOrder, value + 1))} disabled={quantity === SILVER_EVENT.maxTicketsPerOrder} aria-label="Sumar una entrada"><Plus size={22} /></button>
               </div>
+              <div className={styles.orderTotal}><span>Total{promoCode ? ' sin descuento' : ''}</span><strong>{silverMoney(quantity * (currentTier?.unitPrice ?? SILVER_TICKET_TIERS[0].unitPrice))}</strong></div>
               <label className={styles.promoField}>
-                <span>Código de descuento</span>
+                <span>Código de descuento (opcional)</span>
                 <input
                   value={promoCode}
                   onChange={(event) => setPromoCode(event.target.value.toUpperCase())}
@@ -425,7 +428,7 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
               </label>
               {error && <div className={styles.checkoutError} role="alert">{error}</div>}
               <button type="button" className={styles.checkoutPrimary} onClick={() => void startCheckout()} disabled={preparing || !termsAccepted}>
-                {preparing ? 'Reservando precio…' : 'Continuar al pago'}
+                {preparing ? 'Preparando tu reserva…' : 'Continuar al pago'}
               </button>
               <p className={styles.paymentFinePrint}>Vas a ver el total exacto antes de pagar.</p>
             </div>

@@ -1,6 +1,6 @@
 export const SILVER_EVENT = {
   slug: 'silver-walks-2026-09',
-  name: 'Silver Walks',
+  name: 'Silver Walks by Nutren',
   dateLabel: 'Domingo 27 de septiembre de 2026',
   timeLabel: '09:30 a 13:00',
   venueLabel: 'Augusta, Palermo',

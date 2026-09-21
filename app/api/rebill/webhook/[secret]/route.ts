@@ -4,6 +4,7 @@ import { POST as confirmStoreOrder } from '../../../orders/route'
 import { POST as confirmTomateOrder } from '../../../events/tomate/orders/confirm/route'
 import { POST as confirmSilverOrder } from '../../../events/silver/orders/confirm/route'
 import { TOMATE_EVENT } from '@/lib/tomate-event'
+import { getSilverRebillPayment } from '@/lib/silver-rebill'
 import { SILVER_EVENT } from '@/lib/silver-event'
 import { getRebillPayment, normalizeRebillStatus } from '@/lib/tomate-rebill'
 import { getTomateSupabase } from '@/lib/tomate-server'
@@ -55,6 +56,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ se
   const expectedSecrets = [
     process.env.REBILL_WEBHOOK_SECRET,
     process.env.REBILL_NEW_WEBHOOK_SECRET,
+    process.env.SILVER_REBILL_WEBHOOK_SECRET,
   ].map((value) => value?.trim()).filter(Boolean)
   if (!expectedSecrets.includes(secret)) return new NextResponse(null, { status: 404 })
 
@@ -130,7 +132,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ se
     }
 
     try {
-      const verified = await getRebillPayment(payment.id)
+      const verified = await getSilverRebillPayment(payment.id)
       if (verified.metadata?.eventSlug !== SILVER_EVENT.slug) return new NextResponse(null, { status: 204 })
       const status = normalizeRebillStatus(verified.status)
       if (!status || status === 'approved') return new NextResponse(null, { status: 204 })

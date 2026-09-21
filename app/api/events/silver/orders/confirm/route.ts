@@ -7,14 +7,14 @@ import {
   retryEmailDelivery,
 } from '@/lib/email-retry'
 import {
-  getRebillPayment,
   rebillCustomerName,
   type RebillPayment,
 } from '@/lib/tomate-rebill'
+import { getSilverRebillPayment } from '@/lib/silver-rebill'
 import { isRebillPaymentAmountValid } from '@/lib/rebill-payment-validation'
 import { getTomateSupabase } from '@/lib/tomate-server'
 import { requestOrigin } from '@/lib/silver-server'
-import { sendTomateTicketsEmail } from '@/lib/tomate-ticket-email'
+import { sendSilverTicketsEmail } from '@/lib/silver-ticket-email'
 import { createTicketToken } from '@/lib/tomate-ticket-security'
 
 type ConfirmResult = {
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
 
     let payment: RebillPayment
     try {
-      payment = e2ePayment(paymentId, intent) ?? await getRebillPayment(paymentId)
+      payment = e2ePayment(paymentId, intent) ?? await getSilverRebillPayment(paymentId)
     } catch (error) {
       console.error('[silver/orders] Rebill no pudo verificar el pago:', error)
       return NextResponse.json({ error: 'No pudimos verificar el pago todavía.' }, { status: 502 })
@@ -177,7 +177,7 @@ export async function POST(request: NextRequest) {
     if (emailPending && shouldSendEmail) {
       let sendAttempts = 0
       try {
-        const delivery = await retryEmailDelivery(() => sendTomateTicketsEmail({
+        const delivery = await retryEmailDelivery(() => sendSilverTicketsEmail({
           origin,
           kind: 'confirmation',
           pasitosRewards: [],

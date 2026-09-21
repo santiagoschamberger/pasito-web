@@ -1,401 +1,524 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { headers } from 'next/headers'
 import {
-  ArrowRight,
+  ArrowDown,
+  ArrowUpRight,
   CalendarDays,
   Clock,
-  Coffee,
+  MapPin,
   Footprints,
   Heart,
-  MapPin,
-  Utensils,
+  Users,
+  Check,
 } from 'lucide-react'
-
-import { MarketingMotion } from '@/components/marketing/MarketingMotion'
 import {
+  SILVER_EVENT,
   SILVER_TICKET_TIERS,
-  silverEventIsSoldOut,
   silverMoney,
-  type TicketInventoryTier,
 } from '@/lib/silver-event'
-import { getSilverTicketInventory } from '@/lib/silver-server'
 import marketingStyles from '../marketing.module.css'
 import styles from './silver.module.css'
 import { SilverTicketCheckout } from './SilverTicketCheckout'
+import { SilverQuestions } from './SilverQuestions'
 
-const AUGUSTA_MAP_URL = 'https://www.google.com/maps/search/?api=1&query=Av.+Ernesto+Tornquist+6385+CABA'
-
-const SCHEDULE = [
-  {
-    time: '09:30 - 10:00',
-    title: 'Recepción y bienvenida',
-    detail: 'Café y primer contacto en Augusta.',
-    icon: Coffee,
-  },
-  {
-    time: '10:00 - 11:00',
-    title: 'Caminata activa',
-    detail: 'Ritmo conversado, nadie queda atrás.',
-    icon: Footprints,
-  },
-  {
-    time: '11:00 - 11:30',
-    title: 'Stretching y Relajación',
-    detail: 'Elongación y recuperación post caminata.',
-    icon: Heart,
-  },
-  {
-    time: '11:30 - 12:00',
-    title: 'Charla Medicina 3.0',
-    detail: 'Longevidad, sueño, fuerza y nutrición.',
-    icon: Heart,
-  },
-  {
-    time: '12:00 - 13:00',
-    title: 'Brunch en Augusta',
-    detail: 'Buffet completo incluido con tu entrada.',
-    icon: Utensils,
-  },
-]
-
-type Sponsor = {
-  name: string
-  logo: string
-  cardClassName?: string
-  logoClassName?: string
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 }
-
-const SPONSORS: Sponsor[] = [
-  {
-    name: 'Kiwell',
-    logo: '/evento-pasito/sponsors/kiwell-green.png',
-    cardClassName: styles.sponsorCardKiwell,
-    logoClassName: `${styles.sponsorLogoWide} ${styles.sponsorLogoKiwell}`,
+export const metadata: Metadata = {
+  title: 'Silver Walks by Nutren · Un buen momento para vos',
+  description:
+    'Una mañana para moverte, aprender y compartir. 27 de septiembre, 09:30 a 13:00, Augusta, Palermo. Organizado por Pasito + Kiwell en colaboración.',
+  alternates: { canonical: 'https://www.pasito.app/silver' },
+  openGraph: {
+    title: 'Silver Walks by Nutren',
+    description:
+      'El próximo paso es para vos. 27 de septiembre · Augusta, Palermo.',
+    url: 'https://www.pasito.app/silver',
+    images: [
+      {
+        url: 'https://www.pasito.app/silver/opengraph-image',
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: 'es_AR',
   },
-  {
-    name: 'exty',
-    logo: '/silver/sponsors/exty.png',
-    logoClassName: styles.sponsorLogoWide,
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Silver Walks by Nutren',
+    images: ['https://www.pasito.app/silver/opengraph-image'],
   },
-  {
-    name: 'Farmacity',
-    logo: '/silver/sponsors/farmacity.png',
-    logoClassName: styles.sponsorLogoWide,
-  },
-  {
-    name: 'Under Armour',
-    logo: '/silver/sponsors/under-armour.png',
-    logoClassName: styles.sponsorLogoWide,
-  },
-  {
-    name: 'Benevia Natural Brands',
-    logo: '/evento-pasito/sponsors/benevia-natural-brands.png',
-    logoClassName: styles.sponsorLogoWide,
-  },
-  {
-    name: 'Nutren Senior',
-    logo: '/silver/sponsors/nutren-senior.png',
-    logoClassName: styles.sponsorLogoWide,
-  },
-]
-
-export async function generateMetadata(): Promise<Metadata> {
-  const requestHeaders = await headers()
-  const host = requestHeaders.get('x-forwarded-host') || requestHeaders.get('host') || 'www.pasito.app'
-  const protocol = requestHeaders.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https')
-  const origin = `${protocol}://${host}`
-  const title = 'Silver Walks - Pasito × Kiwell'
-  const description = 'Caminar, aprender y desayunar. Domingo 27 de septiembre en Augusta, Palermo. Entradas a $45.000.'
-  const ogImage = `${origin}/silver/og.jpg`
-
-  return {
-    title,
-    description,
-    alternates: { canonical: `${origin}/silver` },
-    openGraph: {
-      title,
-      description,
-      type: 'website',
-      url: `${origin}/silver`,
-      locale: 'es_AR',
-      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [ogImage],
-    },
-  }
 }
-
-function BuyButton({
+const schedule = [
+  [
+    '09:30',
+    'Nos encontramos',
+    'Recepción y bienvenida con un café en Augusta.',
+  ],
+  [
+    '10:00',
+    'Salimos a caminar',
+    'Una caminata activa, a un ritmo que invita a conversar.',
+  ],
+  [
+    '11:00',
+    'Elongación y relajación',
+    'Elongación y relajación después de movernos.',
+  ],
+  [
+    '11:30',
+    'Aprendemos sobre bienestar',
+    'Charla Medicina 3.0: longevidad, sueño, fuerza y nutrición.',
+  ],
+  [
+    '12:00',
+    'Compartimos la mesa',
+    'Brunch buffet en Augusta. La mejor forma de cerrar la mañana.',
+  ],
+]
+const included = [
+  'Caminata guiada por Kiwell',
+  'Elongación y relajación',
+  'Charla sobre longevidad y hábitos',
+  'Brunch buffet en Augusta',
+  'Kit de productos de las marcas',
+]
+function Buy({
+  label = 'Quiero ser parte',
   className = '',
-  label = 'Comprar entrada',
-  soldOut = false,
 }: {
-  className?: string
   label?: string
-  soldOut?: boolean
+  className?: string
 }) {
-  const buttonClassName = `${styles.buyButton} ${className}`
-
-  if (soldOut) {
-    return (
-      <span className={buttonClassName} aria-disabled="true">
-        {label}
-      </span>
-    )
-  }
-
   return (
-    <a
-      className={buttonClassName}
-      href="#comprar"
-    >
+    <a href="#comprar" className={`${styles.buyButton} ${className}`}>
       {label}
-      <ArrowRight size={19} aria-hidden="true" />
+      <ArrowUpRight size={20} aria-hidden="true" />
     </a>
   )
 }
-
-function SponsorsSection() {
+export default function SilverWalksPage() {
   return (
-    <section className={styles.sponsorsSection} id="sponsors">
-      <div className={styles.container}>
-        <div className={styles.sponsorsHeading}>
-          <p className={styles.overline}>Marcas que caminan con nosotros</p>
-          <h2>Nos acompañan<br /><span>en cada paso.</span></h2>
-          <p>Marcas comprometidas con el bienestar y la vida activa.</p>
-        </div>
-
-        <ul className={styles.sponsorGrid} aria-label="Sponsors del evento">
-          {SPONSORS.map((sponsor) => (
-            <li className={sponsor.cardClassName} key={sponsor.name}>
-              <Image
-                className={sponsor.logoClassName}
-                src={sponsor.logo}
-                alt={`Logo de ${sponsor.name}`}
-                width={180}
-                height={72}
-                sizes="(max-width: 640px) 25vw, (max-width: 860px) 24vw, 180px"
-              />
-            </li>
-          ))}
-        </ul>
+    <main className={`${marketingStyles.page} ${styles.page}`}>
+      <a href="#experiencia" className={styles.skipLink}>
+        Saltar al contenido
+      </a>
+      <div className={styles.announcement}>
+        DOMINGO 27 DE SEPTIEMBRE <span>·</span> AUGUSTA, PALERMO <span>·</span>{' '}
+        UNA MAÑANA PARA VOS
       </div>
-    </section>
-  )
-}
-
-export default async function SilverWalksPage() {
-  let ticketInventory: TicketInventoryTier[] = []
-  try {
-    ticketInventory = await getSilverTicketInventory()
-  } catch (error) {
-    console.error('[silver] No se pudo precargar el inventario:', error)
-  }
-  const eventSoldOut = silverEventIsSoldOut(ticketInventory)
-  const currentPublicTier = SILVER_TICKET_TIERS[0]
-
-  return (
-    <main className={`${marketingStyles.page} ${styles.page}`} data-marketing-page>
-      <MarketingMotion />
-
       <nav className={styles.navbar} aria-label="Navegación del evento">
         <div className={styles.navInner}>
-          <Link href="/" className={styles.logoLink} aria-label="Pasito, inicio" prefetch={false}>
-            <Image src="/brand/logo-green.svg" alt="Pasito" width={104} height={25} priority />
+          <Link
+            href="/"
+            className={styles.logoLink}
+            aria-label="Pasito, inicio"
+          >
+            <Image
+              src="/brand/logo-green.svg"
+              alt="Pasito"
+              width={103}
+              height={25}
+            />
           </Link>
+          <span className={styles.navDivider} />
+          <a href="#" className={styles.navEdition}>
+            SILVER WALKS <span>VOL. 01</span>
+          </a>
           <div className={styles.navLinks}>
-            <a href="#agenda">Agenda</a>
-            <a href="#lugar">Lugar</a>
-            <a href="#entradas">Entradas</a>
+            <a href="#experiencia">La experiencia</a>
+            <a href="#agenda">La agenda</a>
+            <a href="#lugar">El lugar</a>
           </div>
-          <BuyButton className={styles.navBuy} label={eventSoldOut ? 'SOLD OUT' : 'Comprar entrada'} soldOut={eventSoldOut} />
+          <Buy className={styles.navBuy} />
         </div>
       </nav>
-
       <header className={styles.hero}>
-        <div className={styles.heroImage}>
+        <div className={styles.heroCopy}>
+          <p className={styles.kicker}>
+            <span /> MOVERSE. CONECTAR. DISFRUTAR.
+          </p>
+          <div className={styles.eventBrand}>
+            Silver Walks <span>by</span>
+            <Image
+              src="/silver/sponsors/nutren-real.svg"
+              alt="Nutren"
+              width={130}
+              height={60}
+              priority
+            />
+          </div>
+          <h1>
+            El próximo
+            <br />
+            paso es
+            <br />
+            <em>para vos.</em>
+          </h1>
+          <p className={styles.heroLead}>
+            Un encuentro para personas de 45 años en adelante. Una caminata,
+            herramientas para cuidarte y un brunch para disfrutar en buena
+            compañía.
+          </p>
+          <div className={styles.heroActions}>
+            <Buy />
+            <a href="#agenda" className={styles.secondaryButton}>
+              Conocé el plan <ArrowDown size={17} />
+            </a>
+          </div>
+          <div className={styles.heroByline}>
+            <span>Organizan en colaboración</span>
+            <div className={styles.organizerLogos}>
+              <Image
+                src="/brand/logo-green.svg"
+                alt="Pasito"
+                width={74}
+                height={22}
+              />
+              <span aria-hidden="true">+</span>
+              <Image
+                src="/evento-pasito/sponsors/kiwell-2025.png"
+                alt="Kiwell"
+                width={91}
+                height={36}
+              />
+            </div>
+          </div>
+        </div>
+        <div className={styles.heroVisual}>
           <Image
-            src="/silver/hero.jpg"
-            alt="Silver Walks - Pasito × Kiwell"
+            src="/silver/walk-photo.webp"
+            alt="Personas compartiendo un momento de movimiento al aire libre"
             fill
             priority
-            sizes="100vw"
+            sizes="(max-width: 760px) 100vw, 52vw"
             className={styles.heroImg}
           />
-        </div>
-        <div className={styles.heroInner}>
-          <div className={styles.heroCopy}>
-            <p className={styles.kicker}>Pasito Walking Club <span aria-hidden="true">×</span> Kiwell</p>
-            <h1><span>Silver Walks.</span><br />Caminar. Aprender.<br />Desayunar.</h1>
-            <p className={styles.heroLead}>El primer encuentro de bienestar para mayores de 45: caminata, charla de longevidad, brunch buffet y un día para compartir en Palermo.</p>
-
-            <div className={styles.heroFacts} aria-label="Datos principales del evento">
-              <div>
-                <CalendarDays size={19} aria-hidden="true" />
-                <span><strong>Domingo 27 de septiembre</strong><small>2026</small></span>
-              </div>
-              <div>
-                <Clock size={19} aria-hidden="true" />
-                <span><strong>09:30 a 13:00</strong><small>Encuentro matutino</small></span>
-              </div>
-              <div>
-                <MapPin size={19} aria-hidden="true" />
-                <span><strong>Augusta, Palermo</strong><small>CABA</small></span>
-              </div>
-            </div>
-
-            <div className={styles.heroActions}>
-              <BuyButton label={eventSoldOut ? 'SOLD OUT' : 'Comprar entrada'} soldOut={eventSoldOut} />
-              <a className={styles.secondaryButton} href="#agenda">Ver agenda</a>
-            </div>
+          <div className={styles.dateStamp}>
+            <span>DOMINGO</span>
+            <strong>27</strong>
+            <span>SEPTIEMBRE</span>
           </div>
-        </div>
-
-        <div className={styles.heroTicker} aria-label="Resumen del evento">
-          <span>Caminata</span><i aria-hidden="true" />
-          <span>Charla</span><i aria-hidden="true" />
-          <span>Brunch</span><i aria-hidden="true" />
-          <span>Bienestar</span><i aria-hidden="true" />
-          <span>Comunidad</span>
+          <div className={styles.photoCaption}>
+            <span>
+              Una caminata.
+              <br />
+              <strong>Buena compañía.</strong>
+            </span>
+            <Footprints size={32} strokeWidth={1.3} />
+          </div>
         </div>
       </header>
-
-      <section className={styles.scheduleSection} id="agenda">
-        <div className={`${styles.container} ${styles.scheduleLayout}`}>
-          <div className={styles.scheduleIntro}>
-            <p className={styles.overline}>Domingo 27 de septiembre</p>
-            <h2>Tres horas<br /><span>de estar bien.</span></h2>
-            <p>Movimiento, conocimiento y sobremesa. Sin apuro, en un solo lugar.</p>
+      <div className={styles.factsBar}>
+        <div>
+          <CalendarDays size={23} />
+          <span>
+            <small>AGENDALO</small>
+            <strong>27 de septiembre</strong>
+          </span>
+        </div>
+        <div>
+          <Clock size={23} />
+          <span>
+            <small>SIN APURO</small>
+            <strong>{SILVER_EVENT.timeLabel} h</strong>
+          </span>
+        </div>
+        <div>
+          <MapPin size={23} />
+          <span>
+            <small>NOS VEMOS EN</small>
+            <strong>{SILVER_EVENT.venueLabel}</strong>
+          </span>
+        </div>
+        <div>
+          <Users size={23} />
+          <span>
+            <small>PENSADO PARA VOS</small>
+            <strong>45 años en adelante</strong>
+          </span>
+        </div>
+      </div>
+      <section
+        id="experiencia"
+        className={`${styles.container} ${styles.experience}`}
+      >
+        <div>
+          <p className={styles.overline}>
+            01 / UNA NUEVA FORMA DE ENCONTRARNOS
+          </p>
+          <h2>
+            Cuidarte hace bien.
+            <br />
+            <em>Compartirlo, también.</em>
+          </h2>
+        </div>
+        <div className={styles.experienceCopy}>
+          <p>
+            Caminar al aire libre, aprender algo nuevo y compartir una charla. A
+            veces, dedicarte una mañana es una buena manera de empezar.
+          </p>
+          <p>
+            Silver Walks by Nutren reúne a personas de 45 años en adelante que
+            quieren cuidar sus hábitos y mantenerse activas. Pasito y Kiwell
+            organizan juntos un encuentro al mes, con tiempo para moverse,
+            aprender y conocer gente.
+          </p>
+        </div>
+        <div className={styles.pillars}>
+          {[
+            {
+              icon: Footprints,
+              n: '01',
+              title: 'Moverte a tu ritmo',
+              text: 'Una caminata para disfrutar el aire libre y reconectar con tu cuerpo.',
+            },
+            {
+              icon: Heart,
+              n: '02',
+              title: 'Cuidar tus hábitos',
+              text: 'Ideas y herramientas para llevar el bienestar a tu día a día.',
+            },
+            {
+              icon: Users,
+              n: '03',
+              title: 'Conocer gente',
+              text: 'Conversaciones nuevas, una mesa compartida y ganas de volver.',
+            },
+          ].map(({ icon: Icon, n, title, text }) => (
+            <article key={n}>
+              <div>
+                <Icon size={30} strokeWidth={1.4} />
+                <span>{n}</span>
+              </div>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+      <section className={styles.agendaSection} id="agenda">
+        <div className={`${styles.container} ${styles.agendaLayout}`}>
+          <div className={styles.agendaIntro}>
+            <p className={styles.overline}>02 / EL PLAN DEL DOMINGO</p>
+            <h2>
+              Una mañana.
+              <br />
+              <em>
+                Mucho para
+                <br />
+                llevarte.
+              </em>
+            </h2>
+            <p>
+              Del primer café a la última charla.
+              <br />
+              Te acompañamos durante toda la experiencia.
+            </p>
+            <div className={styles.agendaNote}>
+              <Footprints size={26} />
+              <span>
+                El comienzo de un nuevo hábito.
+                <br />
+                <strong>Una caminata para compartir cada mes.</strong>
+              </span>
+            </div>
           </div>
-
           <ol className={styles.timeline}>
-            {SCHEDULE.map(({ time, title, detail, icon: Icon }, index) => (
+            {schedule.map(([time, title, detail], i) => (
               <li key={time}>
-                <span className={styles.timelineIcon}><Icon size={21} aria-hidden="true" /></span>
+                <time>{time}</time>
                 <div>
-                  <time>{time}</time>
                   <h3>{title}</h3>
-                  {detail && <p className={styles.timelineDetail}>{detail}</p>}
+                  <p>{detail}</p>
                 </div>
-                <span className={styles.timelineNumber}>{String(index + 1).padStart(2, '0')}</span>
+                <span>{String(i + 1).padStart(2, '0')}</span>
               </li>
             ))}
           </ol>
         </div>
       </section>
-
-      <section className={styles.locationSection} id="lugar">
-        <div className={`${styles.container} ${styles.locationLayout}`}>
-          <div className={styles.locationCopy}>
-            <p className={styles.overline}>El lugar</p>
-            <h2>Augusta,<br /><span>Palermo.</span></h2>
-            <p>Un espacio verde, al aire libre y con la comodidad de quedarnos toda la mañana. Brunch buffet incluido.</p>
-            <div className={styles.locationDetails}>
-              <MapPin size={22} aria-hidden="true" />
-              <div>
-                <strong>Av. Ernesto Tornquist 6385</strong>
-                <span>Palermo, CABA</span>
-              </div>
+      <section id="lugar" className={`${styles.container} ${styles.location}`}>
+        <div className={styles.venuePhoto}>
+          <Image
+            src="/silver/augusta/01.jpg"
+            alt="Terraza de Augusta con vista al verde de Palermo"
+            fill
+            sizes="(max-width: 760px) 100vw, 50vw"
+          />
+          <span>UN RESPIRO EN LA CIUDAD</span>
+        </div>
+        <div className={styles.locationCopy}>
+          <p className={styles.overline}>03 / NUESTRO PUNTO DE ENCUENTRO</p>
+          <h2>
+            Mucho verde.
+            <br />
+            Buena mesa.
+            <br />
+            <em>Augusta.</em>
+          </h2>
+          <p>
+            En el corazón de Palermo, un lugar para empezar caminando y terminar
+            compartiendo un brunch con tiempo para conversar.
+          </p>
+          <div className={styles.address}>
+            <MapPin size={22} />
+            <span>
+              <strong>Augusta, Palermo</strong>
+              <br />
+              {SILVER_EVENT.venueAddress}
+            </span>
+          </div>
+          <a
+            href="https://www.google.com/maps/search/?api=1&query=Av.+Ernesto+Tornquist+6385+CABA"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.textLink}
+          >
+            Cómo llegar <ArrowUpRight size={19} />
+          </a>
+        </div>
+      </section>
+      <section className={styles.sponsorsSection} id="marcas">
+        <div className={styles.container}>
+          <p className={styles.overline}>
+            EL BIENESTAR SE CONSTRUYE EN COMPAÑÍA
+          </p>
+          <h2>
+            Marcas que dan <em>el paso.</em>
+          </h2>
+          <div className={styles.sponsorGrid} aria-label="Marcas confirmadas">
+            <div>
+              <Image
+                src="/silver/sponsors/nutren-real.svg"
+                alt="Nutren"
+                width={150}
+                height={75}
+              />
             </div>
-            <a className={styles.mapLink} href={AUGUSTA_MAP_URL} target="_blank" rel="noopener noreferrer">
-              Abrir en Google Maps <ArrowRight size={17} aria-hidden="true" />
-            </a>
+            <div>
+              <Image
+                src="/silver/sponsors/farmacity-real.svg"
+                alt="Farmacity"
+                width={165}
+                height={42}
+              />
+            </div>
+            <div className={styles.extyLogo}>
+              <Image
+                src="/silver/sponsors/exty-official.webp"
+                alt=""
+                width={37}
+                height={37}
+              />
+              <span>exty</span>
+            </div>
+            <div>
+              <Image
+                src="/silver/sponsors/bnb.webp"
+                alt="BNB — Benevia Natural Brands"
+                width={125}
+                height={80}
+              />
+            </div>
+            <div>
+              <Image
+                src="/silver/sponsors/cosmico.webp"
+                alt="Yerba Cósmico"
+                width={155}
+                height={76}
+              />
+            </div>
           </div>
-        </div>
-      </section>
-
-      <section className={styles.augustaGallery} aria-label="Fotos de Augusta">
-        <div className={styles.galleryGrid}>
-          <div className={styles.galleryItem}>
-            <Image
-              src="/silver/augusta/01.jpg"
-              alt="Deck con vistas al campo de golf"
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className={styles.galleryImage}
-            />
-          </div>
-          <div className={styles.galleryItem}>
-            <Image
-              src="/silver/augusta/02.jpg"
-              alt="Terrace al atardecer"
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className={styles.galleryImage}
-            />
-          </div>
-          <div className={styles.galleryItem}>
-            <Image
-              src="/silver/augusta/03.jpg"
-              alt="Terraza con iluminación"
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className={styles.galleryImage}
-            />
-          </div>
-          <div className={styles.galleryItem}>
-            <Image
-              src="/silver/augusta/04-augusta-sign.jpg"
-              alt="Entrada Augusta"
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className={styles.galleryImage}
-            />
-          </div>
-          <div className={styles.galleryItem}>
-            <Image
-              src="/silver/augusta/05.jpg"
-              alt="Lounge al atardecer"
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className={styles.galleryImage}
-            />
-          </div>
-        </div>
-      </section>
-
-      <SponsorsSection />
-
-      <section className={styles.ticketsSection} id="entradas">
-        <div className={`${styles.container} ${styles.ticketLayout}`}>
-          <div className={styles.ticketCopy}>
-            <p className={styles.overline}>Cupos limitados</p>
-            <h2>Tu entrada<br /><span>incluye todo.</span></h2>
-            <p>Caminata guiada por Kiwell, charla de longevidad, brunch buffet completo en Augusta y kit de productos.</p>
-            <div className={styles.priceDisplay}>
-              <strong>{silverMoney(currentPublicTier.unitPrice)}</strong>
-              <span>por persona</span>
+          <div className={styles.organizers}>
+            <p>ORGANIZAN EN COLABORACIÓN</p>
+            <div className={styles.organizerLogos}>
+              <Image
+                src="/brand/logo-green.svg"
+                alt="Pasito"
+                width={97}
+                height={25}
+              />
+              <span aria-hidden="true">+</span>
+              <Image
+                src="/evento-pasito/sponsors/kiwell-2025.png"
+                alt="Kiwell"
+                width={104}
+                height={42}
+              />
             </div>
           </div>
         </div>
       </section>
-
-      <SilverTicketCheckout initialTiers={ticketInventory} />
-
-      <footer className={styles.footer}>
-        <Link href="/" aria-label="Pasito, inicio" prefetch={false}>
-          <Image src="/brand/logo-green.svg" alt="Pasito" width={96} height={23} />
+      <section
+        className={`${styles.container} ${styles.included}`}
+        id="entradas"
+      >
+        <div>
+          <p className={styles.overline}>04 / REGALATE ESTA MAÑANA</p>
+          <h2>
+            Una mañana para cuidarte.
+            <br />
+            <em>Todo incluido.</em>
+          </h2>
+          <p>
+            Caminata, charla y una mesa compartida.
+            <br />
+            Todo está incluido en tu entrada.
+          </p>
+        </div>
+        <div className={styles.includedList}>
+          <div className={styles.priceDisplay}>
+            <strong>{silverMoney(SILVER_TICKET_TIERS[0].unitPrice)}</strong>
+            <span>ARS / persona</span>
+          </div>
+          <ul>
+            {included.map((item) => (
+              <li key={item}>
+                <Check size={19} />
+                {item}
+              </li>
+            ))}
+          </ul>
+          <p>Entrada para el encuentro del 27 de septiembre.</p>
+        </div>
+      </section>
+      <SilverTicketCheckout />
+      <SilverQuestions aiEnabled={Boolean(process.env.TYPESAFE_API_KEY)} />
+      <section className={styles.closing}>
+        <p>UNA CAMINATA AL MES. UN TIEMPO PARA VOS.</p>
+        <h2>
+          Nos vemos
+          <br />
+          <em>en el próximo paso.</em>
+        </h2>
+        <Buy />
+      </section>
+      <footer className={`${styles.container} ${styles.footer}`}>
+        <Link href="/" aria-label="Pasito, inicio">
+          <Image
+            src="/brand/logo-green.svg"
+            alt="Pasito"
+            width={97}
+            height={25}
+          />
         </Link>
-        <p>Pasito Walking Club × Kiwell · Silver Walks · 2026</p>
+        <p>Silver Walks by Nutren · Organizan Pasito + Kiwell · 2026</p>
         <nav aria-label="Enlaces legales">
-          <Link href="/terminos" prefetch={false}>Términos</Link>
-          <Link href="/privacidad" prefetch={false}>Privacidad</Link>
-          <Link href="/contacto" prefetch={false}>Contacto</Link>
+          <Link href="/terminos/silver-walks">Términos del evento</Link>
+          <Link href="/privacidad">Privacidad</Link>
+          <Link href="/contacto">Contacto</Link>
         </nav>
       </footer>
-
       <div className={styles.mobileBuyBar}>
         <span>
-          <small>{eventSoldOut ? 'Entradas' : 'Entradas'}</small>
-          <strong>{eventSoldOut ? 'SOLD OUT' : silverMoney(currentPublicTier.unitPrice)}</strong>
+          <small>27 SEP · TODO INCLUIDO</small>
+          <strong>{silverMoney(SILVER_TICKET_TIERS[0].unitPrice)}</strong>
         </span>
-        <BuyButton label={eventSoldOut ? 'SOLD OUT' : 'Comprar entrada'} soldOut={eventSoldOut} />
+        <Buy label="Sumarme" />
       </div>
     </main>
   )
