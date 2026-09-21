@@ -15,7 +15,7 @@ Preserves the existing event configuration: September 27, 2026; 09:30–13:00; A
 - Existing Supabase and Resend configuration is reused.
 - `TYPESAFE_API_KEY`: enables the FAQ search. If absent, the full FAQ remains available and the AI search is hidden. Never public. Model: `jev-latest`; one Choice selects from approved answers, including a no-match option. Confidence and probability thresholds are conservative initial values, not a guarantee of correctness. The visitor is told not to submit personal or health data. Questions are sent to TypeSafe, not logged or saved by this app. Per-instance request limiting is best effort; production infrastructure should enforce a global limit if traffic warrants it.
 
-The supplied Rebill keys are installed in the ignored local environment only. Production deployment must provision the same Silver variables and confirm the account webhook. No real purchase, email, or database write is needed for local browser tests.
+The supplied Silver public and private Rebill keys are configured in Vercel Production and in the ignored local environment. The existing active Rebill webhook for pasito.app subscribes to payment.created and payment.updated; a harmless unsupported-event POST returned HTTP 204 in production. Existing signing and Resend secrets are preserved. No real purchase, email, or database write is needed for local browser tests.
 
 Silver confirmation now uses a dedicated email template and `/silver/ticket/[token]`. Signed ticket pages verify that the order belongs to Silver; other event tickets are rejected. Check-in operations are outside this redesign; the existing TOMATE check-in is scoped to its event, so Silver needs an event-specific staff check-in before event day.
 
@@ -44,3 +44,12 @@ Run the repository test suite, `node --experimental-strip-types --test tests/sil
 - `/eventos` added with a Silver listing and links in desktop/mobile marketing navigation. Publication to the mobile app's event catalog is a separate operation, not performed by this website change.
 - Final production preview passed: Silver desktop/mobile images and layout, `/eventos` → Silver navigation, both homepage event links, invalid signed-ticket URL returns 404, and no JavaScript errors. Preview is served locally on port 3113.
 - Read-only Rebill lookup of a nonexistent payment returned HTTP 404 (not an authentication rejection). This is not a real payment settlement test.
+
+### QR email readiness (September 21, 2026)
+
+- Every approved purchase sends all its unique signed QR tickets to the buyer email supplied to Rebill. Companion tickets can be shared individually. No separate attendee addresses are collected.
+- Each QR is an inline PNG attachment; a plain-text alternative includes the signed ticket links and manual codes. An empty ticket bundle is rejected.
+- Provider failures propagate to the existing retry and delivery tracking flow; repeated confirmation uses the same provider idempotency key.
+- 87 tests passed, including real QR generation, signed URL validation, multiple-ticket delivery payloads, provider errors, missing acknowledgement, and empty bundles. Production build passed.
+- A generated QR was independently scanned with Apple Vision and decoded to the expected signed Silver ticket URL. Delivery was mocked; no test emails were sent to buyers and no payment was charged.
+- Resend reports sending enabled and verified DKIM/SPF for pasito.app. Its optional tracking CNAME is failed, but click and open tracking are both disabled.

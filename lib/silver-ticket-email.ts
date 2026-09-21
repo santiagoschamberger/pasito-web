@@ -43,6 +43,7 @@ export async function sendSilverTicketsEmail(params: {
   if (!firstOrder) throw new Error('No hay entradas para enviar.')
 
   const allTickets = params.orders.flatMap((order) => order.tickets.map((ticket) => ({ ticket, order })))
+  if (!allTickets.length) throw new Error('No hay entradas para enviar.')
   const attachments = await Promise.all(allTickets.map(async ({ ticket }, index) => ({
     filename: `entrada-silver-walk-${index + 1}.png`,
     content: await QRCode.toBuffer(ticketUrl(params.origin, ticket.id), {
@@ -82,7 +83,7 @@ export async function sendSilverTicketsEmail(params: {
         </div>`
   )).join('')
   const html = `<!doctype html>
-  <html><head><meta charset="utf-8"></head>
+  <html lang="es"><head><meta charset="utf-8"></head>
   <body style="margin:0;padding:0;background:#f3f5ed;">
     <div style="max-width:560px;margin:0 auto;padding:38px 22px 48px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#183327;">
       <div style="background:#0c6b45;border-radius:24px 24px 0 0;padding:28px;text-align:center;">
@@ -100,10 +101,31 @@ export async function sendSilverTicketsEmail(params: {
         ${rewardCards}
         ${ticketCards}
         <p style="margin:22px 0 0;color:#66736b;font-size:13px;line-height:1.55;">Guardá este email. El QR es único y se valida una sola vez en el ingreso. Podés llevarlo en el celular; no hace falta imprimirlo.</p>
+        ${allTickets.length > 1 ? '<p style="margin:12px 0 0;color:#66736b;font-size:14px;line-height:1.55;">Si venís con acompañantes, compartí una entrada distinta con cada persona.</p>' : ''}
         <p style="margin:28px 0 0;padding-top:20px;border-top:1px solid #eef0e8;color:#203d2e;font-size:14px;">Nos vemos en Augusta,<br><strong>Pasito + Kiwell</strong></p>
       </div>
     </div>
   </body></html>`
+
+  const text = [
+    SILVER_EVENT.name,
+    'Organizan Pasito + Kiwell en colaboración',
+    '',
+    params.kind === 'confirmation' ? 'Tu pago está confirmado.' : 'Acá tenés nuevamente tus entradas.',
+    `${SILVER_EVENT.dateLabel} · ${SILVER_EVENT.timeLabel}`,
+    SILVER_EVENT.venueLabel,
+    ...(params.kind === 'confirmation' ? [`Total: ${silverMoney(totalAmount)}`] : []),
+    '',
+    ...allTickets.flatMap(({ ticket }, index) => [
+      `Entrada ${index + 1} de ${allTickets.length} · Código: ${ticket.code}`,
+      `Abrir entrada y QR: ${ticketUrl(params.origin, ticket.id)}`,
+      '',
+    ]),
+    'Guardá este email. Podés mostrar el QR desde tu celular; no hace falta imprimirlo.',
+    ...(allTickets.length > 1 ? ['Si venís con acompañantes, compartí una entrada distinta con cada persona.'] : []),
+    'Nos vemos en Augusta,',
+    'Pasito + Kiwell',
+  ].join('\n')
 
   const unique = params.kind === 'confirmation'
     ? firstOrder.paymentId
@@ -115,6 +137,7 @@ export async function sendSilverTicketsEmail(params: {
       ? `${allTickets.length === 1 ? 'Tu entrada' : 'Tus entradas'} para Silver Walks by Nutren`
       : `${allTickets.length === 1 ? 'Reenvío de tu entrada' : 'Reenvío de tus entradas'} · Silver Walks by Nutren`,
     html,
+    text,
     attachments,
   }, { idempotencyKey: `silver-${params.kind}-${unique}` })
 
