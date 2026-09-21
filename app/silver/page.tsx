@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     url: 'https://www.pasito.app/silver',
     images: [
       {
-        url: 'https://www.pasito.app/silver/opengraph-image',
+        url: 'https://www.pasito.app/silver/opengraph-image.png',
         width: 1200,
         height: 630,
       },
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Silver Walks by Nutren',
-    images: ['https://www.pasito.app/silver/opengraph-image'],
+    images: ['https://www.pasito.app/silver/opengraph-image.png'],
   },
 }
 const schedule = [
