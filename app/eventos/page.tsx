@@ -48,7 +48,7 @@ export default function EventsPage() {
             </h2>
             <p>
               Una mañana para vos. Caminata guiada, charla de longevidad y
-              brunch para personas de 45 años en adelante. Organizan Pasito +
+              brunch para personas de 40 años en adelante. Organizan Pasito +
               Kiwell en colaboración.
             </p>
             <span className={styles.fact}>

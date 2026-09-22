@@ -44,7 +44,7 @@ function emailHarness(response = { data: { id: 'email-test' }, error: null }) {
 function order(quantity = 2) {
   return {
     id: 'order-test', paymentId: 'payment-test', customerEmail: 'comprador@example.invalid',
-    customerName: '<María & José>', amount: 45000 * quantity, quantity,
+    customerName: '<María & José>', amount: 35000 * quantity, quantity,
     tickets: Array.from({ length: quantity }, (_, i) => ({
       id: `00000000-0000-4000-8000-${String(i + 1).padStart(12, '0')}`,
       code: `SILVER${i + 1}`, number: i + 1, status: 'valid', checkedInAt: null,

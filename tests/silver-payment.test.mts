@@ -42,7 +42,7 @@ test('Silver sold-out state follows live capacity and totals stay in ARS', () =>
     tierId: 29,
     position: 1,
     name: 'General',
-    unitPrice: 45000,
+    unitPrice: 35000,
     capacity: 200,
     sold: 200,
     held: 0,
