@@ -409,12 +409,11 @@ export default function SilverWalksPage() {
             </div>
             <div className={styles.extyLogo}>
               <Image
-                src="/silver/sponsors/exty-official.webp"
-                alt=""
-                width={37}
-                height={37}
+                src="/silver/sponsors/exty-wordmark.png"
+                alt="exty"
+                width={145}
+                height={55}
               />
-              <span>exty</span>
             </div>
             <div>
               <Image
