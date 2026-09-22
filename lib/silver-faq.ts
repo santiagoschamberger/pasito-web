@@ -3,7 +3,7 @@ export const SILVER_FAQS = [
     id: 'audience',
     question: '¿Para quién es Silver Walks by Nutren?',
     answer:
-      'Está pensada para personas de 45 años en adelante que quieren dedicarle tiempo a su bienestar, moverse y compartir con otras personas.',
+      'Está pensada para personas de 40 años en adelante que quieren dedicarle tiempo a su bienestar, moverse y compartir con otras personas.',
   },
   {
     id: 'pace',
@@ -21,7 +21,7 @@ export const SILVER_FAQS = [
     id: 'included',
     question: '¿Qué incluye mi entrada?',
     answer:
-      'La entrada general cuesta $45.000 ARS por persona e incluye la caminata guiada por Kiwell, elongación, charla de longevidad, brunch buffet en Augusta y kit de productos. Corresponde al encuentro del 27 de septiembre; no es una suscripción mensual.',
+      'La entrada general cuesta $35.000 ARS por persona e incluye la caminata guiada por Kiwell, elongación, charla de longevidad, brunch buffet en Augusta y kit de productos. Corresponde al encuentro del 27 de septiembre; no es una suscripción mensual.',
   },
   {
     id: 'location',

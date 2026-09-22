@@ -21,7 +21,7 @@ const image = new ImageResponse(
     box({ position: 'absolute', top: 500, left: 62, fontSize: 25 }, 'Augusta, Palermo · 09:30 h'),
     h('img', { src: `data:image/png;base64,${photo.toString('base64')}`, width: 416, height: 510,
       style: { position: 'absolute', top: 30, right: 30, borderRadius: 28, objectFit: 'cover' }, alt: '' }),
-    box({ position: 'absolute', top: 463, right: 55, padding: '12px 20px', borderRadius: 24, background: '#f6f5e9', fontSize: 21, fontWeight: 700 }, '45 años en adelante'),
+    box({ position: 'absolute', top: 463, right: 55, padding: '12px 20px', borderRadius: 24, background: '#f6f5e9', fontSize: 21, fontWeight: 700 }, '40 años en adelante'),
     box({ position: 'absolute', bottom: 0, left: 0, width: '100%', height: 64, padding: '0 60px', background: '#254f40', color: '#f6f5e9', alignItems: 'center', justifyContent: 'space-between' },
       box({ fontSize: 23 }, 'Organizan Pasito + Kiwell en colaboración'),
       box({ fontSize: 22 }, 'pasito.app'),

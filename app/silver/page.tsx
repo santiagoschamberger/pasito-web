@@ -159,7 +159,7 @@ export default function SilverWalksPage() {
             <em>para vos.</em>
           </h1>
           <p className={styles.heroLead}>
-            Un encuentro para personas de 45 años en adelante. Una caminata,
+            Un encuentro para personas de 40 años en adelante. Una caminata,
             herramientas para cuidarte y un brunch para disfrutar en buena
             compañía.
           </p>
@@ -238,7 +238,7 @@ export default function SilverWalksPage() {
           <Users size={23} />
           <span>
             <small>PENSADO PARA VOS</small>
-            <strong>45 años en adelante</strong>
+            <strong>40 años en adelante</strong>
           </span>
         </div>
       </div>
@@ -262,7 +262,7 @@ export default function SilverWalksPage() {
             veces, dedicarte una mañana es una buena manera de empezar.
           </p>
           <p>
-            Silver Walks by Nutren reúne a personas de 45 años en adelante que
+            Silver Walks by Nutren reúne a personas de 40 años en adelante que
             quieren cuidar sus hábitos y mantenerse activas. Pasito y Kiwell
             organizan juntos un encuentro al mes, con tiempo para moverse,
             aprender y conocer gente.
