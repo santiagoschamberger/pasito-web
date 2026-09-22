@@ -550,10 +550,6 @@
   max-width: 100%;
 }
 .extyLogo {
-  gap: 8px;
-  font-size: 47px;
-  font-weight: 650;
-  letter-spacing: -0.045em;
 }
 .bydLogo img {
   filter: brightness(0);
@@ -1622,11 +1618,8 @@
     max-height: 57px;
   }
   .extyLogo {
-    font-size: 34px;
-    gap: 5px;
   }
   .extyLogo img {
-    width: 26px;
   }
   .organizers {
     gap: 23px;
@@ -1826,9 +1819,6 @@
     gap: 7px;
     font-size: 9px;
   }
-}
-.extyLogo img {
-  border-radius: 7px;
 }
 
 /* Both organizers share the same credit and visual hierarchy. */
