@@ -5,6 +5,10 @@
         "appIDs": ["U8G7MYY9X8.ar.pasito.pasito"],
         "components": [
           {
+            "/": "/events/*",
+            "comment": "Shared event links"
+          },
+          {
             "/": "/g/*",
             "comment": "Friend group invite links"
           },
