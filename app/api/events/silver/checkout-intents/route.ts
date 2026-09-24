@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     if (result.status === 'promo_exhausted') {
       return NextResponse.json({ error: 'El código de descuento ya alcanzó su límite de usos.' }, { status: 409 })
     }
-    if (result.status !== 'reserved' || !result.intentId || !result.expiresAt || !result.amount) {
+    if (result.status !== 'reserved' || !result.intentId || !result.expiresAt || typeof result.amount !== 'number' || result.amount < 0) {
       throw new Error(`Respuesta de reserva inesperada: ${result.status ?? 'vacía'}`)
     }
 

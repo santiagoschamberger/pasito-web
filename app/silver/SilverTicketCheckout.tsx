@@ -178,6 +178,9 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
   const [verificationAttempt, setVerificationAttempt] = useState(0)
   const [inactivePayment, setInactivePayment] = useState<'refunded' | 'inactive' | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [freeEmail, setFreeEmail] = useState('')
+  const [freeName, setFreeName] = useState('')
+  const [claimingFree, setClaimingFree] = useState(false)
   const [remainingSeconds, setRemainingSeconds] = useState(0)
 
   const refreshAvailability = useCallback(async () => {
@@ -320,6 +323,34 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
     setError(checkoutErrorMessage(detail))
   }, [])
 
+  const claimFreeTickets = useCallback(async () => {
+    if (!quote || quote.amount !== 0 || claimingFree) return
+    setClaimingFree(true)
+    setError(null)
+    try {
+      const response = await fetch('/api/events/silver/orders/confirm-free', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          intentToken: quote.intentToken,
+          email: freeEmail,
+          customerName: freeName,
+        }),
+      })
+      const payload = await response.json().catch(() => ({})) as Confirmation & { error?: string }
+      if (!response.ok || !payload.tickets?.length) {
+        throw new Error(payload.error || 'No pudimos confirmar las entradas gratuitas.')
+      }
+      setConfirmation(payload)
+      setPaymentReceived(true)
+      void refreshAvailability()
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'No pudimos confirmar las entradas gratuitas.')
+    } finally {
+      setClaimingFree(false)
+    }
+  }, [claimingFree, freeEmail, freeName, quote, refreshAvailability])
+
   const product = useMemo(() => quote ? ({
     name: [{ language: 'es', text: SILVER_EVENT.name }],
     description: [{
@@ -346,6 +377,9 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
     setQuantity(1)
     setPromoCode('')
     setTermsAccepted(false)
+    setFreeEmail('')
+    setFreeName('')
+    setClaimingFree(false)
     void refreshAvailability()
   }, [refreshAvailability])
 
@@ -416,9 +450,49 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
                 )}
               </div>
               {error && <div className={styles.checkoutError} role="alert">{error}</div>}
-              {confirming && <div className={styles.confirmingMessage}>Confirmando el pago y creando tus QR…</div>}
-              <CheckoutFrame product={product} onSuccess={handleSuccess} onError={handlePaymentError} />
-              <p className={styles.paymentFinePrint}>El precio queda congelado en esta reserva. Nunca guardamos los datos de tu tarjeta.</p>
+              {quote.amount === 0 ? (
+                <div className={styles.freeClaim} data-testid="checkout-free">
+                  <p className={styles.paymentFinePrint}>
+                    Con {quote.promoCode || 'este código'} el total es $0. No hace falta pagar con tarjeta.
+                  </p>
+                  <label className={styles.promoField}>
+                    <span>Email para recibir las entradas</span>
+                    <input
+                      type="email"
+                      value={freeEmail}
+                      onChange={(event) => setFreeEmail(event.target.value)}
+                      placeholder="tu@email.com"
+                      autoComplete="email"
+                      required
+                    />
+                  </label>
+                  <label className={styles.promoField}>
+                    <span>Nombre (opcional)</span>
+                    <input
+                      type="text"
+                      value={freeName}
+                      onChange={(event) => setFreeName(event.target.value)}
+                      placeholder="Tu nombre"
+                      autoComplete="name"
+                      maxLength={120}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    className={styles.checkoutPrimary}
+                    onClick={() => void claimFreeTickets()}
+                    disabled={claimingFree || !freeEmail.trim()}
+                  >
+                    {claimingFree ? 'Confirmando entradas…' : 'Confirmar entradas gratis'}
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {confirming && <div className={styles.confirmingMessage}>Confirmando el pago y creando tus QR…</div>}
+                  <CheckoutFrame product={product} onSuccess={handleSuccess} onError={handlePaymentError} />
+                  <p className={styles.paymentFinePrint}>El precio queda congelado en esta reserva. Nunca guardamos los datos de tu tarjeta.</p>
+                </>
+              )}
             </div>
           ) : soldOut ? (
             <div className={styles.checkoutSoldOut} data-testid="checkout-sold-out" role="status">
