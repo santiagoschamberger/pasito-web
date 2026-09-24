@@ -30,12 +30,12 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: 'Silver Walks by Nutren · Un buen momento para vos',
   description:
-    'Una mañana para moverte, aprender y compartir. 27 de septiembre, 09:30 a 13:00, Augusta, Palermo. Organizado por Pasito + Kiwell en colaboración.',
+    'Una mañana para moverte, aprender y compartir. 17 de octubre, 09:30 a 13:00, Augusta, Palermo. Organizado por Pasito + Kiwell en colaboración.',
   alternates: { canonical: 'https://www.pasito.app/silver' },
   openGraph: {
     title: 'Silver Walks by Nutren',
     description:
-      'El próximo paso es para vos. 27 de septiembre · Augusta, Palermo.',
+      'El próximo paso es para vos. 17 de octubre · Augusta, Palermo.',
     url: 'https://www.pasito.app/silver',
     images: [
       {
@@ -107,7 +107,7 @@ export default function SilverWalksPage() {
         Saltar al contenido
       </a>
       <div className={styles.announcement}>
-        DOMINGO 27 DE SEPTIEMBRE <span>·</span> AUGUSTA, PALERMO <span>·</span>{' '}
+        DOMINGO 17 DE OCTUBRE <span>·</span> AUGUSTA, PALERMO <span>·</span>{' '}
         UNA MAÑANA PARA VOS
       </div>
       <nav className={styles.navbar} aria-label="Navegación del evento">
@@ -136,6 +136,15 @@ export default function SilverWalksPage() {
           <Buy className={styles.navBuy} />
         </div>
       </nav>
+      <div className={styles.rescheduleNotice}>
+        <div className={styles.rescheduleContent}>
+          <strong>Evento reprogramado</strong>
+          <p>
+            Silver Walks se reprogramó para el <strong>domingo 17 de octubre</strong> por lluvia.
+            Las ventas de entradas están pausadas.
+          </p>
+        </div>
+      </div>
       <header className={styles.hero}>
         <div className={styles.heroCopy}>
           <p className={styles.kicker}>
@@ -199,8 +208,8 @@ export default function SilverWalksPage() {
           />
           <div className={styles.dateStamp}>
             <span>DOMINGO</span>
-            <strong>27</strong>
-            <span>SEPTIEMBRE</span>
+            <strong>17</strong>
+            <span>OCTUBRE</span>
           </div>
           <div className={styles.photoCaption}>
             <span>
@@ -217,7 +226,7 @@ export default function SilverWalksPage() {
           <CalendarDays size={23} />
           <span>
             <small>AGENDALO</small>
-            <strong>27 de septiembre</strong>
+            <strong>17 de octubre</strong>
           </span>
         </div>
         <div>
@@ -490,7 +499,7 @@ export default function SilverWalksPage() {
               </li>
             ))}
           </ul>
-          <p>Entrada para el encuentro del 27 de septiembre.</p>
+          <p>Entrada para el encuentro del 17 de octubre.</p>
         </div>
       </section>
       <SilverTicketCheckout />
@@ -522,7 +531,7 @@ export default function SilverWalksPage() {
       </footer>
       <div className={styles.mobileBuyBar}>
         <span>
-          <small>27 SEP · TODO INCLUIDO</small>
+          <small>17 OCT · TODO INCLUIDO</small>
           <strong>{silverMoney(SILVER_TICKET_TIERS[0].unitPrice)}</strong>
         </span>
         <Buy label="Sumarme" />

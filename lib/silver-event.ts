@@ -1,13 +1,13 @@
 export const SILVER_EVENT = {
   slug: 'silver-walks-2026-09',
   name: 'Silver Walks by Nutren',
-  dateLabel: 'Domingo 27 de septiembre de 2026',
+  dateLabel: 'Domingo 17 de octubre de 2026',
   timeLabel: '09:30 a 13:00',
   venueLabel: 'Augusta, Palermo',
   venueAddress: 'Av. Ernesto Tornquist 6385, CABA',
   currency: 'ARS',
   capacity: 200,
-  salesClosed: false,
+  salesClosed: true,
   maxTicketsPerOrder: 6,
 } as const
 

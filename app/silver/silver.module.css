@@ -156,6 +156,39 @@
   font-size: 13px;
   gap: 16px;
 }
+.rescheduleNotice {
+  background: linear-gradient(135deg, #fef4e6 0%, #ffefd5 100%);
+  border-bottom: 2px solid #e8b968;
+  padding: 20px 42px;
+  text-align: center;
+}
+.rescheduleContent {
+  max-width: 1370px;
+  margin: 0 auto;
+}
+.rescheduleContent strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8b5e2b;
+  margin-bottom: 8px;
+}
+.rescheduleContent p {
+  font-size: 17px;
+  line-height: 1.5;
+  color: #5f4724;
+}
+.rescheduleContent p strong {
+  display: inline;
+  font-size: inherit;
+  font-weight: 650;
+  letter-spacing: normal;
+  text-transform: none;
+  color: inherit;
+  margin: 0;
+}
 .hero {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1427,6 +1460,16 @@
   }
   .navBuy svg {
     width: 16px;
+  }
+  .rescheduleNotice {
+    padding: 16px 24px;
+  }
+  .rescheduleContent strong {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+  .rescheduleContent p {
+    font-size: 15px;
   }
   .hero {
     display: flex;
