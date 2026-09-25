@@ -39,3 +39,13 @@ test('questions remain untrusted data with an explicit no-match choice', () => {
   assert.ok(request.questions.match.criteria.none)
   assert.match(request.questions.match.instructions, /untrusted/)
 })
+
+test('approved FAQ answers use the rescheduled date and correct weekday', () => {
+  const location = selectSilverFaq(result('location'))
+  assert.match(location?.answer ?? '', /sábado 17 de octubre de 2026/)
+  for (const id of ['location', 'included', 'monthly']) {
+    const answer = selectSilverFaq(result(id))?.answer ?? ''
+    assert.match(answer, /17 de octubre/)
+    assert.doesNotMatch(answer, /27 de septiembre|domingo/i)
+  }
+})

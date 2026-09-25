@@ -77,7 +77,7 @@ test('Silver email sends a unique signed QR per ticket, inline images and text f
     assert.equal(attachment.content.readUInt32BE(16), 720)
     assert.equal(attachment.content.readUInt32BE(20), 720)
   }
-  assert.match(email.text, /27 de septiembre|27 de Septiembre/i)
+  assert.match(email.text, /Sábado 17 de octubre de 2026/i)
   assert.match(email.text, /compartí una entrada distinta/)
   await h.send(input)
   assert.equal(h.sends[1].options.idempotencyKey, options.idempotencyKey)

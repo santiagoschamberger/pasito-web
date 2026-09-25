@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { SILVER_EVENT } from '@/lib/silver-event'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -60,7 +61,7 @@ export default function SilverWalksTermsPage() {
           Silver Walks by Nutren
         </h1>
         <p style={{ marginTop: '14px', color: '#7c7c65', fontSize: '15px', lineHeight: '22px' }}>
-          Versión vigente: septiembre de 2026
+          Versión vigente: 25 de septiembre de 2026
         </p>
 
         <section style={{ marginTop: '48px' }}>
@@ -74,7 +75,9 @@ export default function SilverWalksTermsPage() {
             1. Descripción del evento
           </h2>
           <p style={{ marginTop: '14px', color: '#585843', fontSize: '16px', lineHeight: '26px' }}>
-            Silver Walks by Nutren es un encuentro organizado por Pasito + Kiwell en colaboración que incluye:
+            Silver Walks by Nutren fue reprogramado para el {SILVER_EVENT.shortDateLabel.toLowerCase()} de 2026,
+            de {SILVER_EVENT.timeLabel}, en {SILVER_EVENT.venueLabel}.
+            Es un encuentro organizado por Pasito + Kiwell en colaboración que incluye:
           </p>
           <ul style={{ marginTop: '12px', paddingLeft: '24px', color: '#585843', fontSize: '16px', lineHeight: '26px' }}>
             <li>Caminata activa guiada</li>

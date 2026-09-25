@@ -30,16 +30,16 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: 'Silver Walks by Nutren · Un buen momento para vos',
   description:
-    'Una mañana para moverte, aprender y compartir. 17 de octubre, 09:30 a 13:00, Augusta, Palermo. Organizado por Pasito + Kiwell en colaboración.',
+    'Una mañana para moverte, aprender y compartir. Sábado 17 de octubre, 09:30 a 13:00, Augusta, Palermo. Organizado por Pasito + Kiwell en colaboración.',
   alternates: { canonical: 'https://www.pasito.app/silver' },
   openGraph: {
     title: 'Silver Walks by Nutren',
     description:
-      'El próximo paso es para vos. 17 de octubre · Augusta, Palermo.',
+      'Fue reprogramado. Sábado 17 de octubre · Augusta, Palermo.',
     url: 'https://www.pasito.app/silver',
     images: [
       {
-        url: 'https://www.pasito.app/silver/opengraph-image.png',
+        url: 'https://www.pasito.app/silver/opengraph-image.png?v=20261017',
         width: 1200,
         height: 630,
       },
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Silver Walks by Nutren',
-    images: ['https://www.pasito.app/silver/opengraph-image.png'],
+    images: ['https://www.pasito.app/silver/opengraph-image.png?v=20261017'],
   },
 }
 const schedule = [
@@ -107,7 +107,7 @@ export default function SilverWalksPage() {
         Saltar al contenido
       </a>
       <div className={styles.announcement}>
-        DOMINGO 17 DE OCTUBRE <span>·</span> AUGUSTA, PALERMO <span>·</span>{' '}
+        SÁBADO 17 DE OCTUBRE <span>·</span> AUGUSTA, PALERMO <span>·</span>{' '}
         UNA MAÑANA PARA VOS
       </div>
       <nav className={styles.navbar} aria-label="Navegación del evento">
@@ -138,10 +138,10 @@ export default function SilverWalksPage() {
       </nav>
       <div className={styles.rescheduleNotice}>
         <div className={styles.rescheduleContent}>
-          <strong>Evento reprogramado</strong>
+          <strong>Fue reprogramado</strong>
           <p>
-            Silver Walks se reprogramó para el <strong>domingo 17 de octubre</strong> por lluvia.
-            Las ventas de entradas están pausadas.
+            Silver Walks fue reprogramado por lluvia. Nos encontramos el <strong>{SILVER_EVENT.shortDateLabel.toLowerCase()}</strong>.{' '}
+            La venta de entradas ya está activa.
           </p>
         </div>
       </div>
@@ -207,7 +207,7 @@ export default function SilverWalksPage() {
             className={styles.heroImg}
           />
           <div className={styles.dateStamp}>
-            <span>DOMINGO</span>
+            <span>SÁBADO</span>
             <strong>17</strong>
             <span>OCTUBRE</span>
           </div>
@@ -226,7 +226,7 @@ export default function SilverWalksPage() {
           <CalendarDays size={23} />
           <span>
             <small>AGENDALO</small>
-            <strong>17 de octubre</strong>
+            <strong>{SILVER_EVENT.shortDateLabel}</strong>
           </span>
         </div>
         <div>
@@ -312,7 +312,7 @@ export default function SilverWalksPage() {
       <section className={styles.agendaSection} id="agenda">
         <div className={`${styles.container} ${styles.agendaLayout}`}>
           <div className={styles.agendaIntro}>
-            <p className={styles.overline}>02 / EL PLAN DEL DOMINGO</p>
+            <p className={styles.overline}>02 / EL PLAN DEL SÁBADO</p>
             <h2>
               Una mañana.
               <br />

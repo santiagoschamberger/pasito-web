@@ -21,13 +21,13 @@ export const SILVER_FAQS = [
     id: 'included',
     question: '¿Qué incluye mi entrada?',
     answer:
-      'La entrada general cuesta $35.000 ARS por persona e incluye la caminata guiada por Kiwell, elongación, charla de longevidad, brunch buffet en Augusta y kit de productos. Corresponde al encuentro del 27 de septiembre; no es una suscripción mensual.',
+      'La entrada general cuesta $35.000 ARS por persona e incluye la caminata guiada por Kiwell, elongación, charla de longevidad, brunch buffet en Augusta y kit de productos. Corresponde al encuentro del 17 de octubre; no es una suscripción mensual.',
   },
   {
     id: 'location',
     question: '¿Cuándo y dónde nos encontramos?',
     answer:
-      'El domingo 27 de septiembre de 2026, de 09:30 a 13:00, en Augusta, Palermo: Av. Ernesto Tornquist 6385, CABA.',
+      'El sábado 17 de octubre de 2026, de 09:30 a 13:00, en Augusta, Palermo: Av. Ernesto Tornquist 6385, CABA.',
   },
   {
     id: 'ticket',
@@ -39,7 +39,7 @@ export const SILVER_FAQS = [
     id: 'monthly',
     question: '¿Las Silver Walks se repiten?',
     answer:
-      'Sí, la propuesta es encontrarnos una vez al mes. Esta entrada es únicamente para la edición del 27 de septiembre. Las próximas fechas se anunciarán por separado.',
+      'Sí, la propuesta es encontrarnos una vez al mes. Esta entrada es únicamente para la edición del 17 de octubre. Las próximas fechas se anunciarán por separado.',
   },
 ] as const
 export type SilverFaqId = (typeof SILVER_FAQS)[number]['id']

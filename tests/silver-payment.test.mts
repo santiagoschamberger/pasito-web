@@ -56,3 +56,11 @@ test('Silver sold-out state follows live capacity and totals stay in ARS', () =>
   assert.match(silverMoney(90000), /90\.000/)
   assert.equal(SILVER_EVENT.maxTicketsPerOrder, 6)
 })
+
+test('Silver reopens for Saturday October 17 while retaining existing ticket identity', () => {
+  assert.equal(SILVER_EVENT.salesClosed, false)
+  assert.equal(SILVER_EVENT.slug, 'silver-walks-2026-09')
+  assert.equal(SILVER_EVENT.dateLabel, 'Sábado 17 de octubre de 2026')
+  assert.equal(new Date('2026-10-17T12:00:00-03:00').getUTCDay(), 6)
+  assert.equal(silverEventIsSoldOut([]), false)
+})

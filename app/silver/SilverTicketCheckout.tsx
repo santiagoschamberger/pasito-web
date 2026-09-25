@@ -497,9 +497,8 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
           ) : soldOut ? (
             <div className={styles.checkoutSoldOut} data-testid="checkout-sold-out" role="status">
               <p className={styles.checkoutEyebrow}>Entradas</p>
-              <h3>Ventas pausadas</h3>
-              <p>Las entradas para Silver Walks están temporalmente pausadas.</p>
-              <p>El evento fue reprogramado para el <strong>17 de octubre</strong> por lluvia.</p>
+              <h3>Entradas agotadas</h3>
+              <p>Se agotaron las entradas para este encuentro de Silver Walks.</p>
             </div>
           ) : (
             <div data-testid="checkout-quantity">

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { SILVER_EVENT } from '@/lib/silver-event'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowUpRight, CalendarDays, MapPin } from 'lucide-react'
@@ -39,7 +40,7 @@ export default function EventsPage() {
           </div>
           <div className={styles.copy}>
             <span className={styles.eyebrow}>
-              PRÓXIMO ENCUENTRO · BIENESTAR
+              FUE REPROGRAMADO · ENTRADAS DISPONIBLES
             </span>
             <h2>
               Silver Walks
@@ -53,7 +54,7 @@ export default function EventsPage() {
             </p>
             <span className={styles.fact}>
               <CalendarDays size={18} />
-              27 de septiembre · 09:30 a 13:00
+              {SILVER_EVENT.shortDateLabel} · {SILVER_EVENT.timeLabel}
             </span>
             <span className={styles.fact}>
               <MapPin size={18} />
