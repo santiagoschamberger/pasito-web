@@ -13,7 +13,7 @@ export const SILVER_EVENT = {
 } as const
 
 export const SILVER_EVENT_TERMS_PATH = '/terminos/silver-walks'
-export const SILVER_EVENT_TERMS_VERSION = '2026-09-25'
+export const SILVER_EVENT_TERMS_VERSION = '2026-09'
 
 export const SILVER_TICKET_TIERS = [
   { position: 1, label: 'Entrada general', unitPrice: 35000, capacity: 200 },
