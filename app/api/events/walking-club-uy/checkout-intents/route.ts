@@ -41,8 +41,7 @@ export async function POST(request: NextRequest) {
   try {
     const identity = checkoutIdentity(request)
     const db = getWalkingClubUySupabase()
-    const { data, error } = await db.rpc('event_reserve_tickets', {
-      p_event_slug: WALKING_CLUB_UY_EVENT.slug,
+    const { data, error } = await db.rpc('event_reserve_walking_club_uy_tickets', {
       p_quantity: quantity,
       p_client_key_hash: identity.clientKeyHash,
       p_client_ip_hash: identity.clientIpHash,
@@ -51,6 +50,9 @@ export async function POST(request: NextRequest) {
     if (error) throw error
 
     const result = (data ?? {}) as ReservationResult
+    if (result.status === 'not_found') {
+      return NextResponse.json({ error: 'La venta de entradas todavía no está disponible. Probá nuevamente más tarde.' }, { status: 503 })
+    }
     if (result.status === 'rate_limited') {
       return NextResponse.json({ error: 'Hay demasiadas reservas abiertas desde esta conexión. Esperá unos minutos.' }, { status: 429 })
     }

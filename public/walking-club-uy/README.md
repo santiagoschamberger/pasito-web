@@ -1,0 +1,1 @@
+Casa Fauno facade photograph, published on its official reservation page https://casafauno.meitre.com (linked by https://www.casafauno.com.uy). Source: https://assets-meitre-frontend.s3.amazonaws.com/casafauno/body_1653698425.jpeg (accessed 2026-09-28). Optimized as WebP; no generated imagery.

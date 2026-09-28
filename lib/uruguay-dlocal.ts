@@ -1,4 +1,5 @@
 import 'server-only'
+import { createHmac, timingSafeEqual } from 'node:crypto'
 
 /**
  * dLocal Go payment integration for Uruguay Walking Club event.
@@ -10,12 +11,26 @@ import 'server-only'
  * Required environment variables:
  * - DLOCALGO_API_KEY: API key from dLocal Go account
  * - DLOCALGO_SECRET_KEY: Secret key for server-side operations
- * - DLOCALGO_WEBHOOK_SECRET: Secret for webhook signature validation (optional)
+ * - DLOCALGO_ENVIRONMENT: production or sandbox (optional explicit override)
+ * Webhook signatures use the same API key and secret key.
  */
 
-const DLOCALGO_API_URL = process.env.NODE_ENV === 'production'
-  ? 'https://api.dlocalgo.com'
-  : 'https://api-sbx.dlocalgo.com'
+export function dlocalGoApiUrl(): string {
+  const environment = process.env.DLOCALGO_ENVIRONMENT
+    || (process.env.VERCEL_ENV === 'production' ? 'production' : 'sandbox')
+  if (environment !== 'production' && environment !== 'sandbox') {
+    throw new Error('DLOCALGO_ENVIRONMENT debe ser production o sandbox.')
+  }
+  return environment === 'production' ? 'https://api.dlocalgo.com' : 'https://api-sbx.dlocalgo.com'
+}
+
+export class DlocalGoApiError extends Error {
+  status: number
+  constructor(status: number) {
+    super(`dLocal Go respondió ${status}.`)
+    this.status = status
+  }
+}
 
 export type DlocalGoPayment = {
   id?: string
@@ -24,9 +39,12 @@ export type DlocalGoPayment = {
   currency?: string
   country?: string
   order_id?: string
+  redirect_url?: string
   created_date?: string
   payer?: {
     id?: string
+    first_name?: string
+    last_name?: string
     name?: string
     email?: string
     phone?: string
@@ -44,6 +62,7 @@ export type CreatePaymentParams = {
   successUrl: string
   backUrl: string
   notificationUrl: string
+  expirationMinutes: number
   payerEmail?: string
   payerName?: string
 }
@@ -82,6 +101,8 @@ export async function createDlocalGoPayment(params: CreatePaymentParams): Promis
     success_url: params.successUrl,
     back_url: params.backUrl,
     notification_url: params.notificationUrl,
+    expiration_type: 'MINUTES',
+    expiration_value: params.expirationMinutes,
     ...(params.payerEmail ? {
       payer: {
         email: params.payerEmail,
@@ -90,7 +111,7 @@ export async function createDlocalGoPayment(params: CreatePaymentParams): Promis
     } : {}),
   }
 
-  const response = await fetch(`${DLOCALGO_API_URL}/v1/payments`, {
+  const response = await fetch(`${dlocalGoApiUrl()}/v1/payments`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -102,8 +123,7 @@ export async function createDlocalGoPayment(params: CreatePaymentParams): Promis
   })
 
   if (!response.ok) {
-    const errorText = await response.text().catch(() => 'Sin detalles')
-    throw new Error(`dLocal Go respondió ${response.status}: ${errorText}`)
+    throw new DlocalGoApiError(response.status)
   }
 
   const data = await response.json() as {
@@ -128,7 +148,7 @@ export async function createDlocalGoPayment(params: CreatePaymentParams): Promis
  * Used to verify payment status after redirect or webhook notification.
  */
 export async function getDlocalGoPayment(paymentId: string): Promise<DlocalGoPayment> {
-  const response = await fetch(`${DLOCALGO_API_URL}/v1/payments/${encodeURIComponent(paymentId)}`, {
+  const response = await fetch(`${dlocalGoApiUrl()}/v1/payments/${encodeURIComponent(paymentId)}`, {
     headers: {
       'Authorization': getAuthHeader(),
       'Content-Type': 'application/json',
@@ -145,7 +165,7 @@ export async function getDlocalGoPayment(paymentId: string): Promise<DlocalGoPay
 }
 
 export function dlocalGoCustomerName(payment: DlocalGoPayment): string | null {
-  return payment.payer?.name?.trim() || null
+  return payment.payer?.name?.trim() || [payment.payer?.first_name, payment.payer?.last_name].filter(Boolean).join(' ').trim() || null
 }
 
 export function normalizeDlocalGoStatus(status: string | undefined):
@@ -169,9 +189,27 @@ export function isDlocalGoPaymentAmountValid(
   paymentAmount: number | string | undefined,
   expectedAmount: number,
 ): boolean {
-  const amount = typeof paymentAmount === 'string' ? Number.parseFloat(paymentAmount) : paymentAmount
+  const amount = typeof paymentAmount === 'string' ? Number(paymentAmount.trim() || NaN) : paymentAmount
   if (typeof amount !== 'number' || !Number.isFinite(amount)) return false
   
   // Allow 1 cent difference for rounding
   return Math.abs(amount - expectedAmount) < 0.01
+}
+
+export function verifyDlocalGoNotification(payload: string, authorization: string | null): boolean {
+  const match = /^V2-HMAC-SHA256, Signature: ([a-f0-9]{64})$/i.exec(authorization || '')
+  if (!match) return false
+  const { apiKey, secretKey } = getDlocalGoCredentials()
+  const expected = createHmac('sha256', secretKey).update(apiKey + payload).digest()
+  return timingSafeEqual(expected, Buffer.from(match[1], 'hex'))
+}
+
+export function dlocalGoPaymentMatchesIntent(payment: DlocalGoPayment, intent: {
+  id: string; amount: number; currency: string; payment_provider_id: string | null
+}): boolean {
+  return payment.id === intent.payment_provider_id
+    && payment.order_id === intent.id
+    && payment.currency === intent.currency
+    && payment.country === 'UY'
+    && isDlocalGoPaymentAmountValid(payment.amount, intent.amount)
 }
