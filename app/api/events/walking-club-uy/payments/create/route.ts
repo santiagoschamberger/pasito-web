@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { WALKING_CLUB_UY_EVENT, isUuid } from '@/lib/uruguay-walking-club-event'
 import { getWalkingClubUySupabase, requestOrigin } from '@/lib/uruguay-walking-club-server'
-import { verifyIntentToken } from '@/lib/tomate-ticket-security'
+import { readIntentToken } from '@/lib/tomate-ticket-security'
 import { createDlocalGoPayment } from '@/lib/uruguay-dlocal'
 
 export async function POST(request: NextRequest) {
@@ -14,13 +14,13 @@ export async function POST(request: NextRequest) {
   }
 
   const intentId = typeof body.intentId === 'string' ? body.intentId.trim() : ''
-  const intentToken = typeof body.intentToken === 'string' ? body.intentToken : ''
+  const tokenId = typeof body.intentToken === 'string' ? readIntentToken(body.intentToken) : null
 
   if (!isUuid(intentId)) {
     return NextResponse.json({ error: 'Identificador de intención inválido.' }, { status: 400 })
   }
 
-  if (!verifyIntentToken(intentId, intentToken)) {
+  if (!tokenId || tokenId !== intentId) {
     return NextResponse.json({ error: 'Token de intención inválido.' }, { status: 403 })
   }
 
