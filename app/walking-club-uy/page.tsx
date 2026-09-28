@@ -303,7 +303,7 @@ export default async function WalkingClubUyPage() {
           <div className={styles.ticketCopy}>
             <p className={styles.overline}>Cupos limitados</p>
             <h2>Tu entrada<br /><span>incluye todo.</span></h2>
-            <p>Caminata, stretch, yoga, charlas y experiencias, brunch en Casa Fauno, música y DJ set.</p>
+            <p>Welcome kit, caminata, stretch, yoga, charlas y experiencias, brunch en Casa Fauno, música y DJ set.</p>
             <ul className={styles.ticketPerks} aria-label="Beneficios incluidos con la entrada">
               <li>
                 <Sparkles size={19} aria-hidden="true" />
