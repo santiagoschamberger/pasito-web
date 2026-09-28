@@ -8,4 +8,4 @@ values
   ('pasito-walking-club-uy-2026', 3, 'Tanda 3 · 30 cupos', 1390, 30);
 
 comment on column public.event_ticket_tiers.unit_price is
-  'Price per ticket in minor currency units. For UYU events like walking-club-uy-2026: 1190 = $1190 UYU.';
+  'Price per ticket in major currency units. For UYU events like walking-club-uy-2026: 1190 = $1190 UYU.';

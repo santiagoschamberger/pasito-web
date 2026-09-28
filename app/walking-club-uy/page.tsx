@@ -251,7 +251,7 @@ export default async function WalkingClubUyPage() {
                 />
                 <Image
                   className={styles.venuePhoto}
-                  src="/evento-pasito/tomate-rosedal.webp"
+                  src="/walking-club-uy/casa-fauno-fachada.webp"
                   alt="Casa Fauno, Parque Rodó"
                   width={724}
                   height={910}
@@ -340,7 +340,7 @@ export default async function WalkingClubUyPage() {
         <div className={`${styles.container} ${styles.locationLayout}`}>
           <div className={styles.locationPhoto}>
             <Image
-              src="/evento-pasito/tomate-rosedal.webp"
+              src="/walking-club-uy/casa-fauno-fachada.webp"
               alt="Casa Fauno, Parque Rodó"
               width={724}
               height={910}
