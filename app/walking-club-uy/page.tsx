@@ -116,9 +116,9 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: 'es_UY',
       images: [
         {
-          url: `${origin}/evento-pasito/og.png`,
-          width: 1536,
-          height: 1024,
+          url: `${origin}/walking-club-uy/casa-fauno-preview.jpg`,
+          width: 961,
+          height: 978,
           alt: 'Pasito Walking Club, sábado 10 de octubre en Casa Fauno, Parque Rodó',
         },
       ],
@@ -127,7 +127,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
       title,
       description,
-      images: [`${origin}/evento-pasito/og.png`],
+      images: [`${origin}/walking-club-uy/casa-fauno-preview.jpg`],
     },
   }
 }
