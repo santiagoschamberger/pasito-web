@@ -14,9 +14,9 @@ export const WALKING_CLUB_UY_TERMS_PATH = '/terminos/walking-club-uy'
 export const WALKING_CLUB_UY_TERMS_VERSION = '2026-10'
 
 export const WALKING_CLUB_UY_TICKET_TIERS = [
-  { position: 1, label: 'Tanda 1 · 100 cupos', unitPrice: 1190, capacity: 100, soldOut: false },
-  { position: 2, label: 'Tanda 2 · 70 cupos', unitPrice: 1290, capacity: 70, soldOut: false },
-  { position: 3, label: 'Tanda 3 · 30 cupos', unitPrice: 1390, capacity: 30, soldOut: false },
+  { position: 1, label: 'Tanda 1', unitPrice: 1190, capacity: 100, soldOut: false },
+  { position: 2, label: 'Tanda 2', unitPrice: 1290, capacity: 70, soldOut: false },
+  { position: 3, label: 'Tanda 3', unitPrice: 1390, capacity: 30, soldOut: false },
 ] as const
 
 export type TicketBreakdown = {
