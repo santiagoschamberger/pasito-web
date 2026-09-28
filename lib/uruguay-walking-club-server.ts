@@ -53,7 +53,7 @@ export async function getWalkingClubUyTicketInventory(): Promise<TicketInventory
 }
 
 function privateHash(value: string): string {
-  const secret = process.env.EVENT_TICKET_SIGNING_SECRET || process.env.DLOCAL_WEBHOOK_SECRET
+  const secret = process.env.EVENT_TICKET_SIGNING_SECRET || process.env.DLOCALGO_WEBHOOK_SECRET
   if (!secret) throw new Error('Falta EVENT_TICKET_SIGNING_SECRET.')
   return createHash('sha256').update(`${secret}:${value}`).digest('hex')
 }

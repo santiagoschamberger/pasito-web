@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowLeft, Check, Clock3, Gift, Mail, Minus, Plus, ShieldCheck, Ticket } from 'lucide-react'
+import { ArrowLeft, Check, Clock3, ExternalLink, Mail, Minus, Plus, ShieldCheck, Ticket } from 'lucide-react'
 
 import {
   WALKING_CLUB_UY_EVENT,
@@ -14,17 +14,17 @@ import {
 import styles from '../evento-pasito/tomate.module.css'
 
 /**
- * TODO: Dlocal integration
+ * Uruguay Walking Club checkout using dLocal Go Hosted Checkout.
  * 
- * This checkout is scaffolded to mirror the Tomate/Rebill pattern but needs:
- * 1. Dlocal SDK loaded (similar to how Rebill SDK is loaded)
- * 2. Dlocal payment widget integration
- * 3. Payment confirmation flow via Dlocal API
- * 
- * Environment variables needed:
- * - NEXT_PUBLIC_DLOCAL_PUBLIC_KEY: Public key for client-side Dlocal widget
- * - DLOCAL_SECRET_KEY: Server-side secret for payment verification
- * - DLOCAL_WEBHOOK_SECRET: Secret for webhook signature validation
+ * Flow:
+ * 1. User selects quantity and accepts terms
+ * 2. Reserve tickets via /api/events/walking-club-uy/checkout-intents
+ * 3. Display quote with price and timer
+ * 4. User clicks "Ir al pago" to initiate payment
+ * 5. Backend creates dLocal Go payment and returns redirect URL
+ * 6. Redirect user to dLocal Go's hosted checkout page
+ * 7. After payment, dLocal Go redirects back to success_url
+ * 8. Success page fetches and displays tickets
  */
 
 type Quote = {
@@ -54,6 +54,7 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
   const [quote, setQuote] = useState<Quote | null>(null)
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null)
   const [preparing, setPreparing] = useState(false)
+  const [redirecting, setRedirecting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [remainingSeconds, setRemainingSeconds] = useState(0)
 
@@ -126,16 +127,42 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
   }, [promoCode, quantity, refreshAvailability, termsAccepted])
 
   const goBack = useCallback(async () => {
-    if (!quote) return
+    if (!quote || redirecting) return
     await releaseQuote(quote)
     setQuote(null)
     setError(null)
     void refreshAvailability()
-  }, [quote, refreshAvailability, releaseQuote])
+  }, [quote, redirecting, refreshAvailability, releaseQuote])
+
+  const proceedToPayment = useCallback(async () => {
+    if (!quote) return
+    setRedirecting(true)
+    setError(null)
+    
+    try {
+      const response = await fetch('/api/events/walking-club-uy/payments/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ intentId: quote.intentId, intentToken: quote.intentToken }),
+      })
+      const payload = await response.json() as { redirectUrl?: string; error?: string }
+      
+      if (!response.ok || !payload.redirectUrl) {
+        throw new Error(payload.error || 'No pudimos crear el pago.')
+      }
+      
+      // Redirect to dLocal Go hosted checkout
+      window.location.href = payload.redirectUrl
+    } catch (cause) {
+      setRedirecting(false)
+      setError(cause instanceof Error ? cause.message : 'No pudimos iniciar el pago.')
+    }
+  }, [quote])
 
   const reset = useCallback(() => {
     setQuote(null)
     setConfirmation(null)
+    setRedirecting(false)
     setError(null)
     setQuantity(1)
     setPromoCode('')
@@ -176,7 +203,7 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
             </div>
           ) : quote ? (
             <div data-testid="checkout-payment">
-              <button type="button" className={styles.checkoutBack} onClick={() => void goBack()}>
+              <button type="button" className={styles.checkoutBack} onClick={() => void goBack()} disabled={redirecting}>
                 <ArrowLeft size={17} /> Cambiar cantidad
               </button>
               <div className={styles.quoteHeader}>
@@ -201,16 +228,16 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
                 )}
               </div>
               {error && <div className={styles.checkoutError} role="alert">{error}</div>}
-              
-              <div className={styles.checkoutError} style={{ background: '#fff3cd', color: '#856404', border: '1px solid #ffeaa7' }}>
-                <strong>Integración de Dlocal pendiente</strong>
-                <p style={{ fontSize: '14px', marginTop: '8px' }}>
-                  El widget de pago de Dlocal se mostrará aquí una vez configuradas las credenciales:<br />
-                  <code style={{ fontSize: '12px' }}>NEXT_PUBLIC_DLOCAL_PUBLIC_KEY</code>
-                </p>
-              </div>
-              
-              <p className={styles.paymentFinePrint}>El precio queda congelado en esta reserva. Nunca guardamos los datos de tu tarjeta.</p>
+              <button 
+                type="button" 
+                className={styles.checkoutPrimary} 
+                onClick={() => void proceedToPayment()} 
+                disabled={redirecting}
+              >
+                {redirecting ? 'Redirigiendo a dLocal Go…' : 'Ir al pago'}
+                {!redirecting && <ExternalLink size={19} style={{ marginLeft: '8px' }} />}
+              </button>
+              <p className={styles.paymentFinePrint}>El precio queda congelado en esta reserva. Vas a completar el pago en la página segura de dLocal Go.</p>
             </div>
           ) : soldOut ? (
             <div className={styles.checkoutSoldOut} data-testid="checkout-sold-out" role="status">
