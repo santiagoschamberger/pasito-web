@@ -16,12 +16,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid payment ID' }, { status: 400 })
     }
     const payment = await getDlocalGoPayment(body.payment_id)
+    console.info('[dlocalgo/webhook] verified', { paymentId: body.payment_id, status: payment.status, linkedReservation: isUuid(payment.order_id) })
     if (!isUuid(payment.order_id)) return NextResponse.json({ ok: true })
     const db = getWalkingClubUySupabase()
     const { data: intent, error } = await db.from('event_checkout_intents')
       .select('id, payment_provider_id').eq('id', payment.order_id)
       .eq('event_slug', WALKING_CLUB_UY_EVENT.slug).maybeSingle()
     if (error) throw error
+    console.info('[dlocalgo/webhook] reservation', { paymentId: body.payment_id, found: Boolean(intent) })
     if (!intent) return NextResponse.json({ ok: true })
     // A verified notification can recover a payment created before a network timeout.
     if (intent.payment_provider_id?.startsWith('creating:')) {
@@ -32,6 +34,7 @@ export async function POST(request: NextRequest) {
     } else if (intent.payment_provider_id !== payment.id) throw new Error('Payment does not match reservation')
     if (payment.status === 'PAID') {
       const result = await confirmWalkingClubUyOrder(intent.id, requestOrigin(request), payment.id)
+      console.info('[dlocalgo/webhook] fulfillment', { paymentId: body.payment_id, emailPending: result.emailPending })
       if (result.emailPending) return NextResponse.json({ error: 'Email pending' }, { status: 503 })
     } else if (payment.status === 'REFUNDED' || payment.status === 'CANCELLED') {
       const { error: updateError } = await db.rpc('event_update_order_payment', {
