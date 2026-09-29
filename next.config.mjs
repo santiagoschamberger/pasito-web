@@ -7,10 +7,12 @@ const nextConfig = {
   // Universal Links / Android App Links never verified for the apex host —
   // and the app shares invite links as https://pasito.app/g/<token>.
   // The .well-known files must therefore be served with a 200 on the apex.
+  // Existing dLocal callbacks also target the apex. Cross-origin redirects can
+  // drop Authorization, so signed notifications must reach the handler directly.
   async redirects() {
     return [
       {
-        source: '/:path((?!\\.well-known(?:/|$)|app-ads\\.txt$).*)',
+        source: '/:path((?!\\.well-known(?:/|$)|app-ads\\.txt$|api/dlocalgo/webhook(?:/|$)).*)',
         has: [{ type: 'host', value: 'pasito.app' }],
         destination: 'https://www.pasito.app/:path',
         permanent: false,

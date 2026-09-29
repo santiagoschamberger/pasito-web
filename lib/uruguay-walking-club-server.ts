@@ -85,7 +85,11 @@ export function checkoutIdentity(request: NextRequest): {
 
 export function requestOrigin(request: NextRequest): string {
   if (process.env.NODE_ENV === 'production') {
-    return (process.env.NEXT_PUBLIC_SITE_URL || 'https://pasito.app').replace(/\/$/, '')
+    const origin = new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.pasito.app')
+    // New payment callbacks go directly to the canonical host. Existing apex
+    // callbacks are kept working by the webhook exception in next.config.mjs.
+    if (origin.hostname === 'pasito.app') origin.hostname = 'www.pasito.app'
+    return origin.origin
   }
   const forwardedHost = request.headers.get('x-forwarded-host')
   const host = forwardedHost || request.headers.get('host')
