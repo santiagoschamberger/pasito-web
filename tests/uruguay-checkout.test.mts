@@ -103,3 +103,53 @@ test('confirmation uses real atomic RPC, scoped order and signed ticket; pending
     else {const result=await m.confirmWalkingClubUyOrder(id,'https://www.pasito.app');assert.equal(result.tickets[0].url,'/walking-club-uy/ticket/signed-ticket');assert.ok(calls.some(c=>c[0]==='checkout_intent_id'&&c[1]===id));const rpc=calls.find(c=>c[0]==='event_confirm_ticket_order');assert.equal(rpc[1].p_currency,'UYU');assert.equal(rpc[1].p_payment_id,'dlocalgo:DP-123')}
   }
 })
+
+
+test('production callback origin avoids the apex redirect, including legacy configuration', () => {
+  for (const configured of [undefined, 'https://pasito.app', 'https://pasito.app/', 'https://www.pasito.app/']) {
+    const env: Record<string,string> = { NODE_ENV: 'production' }
+    if (configured) env.NEXT_PUBLIC_SITE_URL = configured
+    const mod = load('../lib/uruguay-walking-club-server.ts', {
+      '@/lib/uruguay-walking-club-event': { WALKING_CLUB_UY_EVENT: { slug: 'uy' } },
+    }, env)
+    assert.equal(mod.requestOrigin({ headers: new Headers({ host: 'untrusted.invalid' }) }), 'https://www.pasito.app')
+  }
+})
+
+test('signed provider retries confirm a late paid reservation; invalid signatures and pending payments do not issue tickets', async () => {
+  for (const scenario of [
+    { valid: false, status: 'PAID', expected: 401, confirmations: 0 },
+    { valid: true, status: 'PENDING', expected: 200, confirmations: 0 },
+    { valid: true, status: 'PAID', expected: 200, confirmations: 1 },
+    { valid: true, status: 'PAID', expected: 503, confirmations: 1, emailPending: true },
+  ]) {
+    let confirmations = 0, lookups = 0
+    const mod = load('../app/api/dlocalgo/webhook/route.ts', {
+      'next/server': { NextResponse: { json: (data: unknown, init: any) => Response.json(data, init) } },
+      '@/lib/uruguay-dlocal': {
+        verifyDlocalGoNotification: () => scenario.valid,
+        getDlocalGoPayment: async () => { lookups++; return { id: 'DP-123', order_id: id, status: scenario.status } },
+      },
+      '@/lib/uruguay-walking-club-event': { WALKING_CLUB_UY_EVENT: { slug: 'uy' }, isUuid: (value: string) => value === id },
+      '@/lib/uruguay-walking-club-server': {
+        requestOrigin: () => 'https://www.pasito.app',
+        getWalkingClubUySupabase: () => ({ from() { const q: any = {
+          select() { return q }, eq() { return q },
+          async maybeSingle() { return { data: { id, status: 'expired', payment_provider_id: 'DP-123' } } },
+        }; return q } }),
+      },
+      '@/lib/uruguay-order-confirmation': {
+        confirmWalkingClubUyOrder: async (intentId: string, origin: string, paymentId: string) => {
+          confirmations++
+          assert.equal(intentId, id); assert.equal(paymentId, 'DP-123')
+          assert.equal(origin, 'https://www.pasito.app')
+          return { emailPending: scenario.emailPending ?? false }
+        },
+      },
+    })
+    const response = await mod.POST({ text: async () => '{"payment_id":"DP-123"}', headers: new Headers() })
+    assert.equal(response.status, scenario.expected)
+    assert.equal(confirmations, scenario.confirmations)
+    if (!scenario.valid) assert.equal(lookups, 0)
+  }
+})
