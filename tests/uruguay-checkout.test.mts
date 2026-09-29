@@ -13,7 +13,7 @@ function load(path: string, mocks: Record<string, unknown> = {}, env: Record<str
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText
   vm.runInNewContext(code, { exports, require: (name: string) => name === 'server-only' ? {} : mocks[name] ?? require(name),
-    process: { env }, Buffer, AbortSignal, URL, fetch: fetcher, console: { error() {} } })
+    process: { env }, Buffer, AbortSignal, URL, fetch: fetcher, console: { error() {}, info() {} } })
   return exports as any
 }
 const credentials = { DLOCALGO_API_KEY: 'test-api', DLOCALGO_SECRET_KEY: 'test-secret' }
