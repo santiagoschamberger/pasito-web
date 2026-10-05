@@ -1,0 +1,305 @@
+@font-face {
+  font-family: "Pasito Bricolage";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("/fonts/pasito-bricolage.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Pasito Google Sans Flex";
+  font-style: normal;
+  font-weight: 1 1000;
+  font-display: swap;
+  src: url("/fonts/pasito-google-sans-flex.woff2") format("woff2");
+}
+
+/* Tokens from the Pasito Figma file ("Final for dev - PASITO"). */
+.page {
+  --brand-primary: #006d42;
+  --brand-dark: #004027;
+  --surface-base: #ffffff;
+  --neutral-200: #e8e8e4;
+  --neutral-400: #c8c8c0;
+  --text-900: #0c0c09;
+  --text-600: #7c7c65;
+  --text-500: #9b9b8f;
+  --ghost-hover: #edf7f2;
+  --danger: #c4320a;
+  --space-sm1: 4px;
+  --space-sm2: 8px;
+  --space-sm3: 12px;
+  --space-md1: 16px;
+  --space-md2: 24px;
+  --space-md3: 32px;
+  --space-lg1: 40px;
+  --font-display: "Pasito Bricolage", system-ui, sans-serif;
+  --font-body: "Pasito Google Sans Flex", "Poppins", system-ui, sans-serif;
+
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  padding: max(var(--space-lg1), env(safe-area-inset-top)) var(--space-md1)
+    max(var(--space-lg1), env(safe-area-inset-bottom));
+  background: var(--brand-primary);
+  color: var(--text-900);
+  font-family: var(--font-body);
+  -webkit-text-size-adjust: 100%;
+}
+
+.page *,
+.page *::before,
+.page *::after {
+  box-sizing: border-box;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg1);
+  width: min(400px, 100%);
+}
+
+.logo {
+  margin: 0;
+  line-height: 0;
+}
+
+.logo img {
+  display: block;
+  width: min(300px, 72vw);
+  height: auto;
+}
+
+.card {
+  width: 100%;
+  padding: var(--space-md2);
+  border: 1px solid var(--neutral-200);
+  border-radius: 24px;
+  background: var(--surface-base);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  margin-bottom: var(--space-sm3);
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24px;
+  color: var(--text-900);
+}
+
+.input {
+  width: 100%;
+  height: 48px;
+  padding: 0 var(--space-md1);
+  border: 1px solid var(--neutral-200);
+  border-radius: 12px;
+  background: var(--surface-base);
+  color: var(--text-900);
+  font: 400 16px/24px var(--font-body);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input::placeholder {
+  color: var(--text-500);
+}
+
+.input:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px var(--ghost-hover);
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.input[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px rgba(196, 50, 10, 0.12);
+}
+
+.error {
+  margin: var(--space-sm2) 0 0;
+  color: var(--danger);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.checkbox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm3);
+  min-height: 44px;
+  margin-top: var(--space-sm3);
+  color: var(--text-600);
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkboxInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.checkboxBox {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--neutral-400);
+  border-radius: 6px;
+  background: var(--surface-base);
+  color: var(--surface-base);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.checkboxBox svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 3;
+  opacity: 0;
+}
+
+.checkboxInput:checked + .checkboxBox {
+  border-color: var(--brand-primary);
+  background: var(--brand-primary);
+}
+
+.checkboxInput:checked + .checkboxBox svg {
+  opacity: 1;
+}
+
+.checkboxInput:focus-visible + .checkboxBox {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm2);
+  width: 100%;
+  height: 48px;
+  margin-top: var(--space-md1);
+  padding: 0 20px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--brand-primary);
+  color: var(--surface-base);
+  font: 600 16px/24px var(--font-body);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--brand-dark);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+.button:disabled {
+  cursor: progress;
+  opacity: 0.8;
+}
+
+.spin {
+  width: 18px;
+  height: 18px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.successIcon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--space-md1);
+  border-radius: 12px;
+  background: var(--ghost-hover);
+  color: var(--brand-primary);
+}
+
+.successIcon svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2.5;
+}
+
+.successTitle {
+  margin: 0 0 var(--space-sm2);
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.successText {
+  margin: 0;
+  color: var(--text-600);
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+@media (max-width: 480px) {
+  .content {
+    gap: var(--space-md3);
+  }
+
+  .card {
+    padding: var(--space-md1) var(--space-md1) var(--space-md2);
+  }
+}
+
+@media (max-height: 620px) {
+  .content {
+    gap: var(--space-md2);
+  }
+
+  .logo img {
+    width: min(220px, 60vw);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+}
