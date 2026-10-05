@@ -40,7 +40,7 @@ export default function EventsPage() {
           </div>
           <div className={styles.copy}>
             <span className={styles.eyebrow}>
-              FUE REPROGRAMADO · ENTRADAS DISPONIBLES
+              ENTRADAS DISPONIBLES
             </span>
             <h2>
               Silver Walks
