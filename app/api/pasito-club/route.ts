@@ -14,7 +14,7 @@ function getSupabase(): SupabaseClient | null {
   return supabase
 }
 
-function confirmationHtml(): string {
+function confirmationHtml(notifyTickets: boolean): string {
   return `
 <!DOCTYPE html>
 <html>
@@ -25,7 +25,10 @@ function confirmationHtml(): string {
     <h2 style="font-size: 30px; line-height: 1.05; margin: 0 0 18px; font-weight: 800;">Ya tenés tu lugar en la largada.</h2>
     <p style="font-size: 15px; margin: 0 0 12px; line-height: 1.6;">
       No hace falta ser runner. De caminar tus primeros metros a correr tus primeros 3K: te vamos a avisar por acá cuando arranque el club.
-    </p>
+    </p>${notifyTickets ? `
+    <p style="font-size: 15px; margin: 0 0 12px; line-height: 1.6;">
+      Y como pediste, te escribimos apenas salgan las entradas.
+    </p>` : ''}
     <p style="font-size: 15px; margin: 28px 0 0; line-height: 1.6;">Todo empieza con un Pasito.<br/><strong>El equipo de Pasito Club</strong></p>
   </div>
 </body>
@@ -59,13 +62,23 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  const notifyTickets = body.notifyTickets === true
+
   const { error } = await db.from(PASITO_CLUB_WAITLIST_TABLE).insert({
     email,
+    notify_tickets: notifyTickets,
     user_agent: req.headers.get('user-agent')?.slice(0, 500) ?? null,
   })
 
   if (error) {
     if (error.code === '23505') {
+      if (notifyTickets) {
+        const { error: updateError } = await db
+          .from(PASITO_CLUB_WAITLIST_TABLE)
+          .update({ notify_tickets: true })
+          .eq('email', email)
+        if (updateError) console.error('[pasito-club] notify_tickets update error:', updateError)
+      }
       return NextResponse.json({ ok: true, already: true })
     }
     console.error('[pasito-club] Waitlist insert error:', error)
@@ -79,7 +92,7 @@ export async function POST(req: NextRequest) {
         from: 'Pasito Club <noreply@pasito.app>',
         to: email,
         subject: 'Estás en la lista de Pasito Club',
-        html: confirmationHtml(),
+        html: confirmationHtml(notifyTickets),
       })
       .catch((err) => console.error('[pasito-club] Confirmation email error:', err))
 

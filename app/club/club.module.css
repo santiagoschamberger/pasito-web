@@ -21,6 +21,7 @@
   place-items: center;
   min-height: 100vh;
   min-height: 100svh;
+  min-height: 100dvh;
   overflow: hidden;
   overflow: clip;
   isolation: isolate;
@@ -29,6 +30,8 @@
   color: #fff;
   font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
 }
 
 /* ── Background: the "Yo no corro → Corrí 3K" track ───────────────── */
@@ -182,7 +185,7 @@
   align-items: center;
   gap: clamp(22px, 4svh, 40px);
   width: 100%;
-  padding: 24px 18px 88px;
+  padding: max(24px, env(safe-area-inset-top)) 18px 88px;
 }
 
 .logoWrap {
@@ -192,7 +195,7 @@
 
 .logo {
   display: inline-block;
-  width: clamp(260px, 50vw, 620px);
+  width: clamp(240px, min(50vw, 70svh), 620px);
   transform-origin: 50% 90%;
 }
 
@@ -346,6 +349,69 @@
   to { transform: rotate(360deg); }
 }
 
+.notify {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  min-height: 44px;
+  margin: 20px auto 0;
+  padding: 8px 18px 8px 10px;
+  border-radius: 999px;
+  background: rgba(0, 31, 19, 0.82);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  cursor: pointer;
+  user-select: none;
+}
+
+.notifyInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.notifyBox {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 2.5px solid rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  color: var(--green-ink);
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.notifyBox svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 3.2;
+  opacity: 0;
+  transform: scale(0.4) rotate(-20deg);
+  transition: opacity 0.15s ease, transform 0.22s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.notifyInput:checked + .notifyBox {
+  border-color: var(--lime);
+  background: var(--lime);
+  transform: rotate(-6deg);
+}
+
+.notifyInput:checked + .notifyBox svg {
+  opacity: 1;
+  transform: none;
+}
+
+.notifyInput:focus-visible + .notifyBox {
+  outline: 3px solid var(--lime);
+  outline-offset: 3px;
+}
+
 .message {
   display: table;
   min-height: 1.5em;
@@ -430,6 +496,16 @@
   font-weight: 800;
 }
 
+.bibTickets {
+  margin: 12px 0 4px;
+  padding: 6px 14px;
+  border-radius: 14px;
+  background: var(--lime);
+  color: var(--green-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .bibText {
   margin: 6px 0 0;
   font-size: 14px;
@@ -479,6 +555,27 @@
 }
 
 @media (max-width: 520px) {
+  .center {
+    gap: clamp(18px, 3.2svh, 32px);
+    padding-bottom: 76px;
+  }
+
+  .logo {
+    width: clamp(200px, min(78vw, 42svh), 420px);
+  }
+
+  .row {
+    font-size: clamp(44px, 9svh, 96px);
+  }
+
+  .notify {
+    font-size: 13.5px;
+  }
+
+  .bib {
+    padding: 22px 22px 20px;
+  }
+
   .field {
     flex-direction: column;
     align-items: stretch;
@@ -495,7 +592,32 @@
   }
 
   .tagline {
+    font-size: 10px;
     letter-spacing: 0.16em;
+  }
+}
+
+@media (max-height: 620px) {
+  .center {
+    gap: 14px;
+    padding-bottom: 64px;
+  }
+
+  .input,
+  .submit {
+    min-height: 50px;
+  }
+
+  .notify {
+    margin-top: 12px;
+  }
+
+  .message {
+    margin-top: 10px;
+  }
+
+  .bibNumber {
+    font-size: 72px;
   }
 }
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 'react'
-import { ArrowRight, Loader2 } from 'lucide-react'
+import { ArrowRight, Check, Loader2 } from 'lucide-react'
 
 import { pasitoClubTypingProgress } from '@/lib/pasito-club-waitlist'
 import styles from './club.module.css'
@@ -43,11 +43,13 @@ function TrackRow({ index, done }: { index: number; done: boolean }) {
 export function PasitoClubLanding() {
   const inputId = useId()
   const messageId = useId()
+  const notifyId = useId()
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<Status>('idle')
   const [message, setMessage] = useState('')
   const [hop, setHop] = useState(0)
   const [shake, setShake] = useState(0)
+  const [notifyTickets, setNotifyTickets] = useState(false)
 
   const stageRef = useRef<HTMLDivElement>(null)
   const footLayerRef = useRef<HTMLDivElement>(null)
@@ -157,7 +159,7 @@ export function PasitoClubLanding() {
       const res = await fetch('/api/pasito-club', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: value, website: form.get('website') ?? '' }),
+        body: JSON.stringify({ email: value, notifyTickets, website: form.get('website') ?? '' }),
       })
       const data = (await res.json().catch(() => ({}))) as { ok?: boolean; already?: boolean; error?: string }
       if (!res.ok || !data.ok) {
@@ -212,6 +214,7 @@ export function PasitoClubLanding() {
                 ? 'Tu lugar sigue guardado. Te avisamos cuando arranque el club.'
                 : `Te escribimos a ${email.trim()} cuando arranque el club.`}
             </p>
+            {notifyTickets ? <p className={styles.bibTickets}>Y te avisamos apenas salgan las entradas.</p> : null}
           </div>
         ) : (
           <form
@@ -256,6 +259,20 @@ export function PasitoClubLanding() {
                 )}
               </button>
             </div>
+            <label htmlFor={notifyId} className={styles.notify}>
+              <input
+                id={notifyId}
+                type="checkbox"
+                name="notifyTickets"
+                checked={notifyTickets}
+                onChange={(e) => setNotifyTickets(e.target.checked)}
+                className={styles.notifyInput}
+              />
+              <span className={styles.notifyBox} aria-hidden="true">
+                <Check />
+              </span>
+              <span>Avisame cuando estén las entradas</span>
+            </label>
             <input
               type="text"
               name="website"
