@@ -47,6 +47,8 @@
   color: var(--text-900);
   font-family: var(--font-body);
   -webkit-text-size-adjust: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 .page *,
@@ -55,7 +57,29 @@
   box-sizing: border-box;
 }
 
+.stickers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sticker {
+  position: absolute;
+  width: clamp(76px, 10vw, 150px);
+  height: auto;
+  transform: rotate(var(--tilt));
+  filter: drop-shadow(0 8px 16px rgba(0, 32, 19, 0.28));
+}
+
+.mate { top: 9%; left: 11%; --tilt: -12deg; }
+.zapas { top: 44%; left: 5%; --tilt: 9deg; width: clamp(88px, 11.5vw, 170px); }
+.barrita { bottom: 9%; left: 14%; --tilt: -7deg; }
+.cafe { top: 11%; right: 11%; --tilt: 10deg; }
+.botella { top: 45%; right: 6%; --tilt: -9deg; }
+.gorra { bottom: 10%; right: 13%; --tilt: 6deg; width: clamp(88px, 11.5vw, 170px); }
+
 .content {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -276,6 +300,22 @@
   width: 1px;
   height: 1px;
   opacity: 0;
+}
+
+@media (max-width: 720px) {
+  .sticker {
+    width: 68px;
+  }
+
+  .zapas,
+  .botella {
+    display: none;
+  }
+
+  .mate { top: 12px; left: -8px; }
+  .cafe { top: 14px; right: -6px; }
+  .barrita { bottom: 14px; left: -6px; }
+  .gorra { bottom: 18px; right: -8px; width: 78px; }
 }
 
 @media (max-width: 480px) {
