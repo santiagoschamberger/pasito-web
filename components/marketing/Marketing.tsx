@@ -17,7 +17,7 @@ export const DISNEY_LOGO_URL = 'https://upload.wikimedia.org/wikipedia/commons/c
 const EVENT_LINKS = [
   { href: '/silver', label: 'Silver Walk' },
   { href: '/walking-club-uy', label: 'Evento Uruguay' },
-  { href: '/evento-pasito', label: 'Pasito Club' },
+  { href: '/club', label: 'Pasito Club' },
 ]
 
 type PressLogo = {
