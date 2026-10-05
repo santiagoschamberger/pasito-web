@@ -9,9 +9,3 @@ export function normalizePasitoClubEmail(value: unknown): string | null {
   if (!email || email.length > PASITO_CLUB_EMAIL_MAX_LENGTH) return null
   return EMAIL_PATTERN.test(email) ? email : null
 }
-
-/** Fraction (0..1) of the "Yo no corro → Corrí 3K" rows that flip while the user types. */
-export function pasitoClubTypingProgress(email: string, stepsToFinish = 18): number {
-  if (stepsToFinish <= 0) return 1
-  return Math.min(1, Math.max(0, email.trim().length / stepsToFinish))
-}

@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
 
   const email = normalizePasitoClubEmail(body.email)
   if (!email) {
-    return NextResponse.json({ error: 'Ese mail no camina. Revisalo.' }, { status: 400 })
+    return NextResponse.json({ error: 'Revisá tu mail, parece que no es válido.' }, { status: 400 })
   }
 
   const db = getSupabase()
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, already: true })
     }
     console.error('[pasito-club] Waitlist insert error:', error)
-    return NextResponse.json({ error: 'Se nos trabó el paso. Probá de nuevo.' }, { status: 500 })
+    return NextResponse.json({ error: 'No pudimos anotarte. Probá de nuevo.' }, { status: 500 })
   }
 
   if (process.env.RESEND_API_KEY) {
