@@ -14,6 +14,15 @@
   src: url("/fonts/pasito-google-sans-flex.woff2") format("woff2");
 }
 
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  background: #006d42;
+}
+
 /* Tokens from the Pasito Figma file ("Final for dev - PASITO"). */
 .page {
   --brand-primary: #006d42;
@@ -37,10 +46,8 @@
   --font-body: "Pasito Google Sans Flex", "Poppins", system-ui, sans-serif;
 
   display: grid;
+  flex: 1;
   place-items: center;
-  min-height: 100vh;
-  min-height: 100svh;
-  min-height: 100dvh;
   padding: max(var(--space-lg1), env(safe-area-inset-top)) var(--space-md1)
     max(var(--space-lg1), env(safe-area-inset-bottom));
   background: var(--brand-primary);

@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from 'next'
 
+import { MarketingNav } from '@/components/marketing/Marketing'
+import marketingStyles from '../marketing.module.css'
 import { PasitoClubLanding } from './PasitoClubLanding'
+import styles from './club.module.css'
 
 const TITLE = 'Pasito Club — No buscamos runners. Los vamos a crear.'
 const DESCRIPTION = 'De caminar tus primeros metros a correr tus primeros 3K. Sumate a la lista de Pasito Club, Buenos Aires.'
@@ -22,5 +25,10 @@ export const viewport: Viewport = {
 }
 
 export default function PasitoClubPage() {
-  return <PasitoClubLanding />
+  return (
+    <div className={`${marketingStyles.page} ${styles.shell}`}>
+      <MarketingNav />
+      <PasitoClubLanding />
+    </div>
+  )
 }
