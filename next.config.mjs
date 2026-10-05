@@ -17,6 +17,13 @@ const nextConfig = {
         destination: 'https://www.pasito.app/:path',
         permanent: false,
       },
+      // The TOMATE event is over and must not be shown. Ticket, Pasitos-claim,
+      // check-in and terms URLs stay reachable for past buyers' email links.
+      ...['/evento-pasito', '/evento-pasito/entradas', '/tomate'].map((source) => ({
+        source,
+        destination: '/club',
+        permanent: false,
+      })),
     ]
   },
   async headers() {

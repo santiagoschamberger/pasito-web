@@ -13,6 +13,19 @@ test('the shared desktop and mobile menus no longer promote the finished event',
   assert.doesNotMatch(marketingStyles, /\.navNewChip/)
 })
 
+test('the events dropdown lists only the current events and TOMATE is not shown', async () => {
+  assert.match(navSource, /\{ href: '\/silver', label: 'Silver Walk' \}/)
+  assert.match(navSource, /\{ href: '\/walking-club-uy', label: 'Evento Uruguay' \}/)
+  assert.match(navSource, /\{ href: '\/club', label: 'Pasito Club' \}/)
+  assert.doesNotMatch(brandsSource, /tomate/i)
+
+  const { default: nextConfig } = await import('../next.config.mjs')
+  const redirects = await nextConfig.redirects()
+  for (const source of ['/evento-pasito', '/evento-pasito/entradas', '/tomate']) {
+    assert.ok(redirects.some((r) => r.source === source && r.destination === '/club'), source)
+  }
+})
+
 test('the public marketing numbers and brands promise use the current copy', () => {
   assert.match(homeSource, /value: '552\.000', label: 'usuarios activos diarios'/)
   assert.match(brandsSource, /El próximo <span>pasito<\/span> de tu marca\./)

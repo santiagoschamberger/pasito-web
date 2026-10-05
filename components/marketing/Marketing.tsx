@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Check, Download } from 'lucide-react'
+import { ArrowRight, Check, ChevronDown, Download } from 'lucide-react'
 
 import styles from '@/app/marketing.module.css'
 import { PARTNER_BRANDS, type MarketingBrand } from '@/lib/marketing-brands'
@@ -13,6 +13,12 @@ export const WHATSAPP_URL = 'https://wa.me/5491136491620?text=Hola%2C%20quiero%2
 export const ENTERPRISE_WHATSAPP_URL = 'https://wa.me/5491136491620?text=Hola%2C%20quiero%20activar%20Pasito%20Empresa%20en%20mi%20organizaci%C3%B3n.'
 export const BRANDS_WHATSAPP_URL = 'https://wa.me/5491136491620?text=Hola%2C%20quiero%20reservar%20una%20activaci%C3%B3n%20de%20marca%20en%20Pasito.'
 export const DISNEY_LOGO_URL = 'https://upload.wikimedia.org/wikipedia/commons/c/ce/Disney.svg'
+
+const EVENT_LINKS = [
+  { href: '/silver', label: 'Silver Walk' },
+  { href: '/walking-club-uy', label: 'Evento Uruguay' },
+  { href: '/club', label: 'Pasito Club' },
+]
 
 type PressLogo = {
   name: string
@@ -98,7 +104,16 @@ export function MarketingNav({
           <Image src="/brand/logo-green.svg" alt="Pasito" width={96} height={23} priority />
         </Link>
         <div className={styles.navLinks}>
-          <Link className={styles.navLink} href="/eventos">Eventos</Link>
+          <div className={styles.navDropdown}>
+            <Link className={`${styles.navLink} ${styles.navDropdownTrigger}`} href="/eventos" aria-haspopup="true">
+              Eventos <ChevronDown size={14} strokeWidth={2.4} aria-hidden="true" />
+            </Link>
+            <div className={styles.navDropdownMenu}>
+              {EVENT_LINKS.map((event) => (
+                <Link key={event.href} className={styles.navDropdownItem} href={event.href}>{event.label}</Link>
+              ))}
+            </div>
+          </div>
           <Link className={`${styles.navLink} ${isCommerce ? styles.navLinkActive : ''}`} href="/comercios">Comercios</Link>
           <Link className={`${styles.navLink} ${isBrands ? styles.navLinkActive : ''}`} href="/marcas">Marcas</Link>
           <Link className={`${styles.navLink} ${isEnterprise ? styles.navLinkActive : ''}`} href="/empresas">Empresas</Link>
@@ -130,7 +145,16 @@ export function MarketingNav({
           </summary>
           <div className={styles.mobileNavPanel}>
             <div className={styles.mobileNavLinks}>
-              <Link className={styles.mobileNavLink} href="/eventos">Eventos</Link>
+              <details className={styles.mobileNavGroup}>
+                <summary className={styles.mobileNavLink}>
+                  Eventos <ChevronDown size={16} strokeWidth={2.4} aria-hidden="true" />
+                </summary>
+                <div className={styles.mobileNavSubLinks}>
+                  {EVENT_LINKS.map((event) => (
+                    <Link key={event.href} className={styles.mobileNavSubLink} href={event.href}>{event.label}</Link>
+                  ))}
+                </div>
+              </details>
               <Link className={`${styles.mobileNavLink} ${isCommerce ? styles.mobileNavLinkActive : ''}`} href="/comercios">Comercios</Link>
               <Link className={`${styles.mobileNavLink} ${isBrands ? styles.mobileNavLinkActive : ''}`} href="/marcas">Marcas</Link>
               <Link className={`${styles.mobileNavLink} ${isEnterprise ? styles.mobileNavLinkActive : ''}`} href="/empresas">Empresas</Link>

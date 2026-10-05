@@ -83,7 +83,7 @@
 .caseStats span { color: #536453; font-size: 12px; line-height: 1.4; }
 .eventCase { display: flex; flex-direction: column; overflow: hidden; border-radius: 28px; background: #fff; color: var(--brand-dark); }
 .eventImage { position: relative; height: 270px; }
-.eventImage > img { object-fit: cover; object-position: center 60%; }
+.eventImage > img { object-fit: cover; object-position: center 25%; }
 .photoTag { position: absolute; bottom: 20px; left: 24px; display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 999px; background: #fff; color: var(--brand-dark); font-size: 12px; font-weight: 650; }
 .eventCopy { display: flex; flex-direction: column; flex: 1; padding: 30px 36px 36px; }
 .eventCopy h3 { margin: 0; font-family: var(--font-bricolage), system-ui, sans-serif; font-size: 30px; line-height: 1.15; font-weight: 750; letter-spacing: -.7px; }

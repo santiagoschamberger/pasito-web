@@ -195,7 +195,7 @@ export default function MarcasPage() {
               <div className={styles.caseStats}><div><strong>53.000</strong><span>inscriptos</span></div><div><strong>~1.000</strong><span>historias compartidas</span></div></div>
             </article>
             <article className={styles.eventCase}>
-              <div className={styles.eventImage}><Image src="/evento-pasito/tomate-rosedal.webp" alt="Tomate Rosedal, lugar de encuentro del Pasito Walking Club" fill sizes="(max-width: 760px) 100vw, 50vw" /><span className={styles.photoTag}>Pasito Walking Club <ArrowUpRight size={16} aria-hidden="true" /></span></div>
+              <div className={styles.eventImage}><Image src="/silver/walk-photo.webp" alt="Personas caminando juntas en un evento de Pasito" fill sizes="(max-width: 760px) 100vw, 50vw" /><span className={styles.photoTag}>Pasito Walking Club <ArrowUpRight size={16} aria-hidden="true" /></span></div>
               <div className={styles.eventCopy}><h3>Las mejores conexiones<br />se hacen caminando.</h3><p>Movimiento, bienestar, gastronomía y marcas en una misma jornada.</p><div className={styles.caseStats}><div><strong>+300</strong><span>personas</span></div><div><strong>+15</strong><span>marcas integradas</span></div></div></div>
             </article>
           </div>

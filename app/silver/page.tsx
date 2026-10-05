@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Silver Walks by Nutren',
     description:
-      'Fue reprogramado. Sábado 17 de octubre · Augusta, Palermo.',
+      'Sábado 17 de octubre · Augusta, Palermo.',
     url: 'https://www.pasito.app/silver',
     images: [
       {
@@ -136,15 +136,6 @@ export default function SilverWalksPage() {
           <Buy className={styles.navBuy} />
         </div>
       </nav>
-      <div className={styles.rescheduleNotice}>
-        <div className={styles.rescheduleContent}>
-          <strong>Fue reprogramado</strong>
-          <p>
-            Silver Walks fue reprogramado por lluvia. Nos encontramos el <strong>{SILVER_EVENT.shortDateLabel.toLowerCase()}</strong>.{' '}
-            La venta de entradas ya está activa.
-          </p>
-        </div>
-      </div>
       <header className={styles.hero}>
         <div className={styles.heroCopy}>
           <p className={styles.kicker}>
