@@ -77,6 +77,41 @@
 }
 .navLink:hover { color: var(--brand-dark); }
 .navLinkActive { border-bottom: 2px solid var(--brand-accent); color: var(--brand-dark); }
+.navDropdown { position: relative; display: flex; align-items: center; }
+.navDropdownTrigger { display: inline-flex; align-items: center; gap: 4px; }
+.navDropdownTrigger svg { transition: transform .2s ease; }
+.navDropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: -14px;
+  z-index: 40;
+  display: grid;
+  min-width: 190px;
+  margin-top: 10px;
+  padding: 8px;
+  border: 1px solid var(--surface-stroke);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 18px 40px rgb(0 64 39 / 14%);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity .18s ease, transform .18s ease, visibility .18s;
+}
+.navDropdownMenu::before { content: ''; position: absolute; right: 0; bottom: 100%; left: 0; height: 12px; }
+.navDropdown:hover .navDropdownMenu,
+.navDropdown:focus-within .navDropdownMenu { opacity: 1; visibility: visible; transform: translateY(0); }
+.navDropdown:hover .navDropdownTrigger svg,
+.navDropdown:focus-within .navDropdownTrigger svg { transform: rotate(180deg); }
+.navDropdownItem {
+  padding: 10px 12px;
+  border-radius: 9px;
+  color: var(--neutral-700);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.navDropdownItem:hover,.navDropdownItem:focus-visible { background: rgb(0 109 66 / 7%); color: var(--brand-primary); }
 .navActions { display: flex; align-items: center; gap: 12px; margin-left: auto; }
 .navTextButton { padding: 10px 8px; color: var(--brand-primary); font-size: 14px; font-weight: 600; }
 .pinkButton {
@@ -162,6 +197,12 @@
   font-weight: 650;
 }
 .mobileNavLinkActive { color: var(--brand-primary); }
+.mobileNavGroup summary { justify-content: space-between; cursor: pointer; list-style: none; }
+.mobileNavGroup summary::-webkit-details-marker { display: none; }
+.mobileNavGroup summary svg { transition: transform .2s ease; }
+.mobileNavGroup[open] summary svg { transform: rotate(180deg); }
+.mobileNavSubLinks { display: grid; padding: 4px 0 8px 14px; border-bottom: 1px solid var(--surface-stroke); }
+.mobileNavSubLink { display: flex; align-items: center; min-height: 42px; color: var(--neutral-600); font-size: 15px; font-weight: 600; }
 .mobileNavContext { color: var(--brand-primary); }
 .mobileNavActions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-top: 16px; }
 .mobileNavLogin,.mobileNavRegister { min-height: 48px; padding: 12px 16px; border-radius: 999px; font-size: 14px; font-weight: 700; text-align: center; }
