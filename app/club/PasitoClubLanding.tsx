@@ -7,6 +7,15 @@ import styles from './club.module.css'
 
 type Status = 'idle' | 'loading' | 'success' | 'already' | 'error'
 
+const STICKERS = [
+  { name: 'mate', width: 274, height: 360 },
+  { name: 'zapas', width: 360, height: 344 },
+  { name: 'barrita', width: 348, height: 360 },
+  { name: 'cafe', width: 338, height: 345 },
+  { name: 'botella', width: 297, height: 360 },
+  { name: 'gorra', width: 360, height: 289 },
+] as const
+
 export function PasitoClubLanding() {
   const inputId = useId()
   const messageId = useId()
@@ -57,6 +66,20 @@ export function PasitoClubLanding() {
 
   return (
     <main className={styles.page}>
+      <div className={styles.stickers} aria-hidden="true">
+        {STICKERS.map((sticker) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={sticker.name}
+            src={`/pasito-club/stickers/${sticker.name}.webp`}
+            alt=""
+            width={sticker.width}
+            height={sticker.height}
+            decoding="async"
+            className={`${styles.sticker} ${styles[sticker.name]}`}
+          />
+        ))}
+      </div>
       <div className={styles.content}>
         <h1 className={styles.logo}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
