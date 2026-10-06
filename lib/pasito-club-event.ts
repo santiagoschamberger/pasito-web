@@ -17,18 +17,18 @@ export type PasitoClubTraining = {
   isoDate: string
   shortLabel: string
   longLabel: string
-  activation: boolean
+  hasAfter: boolean
 }
 
 export const PASITO_CLUB_TRAININGS: PasitoClubTraining[] = [
-  { position: 1, number: 1, isoDate: '2026-10-14', shortLabel: 'Mié 14/10', longLabel: 'Miércoles 14 de octubre', activation: false },
-  { position: 2, number: 2, isoDate: '2026-10-21', shortLabel: 'Mié 21/10', longLabel: 'Miércoles 21 de octubre', activation: true },
-  { position: 3, number: 3, isoDate: '2026-10-28', shortLabel: 'Mié 28/10', longLabel: 'Miércoles 28 de octubre', activation: false },
-  { position: 4, number: 4, isoDate: '2026-11-04', shortLabel: 'Mié 04/11', longLabel: 'Miércoles 4 de noviembre', activation: false },
-  { position: 5, number: 5, isoDate: '2026-11-11', shortLabel: 'Mié 11/11', longLabel: 'Miércoles 11 de noviembre', activation: false },
-  { position: 6, number: 6, isoDate: '2026-11-18', shortLabel: 'Mié 18/11', longLabel: 'Miércoles 18 de noviembre', activation: true },
-  { position: 7, number: 7, isoDate: '2026-11-25', shortLabel: 'Mié 25/11', longLabel: 'Miércoles 25 de noviembre', activation: false },
-  { position: 8, number: 8, isoDate: '2026-12-02', shortLabel: 'Mié 02/12', longLabel: 'Miércoles 2 de diciembre', activation: false },
+  { position: 1, number: 1, isoDate: '2026-10-14', shortLabel: 'Mié 14/10', longLabel: 'Miércoles 14 de octubre', hasAfter: false },
+  { position: 2, number: 2, isoDate: '2026-10-21', shortLabel: 'Mié 21/10', longLabel: 'Miércoles 21 de octubre', hasAfter: true },
+  { position: 3, number: 3, isoDate: '2026-10-28', shortLabel: 'Mié 28/10', longLabel: 'Miércoles 28 de octubre', hasAfter: false },
+  { position: 4, number: 4, isoDate: '2026-11-04', shortLabel: 'Mié 04/11', longLabel: 'Miércoles 4 de noviembre', hasAfter: false },
+  { position: 5, number: 5, isoDate: '2026-11-11', shortLabel: 'Mié 11/11', longLabel: 'Miércoles 11 de noviembre', hasAfter: false },
+  { position: 6, number: 6, isoDate: '2026-11-18', shortLabel: 'Mié 18/11', longLabel: 'Miércoles 18 de noviembre', hasAfter: true },
+  { position: 7, number: 7, isoDate: '2026-11-25', shortLabel: 'Mié 25/11', longLabel: 'Miércoles 25 de noviembre', hasAfter: false },
+  { position: 8, number: 8, isoDate: '2026-12-02', shortLabel: 'Mié 02/12', longLabel: 'Miércoles 2 de diciembre', hasAfter: false },
 ]
 
 export const PASITO_CLUB_RACE = {

@@ -59,7 +59,7 @@ export default function PasitoClubTermsPage() {
             los niveles, incluyendo personas que nunca corrieron.
           </p>
           <p style={p}>
-            Algunos encuentros incluyen una activación con marcas del club. El ciclo cierra con la {PASITO_CLUB_RACE.name}, el{' '}
+            Algunos encuentros incluyen un after con marcas del club. El ciclo cierra con la {PASITO_CLUB_RACE.name}, el{' '}
             {PASITO_CLUB_RACE.longLabel.toLowerCase()}, con distancias de 3K y 5K.
           </p>
         </Section>

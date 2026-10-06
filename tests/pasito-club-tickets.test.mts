@@ -33,12 +33,12 @@ test('packs of 4 or more include the race', () => {
   assert.equal(packIncludesRace(8), true)
 })
 
-test('calendar has the 8 Wednesdays with activations on 21/10 and 18/11', () => {
+test('calendar has the 8 Wednesdays with afters on 21/10 and 18/11', () => {
   assert.equal(PASITO_CLUB_TRAININGS.length, 8)
   for (const training of PASITO_CLUB_TRAININGS) {
     assert.equal(new Date(`${training.isoDate}T12:00:00-03:00`).getUTCDay(), 3)
   }
-  assert.deepEqual(PASITO_CLUB_TRAININGS.filter((training) => training.activation).map((training) => training.isoDate), ['2026-10-21', '2026-11-18'])
+  assert.deepEqual(PASITO_CLUB_TRAININGS.filter((training) => training.hasAfter).map((training) => training.isoDate), ['2026-10-21', '2026-11-18'])
   assert.equal(trainingIsUpcoming(PASITO_CLUB_TRAININGS[0], new Date('2026-10-14T21:59:00Z')), true)
   assert.equal(trainingIsUpcoming(PASITO_CLUB_TRAININGS[0], new Date('2026-10-14T22:00:00Z')), false)
 })

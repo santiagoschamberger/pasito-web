@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft, Check, Clock, Loader2, MessageCircle, ShieldCheck, Ticket, Trophy } from 'lucide-react'
 
 import {
@@ -502,11 +502,12 @@ export function PasitoClubCheckout({ mockCheckout = false }: { mockCheckout?: bo
     <div ref={cardRef} className={styles.checkoutCard} data-testid="club-checkout">
       <fieldset className={styles.step}>
         <legend><span>1</span> Elegí tu pack</legend>
-        <div className={styles.packGrid} style={{ '--pack-columns': packs.length } as CSSProperties}>
+        <div className={styles.packGrid}>
           {packs.map((item) => {
             const savings = packSavingsPercent(item)
             const active = item.size === packSize
             const disabled = item.size > selectableCount
+            const race = packIncludesRace(item.size)
             return (
               <button
                 key={item.size}
@@ -517,12 +518,17 @@ export function PasitoClubCheckout({ mockCheckout = false }: { mockCheckout?: bo
                 onClick={() => choosePack(item.size)}
               >
                 {item.featured && <span className={styles.packFlag}>El más elegido</span>}
-                <span className={styles.packSize}>{item.size}<small>{item.size === 1 ? 'encuentro' : 'encuentros'}</small></span>
-                <span className={styles.packPrice}>{pasitoClubMoney(item.price)}</span>
-                <span className={styles.packUnit}>
-                  {pasitoClubMoney(Math.round(item.price / item.size))} c/u{savings > 0 ? ` · ${savings}% off` : ''}
+                <span className={styles.packBody}>
+                  <span className={styles.packTop}>
+                    <span className={styles.packSize}>{item.size}<small>{item.size === 1 ? 'encuentro' : 'encuentros'}</small></span>
+                    {savings > 0 && <span className={styles.packSavings}>−{savings}%</span>}
+                  </span>
+                  <span className={styles.packPrice}>{pasitoClubMoney(item.price)}</span>
+                  <span className={styles.packUnit}>{pasitoClubMoney(Math.round(item.price / item.size))} por encuentro</span>
                 </span>
-                {packIncludesRace(item.size) && <span className={styles.packRace}><Trophy aria-hidden="true" /> Incluye la Carrera</span>}
+                <span className={`${styles.packPerk} ${race ? styles.packPerkRace : ''}`}>
+                  {race ? <><Trophy aria-hidden="true" /> Carrera incluida</> : 'Solo entrenamientos'}
+                </span>
               </button>
             )
           })}
@@ -552,7 +558,7 @@ export function PasitoClubCheckout({ mockCheckout = false }: { mockCheckout?: bo
                 <span className={styles.dateNumber}>#{training.number}</span>
                 <span className={styles.dateLabel}>{training.shortLabel}</span>
                 <span className={styles.dateMeta}>
-                  {!upcoming ? 'Ya pasó' : available === 0 ? 'Agotado' : available !== null && available <= LOW_STOCK ? `Quedan ${available}` : training.activation ? 'Activación' : `${PASITO_CLUB_EVENT.capacityPerDate} cupos`}
+                  {!upcoming ? 'Ya pasó' : available === 0 ? 'Agotado' : available !== null && available <= LOW_STOCK ? `Quedan ${available}` : training.hasAfter ? 'After' : `${PASITO_CLUB_EVENT.capacityPerDate} cupos`}
                 </span>
                 {isSelected && <Check className={styles.dateCheck} aria-hidden="true" />}
               </button>

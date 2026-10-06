@@ -67,7 +67,7 @@ const FAQ = [
   },
   {
     q: '¿Qué incluye cada entrada?',
-    a: 'Cada entrada es un miércoles de entrenamiento. Elegís tus fechas al comprar y te llega un QR por cada una. Si tu fecha cae en una activación, la activación está incluida.',
+    a: 'Cada entrada es un miércoles de entrenamiento. Elegís tus fechas al comprar y te llega un QR por cada una. Si tu fecha tiene after, el after está incluido.',
   },
   {
     q: '¿Cómo entro a la Carrera Pasito Club?',
@@ -88,7 +88,7 @@ const ribbon = Array.from({ length: 6 }, () => 'CAMINANDO PASAN COSAS LINDAS')
 export default function PasitoClubPage() {
   const packs = pasitoClubPacks()
   const fromPrice = Math.min(...packs.map((pack) => Math.round(pack.price / pack.size)))
-  const activationDates = PASITO_CLUB_TRAININGS.filter((training) => training.activation)
+  const afterDates = PASITO_CLUB_TRAININGS.filter((training) => training.hasAfter)
 
   return (
     <div className={`${marketingStyles.page} ${styles.shell}`}>
@@ -110,15 +110,14 @@ export default function PasitoClubPage() {
             ))}
           </div>
           <div className={styles.heroInner}>
-            <p className={styles.season}>Oct — Dic 2026 · Buenos Aires</p>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className={styles.heroLogo} src="/pasito-club/logo.svg" alt="Pasito Club" width={747} height={320} />
             <h1 id="club-title" className={styles.heroTitle}>
               Entrenar es un <span>planazo.</span>
             </h1>
             <p className={styles.heroLead}>
-              De caminar tus primeros pasos a correr tus primeros 3K. Un miércoles por semana, con gente como vos, música
-              y after. No hace falta ser runner.
+              De caminar tus primeros pasos a correr tus primeros 3K. Un miércoles por semana, con gente como vos y buena
+              música. No hace falta ser runner.
             </p>
             <ul className={styles.heroFacts}>
               <li><CalendarDays aria-hidden="true" /> 8 miércoles · {PASITO_CLUB_EVENT.timeLabel}</li>
@@ -160,7 +159,7 @@ export default function PasitoClubPage() {
             </ol>
             <ul className={styles.perks}>
               <li><Sparkles aria-hidden="true" /><span><strong>Entrenamientos guiados</strong> por Linck Running Team, para todos los niveles.</span></li>
-              <li><Music2 aria-hidden="true" /><span><strong>Música, comunidad y after.</strong> Es el plan del miércoles.</span></li>
+              <li><Music2 aria-hidden="true" /><span><strong>Música y comunidad.</strong> Es el plan del miércoles.</span></li>
               <li><MapPin aria-hidden="true" /><span><strong>{PASITO_CLUB_EVENT.venueLabel}</strong>, miércoles a las {PASITO_CLUB_EVENT.timeLabel}.</span></li>
             </ul>
           </div>
@@ -172,8 +171,8 @@ export default function PasitoClubPage() {
               <p className={styles.raceEyebrow}>El gran final · {PASITO_CLUB_RACE.longLabel}</p>
               <h2 id="race-title" className={styles.raceTitle}>Carrera<br />Pasito Club</h2>
               <p className={styles.raceLead}>
-                Todo el club cruzando la meta juntos. Corrés 3K o 5K, vos elegís. Con kit de corredor y la activación final
-                de las marcas del club.
+                Todo el club cruzando la meta juntos. Corrés 3K o 5K, vos elegís. Con kit de corredor y el after final con las
+                marcas del club.
               </p>
               <p className={styles.raceIncluded}>
                 <Trophy aria-hidden="true" /> Incluida en los packs de {PASITO_CLUB_RACE_MIN_PACK} encuentros o más
@@ -193,32 +192,32 @@ export default function PasitoClubPage() {
         <section id="calendario" className={styles.calendar} aria-labelledby="calendar-title">
           <div className={styles.container}>
             <p className={styles.eyebrowLime}>Calendario</p>
-            <h2 id="calendar-title" className={styles.sectionTitleLight}>8 miércoles. 3 activaciones.<br />1 carrera.</h2>
+            <h2 id="calendar-title" className={styles.sectionTitleLight}>8 miércoles. 3 afters.<br />1 carrera.</h2>
             <p className={styles.sectionLeadLight}>
               Todos los encuentros son a las {PASITO_CLUB_EVENT.timeLabel} en {PASITO_CLUB_EVENT.venueLabel}. {PASITO_CLUB_EVENT.capacityPerDate} cupos
               por fecha: cuando se llenan, se llenan.
             </p>
             <ol className={styles.calendarGrid}>
               {PASITO_CLUB_TRAININGS.map((training) => (
-                <li key={training.position} className={training.activation ? styles.calendarActivation : undefined}>
+                <li key={training.position} className={training.hasAfter ? styles.calendarAfter : undefined}>
                   <span className={styles.calendarNumber}>#{training.number}</span>
                   <strong>{training.shortLabel}</strong>
                   <span className={styles.calendarTime}><Clock3 aria-hidden="true" /> {PASITO_CLUB_EVENT.timeLabel}</span>
-                  {training.activation && <span className={styles.activationTag}>Activación</span>}
+                  {training.hasAfter && <span className={styles.afterTag}>After</span>}
                 </li>
               ))}
               <li className={styles.calendarRace}>
                 <span className={styles.calendarNumber}>Final</span>
                 <strong>{PASITO_CLUB_RACE.shortLabel}</strong>
                 <span className={styles.calendarTime}><Trophy aria-hidden="true" /> {PASITO_CLUB_RACE.name} · 3K o 5K</span>
-                <span className={styles.activationTag}>Activación final</span>
+                <span className={styles.afterTag}>After final</span>
               </li>
             </ol>
-            <div className={styles.activationNote}>
-              <strong>Una vez por mes, activación.</strong>
+            <div className={styles.afterNote}>
+              <strong>Una vez por mes, after.</strong>
               <p>
-                Las marcas del club se suman al encuentro con beneficios, desafíos, sampling y after. Este ciclo:{' '}
-                {activationDates.map((training) => training.shortLabel).join(', ')} y la carrera del {PASITO_CLUB_RACE.shortLabel}.
+                Después de entrenar nos quedamos: las marcas del club arman un after con beneficios, desafíos y sampling. Este ciclo:{' '}
+                {afterDates.map((training) => training.shortLabel).join(', ')} y la carrera del {PASITO_CLUB_RACE.shortLabel}.
                 Si tenés entrada para esa fecha, estás adentro.
               </p>
             </div>
