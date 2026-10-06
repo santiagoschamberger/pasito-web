@@ -523,8 +523,10 @@ export function PasitoClubCheckout({ mockCheckout = false }: { mockCheckout?: bo
                     <span className={styles.packSize}>{item.size}<small>{item.size === 1 ? 'encuentro' : 'encuentros'}</small></span>
                     {savings > 0 && <span className={styles.packSavings}>−{savings}%</span>}
                   </span>
-                  <span className={styles.packPrice}>{pasitoClubMoney(item.price)}</span>
-                  <span className={styles.packUnit}>{pasitoClubMoney(Math.round(item.price / item.size))} por encuentro</span>
+                  <span className={styles.packPricing}>
+                    <span className={styles.packPrice}>{pasitoClubMoney(item.price)}</span>
+                    <span className={styles.packUnit}>{pasitoClubMoney(Math.round(item.price / item.size))} c/u</span>
+                  </span>
                 </span>
                 <span className={`${styles.packPerk} ${race ? styles.packPerkRace : ''}`}>
                   {race ? <><Trophy aria-hidden="true" /> Carrera incluida</> : 'Solo entrenamientos'}
