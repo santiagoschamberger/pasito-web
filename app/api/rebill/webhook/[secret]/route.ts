@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { POST as confirmStoreOrder } from '../../../orders/route'
 import { POST as confirmTomateOrder } from '../../../events/tomate/orders/confirm/route'
 import { POST as confirmSilverOrder } from '../../../events/silver/orders/confirm/route'
+import { POST as confirmPasitoClubOrder } from '../../../pasito-club/orders/confirm/route'
+import { PASITO_CLUB_EVENT } from '@/lib/pasito-club-event'
 import { TOMATE_EVENT } from '@/lib/tomate-event'
 import { getSilverRebillPayment } from '@/lib/silver-rebill'
 import { SILVER_EVENT } from '@/lib/silver-event'
@@ -145,6 +147,39 @@ export async function POST(request: NextRequest, context: { params: Promise<{ se
       return NextResponse.json({ ok: true })
     } catch (error) {
       console.error('[rebill-webhook] No se pudo actualizar la entrada Silver:', error)
+      return NextResponse.json({ error: 'No se pudo procesar el webhook.' }, { status: 500 })
+    }
+  }
+
+  if (metadata?.eventSlug === PASITO_CLUB_EVENT.slug) {
+    const intentId = typeof metadata.checkoutIntentId === 'string' ? metadata.checkoutIntentId : ''
+
+    if (payment.status === 'approved' && intentId) {
+      const orderRequest = new NextRequest(new URL('/api/pasito-club/orders/confirm', request.url), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ paymentId: payment.id, intentId }),
+      })
+      const orderResponse = await confirmPasitoClubOrder(orderRequest)
+      if (orderResponse.status >= 500) return orderResponse
+      if (await hasPendingEmail(orderResponse)) return pendingEmailResponse()
+      return NextResponse.json({ ok: true })
+    }
+
+    try {
+      const verified = await getRebillPayment(payment.id)
+      if (verified.metadata?.eventSlug !== PASITO_CLUB_EVENT.slug) return new NextResponse(null, { status: 204 })
+      const status = normalizeRebillStatus(verified.status)
+      if (!status || status === 'approved') return new NextResponse(null, { status: 204 })
+
+      const { error } = await getTomateSupabase().rpc('event_update_order_payment', {
+        p_payment_id: payment.id,
+        p_payment_status: status,
+      })
+      if (error) throw error
+      return NextResponse.json({ ok: true })
+    } catch (error) {
+      console.error('[rebill-webhook] No se pudo actualizar la entrada de Pasito Club:', error)
       return NextResponse.json({ error: 'No se pudo procesar el webhook.' }, { status: 500 })
     }
   }
