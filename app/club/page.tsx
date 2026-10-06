@@ -110,7 +110,7 @@ export default function PasitoClubPage() {
             ))}
           </div>
           <div className={styles.heroInner}>
-            <p className={styles.season}>Temporada 2026 · Oct — Dic · Buenos Aires</p>
+            <p className={styles.season}>Oct — Dic 2026 · Buenos Aires</p>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className={styles.heroLogo} src="/pasito-club/logo.svg" alt="Pasito Club" width={747} height={320} />
             <h1 id="club-title" className={styles.heroTitle}>
@@ -143,7 +143,7 @@ export default function PasitoClubPage() {
           <div className={styles.container}>
             <p className={styles.eyebrow}>Qué es Pasito Club</p>
             <h2 id="about-title" className={styles.sectionTitle}>
-              No tenés que ser runner<br />para empezar a correr.
+              No tenés que ser runner para empezar a correr.
             </h2>
             <p className={styles.sectionLead}>
               Querés moverte pero el gym te aburre o arrancar un deporte te intimida. Querés conocer gente, pero no en una

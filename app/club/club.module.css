@@ -47,17 +47,11 @@
   box-sizing: border-box;
 }
 
-.page h1,
-.page h2,
-.page h3,
-.page p,
-.page ol,
-.page ul {
+.page :where(h1, h2, h3, p, ol, ul) {
   margin: 0;
 }
 
-.page ol,
-.page ul {
+.page :where(ol, ul) {
   padding: 0;
   list-style: none;
 }
@@ -83,6 +77,7 @@
 
 .sectionTitle,
 .sectionTitleLight {
+  max-width: 820px;
   margin-top: 10px;
   font-family: var(--font-display);
   font-size: clamp(34px, 6vw, 60px);
@@ -1292,9 +1287,9 @@
 }
 
 @media (max-width: 719px) {
-  .sticker { width: 64px; }
-  .mate { top: 18px; left: -6px; }
-  .botella { top: 22px; right: -4px; }
+  .sticker { width: 58px; }
+  .mate { top: 74px; left: -10px; }
+  .botella { top: 70px; right: -8px; }
   .zapas { bottom: 18px; left: -10px; }
   .gorra { bottom: 22px; right: -8px; width: 74px; }
   .heroActions > a { flex: 1 1 100%; }
