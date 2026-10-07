@@ -6,7 +6,7 @@ function fixture(replies, overrides={}) {
   const env={NEXT_PUBLIC_REBILL_ACCOUNT_ROUTING_ENABLED:'true',NEXT_PUBLIC_REBILL_NO_IVA_PUBLIC_KEY:'public-fixture',REBILL_NO_IVA_SECRET_KEY:'sin-fixture',REBILL_SECRET_KEY:'con-fixture',REBILL_WEBHOOK_SECRET:'sin-route',REBILL_NEW_WEBHOOK_SECRET:'con-route',...overrides}
   const calls=[];const client={}
   const {outputText}=ts.transpileModule(readFileSync(new URL('../lib/rebill-routing.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}})
-  new Function('require','exports','process','fetch',outputText)(()=>({}),client,{env},async(url,options)=>{calls.push({url,...options});assert.ok(replies.length,'Unexpected provider request');return replies.shift()})
+  new Function('require','exports','process','fetch',outputText)((mod)=>mod==='node:crypto'||mod==='crypto'?require('node:crypto'):{},client,{env},async(url,options)=>{calls.push({url,...options});assert.ok(replies.length,'Unexpected provider request');return replies.shift()})
   return {client,calls}
 }
 const payment={id:'pay_same',amount:'100.50',currency:'ARS',status:'approved',metadata:{checkoutIntentId:'intent-fixture'}}
@@ -48,10 +48,43 @@ test('refund/order updates reject a stored binding from another account',async()
   await assert.rejects(f.client.checkOrderAccount(db,'event_ticket_orders',{...payment,rebillAccount:'SIN_IVA'}),/otra cuenta/)
 })
 test('Silver historical key stays readable and unknown origin collisions stay blocked',async()=>{
-  const f=fixture([new Response(null,{status:404}),new Response(null,{status:404}),Response.json(payment)],{SILVER_REBILL_SECRET_KEY:'silver-fixture'})
-  assert.equal((await f.client.resolveRebillPayment('pay_same')).rebillAccount,'SILVER_LEGACY')
-  const collision=fixture([Response.json(payment),new Response(null,{status:404}),Response.json(payment)],{SILVER_REBILL_SECRET_KEY:'silver-fixture'})
+  const f=fixture([new Response(null,{status:404}),new Response(null,{status:404}),Response.json(payment)],{SILVER_REBILL_SECRET_KEY:'silver-fixture',SILVER_REBILL_ACCOUNT:'SIN_IVA'})
+  assert.equal((await f.client.resolveRebillPayment('pay_same')).rebillAccount,'SIN_IVA')
+  const collision=fixture([Response.json(payment),new Response(null,{status:404}),Response.json(payment)],{SILVER_REBILL_SECRET_KEY:'silver-fixture',SILVER_REBILL_ACCOUNT:'CON_IVA'})
   await assert.rejects(collision.client.resolveRebillPayment('pay_same','SIN_IVA'),/ambiguo/)
+  const historical=fixture([new Response(null,{status:404}),new Response(null,{status:404}),Response.json(payment)],{NEXT_PUBLIC_REBILL_ACCOUNT_ROUTING_ENABLED:'false',SILVER_REBILL_SECRET_KEY:'silver-fixture'})
+  assert.equal((await historical.client.resolveRebillPayment('pay_same')).rebillAccount,'SILVER_LEGACY')
+})
+function assertConfigError(run, pattern, leaked) {
+  assert.throws(run,(error)=>{
+    assert.ok(error instanceof Error)
+    assert.match(error.message,pattern)
+    for (const value of leaked) assert.equal(error.message.includes(value),false,value)
+    return true
+  })
+}
+test('routing rejects an unclassified Silver key and a legacy key that matches CON_IVA',()=>{
+  const leaked=['silver-fixture','con-fixture','sin-fixture']
+  assertConfigError(()=>fixture([],{SILVER_REBILL_SECRET_KEY:'silver-fixture'}).client.assertRebillCheckoutReady(),/clasificada/,leaked)
+  assertConfigError(()=>fixture([],{SILVER_REBILL_SECRET_KEY:'silver-fixture',SILVER_REBILL_ACCOUNT:'SILVER_LEGACY'}).client.assertRebillCheckoutReady(),/clasificada/,leaked)
+  assertConfigError(()=>fixture([],{REBILL_LEGACY_SECRET_KEY:'con-fixture'}).client.assertRebillCheckoutReady(),/histórica|historica|independiente/,leaked)
+  fixture([],{SILVER_REBILL_SECRET_KEY:'silver-fixture',SILVER_REBILL_ACCOUNT:'SIN_IVA'}).client.assertRebillCheckoutReady()
+  fixture([],{SILVER_REBILL_SECRET_KEY:'silver-fixture',SILVER_REBILL_ACCOUNT:'CON_IVA'}).client.assertRebillCheckoutReady()
+  fixture([],{REBILL_LEGACY_SECRET_KEY:'sin-legacy-fixture'}).client.assertRebillCheckoutReady()
+  fixture([],{NEXT_PUBLIC_REBILL_ACCOUNT_ROUTING_ENABLED:'false',SILVER_REBILL_SECRET_KEY:'silver-fixture',REBILL_LEGACY_SECRET_KEY:'con-fixture'}).client.assertRebillCheckoutReady()
+})
+test('webhook secret comparison is constant-time and ignores missing values',()=>{
+  const {client}=fixture([])
+  assert.equal(client.webhookSecretsEqual('sin-route','sin-route'),true)
+  assert.equal(client.webhookSecretsEqual('sin-route','con-route'),false)
+  assert.equal(client.webhookSecretsEqual(undefined,'sin-route'),false)
+  assert.equal(client.webhookSecretsEqual('','sin-route'),false)
+  assert.equal(client.webhookSecretsEqual('sin-route',''),false)
+  assert.equal(client.webhookSecretsEqual('sin-route',undefined),false)
+  assert.equal(client.webhookRebillAccount('sin-route'),'SIN_IVA')
+  assert.equal(client.webhookRebillAccount('con-route'),'CON_IVA')
+  assert.equal(client.webhookRebillAccount('unknown'),null)
+  assert.equal(fixture([],{SILVER_REBILL_WEBHOOK_SECRET:'silver-route'}).client.webhookRebillAccount('silver-route'),'SILVER_LEGACY')
 })
 test('documented alias keys resolve one logical account and conflicting snapshots fail closed',async()=>{
   const f=fixture([Response.json(payment),new Response(null,{status:404}),Response.json(payment)],{REBILL_LEGACY_SECRET_KEY:'sin-legacy-fixture'})
