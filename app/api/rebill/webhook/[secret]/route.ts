@@ -1,5 +1,5 @@
 import { recoverRebillPayments } from '@/lib/rebill-recovery'
-import { rebillRoutingEnabled, webhookRebillAccount, resolveRebillPayment, bindVerifiedPayment, checkOrderAccount } from '@/lib/rebill-routing'
+import { rebillRoutingEnabled, webhookRebillAccount, resolveRebillPayment, bindVerifiedPayment, checkOrderAccount, webhookSecretsEqual } from '@/lib/rebill-routing'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { POST as confirmStoreOrder } from '../../../orders/route'
@@ -64,8 +64,8 @@ export async function POST(request: NextRequest, context: { params: Promise<{ se
     process.env.REBILL_WEBHOOK_SECRET,
     process.env.REBILL_NEW_WEBHOOK_SECRET,
     process.env.SILVER_REBILL_WEBHOOK_SECRET,
-  ].map((value) => value?.trim()).filter(Boolean)
-  if (!expectedSecrets.includes(secret)) return new NextResponse(null, { status: 404 })
+  ].map((value) => value?.trim())
+  if (!expectedSecrets.some((value) => webhookSecretsEqual(value, secret))) return new NextResponse(null, { status: 404 })
 
   let payload: WebhookPayload
   try {

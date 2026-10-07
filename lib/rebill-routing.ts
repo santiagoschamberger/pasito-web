@@ -1,10 +1,15 @@
 import 'server-only'
+import { createHash, timingSafeEqual } from 'node:crypto'
 import type { RebillPayment } from './tomate-rebill'
 
 export type RebillAccount = 'SIN_IVA' | 'CON_IVA' | 'SILVER_LEGACY'
 export function rebillRoutingEnabled() { return process.env.NEXT_PUBLIC_REBILL_ACCOUNT_ROUTING_ENABLED === 'true' }
 const verifiedRequests = new WeakMap<Request, RebillPayment>()
 export function bindVerifiedPayment(request: Request, payment: RebillPayment) { verifiedRequests.set(request, payment) }
+export function webhookSecretsEqual(expected?: string, provided?: string) {
+  if (!expected || !provided) return false
+  return timingSafeEqual(createHash('sha256').update(expected).digest(), createHash('sha256').update(provided).digest())
+}
 function assertRebillAccountsReady() {
   if (!rebillRoutingEnabled()) return
   if (!process.env.NEXT_PUBLIC_REBILL_NO_IVA_PUBLIC_KEY?.trim()) throw new Error('Falta configurar el checkout SIN_IVA.')
@@ -12,6 +17,13 @@ function assertRebillAccountsReady() {
   if (keys.some(key => !key) || keys[0] === keys[1]) throw new Error('Las cuentas Rebill no están configuradas de forma independiente.')
   const secrets = [process.env.REBILL_WEBHOOK_SECRET, process.env.REBILL_NEW_WEBHOOK_SECRET].map(key => key?.trim())
   if (secrets.some(key => !key) || secrets[0] === secrets[1]) throw new Error('Las rutas Rebill no identifican cuentas independientes.')
+  if (process.env.SILVER_REBILL_SECRET_KEY?.trim() && process.env.SILVER_REBILL_ACCOUNT !== 'SIN_IVA' && process.env.SILVER_REBILL_ACCOUNT !== 'CON_IVA') {
+    throw new Error('La cuenta Silver no está clasificada como SIN_IVA o CON_IVA.')
+  }
+  const legacyKey = process.env.REBILL_LEGACY_SECRET_KEY?.trim()
+  if (legacyKey && legacyKey === process.env.REBILL_SECRET_KEY?.trim()) {
+    throw new Error('La clave histórica de Rebill no es independiente.')
+  }
 }
 export function assertRebillCheckoutReady() {
   if (rebillRoutingEnabled() && process.env.REBILL_NEW_CHECKOUTS_PAUSED === 'true') throw new Error('Los nuevos checkouts están pausados.')
@@ -19,7 +31,7 @@ export function assertRebillCheckoutReady() {
 }
 export function webhookRebillAccount(secret: string): RebillAccount | null {
   const routes: [string | undefined, RebillAccount][] = [[process.env.REBILL_WEBHOOK_SECRET,'SIN_IVA'],[process.env.REBILL_NEW_WEBHOOK_SECRET,'CON_IVA'],[process.env.SILVER_REBILL_WEBHOOK_SECRET,'SILVER_LEGACY']]
-  const accounts = new Set(routes.filter(([value]) => value?.trim() === secret).map(([, account]) => account))
+  const accounts = new Set(routes.filter(([value]) => webhookSecretsEqual(value?.trim(), secret)).map(([, account]) => account))
   if (accounts.size > 1) throw new Error('Ruta de webhook ambigua.')
   return [...accounts][0] ?? null
 }
