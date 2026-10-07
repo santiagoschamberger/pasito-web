@@ -17,11 +17,12 @@ export type RebillPayment = {
 }
 
 function getRebillSecretKeys() {
+  const noIvaKey = process.env.REBILL_NO_IVA_SECRET_KEY?.trim()
   const primaryKey = process.env.REBILL_SECRET_KEY?.trim()
-  if (!primaryKey) throw new Error('Falta REBILL_SECRET_KEY.')
-
   const legacyKey = process.env.REBILL_LEGACY_SECRET_KEY?.trim()
-  return [...new Set([primaryKey, legacyKey].filter((value): value is string => Boolean(value)))]
+  const secretKeys = [...new Set([noIvaKey, primaryKey, legacyKey].filter((value): value is string => Boolean(value)))]
+  if (!secretKeys.length) throw new Error('Falta REBILL_SECRET_KEY.')
+  return secretKeys
 }
 
 export async function getRebillPayment(paymentId: string): Promise<RebillPayment> {

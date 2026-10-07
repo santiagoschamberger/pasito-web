@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { REBILL_PUBLIC_KEY } from '@/lib/rebill-public-key'
 import {
   EMPTY_SHIPPING_ADDRESS,
   formatShippingAddress,
@@ -12,11 +13,11 @@ import styles from './tienda.module.css'
 
 /* ────────────────────────────────────────────────────────────────────────
  * Config — todo lo editable en un solo lugar.
- * El public key es publicable (seguro en el cliente) y se configura por entorno
- * con NEXT_PUBLIC_REBILL_PUBLIC_KEY.
+ * El public key de checkout es el de la cuenta sin IVA
+ * (`NEXT_PUBLIC_REBILL_NO_IVA_PUBLIC_KEY`), con fallback a
+ * `NEXT_PUBLIC_REBILL_PUBLIC_KEY`.
  * OJO: PRICE / SHIPPING / CURRENCY deben coincidir con app/api/orders/route.ts
  * ──────────────────────────────────────────────────────────────────────── */
-const REBILL_PUBLIC_KEY = process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY ?? ''
 
 // Loader de los web components de Rebill vía CDN (no toca package.json).
 const REBILL_SDK_SRC = 'https://unpkg.com/rebill@1.17.28/dist/rebill/rebill.esm.js'

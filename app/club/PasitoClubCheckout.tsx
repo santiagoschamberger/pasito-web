@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft, Check, Clock, Loader2, MessageCircle, ShieldCheck, Ticket, Trophy } from 'lucide-react'
 
+import { REBILL_PUBLIC_KEY } from '@/lib/rebill-public-key'
 import {
   PASITO_CLUB_BASE_PRICE,
   PASITO_CLUB_EVENT,
@@ -21,7 +22,6 @@ import {
 } from '@/lib/pasito-club-event'
 import styles from './club.module.css'
 
-const REBILL_PUBLIC_KEY = process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY ?? ''
 const REBILL_SDK_SRC = 'https://unpkg.com/rebill@1.17.28/dist/rebill/rebill.esm.js'
 const CHECKOUT_DISPLAY = JSON.stringify({ checkoutSummary: false, logo: false })
 const CHECKOUT_CSS = `
