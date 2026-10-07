@@ -1,3 +1,4 @@
+import { assertRebillCheckoutReady, rebillRoutingEnabled } from '@/lib/rebill-routing'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { TOMATE_EVENT, TOMATE_EVENT_TERMS_VERSION, type TicketBreakdown } from '@/lib/tomate-event'
@@ -39,6 +40,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    assertRebillCheckoutReady()
     const identity = checkoutIdentity(request)
     const db = getTomateSupabase()
     const { data, error } = await db.rpc('event_reserve_tickets', {
@@ -68,6 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { error: acceptanceError } = await db.from('event_checkout_intents').update({
+      ...(rebillRoutingEnabled() && result.amount! > 0 ? { rebill_account: 'SIN_IVA' } : {}),
       terms_accepted_at: new Date().toISOString(),
       terms_version: TOMATE_EVENT_TERMS_VERSION,
     }).eq('id', result.intentId).select('id').single()

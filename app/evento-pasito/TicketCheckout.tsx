@@ -13,7 +13,7 @@ import {
 } from '@/lib/tomate-event'
 import styles from './tomate.module.css'
 
-const REBILL_PUBLIC_KEY = process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY ?? ''
+const REBILL_PUBLIC_KEY = (process.env.NEXT_PUBLIC_REBILL_ACCOUNT_ROUTING_ENABLED === 'true' ? process.env.NEXT_PUBLIC_REBILL_NO_IVA_PUBLIC_KEY : process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY) ?? ''
 const REBILL_SDK_SRC = 'https://unpkg.com/rebill@1.17.28/dist/rebill/rebill.esm.js'
 const CHECKOUT_DISPLAY = JSON.stringify({ checkoutSummary: false, logo: false })
 const CHECKOUT_CSS = `

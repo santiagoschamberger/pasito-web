@@ -21,5 +21,5 @@ test('the shared Rebill webhook ignores subscription payments before merch routi
 test('payment verification falls back to the legacy Rebill account for existing purchases', () => {
   assert.match(rebillSource, /REBILL_LEGACY_SECRET_KEY/)
   assert.match(rebillSource, /response\.status === 404/)
-  assert.match(ordersSource, /await getRebillPayment\(paymentId\)/)
+  assert.match(ordersSource, /await getRebillPayment\(paymentId, undefined, req\)/)
 })

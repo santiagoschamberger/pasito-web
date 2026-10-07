@@ -8,20 +8,22 @@ import {
 } from '../lib/silver-event.ts'
 const source = (p: string) =>
   readFileSync(new URL('../' + p, import.meta.url), 'utf8')
-test('Silver uses its dedicated account for both checkout and verification', () => {
+test('Silver preserves its historic account and routes new checkout through the SIN_IVA flag', () => {
   const checkout = source('app/silver/SilverTicketCheckout.tsx')
   const server = source('lib/silver-rebill.ts')
   assert.match(checkout, /NEXT_PUBLIC_SILVER_REBILL_PUBLIC_KEY/)
+  assert.match(checkout, /NEXT_PUBLIC_REBILL_NO_IVA_PUBLIC_KEY/)
+  assert.match(server, /resolveRebillPayment/)
   assert.doesNotMatch(checkout, /process\.env\.NEXT_PUBLIC_REBILL_PUBLIC_KEY/)
   assert.match(server, /SILVER_REBILL_SECRET_KEY/)
   assert.doesNotMatch(server, /process\.env\.REBILL_SECRET_KEY|LEGACY/)
   assert.match(
     source('app/api/events/silver/orders/confirm/route.ts'),
-    /await getSilverRebillPayment\(paymentId\)/,
+    /await getSilverRebillPayment\(paymentId, intent.rebill_account, request\)/,
   )
   assert.match(
     source('app/api/rebill/webhook/[secret]/route.ts'),
-    /await getSilverRebillPayment\(payment.id\)/,
+    /await getSilverRebillPayment\(payment.id!, rebillRoutingEnabled\(\) \? webhookRebillAccount\(secret\) : undefined\)/,
   )
 })
 test('Silver receipts and signed tickets cannot route into the TOMATE event', () => {

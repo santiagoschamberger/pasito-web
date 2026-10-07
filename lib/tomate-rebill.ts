@@ -1,8 +1,12 @@
 import 'server-only'
+import { rebillRoutingEnabled, resolveRebillPayment, type RebillAccount } from './rebill-routing'
 
 const REBILL_API = 'https://api.rebill.com/v3'
 
 export type RebillPayment = {
+  rebillAccount?: RebillAccount
+  subscriptionId?: string | null
+  subscription_id?: string | null
   id?: string
   status?: string
   amount?: number | string
@@ -24,7 +28,8 @@ function getRebillSecretKeys() {
   return [...new Set([primaryKey, legacyKey].filter((value): value is string => Boolean(value)))]
 }
 
-export async function getRebillPayment(paymentId: string): Promise<RebillPayment> {
+export async function getRebillPayment(paymentId: string, expectedAccount?: unknown, request?: Request): Promise<RebillPayment> {
+  if (rebillRoutingEnabled()) return resolveRebillPayment(paymentId, expectedAccount, request)
   const secretKeys = getRebillSecretKeys()
   let lastStatus = 500
 

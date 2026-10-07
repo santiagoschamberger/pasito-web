@@ -1,3 +1,4 @@
+import { rebillRoutingEnabled, assertIntentAccount, checkOrderAccount, bindNewOrderAccount } from '@/lib/rebill-routing'
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
@@ -166,7 +167,7 @@ export async function POST(req: NextRequest) {
   // 1) Verificar el pago directamente con Rebill (fuente de verdad).
   let pay: RebillPayment
   try {
-    pay = await getRebillPayment(paymentId)
+    pay = await getRebillPayment(paymentId, undefined, req)
   } catch (err) {
     console.error('[orders] Error verificando pago:', err)
     return NextResponse.json({ error: 'No se pudo verificar el pago.' }, { status: 502 })
@@ -187,7 +188,7 @@ export async function POST(req: NextRequest) {
   const checkoutIntentId = typeof metadata?.checkoutIntentId === 'string' ? metadata.checkoutIntentId.trim() : null
   if (
     !metadata ||
-    metadata.catalogProductId !== REBILL_PRODUCT_REFERENCE ||
+    !(metadata.catalogProductId === REBILL_PRODUCT_REFERENCE || (rebillRoutingEnabled() && pay.rebillAccount === 'SIN_IVA' && metadata.catalogProductId === 'pasito-merchandise')) ||
     metadata.base !== base ||
     metadata.print !== print ||
     metadata.size !== size ||
@@ -204,6 +205,14 @@ export async function POST(req: NextRequest) {
 
   // 2) Confirmar la orden y descontar stock (atómico + idempotente).
   const db = getSupabase()
+  let accountIntent: {rebill_account?: unknown} = {}
+  if (rebillRoutingEnabled()) {
+    const intent = await db.from('tienda_checkout_intents').select('rebill_account').eq('id',checkoutIntentId).maybeSingle()
+    if (intent.error || !intent.data) return NextResponse.json({error:'No pudimos verificar la reserva.'},{status:503})
+    accountIntent = intent.data
+    try { assertIntentAccount(intent.data,pay) } catch { return NextResponse.json({error:'El pago no coincide con la cuenta de la reserva.'},{status:409}) }
+  }
+  try { await checkOrderAccount(db, 'tienda_orders',pay) } catch { return NextResponse.json({error:'No pudimos verificar la cuenta de la orden.'},{status:503}) }
   const { data: result, error } = await db.rpc('tienda_confirm_order_v3', {
     p_payment_id: paymentId,
     p_base: base,
@@ -247,6 +256,7 @@ export async function POST(req: NextRequest) {
     print === 'verde' ? 'Verde' : 'Blanca'
   }`
 
+  try { await bindNewOrderAccount(db, 'tienda_orders', pay, accountIntent) } catch { return NextResponse.json({error:'La compra requiere volver a verificar su cuenta.'},{status:503}) }
   const { data: rawConfirmedOrder, error: orderReadError } = await db
     .from('tienda_orders')
     .select('id, email, customer_name, delivery, confirmation_email_sent_at, shipping_address_line1, shipping_address_line2, shipping_city, shipping_province, shipping_postal_code, shipping_phone, shipping_notes')

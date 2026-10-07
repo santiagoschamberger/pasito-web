@@ -16,7 +16,7 @@ import styles from './tienda.module.css'
  * con NEXT_PUBLIC_REBILL_PUBLIC_KEY.
  * OJO: PRICE / SHIPPING / CURRENCY deben coincidir con app/api/orders/route.ts
  * ──────────────────────────────────────────────────────────────────────── */
-const REBILL_PUBLIC_KEY = process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY ?? ''
+const REBILL_PUBLIC_KEY = (process.env.NEXT_PUBLIC_REBILL_ACCOUNT_ROUTING_ENABLED === 'true' ? process.env.NEXT_PUBLIC_REBILL_NO_IVA_PUBLIC_KEY : process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY) ?? ''
 
 // Loader de los web components de Rebill vía CDN (no toca package.json).
 const REBILL_SDK_SRC = 'https://unpkg.com/rebill@1.17.28/dist/rebill/rebill.esm.js'
@@ -529,7 +529,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
     amount: total, // incluye envío
     currency: CURRENCY,
     metadata: {
-      catalogProductId: REBILL_PRODUCT_REFERENCE,
+      catalogProductId: process.env.NEXT_PUBLIC_REBILL_ACCOUNT_ROUTING_ENABLED === 'true' ? 'pasito-merchandise' : REBILL_PRODUCT_REFERENCE,
       base: base.id,
       print: base.print.id,
       size,

@@ -1,3 +1,4 @@
+import { assertRebillCheckoutReady, rebillRoutingEnabled } from '@/lib/rebill-routing'
 import 'server-only'
 
 import { createHash, randomBytes, randomUUID } from 'node:crypto'
@@ -38,6 +39,7 @@ export type ClubOrderBundle = {
 }
 
 export type ClubIntent = {
+  rebill_account?: unknown
   id: string
   quantity: number
   amount: number
@@ -130,6 +132,7 @@ const supabaseStore: ClubStore = {
     }))
   },
   async reserve(input) {
+    assertRebillCheckoutReady()
     const { data, error } = await getTomateSupabase().rpc('pasito_club_reserve_pack', {
       p_event_slug: PASITO_CLUB_EVENT.slug,
       p_tier_ids: input.tierIds,
@@ -144,7 +147,15 @@ const supabaseStore: ClubStore = {
       p_client_ip_hash: input.clientIpHash,
     })
     if (error) throw error
-    return (data ?? {}) as ReserveResult
+    const result = (data ?? {}) as ReserveResult
+    if (rebillRoutingEnabled() && result.status === 'reserved' && result.intentId) {
+      const bound = await getTomateSupabase().from('event_checkout_intents').update({ rebill_account: 'SIN_IVA' }).eq('id',result.intentId).select('id').single()
+      if (bound.error) {
+        await getTomateSupabase().rpc('event_cancel_ticket_reservation',{p_intent_id:result.intentId})
+        throw bound.error
+      }
+    }
+    return result
   },
   async cancel(intentId) {
     const { data, error } = await getTomateSupabase().rpc('event_cancel_ticket_reservation', { p_intent_id: intentId })
@@ -153,7 +164,7 @@ const supabaseStore: ClubStore = {
   },
   async loadIntent(intentId) {
     const { data, error } = await getTomateSupabase().from('event_checkout_intents')
-      .select('id, quantity, amount, currency, status')
+      .select('id, quantity, amount, currency, status' + (rebillRoutingEnabled() ? ', rebill_account' : ''))
       .eq('id', intentId)
       .eq('event_slug', PASITO_CLUB_EVENT.slug)
       .maybeSingle()
