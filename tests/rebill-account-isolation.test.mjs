@@ -1,12 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { createRequire } from 'node:module'
 import { readFileSync } from 'node:fs'
 import ts from 'typescript'
+const nodeRequire = createRequire(import.meta.url)
 function fixture(replies, overrides={}) {
   const env={NEXT_PUBLIC_REBILL_ACCOUNT_ROUTING_ENABLED:'true',NEXT_PUBLIC_REBILL_NO_IVA_PUBLIC_KEY:'public-fixture',REBILL_NO_IVA_SECRET_KEY:'sin-fixture',REBILL_SECRET_KEY:'con-fixture',REBILL_WEBHOOK_SECRET:'sin-route',REBILL_NEW_WEBHOOK_SECRET:'con-route',...overrides}
   const calls=[];const client={}
   const {outputText}=ts.transpileModule(readFileSync(new URL('../lib/rebill-routing.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}})
-  new Function('require','exports','process','fetch',outputText)((mod)=>mod==='node:crypto'||mod==='crypto'?require('node:crypto'):{},client,{env},async(url,options)=>{calls.push({url,...options});assert.ok(replies.length,'Unexpected provider request');return replies.shift()})
+  new Function('require','exports','process','fetch',outputText)((mod)=>mod==='node:crypto'||mod==='crypto'?nodeRequire('node:crypto'):{},client,{env},async(url,options)=>{calls.push({url,...options});assert.ok(replies.length,'Unexpected provider request');return replies.shift()})
   return {client,calls}
 }
 const payment={id:'pay_same',amount:'100.50',currency:'ARS',status:'approved',metadata:{checkoutIntentId:'intent-fixture'}}
