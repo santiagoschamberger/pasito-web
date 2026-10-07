@@ -1,3 +1,5 @@
+import { getTomateSupabase } from '@/lib/tomate-server'
+import { assertIntentAccount, checkOrderAccount, bindNewOrderAccount } from '@/lib/rebill-routing'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { EmailDeliveryError, emailDeliveryErrorMessage, retryEmailDelivery } from '@/lib/email-retry'
@@ -46,11 +48,12 @@ export async function POST(request: NextRequest) {
     const fakePayment = testPayment(paymentId, intent)
     let payment: RebillPayment
     try {
-      payment = fakePayment ?? await getRebillPayment(paymentId)
+      payment = fakePayment ?? await getRebillPayment(paymentId, intent.rebill_account, request)
     } catch (error) {
       console.error('[pasito-club/orders] Rebill no pudo verificar el pago:', error)
       return NextResponse.json({ error: 'No pudimos verificar el pago todavía.' }, { status: 502, headers })
     }
+    assertIntentAccount(intent, payment)
     if (payment.status !== 'approved') {
       return NextResponse.json({ error: 'El pago todavía no está aprobado.' }, { status: 402, headers })
     }
@@ -73,12 +76,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'La compra no tiene un email válido para enviar las entradas.' }, { status: 409, headers })
     }
 
+    if (!fakePayment) await checkOrderAccount(getTomateSupabase(), 'event_ticket_orders', payment)
     const result = await store.confirm(intent, paymentId, email, rebillCustomerName(payment))
     if (result.status !== 'confirmed' && result.status !== 'duplicate') {
       const status = result.status === 'amount_mismatch' ? 400 : 409
       return NextResponse.json({ error: 'El pago fue recibido, pero la reserva requiere revisión.', result: result.status }, { status, headers })
     }
 
+    if (!fakePayment) await bindNewOrderAccount(getTomateSupabase(), 'event_ticket_orders', payment, intent)
     const bundle = await store.loadOrderByIntent(intent.id)
     if (!bundle) throw new Error('No se encontró la orden confirmada.')
     const origin = requestOrigin(request)

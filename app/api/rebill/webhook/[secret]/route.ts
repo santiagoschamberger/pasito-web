@@ -1,3 +1,5 @@
+import { recoverRebillPayments } from '@/lib/rebill-recovery'
+import { rebillRoutingEnabled, webhookRebillAccount, resolveRebillPayment, bindVerifiedPayment, checkOrderAccount } from '@/lib/rebill-routing'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { POST as confirmStoreOrder } from '../../../orders/route'
@@ -11,7 +13,10 @@ import { SILVER_EVENT } from '@/lib/silver-event'
 import { getRebillPayment, normalizeRebillStatus } from '@/lib/tomate-rebill'
 import { getTomateSupabase } from '@/lib/tomate-server'
 
+export const maxDuration = 120
+
 type WebhookPayload = {
+  recoveryOffset?: number
   data?: {
     payment?: {
       id?: string
@@ -70,20 +75,45 @@ export async function POST(request: NextRequest, context: { params: Promise<{ se
   }
 
   const event = payload.webhook?.event
+  if (rebillRoutingEnabled() && event === 'payments.reconcile') {
+    try {
+      const account=webhookRebillAccount(secret)
+      if(!account) return new NextResponse(null,{status:404})
+      const result=await recoverRebillPayments(account,payload.recoveryOffset ?? 0,async paymentId => {
+        const replay=new NextRequest(request.url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({webhook:{event:'payment.updated'},data:{payment:{id:paymentId}}})})
+        return POST(replay,context)
+      })
+      return NextResponse.json(result)
+    } catch {
+      return NextResponse.json({error:'La recuperación requiere reintento o revisión.'},{status:503})
+    }
+  }
   if (event !== 'payment.created' && event !== 'payment.updated') return new NextResponse(null, { status: 204 })
 
-  const payment = payload.data?.payment ?? payload.data
+  let payment = payload.data?.payment ?? payload.data
   if (!payment?.id) return new NextResponse(null, { status: 204 })
+  if (rebillRoutingEnabled()) {
+    try {
+      const account = webhookRebillAccount(secret)
+      if (!account) return new NextResponse(null,{status:404})
+      // The unsigned callback only supplies an identifier. Branch, status and
+      // metadata come from the authoritative API for the authenticated route.
+      payment = await resolveRebillPayment(payment.id,account)
+    } catch {
+      return NextResponse.json({error:'No pudimos verificar la cuenta del pago.'},{status:503})
+    }
+  }
 
   const subscriptionId = payment.subscriptionId
     ?? payment.subscription_id
-    ?? payload.data?.subscriptionId
-    ?? payload.data?.subscription_id
+    ?? (rebillRoutingEnabled() ? undefined : payload.data?.subscriptionId)
+    ?? (rebillRoutingEnabled() ? undefined : payload.data?.subscription_id)
   if (subscriptionId) return new NextResponse(null, { status: 204 })
 
   const metadata = payment.metadata
   if (metadata?.eventSlug === TOMATE_EVENT.slug) {
     const intentId = typeof metadata.checkoutIntentId === 'string' ? metadata.checkoutIntentId : ''
+    if (rebillRoutingEnabled() && payment.status === 'approved' && !intentId) return NextResponse.json({error:'El pago necesita identificar su reserva.'},{status:503})
 
     if (payment.status === 'approved' && intentId) {
       const orderRequest = new NextRequest(new URL('/api/events/tomate/orders/confirm', request.url), {
@@ -91,8 +121,10 @@ export async function POST(request: NextRequest, context: { params: Promise<{ se
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ paymentId: payment.id, intentId }),
       })
+      if (rebillRoutingEnabled()) bindVerifiedPayment(orderRequest, payment)
       const orderResponse = await confirmTomateOrder(orderRequest)
       if (orderResponse.status >= 500) return orderResponse
+      if (rebillRoutingEnabled() && !orderResponse.ok) return NextResponse.json({error:'La orden requiere revisión.'},{status:503})
       if (await hasPendingEmail(orderResponse)) return pendingEmailResponse()
       return NextResponse.json({ ok: true })
     }
@@ -101,11 +133,12 @@ export async function POST(request: NextRequest, context: { params: Promise<{ se
     // Re-read Rebill before voiding a QR so the unsigned webhook is never the
     // source of truth.
     try {
-      const verified = await getRebillPayment(payment.id)
+      const verified = await getRebillPayment(payment.id!, rebillRoutingEnabled() ? webhookRebillAccount(secret) : undefined)
       if (verified.metadata?.eventSlug !== TOMATE_EVENT.slug) return new NextResponse(null, { status: 204 })
       const status = normalizeRebillStatus(verified.status)
       if (!status || status === 'approved') return new NextResponse(null, { status: 204 })
 
+      await checkOrderAccount(getTomateSupabase(),'event_ticket_orders',verified)
       const { error } = await getTomateSupabase().rpc('event_update_order_payment', {
         p_payment_id: payment.id,
         p_payment_status: status,
@@ -120,6 +153,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ se
 
   if (metadata?.eventSlug === SILVER_EVENT.slug) {
     const intentId = typeof metadata.checkoutIntentId === 'string' ? metadata.checkoutIntentId : ''
+    if (rebillRoutingEnabled() && payment.status === 'approved' && !intentId) return NextResponse.json({error:'El pago necesita identificar su reserva.'},{status:503})
 
     if (payment.status === 'approved' && intentId) {
       const orderRequest = new NextRequest(new URL('/api/events/silver/orders/confirm', request.url), {
@@ -127,18 +161,21 @@ export async function POST(request: NextRequest, context: { params: Promise<{ se
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ paymentId: payment.id, intentId }),
       })
+      if (rebillRoutingEnabled()) bindVerifiedPayment(orderRequest, payment)
       const orderResponse = await confirmSilverOrder(orderRequest)
       if (orderResponse.status >= 500) return orderResponse
+      if (rebillRoutingEnabled() && !orderResponse.ok) return NextResponse.json({error:'La orden requiere revisión.'},{status:503})
       if (await hasPendingEmail(orderResponse)) return pendingEmailResponse()
       return NextResponse.json({ ok: true })
     }
 
     try {
-      const verified = await getSilverRebillPayment(payment.id)
+      const verified = await getSilverRebillPayment(payment.id!, rebillRoutingEnabled() ? webhookRebillAccount(secret) : undefined)
       if (verified.metadata?.eventSlug !== SILVER_EVENT.slug) return new NextResponse(null, { status: 204 })
       const status = normalizeRebillStatus(verified.status)
       if (!status || status === 'approved') return new NextResponse(null, { status: 204 })
 
+      await checkOrderAccount(getTomateSupabase(),'event_ticket_orders',verified)
       const { error } = await getTomateSupabase().rpc('event_update_order_payment', {
         p_payment_id: payment.id,
         p_payment_status: status,
@@ -153,6 +190,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ se
 
   if (metadata?.eventSlug === PASITO_CLUB_EVENT.slug) {
     const intentId = typeof metadata.checkoutIntentId === 'string' ? metadata.checkoutIntentId : ''
+    if (rebillRoutingEnabled() && payment.status === 'approved' && !intentId) return NextResponse.json({error:'El pago necesita identificar su reserva.'},{status:503})
 
     if (payment.status === 'approved' && intentId) {
       const orderRequest = new NextRequest(new URL('/api/pasito-club/orders/confirm', request.url), {
@@ -160,18 +198,21 @@ export async function POST(request: NextRequest, context: { params: Promise<{ se
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ paymentId: payment.id, intentId }),
       })
+      if (rebillRoutingEnabled()) bindVerifiedPayment(orderRequest, payment)
       const orderResponse = await confirmPasitoClubOrder(orderRequest)
       if (orderResponse.status >= 500) return orderResponse
+      if (rebillRoutingEnabled() && !orderResponse.ok) return NextResponse.json({error:'La orden requiere revisión.'},{status:503})
       if (await hasPendingEmail(orderResponse)) return pendingEmailResponse()
       return NextResponse.json({ ok: true })
     }
 
     try {
-      const verified = await getRebillPayment(payment.id)
+      const verified = await getRebillPayment(payment.id!, rebillRoutingEnabled() ? webhookRebillAccount(secret) : undefined)
       if (verified.metadata?.eventSlug !== PASITO_CLUB_EVENT.slug) return new NextResponse(null, { status: 204 })
       const status = normalizeRebillStatus(verified.status)
       if (!status || status === 'approved') return new NextResponse(null, { status: 204 })
 
+      await checkOrderAccount(getTomateSupabase(),'event_ticket_orders',verified)
       const { error } = await getTomateSupabase().rpc('event_update_order_payment', {
         p_payment_id: payment.id,
         p_payment_status: status,
@@ -203,11 +244,13 @@ export async function POST(request: NextRequest, context: { params: Promise<{ se
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ paymentId: payment.id, base, print, size, qty, delivery, pickupLocation }),
   })
+  if (rebillRoutingEnabled()) bindVerifiedPayment(orderRequest, payment)
   const orderResponse = await confirmStoreOrder(orderRequest)
 
   // Rebill reintenta fallos 5xx. Los 4xx son inconsistencias que requieren
   // revisión humana y se confirman para no generar una cola infinita.
   if (orderResponse.status >= 500) return orderResponse
+  if (rebillRoutingEnabled() && !orderResponse.ok) return NextResponse.json({error:'La orden requiere revisión.'},{status:503})
   if (await hasPendingEmail(orderResponse)) return pendingEmailResponse()
   return NextResponse.json({ ok: true })
 }

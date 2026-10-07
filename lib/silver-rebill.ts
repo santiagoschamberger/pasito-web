@@ -1,9 +1,11 @@
 import 'server-only'
+import { rebillRoutingEnabled, resolveRebillPayment } from './rebill-routing'
 import type { RebillPayment } from './tomate-rebill'
 
 export async function getSilverRebillPayment(
-  paymentId: string,
+  paymentId: string, expectedAccount?: unknown, request?: Request,
 ): Promise<RebillPayment> {
+  if (rebillRoutingEnabled()) return resolveRebillPayment(paymentId, expectedAccount, request)
   const key = process.env.SILVER_REBILL_SECRET_KEY?.trim()
   if (!key) throw new Error('Falta SILVER_REBILL_SECRET_KEY.')
   const response = await fetch(

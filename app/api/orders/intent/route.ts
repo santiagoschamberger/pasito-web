@@ -1,3 +1,4 @@
+import { assertRebillCheckoutReady, rebillRoutingEnabled } from '@/lib/rebill-routing'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
 
   let body: Record<string, unknown>
   try {
+    assertRebillCheckoutReady()
     body = await req.json()
   } catch {
     return NextResponse.json({ error: 'Datos de envío inválidos.' }, { status: 400 })
@@ -82,6 +84,7 @@ export async function POST(req: NextRequest) {
   const { data: intent, error } = await db
     .from('tienda_checkout_intents')
     .insert({
+      ...(rebillRoutingEnabled() ? { rebill_account: 'SIN_IVA' } : {}),
       base,
       print,
       size,

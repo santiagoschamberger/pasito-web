@@ -1,3 +1,4 @@
+import { assertRebillCheckoutReady, rebillRoutingEnabled } from '@/lib/rebill-routing'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { SILVER_EVENT, SILVER_EVENT_TERMS_VERSION, type TicketBreakdown } from '@/lib/silver-event'
@@ -40,6 +41,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    assertRebillCheckoutReady()
     const identity = silverCheckoutIdentity(request)
     const db = getTomateSupabase()
     const { data, error } = await db.rpc('event_reserve_tickets', {
@@ -69,6 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { error: acceptanceError } = await db.from('event_checkout_intents').update({
+      ...(rebillRoutingEnabled() && result.amount! > 0 ? { rebill_account: 'SIN_IVA' } : {}),
       terms_accepted_at: new Date().toISOString(),
       terms_version: SILVER_EVENT_TERMS_VERSION,
     }).eq('id', result.intentId).select('id').single()

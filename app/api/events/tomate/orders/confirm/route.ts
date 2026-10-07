@@ -1,3 +1,4 @@
+import { rebillRoutingEnabled, assertIntentAccount, checkOrderAccount, bindNewOrderAccount } from '@/lib/rebill-routing'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { TOMATE_EVENT, type EventTicket } from '@/lib/tomate-event'
@@ -23,6 +24,7 @@ type ConfirmResult = {
 }
 
 type IntentRow = {
+  rebill_account?: unknown
   id: string
   event_slug: string
   quantity: number
@@ -122,7 +124,7 @@ export async function POST(request: NextRequest) {
   try {
     const { data: rawIntent, error: intentError } = await db
       .from('event_checkout_intents')
-      .select('id, event_slug, quantity, amount, currency')
+      .select<string, IntentRow>('id, event_slug, quantity, amount, currency' + (rebillRoutingEnabled() ? ', rebill_account' : ''))
       .eq('id', intentId)
       .eq('event_slug', TOMATE_EVENT.slug)
       .maybeSingle()
@@ -132,12 +134,13 @@ export async function POST(request: NextRequest) {
 
     let payment: RebillPayment
     try {
-      payment = e2ePayment(paymentId, intent) ?? await getRebillPayment(paymentId)
+      payment = e2ePayment(paymentId, intent) ?? await getRebillPayment(paymentId, intent.rebill_account, request)
     } catch (error) {
       console.error('[tomate/orders] Rebill no pudo verificar el pago:', error)
       return NextResponse.json({ error: 'No pudimos verificar el pago todavía.' }, { status: 502 })
     }
 
+    assertIntentAccount(intent, payment)
     if (payment.status !== 'approved') {
       return NextResponse.json({ error: 'El pago todavía no está aprobado.' }, { status: 402 })
     }
@@ -158,6 +161,7 @@ export async function POST(request: NextRequest) {
     }
     const customerName = rebillCustomerName(payment)
 
+    await checkOrderAccount(db, 'event_ticket_orders', payment)
     const { data, error } = await db.rpc('event_confirm_ticket_order', {
       p_intent_id: intent.id,
       p_payment_id: paymentId,
@@ -173,6 +177,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'El pago fue recibido, pero la reserva requiere revisión.', result: result.status }, { status })
     }
 
+    await bindNewOrderAccount(db, 'event_ticket_orders', payment, intent)
     const bundle = await loadOrder(paymentId)
     const origin = requestOrigin(request)
     const claimToken = createPasitosClaimToken(bundle.order.id)
