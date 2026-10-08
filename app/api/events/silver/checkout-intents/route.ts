@@ -1,4 +1,4 @@
-import { assertRebillCheckoutReady, rebillRoutingEnabled } from '@/lib/rebill-routing'
+import { assertRebillCheckoutReady, rebillRoutingEnabled, assertClientRebillAccount } from '@/lib/rebill-routing'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { SILVER_EVENT, SILVER_EVENT_TERMS_VERSION, type TicketBreakdown } from '@/lib/silver-event'
@@ -21,11 +21,26 @@ type ReservationResult = {
 }
 
 export async function POST(request: NextRequest) {
-  let body: { quantity?: unknown; promoCode?: unknown; termsAccepted?: unknown }
+  let body: { quantity?: unknown; promoCode?: unknown; termsAccepted?: unknown; clientRebillAccount?: unknown }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: 'Pedido inválido.' }, { status: 400 })
+  }
+
+  // Verify client Rebill account matches server expectation to prevent stale tabs
+  try {
+    assertClientRebillAccount(body.clientRebillAccount, 'SIN_IVA')
+  } catch (error) {
+    const message = error instanceof Error ? error.message : ''
+    if (message === 'STALE_TAB_DETECTED') {
+      console.error('[silver/checkout-intents] Stale tab detected:', { clientRebillAccount: body.clientRebillAccount })
+      return NextResponse.json({ 
+        error: 'La página se actualizó. Recargá para continuar con tu compra.',
+        needsReload: true,
+      }, { status: 409 })
+    }
+    return NextResponse.json({ error: 'No pudimos verificar la configuración del checkout.' }, { status: 400 })
   }
 
   const quantity = Number(body.quantity)

@@ -11,6 +11,7 @@ import {
   type TicketBreakdown,
   type TicketInventoryTier,
 } from '@/lib/tomate-event'
+import { getClientRebillAccount } from '@/lib/rebill-client'
 import styles from './tomate.module.css'
 
 const REBILL_PUBLIC_KEY = (process.env.NEXT_PUBLIC_REBILL_ACCOUNT_ROUTING_ENABLED === 'true' ? process.env.NEXT_PUBLIC_REBILL_NO_IVA_PUBLIC_KEY : process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY) ?? ''
@@ -237,10 +238,20 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
       const response = await fetch('/api/events/tomate/checkout-intents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quantity, promoCode, termsAccepted }),
+        body: JSON.stringify({ 
+          quantity, 
+          promoCode, 
+          termsAccepted,
+          clientRebillAccount: getClientRebillAccount(),
+        }),
       })
-      const payload = await response.json().catch(() => ({})) as Quote & { error?: string }
-      if (!response.ok || !payload.intentId) throw new Error(payload.error || 'No pudimos reservar las entradas.')
+      const payload = await response.json().catch(() => ({})) as Quote & { error?: string; needsReload?: boolean }
+      if (!response.ok || !payload.intentId) {
+        if (payload.needsReload) {
+          throw new Error('La página se actualizó. Recargá para continuar con tu compra.')
+        }
+        throw new Error(payload.error || 'No pudimos reservar las entradas.')
+      }
       setQuote(payload)
       setPaymentReceived(false)
       setConfirmation(null)
