@@ -8,6 +8,7 @@ import {
   normalizeShippingAddress,
   type ShippingAddress,
 } from '@/lib/store-shipping'
+import { getClientRebillAccount } from '@/lib/rebill-client'
 import styles from './tienda.module.css'
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -441,10 +442,14 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
           size,
           qty,
           address,
+          clientRebillAccount: getClientRebillAccount(),
         }),
       })
-      const payload = await response.json().catch(() => ({})) as { checkoutIntentId?: string; error?: string }
+      const payload = await response.json().catch(() => ({})) as { checkoutIntentId?: string; error?: string; needsReload?: boolean }
       if (!response.ok || !payload.checkoutIntentId) {
+        if (payload.needsReload) {
+          throw new Error('La página se actualizó. Recargá para continuar con tu compra.')
+        }
         throw new Error(payload.error || 'No pudimos guardar la dirección. Probá de nuevo.')
       }
       nextIntentId = payload.checkoutIntentId

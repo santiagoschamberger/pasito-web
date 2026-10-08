@@ -75,7 +75,10 @@ export async function resolveRebillPayment(paymentId: string, expectedAccount?: 
 // bindings are read-only: ownership must be proven using the provider.
 export function assertIntentAccount(intent: {rebill_account?: unknown}, payment: RebillPayment) {
   if (!rebillRoutingEnabled()) return
-  if (intent.rebill_account != null && intent.rebill_account !== payment.rebillAccount) throw new Error('El pago pertenece a otra cuenta que la reserva.')
+  if (intent.rebill_account != null && intent.rebill_account !== payment.rebillAccount) {
+    console.error('[rebill-routing] ACCOUNT_MISMATCH: Intent routed to', intent.rebill_account, 'but payment charged to', payment.rebillAccount, '(payment', payment.id, ')')
+    throw new Error('El pago pertenece a otra cuenta que la reserva.')
+  }
 }
 
 export async function checkOrderAccount(
@@ -85,7 +88,14 @@ export async function checkOrderAccount(
   if (!rebillRoutingEnabled()) return
   const row=await db.from(table).select('rebill_account').eq('rebill_payment_id',payment.id).maybeSingle()
   if (row.error) throw new Error('No pudimos verificar la cuenta de la orden.')
-  if (row.data) assertIntentAccount(row.data,payment)
+  if (row.data) {
+    try {
+      assertIntentAccount(row.data,payment)
+    } catch (error) {
+      console.error('[rebill-routing] WEBHOOK_ACCOUNT_MISMATCH: Order recorded for', row.data.rebill_account, 'but payment received on', payment.rebillAccount, '(payment', payment.id, ')')
+      throw error
+    }
+  }
 }
 export async function bindNewOrderAccount(
   db: import('@supabase/supabase-js').SupabaseClient,
@@ -100,4 +110,49 @@ export async function bindNewOrderAccount(
   const result=await db.from(table).update({rebill_account:payment.rebillAccount})
     .eq('rebill_payment_id',payment.id).is('rebill_account',null)
   if (result.error) throw new Error('No pudimos guardar la cuenta de la orden.')
+}
+
+/**
+ * Verify that the client's Rebill account (from the bundle it was built with)
+ * matches the account the server would route this checkout to.
+ * 
+ * This prevents stale browser tabs with old Rebill keys from creating intents
+ * that would be charged to the wrong account.
+ * 
+ * @param clientAccount - The Rebill account the client was built for (from getClientRebillAccount)
+ * @param expectedAccount - The account this checkout should use ('SIN_IVA' by default)
+ * @throws Error with a user-facing message if there's a mismatch or the field is missing
+ */
+export function assertClientRebillAccount(
+  clientAccount: unknown,
+  expectedAccount: RebillAccount = 'SIN_IVA',
+): void {
+  if (!rebillRoutingEnabled()) {
+    // Routing disabled: no check needed (legacy mode)
+    return
+  }
+
+  // Normalize and validate the client account value
+  const normalizedClient = typeof clientAccount === 'string' ? clientAccount.trim() : ''
+  
+  if (!normalizedClient) {
+    // Missing client account: this is a stale tab from before the guard was deployed.
+    // We reject it to ensure the buyer reloads and gets the latest code with the correct key.
+    throw new Error('STALE_TAB_DETECTED')
+  }
+
+  if (!['SIN_IVA', 'CON_IVA', 'SILVER_LEGACY'].includes(normalizedClient)) {
+    // Invalid account value
+    throw new Error('INVALID_CLIENT_ACCOUNT')
+  }
+
+  if (normalizedClient !== expectedAccount) {
+    // Mismatch: the client was built for a different account than the server expects.
+    // This happens when a browser tab was loaded with an old build that had a different
+    // Rebill public key, then the deployment switched accounts.
+    console.error(`[rebill-routing] Client/server account mismatch: client=${normalizedClient}, expected=${expectedAccount}`)
+    throw new Error('STALE_TAB_DETECTED')
+  }
+
+  // Match: proceed with checkout
 }

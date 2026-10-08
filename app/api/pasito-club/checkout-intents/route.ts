@@ -18,16 +18,33 @@ import {
   pasitoClubCheckoutIdentity,
   pasitoClubStore,
 } from '@/lib/pasito-club-server'
+import { assertClientRebillAccount } from '@/lib/rebill-routing'
 import { createIntentToken } from '@/lib/tomate-ticket-security'
 
 const headers = { 'Cache-Control': 'no-store, max-age=0' }
 
 export async function POST(request: NextRequest) {
-  let body: { packSize?: unknown; positions?: unknown; email?: unknown; phone?: unknown; termsAccepted?: unknown }
+  let body: { packSize?: unknown; positions?: unknown; email?: unknown; phone?: unknown; termsAccepted?: unknown; clientRebillAccount?: unknown }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: 'Pedido inválido.' }, { status: 400, headers })
+  }
+
+  // Verify client Rebill account matches server expectation to prevent stale tabs
+  try {
+    assertClientRebillAccount(body.clientRebillAccount, 'SIN_IVA')
+  } catch (error) {
+    const message = error instanceof Error ? error.message : ''
+    if (message === 'STALE_TAB_DETECTED') {
+      console.error('[pasito-club/checkout-intents] Stale tab detected:', { clientRebillAccount: body.clientRebillAccount })
+      return NextResponse.json({ 
+        error: 'La página se actualizó. Recargá para continuar con tu compra.',
+        needsReload: true,
+      }, { status: 409, headers })
+    }
+    // Other validation errors fall through to generic error handling
+    return NextResponse.json({ error: 'No pudimos verificar la configuración del checkout.' }, { status: 400, headers })
   }
 
   if (PASITO_CLUB_EVENT.salesClosed) {

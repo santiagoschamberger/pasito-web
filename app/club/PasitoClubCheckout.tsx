@@ -19,6 +19,7 @@ import {
   trainingIsUpcoming,
   type DateInventory,
 } from '@/lib/pasito-club-event'
+import { getClientRebillAccount } from '@/lib/rebill-client'
 import styles from './club.module.css'
 
 const REBILL_PUBLIC_KEY = (process.env.NEXT_PUBLIC_REBILL_ACCOUNT_ROUTING_ENABLED === 'true' ? process.env.NEXT_PUBLIC_REBILL_NO_IVA_PUBLIC_KEY : process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY) ?? ''
@@ -300,13 +301,23 @@ export function PasitoClubCheckout({ mockCheckout = false }: { mockCheckout?: bo
       const response = await fetch('/api/pasito-club/checkout-intents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ packSize: pack.size, positions: selected, email: email.trim(), phone, termsAccepted }),
+        body: JSON.stringify({ 
+          packSize: pack.size, 
+          positions: selected, 
+          email: email.trim(), 
+          phone, 
+          termsAccepted,
+          clientRebillAccount: getClientRebillAccount(),
+        }),
       })
-      const payload = await response.json().catch(() => ({})) as Quote & { error?: string; soldOutPositions?: number[] }
+      const payload = await response.json().catch(() => ({})) as Quote & { error?: string; soldOutPositions?: number[]; needsReload?: boolean }
       if (!response.ok || !payload.intentId) {
         if (payload.soldOutPositions?.length) {
           setTouchedDates(true)
           setSelected((current) => current.filter((position) => !payload.soldOutPositions!.includes(position)))
+        }
+        if (payload.needsReload) {
+          throw new Error('La página se actualizó. Recargá para continuar con tu compra.')
         }
         throw new Error(payload.error || 'No pudimos reservar tu lugar.')
       }
