@@ -1,7 +1,7 @@
 export const WALKING_CLUB_UY_EVENT = {
   slug: 'pasito-walking-club-uy-2026',
   name: 'Pasito Walking Club',
-  dateLabel: 'Sábado 10 de octubre de 2026',
+  dateLabel: 'Domingo 25 de octubre de 2026',
   timeLabel: '10:30 a 15:00',
   venueLabel: 'Casa Fauno, Parque Rodó',
   currency: 'UYU',

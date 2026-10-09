@@ -35,12 +35,12 @@ const SCHEDULE = [
   {
     time: '10:30 - 11:00',
     title: 'Acreditación en Rambla Pdte. Wilson y Bulevar Artigas',
-    detail: 'Encuentro del grupo, acreditación y encuentro del grupo.',
+    detail: 'Encuentro del grupo, acreditación y entrega del welcome kit.',
     icon: Footprints,
   },
   {
     time: '11:00 - 12:00',
-    title: 'Caminata liderada por Fit Jeff',
+    title: 'Caminata grupal',
     detail: 'Una caminata grupal por la rambla y Parque Rodó para empezar el día en movimiento.',
     icon: Footprints,
   },
@@ -52,7 +52,7 @@ const SCHEDULE = [
   },
   {
     time: '12:10 - 12:30',
-    title: 'Yoga x (estudio a confirmar)',
+    title: 'Clase de Yoga',
     detail: 'Un momento para respirar y volver al cuerpo.',
     icon: Sparkles,
   },
@@ -98,7 +98,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = requestHeaders.get('x-forwarded-host') || requestHeaders.get('host') || 'www.pasito.app'
   const protocol = requestHeaders.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https')
   const origin = `${protocol}://${host}`
-  const title = 'Pasito Walking Club - Uruguay, 10 de octubre'
+  const title = 'Pasito Walking Club - Uruguay, 25 de octubre'
   const currentTier = WALKING_CLUB_UY_TICKET_TIERS.find((tier) => !tier.soldOut)
   const description = currentTier
     ? `10.000 pasos y un brunch a cielo abierto. El primer encuentro presencial de Pasito en Uruguay. Entradas desde ${walkingClubUyMoney(currentTier.unitPrice)}.`
@@ -119,7 +119,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: `${origin}/walking-club-uy/casa-fauno-preview.jpg`,
           width: 961,
           height: 978,
-          alt: 'Pasito Walking Club, sábado 10 de octubre en Casa Fauno, Parque Rodó',
+          alt: 'Pasito Walking Club, domingo 25 de octubre en Casa Fauno, Parque Rodó',
         },
       ],
     },
@@ -225,7 +225,7 @@ export default async function WalkingClubUyPage() {
             <div className={styles.heroFacts} aria-label="Datos principales del evento">
               <div>
                 <CalendarDays size={19} aria-hidden="true" />
-                <span><strong>Sábado 10 de octubre</strong><small>2026</small></span>
+                <span><strong>Domingo 25 de octubre</strong><small>2026</small></span>
               </div>
               <div>
                 <Clock3 size={19} aria-hidden="true" />
@@ -276,7 +276,7 @@ export default async function WalkingClubUyPage() {
       <section className={styles.scheduleSection} id="agenda">
         <div className={`${styles.container} ${styles.scheduleLayout}`}>
           <div className={styles.scheduleIntro}>
-            <p className={styles.overline}>Sábado 10 de octubre</p>
+            <p className={styles.overline}>Domingo 25 de octubre</p>
             <h2>De la caminata<br /><span>al DJ set.</span></h2>
             <p>Primero nos movemos. Después compartimos el brunch, las experiencias y la música, sin apuro y en un solo lugar.</p>
           </div>
@@ -303,8 +303,20 @@ export default async function WalkingClubUyPage() {
           <div className={styles.ticketCopy}>
             <p className={styles.overline}>Cupos limitados</p>
             <h2>Tu entrada<br /><span>incluye todo.</span></h2>
-            <p>Welcome kit, caminata, stretch, yoga, charlas y experiencias, brunch en Casa Fauno, música y DJ set.</p>
+            <p>Welcome kit, caminata, stretch, clase de yoga, almuerzo en Casa Fauno, juegos, música y DJ set. Todo incluido, sin costos extra.</p>
             <ul className={styles.ticketPerks} aria-label="Beneficios incluidos con la entrada">
+              <li>
+                <Gift size={19} aria-hidden="true" />
+                <span><strong>Welcome kit</strong><small>Kit con regalos de marcas aliadas.</small></span>
+              </li>
+              <li>
+                <Utensils size={19} aria-hidden="true" />
+                <span><strong>Almuerzo incluido</strong><small>Brunch en Casa Fauno con comida y bebida.</small></span>
+              </li>
+              <li>
+                <Footprints size={19} aria-hidden="true" />
+                <span><strong>Todas las actividades</strong><small>Caminata, stretch, yoga, juegos y DJ set.</small></span>
+              </li>
               <li>
                 <Sparkles size={19} aria-hidden="true" />
                 <span><strong>Sorteos con tu compra</strong><small>Participá por premios de marcas amigas.</small></span>

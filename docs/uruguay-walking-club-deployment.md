@@ -1,6 +1,6 @@
 # Walking Club Uruguay — integration and deployment
 
-Event: `pasito-walking-club-uy-2026`, Casa Fauno (Montevideo), October 10, 2026.
+Event: `pasito-walking-club-uy-2026`, Casa Fauno (Montevideo), October 25, 2026.
 Prices are **major UYU units**, not cents: 1190 / 1290 / 1390, capacities 100 / 70 / 30.
 
 ## Confirmed production failure (2026-09-28)
