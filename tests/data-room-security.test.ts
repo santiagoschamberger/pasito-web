@@ -72,6 +72,22 @@ const incrementalMarketingMigration = readFileSync(
   new URL('../supabase/migrations/20261011165133_incremental_brand_data_room_marketing.sql', import.meta.url),
   'utf8',
 )
+const optimizedEngagementMigration = readFileSync(
+  new URL('../supabase/migrations/20261011174354_optimize_brand_data_room_engagement_refresh.sql', import.meta.url),
+  'utf8',
+)
+const splitCoreMigration = readFileSync(
+  new URL('../supabase/migrations/20261011175733_split_brand_data_room_core_profile_passes.sql', import.meta.url),
+  'utf8',
+)
+const leaderboardRefreshMigration = readFileSync(
+  new URL('../supabase/migrations/20261011180656_optimize_leaderboard_cache_refresh.sql', import.meta.url),
+  'utf8',
+)
+const leaderboardRevertMigration = readFileSync(
+  new URL('../supabase/migrations/20261011190418_revert_leaderboard_cache_refresh.sql', import.meta.url),
+  'utf8',
+)
 const page = readFileSync(new URL('../app/datos/[slug]/page.tsx', import.meta.url), 'utf8')
 const dashboard = readFileSync(new URL('../app/datos/[slug]/DataRoomDashboard.tsx', import.meta.url), 'utf8')
 const config = readFileSync(new URL('../next.config.mjs', import.meta.url), 'utf8')
@@ -294,4 +310,50 @@ test('brand marketing refresh is incremental and bounded', () => {
   assert.match(incrementalMarketingMigration, /'refresh-brand-data-room-audience-windows',\s*'40 11,22 \* \* \*'/)
   assert.match(incrementalMarketingMigration, /'backfill-brand-data-room-audience-anchors',\s*'50 11,22 \* \* \*'/)
   assert.doesNotMatch(lightRefresh, /refresh_brand_data_room_audience_window\(/)
+})
+
+test('brand daily core/engagement refresh avoids full profile scans and stays server-only', () => {
+  const engagement = splitCoreMigration.slice(
+    splitCoreMigration.indexOf('create or replace function public.refresh_brand_data_room_engagement_snapshots()'),
+    splitCoreMigration.indexOf('revoke all on function'),
+  )
+  const core = splitCoreMigration.slice(
+    splitCoreMigration.indexOf('create or replace function public.refresh_brand_data_room_core_snapshots()'),
+    splitCoreMigration.indexOf('create or replace function public.refresh_brand_data_room_engagement_snapshots()'),
+  )
+  for (const sql of [optimizedEngagementMigration, splitCoreMigration]) {
+    assert.doesNotMatch(sql, /country_profiles as materialized/)
+    assert.match(sql, /revoke all on function public\.refresh_brand_data_room_core_snapshots\(\) from public, anon, authenticated/)
+    assert.match(sql, /revoke all on function public\.refresh_brand_data_room_engagement_snapshots\(\) from public, anon, authenticated/)
+    assert.match(sql, /grant execute on function public\.refresh_brand_data_room_engagement_snapshots\(\) to service_role/)
+    assert.doesNotMatch(sql, /grant execute on function public\.refresh_brand_data_room_(core|engagement)_snapshots\(\) to (anon|authenticated)/)
+  }
+  // The core profile counts no longer sort every AR/UY profile.
+  assert.doesNotMatch(core, /group by grouping sets/)
+  // Engagement aggregates per user and resolves the country by primary key.
+  assert.match(engagement, /select p\.country_code from public\.profiles p where p\.id = u\.user_id/)
+  assert.match(engagement, /select p\.country_code from public\.profiles p where p\.id = d\.user_id/)
+  assert.doesNotMatch(engagement, /statement_timeout/)
+})
+
+test('leaderboard cache refresh is single-flight and driven by weekly activity', () => {
+  const sql = leaderboardRefreshMigration
+  assert.match(sql, /pg_try_advisory_xact_lock\(hashtext\('public\.refresh_leaderboard_cache'\)\)/)
+  assert.match(sql, /FROM public\.daily_activity da\s+WHERE da\.date >= v_week_start\s+GROUP BY da\.user_id/)
+  assert.match(sql, /JOIN public\.profiles p\s+ON p\.id = w\.user_id/)
+  assert.doesNotMatch(sql, /FROM public\.profiles p\s+LEFT JOIN public\.daily_activity/)
+  assert.doesNotMatch(sql, /set\s+(local\s+)?statement_timeout|set_config\('statement_timeout'/i)
+  assert.doesNotMatch(sql, /GRANT /)
+})
+
+test('leaderboard cache refresh is reverted to the original build with only the overlap guard', () => {
+  const sql = leaderboardRevertMigration
+  assert.match(sql, /pg_try_advisory_xact_lock\(hashtext\('public\.refresh_leaderboard_cache'\)\)/)
+  // Original build: profiles LEFT JOIN this week's daily_activity, grouped per user.
+  assert.match(sql, /FROM public\.profiles p\s+LEFT JOIN public\.daily_activity da\s+ON da\.user_id = p\.id\s+AND da\.date >= v_week_start/)
+  assert.match(sql, /HAVING COALESCE\(SUM\(rank_steps\), 0\) > 0;/)
+  assert.doesNotMatch(sql, /weekly_user_steps/)
+  // Function-level work_mem from 20261011180656 is dropped.
+  assert.doesNotMatch(sql, /SET work_mem/)
+  assert.doesNotMatch(sql, /GRANT /)
 })
