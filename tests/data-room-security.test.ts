@@ -68,6 +68,10 @@ const intradayMarketingMigration = readFileSync(
   new URL('../supabase/migrations/20260826200744_schedule_brand_data_room_marketing_refresh.sql', import.meta.url),
   'utf8',
 )
+const incrementalMarketingMigration = readFileSync(
+  new URL('../supabase/migrations/20261011165133_incremental_brand_data_room_marketing.sql', import.meta.url),
+  'utf8',
+)
 const page = readFileSync(new URL('../app/datos/[slug]/page.tsx', import.meta.url), 'utf8')
 const dashboard = readFileSync(new URL('../app/datos/[slug]/DataRoomDashboard.tsx', import.meta.url), 'utf8')
 const config = readFileSync(new URL('../next.config.mjs', import.meta.url), 'utf8')
@@ -263,4 +267,31 @@ test('removed data-room details are not serialized to the browser', () => {
   for (const key of ['mixpanelFilterTypes', 'mixpanelTopViewedRewards', 'mixpanelTopViewedPartners', 'mixpanelCoverageStartDate', 'mixpanelDataThroughDate', 'mixpanelMetricsRefreshedAt']) {
     assert.equal(key in marketing, false)
   }
+})
+
+test('brand marketing refresh is incremental and bounded', () => {
+  const lightRefresh = incrementalMarketingMigration.slice(
+    incrementalMarketingMigration.indexOf('create or replace function public.refresh_brand_data_room_marketing_snapshots()'),
+    incrementalMarketingMigration.indexOf('revoke all on function'),
+  )
+  // The intraday refresh never rescans the 60-day window or hashes all profiles.
+  assert.doesNotMatch(lightRefresh, /country_profiles as materialized/)
+  assert.doesNotMatch(lightRefresh, /reporting_date - 60/)
+  assert.match(lightRefresh, /refresh_brand_data_room_daily_active_users\(v_last, v_last\)/)
+  assert.match(lightRefresh, /refresh_brand_data_room_daily_push\(v_last - 2, v_last\)/)
+  assert.match(lightRefresh, /limit 3/)
+  // Per-call ranges are capped.
+  assert.match(incrementalMarketingMigration, /p_to - p_from > 7/)
+  // Aggregates stay server-only and hold no user identifiers.
+  assert.match(incrementalMarketingMigration, /alter table public\.brand_data_room_marketing_daily enable row level security/)
+  assert.match(incrementalMarketingMigration, /revoke all on table public\.brand_data_room_marketing_daily[\s\S]*from public, anon, authenticated/)
+  const tableDefinition = incrementalMarketingMigration.slice(
+    incrementalMarketingMigration.indexOf('create table if not exists public.brand_data_room_marketing_daily'),
+    incrementalMarketingMigration.indexOf('alter table public.brand_data_room_marketing_daily'),
+  )
+  assert.doesNotMatch(tableDefinition, /user_id|device_id/)
+  // Distinct WAU/MAU runs in its own bounded jobs, not in the intraday refresh.
+  assert.match(incrementalMarketingMigration, /'refresh-brand-data-room-audience-windows',\s*'40 11,22 \* \* \*'/)
+  assert.match(incrementalMarketingMigration, /'backfill-brand-data-room-audience-anchors',\s*'50 11,22 \* \* \*'/)
+  assert.doesNotMatch(lightRefresh, /refresh_brand_data_room_audience_window\(/)
 })
