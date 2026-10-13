@@ -11,6 +11,7 @@ import {
 } from '@/components/marketing/Marketing'
 import { MarketingMotion } from '@/components/marketing/MarketingMotion'
 import { formatRoundedMarketingMetric, getMarketingMetrics } from '@/lib/marketing-metrics'
+import { PASITO_USERS } from '@/lib/pasito-users'
 
 export const metadata: Metadata = {
   title: 'Pasito Empresas — Activá a tu organización',
@@ -104,7 +105,6 @@ const FAQS = [
 
 export default async function EmpresasPage() {
   const metrics = await getMarketingMetrics()
-  const totalUsers = formatRoundedMarketingMetric(metrics.totalUsers, 10_000)
   const newUsers = formatRoundedMarketingMetric(metrics.newUsersLast24Hours, 1_000)
 
   return (
@@ -129,7 +129,7 @@ export default async function EmpresasPage() {
           </div>
         </div>
         <div className={styles.stats} aria-label="Pasito Empresas en números">
-          <div className={styles.stat}><span className={styles.statValue}>{totalUsers}</span><span className={styles.statLabel}>personas ya usan Pasito</span></div>
+          <div className={styles.stat}><span className={styles.statValue}>{PASITO_USERS.plusMillions}</span><span className={styles.statLabel}>de usuarios</span></div>
           <div className={styles.stat}><span className={styles.statValue}>{newUsers}</span><span className={styles.statLabel}>personas nuevas en las últimas 24 h</span></div>
           <div className={styles.stat}><span className={styles.statValue}>{formatRoundedMarketingMetric(metrics.totalPartners, 100)}</span><span className={styles.statLabel}>comercios para sumar beneficios</span></div>
           <div className={styles.stat}><span className={styles.statValue}>USD 3</span><span className={styles.statLabel}>por persona activa / mes</span></div>

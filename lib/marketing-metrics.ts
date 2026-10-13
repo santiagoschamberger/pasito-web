@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { unstable_cache } from 'next/cache'
 
+import { PASITO_USERS_COUNT } from '@/lib/pasito-users'
+
 const ONE_DAY_IN_SECONDS = 60 * 60 * 24
 const ONE_DAY_IN_MILLISECONDS = ONE_DAY_IN_SECONDS * 1000
 
@@ -11,7 +13,7 @@ export type MarketingMetrics = {
 }
 
 export const MARKETING_METRICS_FALLBACK: MarketingMetrics = {
-  totalUsers: 620_000,
+  totalUsers: PASITO_USERS_COUNT,
   newUsersLast24Hours: 11_000,
   totalPartners: 1_200,
 }

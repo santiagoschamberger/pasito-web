@@ -14,6 +14,7 @@ import {
 } from '@/components/marketing/Marketing'
 import { MarketingMotion } from '@/components/marketing/MarketingMotion'
 import { formatRoundedMarketingMetric, getMarketingMetrics } from '@/lib/marketing-metrics'
+import { PASITO_USERS } from '@/lib/pasito-users'
 
 export const metadata: Metadata = {
   title: 'Pasito — Moverte cambia todo.',
@@ -83,10 +84,9 @@ const FAQS = [
 
 export default async function HomePage() {
   const metrics = await getMarketingMetrics()
-  const totalUsers = formatRoundedMarketingMetric(metrics.totalUsers, 10_000)
   const newUsersPerDay = formatRoundedMarketingMetric(metrics.newUsersLast24Hours, 1_000)
   const stats = [
-    { value: totalUsers, label: 'personas ya caminan con Pasito' },
+    { value: PASITO_USERS.plusMillions, label: 'de usuarios' },
     { value: '552.000', label: 'usuarios activos diarios' },
     { value: formatRoundedMarketingMetric(metrics.totalPartners, 100), label: 'comercios para descubrir' },
     { value: 'App #1', label: 'en Argentina y Uruguay' },
