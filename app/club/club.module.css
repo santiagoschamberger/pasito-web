@@ -182,8 +182,23 @@
   filter: drop-shadow(0 18px 30px rgba(0, 20, 12, 0.35));
 }
 
+.heroPresented {
+  margin-top: 16px;
+  color: rgba(255, 255, 255, 0.92);
+  font-family: var(--font-display);
+  font-size: clamp(18px, 3.8vw, 26px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.heroPresented span {
+  margin: 0 0.18em;
+  color: var(--lime);
+  font-weight: 600;
+}
+
 .heroTitle {
-  margin-top: 28px;
+  margin-top: 22px;
   font-family: var(--font-display);
   font-size: clamp(44px, 9vw, 96px);
   font-weight: 800;
@@ -1165,11 +1180,44 @@
   background: var(--white);
 }
 
+.mainSponsor {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  margin-top: 36px;
+  padding: 36px 24px 32px;
+  border-radius: 28px;
+  background: #121b51;
+  color: var(--white);
+  text-align: center;
+}
+
+.mainSponsorEyebrow {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.mainSponsor img {
+  display: block;
+  width: min(240px, 68vw);
+  height: auto;
+}
+
+.mainSponsorName {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 4.2vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
 .sponsorGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  margin-top: 36px;
+  margin-top: 16px;
 }
 
 .sponsorGrid li {
@@ -1317,6 +1365,8 @@
   .calendarRace { grid-column: span 4; min-height: 120px; }
   .dateGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .sponsorGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .mainSponsor { padding: 48px 40px 40px; }
+  .mainSponsor img { width: min(260px, 40vw); }
   .checkoutCard { padding: 30px; }
   .race .raceCard { padding: 56px; }
   .faqLayout { grid-template-columns: 1fr 1.6fr; }

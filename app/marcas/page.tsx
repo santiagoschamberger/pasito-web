@@ -8,6 +8,7 @@ import shared from '../marketing.module.css'
 import { MarketingNav, MarketingFooter } from '@/components/marketing/Marketing'
 import { PARTNER_BRANDS, type MarketingBrand } from '@/lib/marketing-brands'
 import { MarketingMotion } from '@/components/marketing/MarketingMotion'
+import { PASITO_USERS } from '@/lib/pasito-users'
 
 const BRANDS_WHATSAPP_URL = 'https://wa.me/5491136491620?text=Hola%2C%20quiero%20reservar%20una%20activaci%C3%B3n%20de%20marca%20en%20Pasito.'
 
@@ -130,7 +131,7 @@ export default function MarcasPage() {
           </div>
         </div>
         <div className={`${shared.container} ${styles.heroStats}`} aria-label="Pasito en números, Argentina, julio de 2026">
-          <div><strong>620 mil</strong><span>personas registradas</span></div>
+          <div><strong>{PASITO_USERS.plusMillions}</strong><span>de usuarios</span></div>
           <div><strong>255 mil</strong><span>activos por día</span></div>
           <div><strong>7,6 M</strong><span>contactos por mes</span></div>
           <p>Una comunidad en movimiento.<small>Argentina · corte julio 2026</small></p>

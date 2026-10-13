@@ -16,6 +16,7 @@ import {
 } from '@/components/marketing/Marketing'
 import { MarketingMotion } from '@/components/marketing/MarketingMotion'
 import { formatRoundedMarketingMetric, getMarketingMetrics } from '@/lib/marketing-metrics'
+import { PASITO_USERS } from '@/lib/pasito-users'
 import { PricingPlans } from './PricingPlans'
 
 export const metadata: Metadata = {
@@ -53,7 +54,7 @@ const FAQS = [
 export default async function ComerciosPage() {
   const metrics = await getMarketingMetrics()
   const stats = [
-    { value: formatRoundedMarketingMetric(metrics.totalUsers, 10_000), label: 'usuarios' },
+    { value: PASITO_USERS.plusMillions, label: 'de usuarios' },
     { value: formatRoundedMarketingMetric(metrics.totalPartners, 100), label: 'comercios para descubrir' },
     { value: formatRoundedMarketingMetric(metrics.newUsersLast24Hours, 1_000), label: 'usuarios nuevos por día' },
     { value: '+15M', label: 'impresiones por mes' },
