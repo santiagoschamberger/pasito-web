@@ -18,12 +18,14 @@ test('Pasito Club page metadata and hero present Glaciar as main sponsor', () =>
   assert.doesNotMatch(clubPage, /cupos por fecha/)
 })
 
-test('the club page has a visible Glaciar main-sponsor block using the public logo', () => {
-  assert.match(clubPage, /aria-label="Sponsor principal"/)
-  assert.match(clubPage, /src="\/pasito-club\/sponsors\/glaciar\.webp"/)
-  assert.match(clubPage, /alt="Glaciar"/)
-  assert.match(clubPage, /<p className=\{styles\.mainSponsorName\}>Pasito Club by Glaciar<\/p>/)
-  assert.match(clubStyles, /\.mainSponsor\b/)
+test('Glaciar is the first regular sponsor card with a Main Sponsor badge', () => {
+  assert.match(clubPage, /\{ name: 'Glaciar', file: 'glaciar', main: true \}/)
+  assert.match(clubPage, /alt=\{sponsor\.name\}/)
+  assert.match(clubPage, /Main Sponsor/)
+  assert.doesNotMatch(clubPage, /aria-label="Sponsor principal"/)
+  assert.doesNotMatch(clubPage, /styles\.mainSponsorName/)
+  assert.doesNotMatch(clubStyles, /\.mainSponsor\b/)
+  assert.match(clubStyles, /\.sponsorMainBadge\b/)
   assert.match(clubStyles, /\.heroPresented\b/)
   assert.equal(existsSync(logoPath), true)
   assert.ok(statSync(logoPath).size > 0)

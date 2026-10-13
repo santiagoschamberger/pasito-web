@@ -44,6 +44,7 @@ const STICKERS = [
 ] as const
 
 const SPONSORS = [
+  { name: 'Glaciar', file: 'glaciar', main: true },
   { name: 'Heineken 0.0', file: 'heineken' },
   { name: 'Red Bull', file: 'red-bull' },
   { name: 'Día', file: 'dia' },
@@ -250,22 +251,12 @@ export default function PasitoClubPage() {
           <div className={styles.container}>
             <p className={styles.eyebrow}>Sponsors</p>
             <h2 id="sponsors-title" className={styles.sectionTitle}>Las marcas que ya se sumaron al club.</h2>
-            <div className={styles.mainSponsor} aria-label="Sponsor principal">
-              <p className={styles.mainSponsorEyebrow}>Sponsor principal</p>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/pasito-club/sponsors/glaciar.webp"
-                alt="Glaciar"
-                width={447}
-                height={447}
-                loading="lazy"
-                decoding="async"
-              />
-              <p className={styles.mainSponsorName}>Pasito Club by Glaciar</p>
-            </div>
             <ul className={styles.sponsorGrid}>
               {SPONSORS.map((sponsor) => (
                 <li key={sponsor.file}>
+                  {'main' in sponsor && sponsor.main ? (
+                    <span className={styles.sponsorMainBadge}>Main Sponsor</span>
+                  ) : null}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={`/pasito-club/sponsors/${sponsor.file}.webp`} alt={sponsor.name} loading="lazy" decoding="async" />
                 </li>
