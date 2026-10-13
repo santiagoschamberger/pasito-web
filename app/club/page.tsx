@@ -15,7 +15,7 @@ import marketingStyles from '../marketing.module.css'
 import { PasitoClubCheckout } from './PasitoClubCheckout'
 import styles from './club.module.css'
 
-const TITLE = 'Pasito Club — Entrenar es un planazo'
+const TITLE = 'Pasito Club by Glaciar'
 const DESCRIPTION = 'De caminar tus primeros pasos a correr tus primeros 3K. 8 miércoles, 200 cupos por fecha y la Carrera Pasito Club de cierre. Buenos Aires, octubre a diciembre.'
 
 export const metadata: Metadata = {
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     type: 'website',
     locale: 'es_AR',
-    images: [{ url: '/pasito-club/og.png', width: 1200, height: 630, alt: 'Pasito Club' }],
+    images: [{ url: '/pasito-club/og.png', width: 1200, height: 630, alt: TITLE }],
   },
 }
 
@@ -112,6 +112,9 @@ export default function PasitoClubPage() {
           <div className={styles.heroInner}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className={styles.heroLogo} src="/pasito-club/logo.svg" alt="Pasito Club" width={747} height={320} />
+            <p className={styles.heroPresented}>
+              Pasito Club <span>by</span> Glaciar
+            </p>
             <h1 id="club-title" className={styles.heroTitle}>
               Entrenar es un <span>planazo.</span>
             </h1>
@@ -247,6 +250,19 @@ export default function PasitoClubPage() {
           <div className={styles.container}>
             <p className={styles.eyebrow}>Sponsors</p>
             <h2 id="sponsors-title" className={styles.sectionTitle}>Las marcas que ya se sumaron al club.</h2>
+            <div className={styles.mainSponsor} aria-label="Sponsor principal">
+              <p className={styles.mainSponsorEyebrow}>Sponsor principal</p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/pasito-club/sponsors/glaciar.webp"
+                alt="Glaciar"
+                width={447}
+                height={447}
+                loading="lazy"
+                decoding="async"
+              />
+              <p className={styles.mainSponsorName}>Pasito Club by Glaciar</p>
+            </div>
             <ul className={styles.sponsorGrid}>
               {SPONSORS.map((sponsor) => (
                 <li key={sponsor.file}>
@@ -287,7 +303,7 @@ export default function PasitoClubPage() {
 
         <footer className={styles.footer}>
           <div className={styles.container}>
-            <span>© 2026 Pasito · Pasito Club × Linck Running Team</span>
+            <span>© 2026 Pasito · Pasito Club by Glaciar × Linck Running Team</span>
             <nav aria-label="Legales">
               <a href="/terminos/pasito-club">Bases y condiciones</a>
               <a href="/privacidad">Privacidad</a>
