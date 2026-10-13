@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { CalendarDays, Clock3, MapPin, Music2, Sparkles, Trophy, Users } from 'lucide-react'
+import { CalendarDays, Clock3, MapPin, Music2, Sparkles, Ticket, Trophy } from 'lucide-react'
 
 import { MarketingNav } from '@/components/marketing/Marketing'
 import {
@@ -16,7 +16,7 @@ import { PasitoClubCheckout } from './PasitoClubCheckout'
 import styles from './club.module.css'
 
 const TITLE = 'Pasito Club by Glaciar'
-const DESCRIPTION = 'De caminar tus primeros pasos a correr tus primeros 3K. 8 miércoles, 200 cupos por fecha y la Carrera Pasito Club de cierre. Buenos Aires, octubre a diciembre.'
+const DESCRIPTION = 'De caminar tus primeros pasos a correr tus primeros 3K. 8 miércoles y la Carrera Pasito Club de cierre, con entrada a la carrera incluida. Buenos Aires, octubre a diciembre.'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.pasito.app'),
@@ -44,6 +44,7 @@ const STICKERS = [
 ] as const
 
 const SPONSORS = [
+  { name: 'Glaciar', file: 'glaciar', main: true },
   { name: 'Heineken 0.0', file: 'heineken' },
   { name: 'Red Bull', file: 'red-bull' },
   { name: 'Día', file: 'dia' },
@@ -113,7 +114,7 @@ export default function PasitoClubPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className={styles.heroLogo} src="/pasito-club/logo.svg" alt="Pasito Club" width={747} height={320} />
             <p className={styles.heroPresented}>
-              Pasito Club <span>by</span> Glaciar
+              <span>by</span> Glaciar
             </p>
             <h1 id="club-title" className={styles.heroTitle}>
               Entrenar es un <span>planazo.</span>
@@ -124,7 +125,7 @@ export default function PasitoClubPage() {
             </p>
             <ul className={styles.heroFacts}>
               <li><CalendarDays aria-hidden="true" /> 8 miércoles · {PASITO_CLUB_EVENT.timeLabel}</li>
-              <li><Users aria-hidden="true" /> {PASITO_CLUB_EVENT.capacityPerDate} cupos por fecha</li>
+              <li><Ticket aria-hidden="true" /> Entrada a la carrera incluida</li>
               <li><Trophy aria-hidden="true" /> Carrera final 3K o 5K</li>
             </ul>
             <div className={styles.heroActions}>
@@ -197,8 +198,8 @@ export default function PasitoClubPage() {
             <p className={styles.eyebrowLime}>Calendario</p>
             <h2 id="calendar-title" className={styles.sectionTitleLight}>8 miércoles. 3 afters.<br />1 carrera.</h2>
             <p className={styles.sectionLeadLight}>
-              Todos los encuentros son a las {PASITO_CLUB_EVENT.timeLabel} en {PASITO_CLUB_EVENT.venueLabel}. {PASITO_CLUB_EVENT.capacityPerDate} cupos
-              por fecha: cuando se llenan, se llenan.
+              Todos los encuentros son a las {PASITO_CLUB_EVENT.timeLabel} en {PASITO_CLUB_EVENT.venueLabel}. Entrada a la
+              carrera incluida en los packs de {PASITO_CLUB_RACE_MIN_PACK} encuentros o más.
             </p>
             <ol className={styles.calendarGrid}>
               {PASITO_CLUB_TRAININGS.map((training) => (
@@ -250,22 +251,12 @@ export default function PasitoClubPage() {
           <div className={styles.container}>
             <p className={styles.eyebrow}>Sponsors</p>
             <h2 id="sponsors-title" className={styles.sectionTitle}>Las marcas que ya se sumaron al club.</h2>
-            <div className={styles.mainSponsor} aria-label="Sponsor principal">
-              <p className={styles.mainSponsorEyebrow}>Sponsor principal</p>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/pasito-club/sponsors/glaciar.webp"
-                alt="Glaciar"
-                width={447}
-                height={447}
-                loading="lazy"
-                decoding="async"
-              />
-              <p className={styles.mainSponsorName}>Pasito Club by Glaciar</p>
-            </div>
             <ul className={styles.sponsorGrid}>
               {SPONSORS.map((sponsor) => (
                 <li key={sponsor.file}>
+                  {'main' in sponsor && sponsor.main ? (
+                    <span className={styles.sponsorMainBadge}>Main Sponsor</span>
+                  ) : null}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={`/pasito-club/sponsors/${sponsor.file}.webp`} alt={sponsor.name} loading="lazy" decoding="async" />
                 </li>
