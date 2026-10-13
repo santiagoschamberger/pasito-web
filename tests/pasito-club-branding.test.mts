@@ -13,6 +13,9 @@ test('Pasito Club page metadata and hero present Glaciar as main sponsor', () =>
   assert.match(clubPage, /<span>by<\/span> Glaciar/)
   assert.doesNotMatch(clubPage, /Pasito Club <span>by<\/span> Glaciar/)
   assert.match(clubPage, /className=\{styles\.heroPresented\}/)
+  assert.match(clubPage, /Entrada a la carrera incluida/)
+  assert.doesNotMatch(clubPage, /200 cupos por fecha/)
+  assert.doesNotMatch(clubPage, /cupos por fecha/)
 })
 
 test('the club page has a visible Glaciar main-sponsor block using the public logo', () => {
