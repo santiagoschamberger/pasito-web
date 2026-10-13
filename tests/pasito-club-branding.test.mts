@@ -10,7 +10,8 @@ test('Pasito Club page metadata and hero present Glaciar as main sponsor', () =>
   assert.match(clubPage, /const TITLE = 'Pasito Club by Glaciar'/)
   assert.match(clubPage, /title: TITLE/)
   assert.match(clubPage, /openGraph: \{[\s\S]*title: TITLE/)
-  assert.match(clubPage, /Pasito Club <span>by<\/span> Glaciar/)
+  assert.match(clubPage, /<span>by<\/span> Glaciar/)
+  assert.doesNotMatch(clubPage, /Pasito Club <span>by<\/span> Glaciar/)
   assert.match(clubPage, /className=\{styles\.heroPresented\}/)
 })
 

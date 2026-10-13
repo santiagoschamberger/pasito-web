@@ -113,7 +113,7 @@ export default function PasitoClubPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className={styles.heroLogo} src="/pasito-club/logo.svg" alt="Pasito Club" width={747} height={320} />
             <p className={styles.heroPresented}>
-              Pasito Club <span>by</span> Glaciar
+              <span>by</span> Glaciar
             </p>
             <h1 id="club-title" className={styles.heroTitle}>
               Entrenar es un <span>planazo.</span>
