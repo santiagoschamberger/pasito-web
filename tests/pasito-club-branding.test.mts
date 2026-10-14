@@ -31,6 +31,15 @@ test('Glaciar is the first regular sponsor card with a Main Sponsor badge', () =
   assert.ok(statSync(logoPath).size > 0)
 })
 
+test('Heineken 0.0 uses the blue lockup on a matching sponsor card', () => {
+  const logoPath = new URL('../public/pasito-club/sponsors/heineken-00.webp', import.meta.url)
+  assert.match(clubPage, /\{ name: 'Heineken 0\.0', file: 'heineken-00', card: 'heineken' \}/)
+  assert.match(clubStyles, /\.sponsorGrid li\.sponsorHeineken \{[^}]*background: #1A3F7A;/)
+  assert.match(clubStyles, /\.sponsorHeinekenLogo\b/)
+  assert.equal(existsSync(logoPath), true)
+  assert.ok(statSync(logoPath).size > 0)
+})
+
 test('Glaciar branding does not change checkout, payments, tickets or prices', () => {
   const checkout = readFileSync(new URL('../app/club/PasitoClubCheckout.tsx', import.meta.url), 'utf8')
   const event = readFileSync(new URL('../lib/pasito-club-event.ts', import.meta.url), 'utf8')

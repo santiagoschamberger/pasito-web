@@ -1245,9 +1245,18 @@
   text-transform: uppercase;
 }
 
+.sponsorGrid li.sponsorHeineken {
+  background: #1A3F7A;
+}
+
 .sponsorGrid img.sponsorMainLogo {
   max-height: 62px;
   margin-top: 14px;
+}
+
+.sponsorGrid img.sponsorHeinekenLogo {
+  width: 100%;
+  max-height: 68px;
 }
 
 .sponsorGrid img {
