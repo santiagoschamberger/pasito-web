@@ -1214,11 +1214,28 @@
   background: var(--white);
 }
 
+.sponsorMainRow {
+  display: flex;
+  justify-content: center;
+  margin-top: 36px;
+}
+
+.sponsorMainCard {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(100%, calc((100% - 10px) / 2 * 1.2));
+  height: calc(104px * 1.2);
+  padding: 18px;
+  border-radius: calc(20px * 1.2);
+  background: var(--cream);
+}
+
 .sponsorGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  margin-top: 36px;
+  margin-top: 10px;
 }
 
 .sponsorGrid li {
@@ -1249,8 +1266,13 @@
   background: #1A3F7A;
 }
 
-.sponsorGrid img.sponsorMainLogo {
-  max-height: 62px;
+.sponsorMainLogo {
+  display: block;
+  max-width: 100%;
+  max-height: calc(62px * 1.2);
+  width: auto;
+  height: auto;
+  object-fit: contain;
   margin-top: 14px;
 }
 
@@ -1420,6 +1442,7 @@
   .calendarRace { grid-column: span 4; min-height: 120px; }
   .dateGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .sponsorGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .sponsorMainCard { width: calc((100% - 30px) / 4 * 1.2); }
   .checkoutCard { padding: 30px; }
   .race .raceCard { padding: 56px; }
   .faqLayout { grid-template-columns: 1fr 1.6fr; }

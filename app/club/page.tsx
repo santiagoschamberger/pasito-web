@@ -253,23 +253,29 @@ export default function PasitoClubPage() {
           <div className={styles.container}>
             <p className={styles.eyebrow}>Sponsors</p>
             <h2 id="sponsors-title" className={styles.sectionTitle}>Las marcas que ya se sumaron al club.</h2>
-            <ul className={styles.sponsorGrid}>
-              {SPONSORS.map((sponsor) => (
-                <li key={sponsor.file} className={'card' in sponsor && sponsor.card === 'heineken' ? styles.sponsorHeineken : undefined}>
-                  {'main' in sponsor && sponsor.main ? (
-                    <span className={styles.sponsorMainBadge}>Main Sponsor</span>
-                  ) : null}
+            <ul className={styles.sponsorMainRow}>
+              {SPONSORS.filter((sponsor) => 'main' in sponsor && sponsor.main).map((sponsor) => (
+                <li key={sponsor.file} className={styles.sponsorMainCard}>
+                  <span className={styles.sponsorMainBadge}>Main Sponsor</span>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={`/pasito-club/sponsors/${sponsor.file}.webp`}
                     alt={sponsor.name}
-                    className={
-                      'main' in sponsor && sponsor.main
-                        ? styles.sponsorMainLogo
-                        : 'card' in sponsor && sponsor.card === 'heineken'
-                          ? styles.sponsorHeinekenLogo
-                          : undefined
-                    }
+                    className={styles.sponsorMainLogo}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </li>
+              ))}
+            </ul>
+            <ul className={styles.sponsorGrid}>
+              {SPONSORS.filter((sponsor) => !('main' in sponsor && sponsor.main)).map((sponsor) => (
+                <li key={sponsor.file} className={'card' in sponsor && sponsor.card === 'heineken' ? styles.sponsorHeineken : undefined}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/pasito-club/sponsors/${sponsor.file}.webp`}
+                    alt={sponsor.name}
+                    className={'card' in sponsor && sponsor.card === 'heineken' ? styles.sponsorHeinekenLogo : undefined}
                     loading="lazy"
                     decoding="async"
                   />
