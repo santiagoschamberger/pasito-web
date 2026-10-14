@@ -45,7 +45,7 @@ const STICKERS = [
 
 const SPONSORS = [
   { name: 'Glaciar Baja en Sodio', file: 'glaciar', main: true },
-  { name: 'Heineken 0.0', file: 'heineken' },
+  { name: 'Heineken 0.0', file: 'heineken-00', card: 'heineken' },
   { name: 'Red Bull', file: 'red-bull' },
   { name: 'Día', file: 'dia' },
   { name: 'Kay', file: 'kay' },
@@ -255,12 +255,24 @@ export default function PasitoClubPage() {
             <h2 id="sponsors-title" className={styles.sectionTitle}>Las marcas que ya se sumaron al club.</h2>
             <ul className={styles.sponsorGrid}>
               {SPONSORS.map((sponsor) => (
-                <li key={sponsor.file}>
+                <li key={sponsor.file} className={'card' in sponsor && sponsor.card === 'heineken' ? styles.sponsorHeineken : undefined}>
                   {'main' in sponsor && sponsor.main ? (
                     <span className={styles.sponsorMainBadge}>Main Sponsor</span>
                   ) : null}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`/pasito-club/sponsors/${sponsor.file}.webp`} alt={sponsor.name} className={'main' in sponsor && sponsor.main ? styles.sponsorMainLogo : undefined} loading="lazy" decoding="async" />
+                  <img
+                    src={`/pasito-club/sponsors/${sponsor.file}.webp`}
+                    alt={sponsor.name}
+                    className={
+                      'main' in sponsor && sponsor.main
+                        ? styles.sponsorMainLogo
+                        : 'card' in sponsor && sponsor.card === 'heineken'
+                          ? styles.sponsorHeinekenLogo
+                          : undefined
+                    }
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </li>
               ))}
             </ul>
