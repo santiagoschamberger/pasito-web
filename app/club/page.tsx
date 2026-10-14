@@ -15,7 +15,7 @@ import marketingStyles from '../marketing.module.css'
 import { PasitoClubCheckout } from './PasitoClubCheckout'
 import styles from './club.module.css'
 
-const TITLE = 'Pasito Club by Glaciar'
+const TITLE = 'Pasito Club by Glaciar Baja en Sodio'
 const DESCRIPTION = 'De caminar tus primeros pasos a correr tus primeros 3K. 8 miércoles y la Carrera Pasito Club de cierre, con entrada a la carrera incluida. Buenos Aires, octubre a diciembre.'
 
 export const metadata: Metadata = {
@@ -44,7 +44,7 @@ const STICKERS = [
 ] as const
 
 const SPONSORS = [
-  { name: 'Glaciar', file: 'glaciar', main: true },
+  { name: 'Glaciar Baja en Sodio', file: 'glaciar', main: true },
   { name: 'Heineken 0.0', file: 'heineken' },
   { name: 'Red Bull', file: 'red-bull' },
   { name: 'Día', file: 'dia' },
@@ -114,7 +114,9 @@ export default function PasitoClubPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className={styles.heroLogo} src="/pasito-club/logo.svg" alt="Pasito Club" width={747} height={320} />
             <p className={styles.heroPresented}>
-              <span>by</span> Glaciar
+              <span>by</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/pasito-club/glaciar-logo-white.webp" alt="Glaciar Baja en Sodio" width={368} height={208} />
             </p>
             <h1 id="club-title" className={styles.heroTitle}>
               Entrenar es un <span>planazo.</span>
@@ -258,7 +260,7 @@ export default function PasitoClubPage() {
                     <span className={styles.sponsorMainBadge}>Main Sponsor</span>
                   ) : null}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`/pasito-club/sponsors/${sponsor.file}.webp`} alt={sponsor.name} loading="lazy" decoding="async" />
+                  <img src={`/pasito-club/sponsors/${sponsor.file}.webp`} alt={sponsor.name} className={'main' in sponsor && sponsor.main ? styles.sponsorMainLogo : undefined} loading="lazy" decoding="async" />
                 </li>
               ))}
             </ul>
@@ -294,7 +296,7 @@ export default function PasitoClubPage() {
 
         <footer className={styles.footer}>
           <div className={styles.container}>
-            <span>© 2026 Pasito · Pasito Club by Glaciar × Linck Running Team</span>
+            <span>© 2026 Pasito · Pasito Club by Glaciar Baja en Sodio × Linck Running Team</span>
             <nav aria-label="Legales">
               <a href="/terminos/pasito-club">Bases y condiciones</a>
               <a href="/privacidad">Privacidad</a>

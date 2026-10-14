@@ -7,10 +7,10 @@ const clubStyles = readFileSync(new URL('../app/club/club.module.css', import.me
 const logoPath = new URL('../public/pasito-club/sponsors/glaciar.webp', import.meta.url)
 
 test('Pasito Club page metadata and hero present Glaciar as main sponsor', () => {
-  assert.match(clubPage, /const TITLE = 'Pasito Club by Glaciar'/)
+  assert.match(clubPage, /const TITLE = 'Pasito Club by Glaciar Baja en Sodio'/)
   assert.match(clubPage, /title: TITLE/)
   assert.match(clubPage, /openGraph: \{[\s\S]*title: TITLE/)
-  assert.match(clubPage, /<span>by<\/span> Glaciar/)
+  assert.match(clubPage, /<span>by<\/span>\s*\{\/\*[^*]*\*\/\}\s*<img src="\/pasito-club\/glaciar-logo-white\.webp" alt="Glaciar Baja en Sodio"/)
   assert.doesNotMatch(clubPage, /Pasito Club <span>by<\/span> Glaciar/)
   assert.match(clubPage, /className=\{styles\.heroPresented\}/)
   assert.match(clubPage, /Entrada a la carrera incluida/)
@@ -19,7 +19,7 @@ test('Pasito Club page metadata and hero present Glaciar as main sponsor', () =>
 })
 
 test('Glaciar is the first regular sponsor card with a Main Sponsor badge', () => {
-  assert.match(clubPage, /\{ name: 'Glaciar', file: 'glaciar', main: true \}/)
+  assert.match(clubPage, /\{ name: 'Glaciar Baja en Sodio', file: 'glaciar', main: true \}/)
   assert.match(clubPage, /alt=\{sponsor\.name\}/)
   assert.match(clubPage, /Main Sponsor/)
   assert.doesNotMatch(clubPage, /aria-label="Sponsor principal"/)
