@@ -19,12 +19,11 @@ import {
   trainingIsUpcoming,
   type DateInventory,
 } from '@/lib/pasito-club-event'
-import { getClientRebillAccount } from '@/lib/rebill-client'
+import { applyRebillCheckoutDefaults, getClientRebillAccount } from '@/lib/rebill-client'
 import styles from './club.module.css'
 
 const REBILL_PUBLIC_KEY = (process.env.NEXT_PUBLIC_REBILL_ACCOUNT_ROUTING_ENABLED === 'true' ? process.env.NEXT_PUBLIC_REBILL_NO_IVA_PUBLIC_KEY : process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY) ?? ''
 const REBILL_SDK_SRC = 'https://unpkg.com/rebill@1.17.28/dist/rebill/rebill.esm.js'
-const CHECKOUT_DISPLAY = JSON.stringify({ checkoutSummary: false, logo: false })
 const CHECKOUT_CSS = `
   .rebill-submit-button {
     background: #006d42 !important;
@@ -85,8 +84,9 @@ function loadRebillSDK(): Promise<void> {
   return rebillSDKPromise
 }
 
-function RebillFrame({ product, onSuccess, onError }: {
+function RebillFrame({ product, email, onSuccess, onError }: {
   product: Record<string, unknown>
+  email?: string
   onSuccess: (detail: unknown) => void
   onError: (detail: unknown) => void
 }) {
@@ -123,8 +123,7 @@ function RebillFrame({ product, onSuccess, onError }: {
       checkout.setAttribute('public-key', REBILL_PUBLIC_KEY)
       checkout.setAttribute('instant-product', key)
       checkout.setAttribute('css', CHECKOUT_CSS)
-      checkout.setAttribute('display', CHECKOUT_DISPLAY)
-      checkout.setAttribute('language', 'es')
+      applyRebillCheckoutDefaults(checkout, email)
       checkout.addEventListener('success', success)
       checkout.addEventListener('error', error)
       checkout.addEventListener('ready', markReady)
@@ -139,7 +138,7 @@ function RebillFrame({ product, onSuccess, onError }: {
       checkout?.removeEventListener('ready', markReady)
       checkout?.remove()
     }
-  }, [key])
+  }, [key, email])
 
   if (loadError) {
     return <div className={styles.formError} role="alert">No pudimos cargar el pago seguro. Recargá la página e intentá nuevamente.</div>
@@ -502,7 +501,7 @@ export function PasitoClubCheckout({ mockCheckout = false }: { mockCheckout?: bo
             <button type="button" className={styles.primaryButton} onClick={simulatePayment}>Simular pago aprobado</button>
           </div>
         ) : (
-          <RebillFrame product={product} onSuccess={handleSuccess} onError={(detail) => setError(paymentErrorMessage(detail))} />
+          <RebillFrame product={product} email={quote.email} onSuccess={handleSuccess} onError={(detail) => setError(paymentErrorMessage(detail))} />
         )}
         <p className={styles.finePrint}><ShieldCheck aria-hidden="true" /> Pago seguro con Rebill. Tus cupos quedan guardados mientras corre el reloj.</p>
       </div>

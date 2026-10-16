@@ -11,12 +11,11 @@ import {
   type TicketBreakdown,
   type TicketInventoryTier,
 } from '@/lib/tomate-event'
-import { getClientRebillAccount } from '@/lib/rebill-client'
+import { applyRebillCheckoutDefaults, getClientRebillAccount } from '@/lib/rebill-client'
 import styles from './tomate.module.css'
 
 const REBILL_PUBLIC_KEY = (process.env.NEXT_PUBLIC_REBILL_ACCOUNT_ROUTING_ENABLED === 'true' ? process.env.NEXT_PUBLIC_REBILL_NO_IVA_PUBLIC_KEY : process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY) ?? ''
 const REBILL_SDK_SRC = 'https://unpkg.com/rebill@1.17.28/dist/rebill/rebill.esm.js'
-const CHECKOUT_DISPLAY = JSON.stringify({ checkoutSummary: false, logo: false })
 const CHECKOUT_CSS = `
   .rebill-submit-button {
     background: #006d42 !important;
@@ -39,6 +38,8 @@ type Quote = {
   discountPercent?: number
   expiresAt: string
   breakdown: TicketBreakdown[]
+  /** Email con el que se creó el intent; se prellena en Rebill. */
+  email?: string
 }
 
 type Confirmation = {
@@ -85,10 +86,12 @@ function loadRebillSDK(): Promise<void> {
 
 function CheckoutFrame({
   product,
+  email,
   onSuccess,
   onError,
 }: {
   product: Record<string, unknown>
+  email?: string
   onSuccess: (detail: unknown) => void
   onError: (detail: unknown) => void
 }) {
@@ -126,8 +129,7 @@ function CheckoutFrame({
       checkout.setAttribute('public-key', REBILL_PUBLIC_KEY)
       checkout.setAttribute('instant-product', key)
       checkout.setAttribute('css', CHECKOUT_CSS)
-      checkout.setAttribute('display', CHECKOUT_DISPLAY)
-      checkout.setAttribute('language', 'es')
+      applyRebillCheckoutDefaults(checkout, email)
       checkout.addEventListener('success', success)
       checkout.addEventListener('error', error)
       checkout.addEventListener('ready', markReady)
@@ -143,7 +145,7 @@ function CheckoutFrame({
       checkout?.removeEventListener('ready', markReady)
       checkout?.remove()
     }
-  }, [key])
+  }, [key, email])
 
   if (loadError) {
     return <div className={styles.checkoutError}>No pudimos cargar el pago seguro. Recargá la página e intentá nuevamente.</div>
@@ -254,7 +256,7 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
         }
         throw new Error(payload.error || 'No pudimos reservar las entradas.')
       }
-      setQuote(payload)
+      setQuote({ ...payload, email: email.trim() })
       setPaymentReceived(false)
       setConfirmation(null)
     } catch (cause) {
@@ -414,7 +416,7 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
               </div>
               {error && <div className={styles.checkoutError} role="alert">{error}</div>}
               {confirming && <div className={styles.confirmingMessage}>Confirmando el pago y creando tus QR…</div>}
-              <CheckoutFrame product={product} onSuccess={handleSuccess} onError={handlePaymentError} />
+              <CheckoutFrame product={product} email={quote.email} onSuccess={handleSuccess} onError={handlePaymentError} />
               <p className={styles.paymentFinePrint}>El precio queda congelado en esta reserva. Nunca guardamos los datos de tu tarjeta.</p>
             </div>
           ) : soldOut ? (

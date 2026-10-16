@@ -76,3 +76,39 @@ export function getClientRebillAccountForSilver(): ClientRebillAccount {
   
   return null
 }
+
+/**
+ * Secciones del `<rebill-checkout>` que mostramos. Ocultamos lo que ya
+ * resolvemos nosotros: resumen y logo (tenemos el nuestro), campo de cupón
+ * (los descuentos se aplican en el intent, no en Rebill) y footer.
+ * Los campos obligatorios (nombre, DNI, etc.) los define la API de Rebill
+ * según cuenta y moneda; esos no se pueden ocultar desde acá.
+ */
+export const REBILL_CHECKOUT_DISPLAY = JSON.stringify({
+  checkoutSummary: false,
+  logo: false,
+  discountCode: false,
+  footer: false,
+})
+
+/**
+ * Datos que ya pedimos en nuestro formulario, para que Rebill no los vuelva
+ * a pedir (se usa como valor inicial del campo; el usuario puede editarlo).
+ */
+export function rebillCustomerInformation(email?: string | null): string | null {
+  const trimmed = email?.trim()
+  return trimmed ? JSON.stringify({ email: trimmed }) : null
+}
+
+/**
+ * Aplica la configuración común a un `<rebill-checkout>` recién creado.
+ * `one-click-checkout` en false saca el botón "tengo cuenta Rebill" y su
+ * paso de código por email.
+ */
+export function applyRebillCheckoutDefaults(el: HTMLElement, email?: string | null): void {
+  el.setAttribute('display', REBILL_CHECKOUT_DISPLAY)
+  el.setAttribute('language', 'es')
+  el.setAttribute('one-click-checkout', 'false')
+  const customer = rebillCustomerInformation(email)
+  if (customer) el.setAttribute('customer-information', customer)
+}

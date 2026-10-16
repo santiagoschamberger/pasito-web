@@ -9,7 +9,7 @@ import {
   type ShippingAddress,
 } from '@/lib/store-shipping'
 import { normalizeCheckoutEmail } from '@/lib/checkout-leads'
-import { getClientRebillAccount } from '@/lib/rebill-client'
+import { applyRebillCheckoutDefaults, getClientRebillAccount } from '@/lib/rebill-client'
 import styles from './tienda.module.css'
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -140,9 +140,6 @@ const CHECKOUT_CSS = `
   .rebill-submit-button:hover { background: #0a5a3a !important; }
 `
 
-// Ocultamos el panel de resumen interno de Rebill (mostramos el nuestro arriba)
-// y el logo → checkout de una sola columna, limpio y sin recortes.
-const CHECKOUT_DISPLAY = JSON.stringify({ checkoutSummary: false, logo: false })
 
 let rebillSDKPromise: Promise<void> | null = null
 
@@ -248,12 +245,14 @@ function ShirtVisual({ base, src }: { base: Base; src?: string }) {
 
 function CheckoutFrame({
   instantProduct,
+  email,
   onSuccess,
   onError,
   onReady,
   isReady,
 }: {
   instantProduct: Record<string, unknown>
+  email?: string | null
   onSuccess: (detail: unknown) => void
   onError: (detail: unknown) => void
   onReady: () => void
@@ -284,8 +283,7 @@ function CheckoutFrame({
         el.setAttribute('public-key', REBILL_PUBLIC_KEY)
         el.setAttribute('instant-product', key)
         el.setAttribute('css', CHECKOUT_CSS)
-        el.setAttribute('display', CHECKOUT_DISPLAY)
-        el.setAttribute('language', 'es')
+        applyRebillCheckoutDefaults(el, email)
 
         handleSuccess = (e: Event) => onSuccess((e as CustomEvent).detail)
         handleError = (e: Event) => onError((e as CustomEvent).detail)
@@ -317,7 +315,7 @@ function CheckoutFrame({
       if (readyFallback) window.clearTimeout(readyFallback)
       el?.remove()
     }
-  }, [key, onSuccess, onError, onReady])
+  }, [key, email, onSuccess, onError, onReady])
 
   if (loadError) {
     return <p className="rounded-2xl px-4 py-3 text-sm" style={{ background: '#FDECEC', color: '#B42318' }}>No pudimos cargar el checkout seguro. Probá de nuevo en unos segundos.</p>
@@ -387,6 +385,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
   const [registeringOrder, setRegisteringOrder] = useState(false)
   const [preparingCheckout, setPreparingCheckout] = useState(false)
   const [checkoutIntentId, setCheckoutIntentId] = useState<string | null>(null)
+  const [checkoutEmail, setCheckoutEmail] = useState<string | null>(null)
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>(() => ({ ...EMPTY_SHIPPING_ADDRESS }))
   const [shippingAddressError, setShippingAddressError] = useState<string | null>(null)
   const [buyerEmail, setBuyerEmail] = useState('')
@@ -463,6 +462,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
       nextIntentId = payload.checkoutIntentId
 
       setCheckoutIntentId(nextIntentId)
+      setCheckoutEmail(email)
       setDone(null)
       setCheckoutReady(false)
       setCheckoutError(null)
@@ -649,7 +649,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
               </div>
             )}
             {registeringOrder && <div className="mb-4 rounded-xl px-4 py-3 text-sm" style={{ background: '#F4EFE9', color: '#006D42' }}>Confirmando pago y reservando tu talle…</div>}
-            <CheckoutFrame instantProduct={instantProduct} onSuccess={handleSuccess} onError={handleError} onReady={handleCheckoutReady} isReady={checkoutReady} />
+            <CheckoutFrame instantProduct={instantProduct} email={checkoutEmail} onSuccess={handleSuccess} onError={handleError} onReady={handleCheckoutReady} isReady={checkoutReady} />
           </div>
         )}
       </div>
