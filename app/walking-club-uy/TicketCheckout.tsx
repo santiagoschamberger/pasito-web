@@ -49,6 +49,7 @@ type Confirmation = {
 export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInventoryTier[] }) {
   const [quantity, setQuantity] = useState(1)
   const [promoCode, setPromoCode] = useState('')
+  const [email, setEmail] = useState('')
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [tiers, setTiers] = useState<TicketInventoryTier[]>(initialTiers)
   const [quote, setQuote] = useState<Quote | null>(null)
@@ -112,7 +113,7 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
       const response = await fetch('/api/events/walking-club-uy/checkout-intents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quantity, promoCode, termsAccepted }),
+        body: JSON.stringify({ quantity, email, promoCode, termsAccepted }),
       })
       const payload = await response.json().catch(() => ({})) as Quote & { error?: string }
       if (!response.ok || !payload.intentId) throw new Error(payload.error || 'No pudimos reservar las entradas.')
@@ -124,7 +125,7 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
     } finally {
       setPreparing(false)
     }
-  }, [promoCode, quantity, refreshAvailability, termsAccepted])
+  }, [email, promoCode, quantity, refreshAvailability, termsAccepted])
 
   const goBack = useCallback(async () => {
     if (!quote || redirecting) return
@@ -267,6 +268,19 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
                   maxLength={40}
                 />
               </label>
+              <label className={styles.promoField}>
+                <span>Tu email</span>
+                <input
+                  type="email"
+                  inputMode="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="tu@email.com"
+                  autoComplete="email"
+                  maxLength={254}
+                  required
+                />
+              </label>
               <label className={styles.termsAcceptance}>
                 <input
                   type="checkbox"
@@ -280,7 +294,7 @@ export function TicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInv
                 </span>
               </label>
               {error && <div className={styles.checkoutError} role="alert">{error}</div>}
-              <button type="button" className={styles.checkoutPrimary} onClick={() => void startCheckout()} disabled={preparing || !termsAccepted}>
+              <button type="button" className={styles.checkoutPrimary} onClick={() => void startCheckout()} disabled={preparing || !termsAccepted || !email.trim()}>
                 {preparing ? 'Reservando precio…' : 'Continuar al pago'}
               </button>
               <p className={styles.paymentFinePrint}>Vas a ver el total exacto antes de pagar.</p>

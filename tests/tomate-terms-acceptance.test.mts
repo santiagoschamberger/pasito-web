@@ -9,7 +9,7 @@ const terms = readFileSync(new URL('../content/terminos-evento-pasito.txt', impo
 
 test('ticket checkout requires explicit acceptance of the event terms', () => {
   assert.match(checkout, /type="checkbox"/)
-  assert.match(checkout, /disabled=\{preparing \|\| !termsAccepted\}/)
+  assert.match(checkout, /disabled=\{preparing \|\| !termsAccepted \|\| !email\.trim\(\)\}/)
   assert.match(checkout, /href=\{TOMATE_EVENT_TERMS_PATH\}/)
   assert.match(checkout, /Acepto los\{' '\}/)
   assert.doesNotMatch(checkout, /mayor de 18 años/i)

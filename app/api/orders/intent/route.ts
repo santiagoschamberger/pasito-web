@@ -2,6 +2,7 @@ import { assertRebillCheckoutReady, rebillRoutingEnabled, assertClientRebillAcco
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
+import { normalizeCheckoutEmail, recordCheckoutLead } from '@/lib/checkout-leads'
 import { normalizeShippingAddress } from '@/lib/store-shipping'
 
 const BASES = ['blanca', 'negra'] as const
@@ -54,6 +55,7 @@ export async function POST(req: NextRequest) {
   const size = String(body.size ?? '')
   const qty = Number(body.qty ?? 0)
   const address = normalizeShippingAddress(body.address)
+  const email = normalizeCheckoutEmail(body.email)
 
   if (
     !BASES.includes(base as (typeof BASES)[number]) ||
@@ -66,6 +68,9 @@ export async function POST(req: NextRequest) {
   ) {
     return NextResponse.json({ error: 'Completá la dirección de envío.' }, { status: 400 })
   }
+  if (!email) {
+    return NextResponse.json({ error: 'Revisá tu email.' }, { status: 400 })
+  }
 
   const expectedPrint = base === 'blanca' ? 'verde' : 'blanca'
   if (print !== expectedPrint) {
@@ -73,6 +78,7 @@ export async function POST(req: NextRequest) {
   }
 
   const db = getSupabase()
+  await recordCheckoutLead(db, { email, source: 'tienda' })
 
   // Los intents abandonados sólo viven dos horas. La limpieza oportunista evita
   // conservar direcciones de personas que no completaron la compra.

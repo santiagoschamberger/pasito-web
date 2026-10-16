@@ -1,6 +1,7 @@
 import { assertRebillCheckoutReady, rebillRoutingEnabled, assertClientRebillAccount } from '@/lib/rebill-routing'
 import { NextRequest, NextResponse } from 'next/server'
 
+import { normalizeCheckoutEmail, recordCheckoutLead } from '@/lib/checkout-leads'
 import { TOMATE_EVENT, TOMATE_EVENT_TERMS_VERSION, type TicketBreakdown } from '@/lib/tomate-event'
 import { checkoutIdentity, getTomateSupabase, TOMATE_BUYER_COOKIE } from '@/lib/tomate-server'
 import { createIntentToken } from '@/lib/tomate-ticket-security'
@@ -20,7 +21,7 @@ type ReservationResult = {
 }
 
 export async function POST(request: NextRequest) {
-  let body: { quantity?: unknown; promoCode?: unknown; termsAccepted?: unknown; clientRebillAccount?: unknown }
+  let body: { quantity?: unknown; email?: unknown; promoCode?: unknown; termsAccepted?: unknown; clientRebillAccount?: unknown }
   try {
     body = await request.json()
   } catch {
@@ -46,6 +47,10 @@ export async function POST(request: NextRequest) {
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > TOMATE_EVENT.maxTicketsPerOrder) {
     return NextResponse.json({ error: `Podés comprar entre 1 y ${TOMATE_EVENT.maxTicketsPerOrder} entradas.` }, { status: 400 })
   }
+  const email = normalizeCheckoutEmail(body.email)
+  if (!email) {
+    return NextResponse.json({ error: 'Revisá tu email.' }, { status: 400 })
+  }
   if (body.termsAccepted !== true) {
     return NextResponse.json({ error: 'Tenés que aceptar las bases y condiciones del evento.' }, { status: 400 })
   }
@@ -58,6 +63,7 @@ export async function POST(request: NextRequest) {
     assertRebillCheckoutReady()
     const identity = checkoutIdentity(request)
     const db = getTomateSupabase()
+    await recordCheckoutLead(db, { email, source: 'tomate' })
     const { data, error } = await db.rpc('event_reserve_tickets', {
       p_event_slug: TOMATE_EVENT.slug,
       p_quantity: quantity,

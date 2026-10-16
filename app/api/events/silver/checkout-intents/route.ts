@@ -1,6 +1,7 @@
 import { assertRebillCheckoutReady, rebillRoutingEnabled, assertClientRebillAccount } from '@/lib/rebill-routing'
 import { NextRequest, NextResponse } from 'next/server'
 
+import { normalizeCheckoutEmail, recordCheckoutLead } from '@/lib/checkout-leads'
 import { SILVER_EVENT, SILVER_EVENT_TERMS_VERSION, type TicketBreakdown } from '@/lib/silver-event'
 import { getTomateSupabase } from '@/lib/tomate-server'
 import { silverCheckoutIdentity, SILVER_BUYER_COOKIE } from '@/lib/silver-server'
@@ -21,7 +22,7 @@ type ReservationResult = {
 }
 
 export async function POST(request: NextRequest) {
-  let body: { quantity?: unknown; promoCode?: unknown; termsAccepted?: unknown; clientRebillAccount?: unknown }
+  let body: { quantity?: unknown; email?: unknown; promoCode?: unknown; termsAccepted?: unknown; clientRebillAccount?: unknown }
   try {
     body = await request.json()
   } catch {
@@ -47,6 +48,10 @@ export async function POST(request: NextRequest) {
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > SILVER_EVENT.maxTicketsPerOrder) {
     return NextResponse.json({ error: `Podés comprar entre 1 y ${SILVER_EVENT.maxTicketsPerOrder} entradas.` }, { status: 400 })
   }
+  const email = normalizeCheckoutEmail(body.email)
+  if (!email) {
+    return NextResponse.json({ error: 'Revisá tu email.' }, { status: 400 })
+  }
   if (body.termsAccepted !== true) {
     return NextResponse.json({ error: 'Tenés que aceptar las bases y condiciones del evento.' }, { status: 400 })
   }
@@ -59,6 +64,7 @@ export async function POST(request: NextRequest) {
     assertRebillCheckoutReady()
     const identity = silverCheckoutIdentity(request)
     const db = getTomateSupabase()
+    await recordCheckoutLead(db, { email, source: 'silver' })
     const { data, error } = await db.rpc('event_reserve_tickets', {
       p_event_slug: SILVER_EVENT.slug,
       p_quantity: quantity,

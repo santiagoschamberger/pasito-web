@@ -8,6 +8,7 @@ import {
   normalizeShippingAddress,
   type ShippingAddress,
 } from '@/lib/store-shipping'
+import { normalizeCheckoutEmail } from '@/lib/checkout-leads'
 import { getClientRebillAccount } from '@/lib/rebill-client'
 import styles from './tienda.module.css'
 
@@ -388,6 +389,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
   const [checkoutIntentId, setCheckoutIntentId] = useState<string | null>(null)
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>(() => ({ ...EMPTY_SHIPPING_ADDRESS }))
   const [shippingAddressError, setShippingAddressError] = useState<string | null>(null)
+  const [buyerEmail, setBuyerEmail] = useState('')
 
   useEffect(() => {
     loadRebillSDK().catch(() => undefined)
@@ -426,6 +428,11 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
       setShippingAddressError('Completá calle y número, localidad, provincia, código postal y un teléfono válido.')
       return
     }
+    const email = normalizeCheckoutEmail(buyerEmail)
+    if (!email) {
+      setShippingAddressError('Revisá tu email.')
+      return
+    }
 
     setPreparingCheckout(true)
     setShippingAddressError(null)
@@ -442,6 +449,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
           size,
           qty,
           address,
+          email,
           clientRebillAccount: getClientRebillAccount(),
         }),
       })
@@ -465,7 +473,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
     } finally {
       setPreparingCheckout(false)
     }
-  }, [base, canStartCheckout, qty, shippingAddress, size])
+  }, [base, buyerEmail, canStartCheckout, qty, shippingAddress, size])
 
   const closeCheckout = useCallback(() => {
     setOpen(false)
@@ -794,6 +802,19 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
             <p className={styles.shippingFormIntro}>La guardamos de forma segura para preparar y entregar este pedido.</p>
               <div className={styles.shippingGrid}>
                 <label className={styles.shippingFieldFull}>
+                  <span>Email</span>
+                  <input
+                    type="email"
+                    inputMode="email"
+                    value={buyerEmail}
+                    onChange={(event) => setBuyerEmail(event.target.value)}
+                    autoComplete="email"
+                    placeholder="tu@email.com"
+                    maxLength={254}
+                    required
+                  />
+                </label>
+                <label className={styles.shippingFieldFull}>
                   <span>Calle y número</span>
                   <input
                     type="text"
@@ -877,7 +898,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
                 </label>
               </div>
               {shippingAddressError && <p className={styles.shippingError} id="shipping-address-error" role="alert">{shippingAddressError}</p>}
-              <p className={styles.shippingPrivacy}>Solo usamos estos datos para gestionar la entrega de tu compra.</p>
+              <p className={styles.shippingPrivacy}>Usamos la dirección solo para la entrega. Con tu email te mandamos la confirmación y novedades de Pasito.</p>
             </fieldset>
           </div>
 

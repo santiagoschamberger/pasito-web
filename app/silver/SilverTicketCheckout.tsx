@@ -168,6 +168,7 @@ function checkoutErrorMessage(detail: unknown): string {
 export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: TicketInventoryTier[] }) {
   const [quantity, setQuantity] = useState(1)
   const [promoCode, setPromoCode] = useState('')
+  const [email, setEmail] = useState('')
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [tiers, setTiers] = useState<TicketInventoryTier[]>(initialTiers)
   const [quote, setQuote] = useState<Quote | null>(null)
@@ -240,6 +241,7 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           quantity, 
+          email,
           promoCode, 
           termsAccepted,
           clientRebillAccount: getClientRebillAccountForSilver(),
@@ -253,6 +255,7 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
         throw new Error(payload.error || 'No pudimos reservar las entradas.')
       }
       setQuote(payload)
+      setFreeEmail(email)
       setPaymentReceived(false)
       setPaymentId(null)
       setInactivePayment(null)
@@ -263,7 +266,7 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
     } finally {
       setPreparing(false)
     }
-  }, [promoCode, quantity, refreshAvailability, termsAccepted])
+  }, [email, promoCode, quantity, refreshAvailability, termsAccepted])
 
   const goBack = useCallback(async () => {
     if (!quote || confirming) return
@@ -532,6 +535,19 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
                   maxLength={40}
                 />
               </label>
+              <label className={styles.promoField}>
+                <span>Tu email</span>
+                <input
+                  type="email"
+                  inputMode="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="tu@email.com"
+                  autoComplete="email"
+                  maxLength={254}
+                  required
+                />
+              </label>
               <label className={styles.termsAcceptance}>
                 <input
                   type="checkbox"
@@ -545,7 +561,7 @@ export function SilverTicketCheckout({ initialTiers = [] }: { initialTiers?: Tic
                 </span>
               </label>
               {error && <div className={styles.checkoutError} role="alert">{error}</div>}
-              <button type="button" className={styles.checkoutPrimary} onClick={() => void startCheckout()} disabled={preparing || !termsAccepted}>
+              <button type="button" className={styles.checkoutPrimary} onClick={() => void startCheckout()} disabled={preparing || !termsAccepted || !email.trim()}>
                 {preparing ? 'Preparando tu reserva…' : 'Continuar al pago'}
               </button>
               <p className={styles.paymentFinePrint}>Vas a ver el total exacto antes de pagar.</p>

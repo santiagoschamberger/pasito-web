@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+import { normalizeCheckoutEmail, recordCheckoutLead } from '@/lib/checkout-leads'
 import {
   PASITO_CLUB_EVENT,
   PASITO_CLUB_PRICING_OPTION,
@@ -7,7 +8,6 @@ import {
   PASITO_CLUB_TERMS_VERSION,
   PASITO_CLUB_TRAININGS,
   findPack,
-  isValidEmail,
   normalizeWhatsapp,
   packIncludesRace,
   raceIsUpcoming,
@@ -16,9 +16,11 @@ import {
 import {
   PASITO_CLUB_BUYER_COOKIE,
   pasitoClubCheckoutIdentity,
+  pasitoClubMockMode,
   pasitoClubStore,
 } from '@/lib/pasito-club-server'
 import { assertClientRebillAccount } from '@/lib/rebill-routing'
+import { getTomateSupabase } from '@/lib/tomate-server'
 import { createIntentToken } from '@/lib/tomate-ticket-security'
 
 const headers = { 'Cache-Control': 'no-store, max-age=0' }
@@ -64,8 +66,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: `Elegí ${pack.size} ${pack.size === 1 ? 'fecha' : 'fechas'} que todavía no pasaron.` }, { status: 400, headers })
   }
 
-  const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
-  if (!isValidEmail(email)) return NextResponse.json({ error: 'Revisá tu email.' }, { status: 400, headers })
+  const email = normalizeCheckoutEmail(body.email)
+  if (!email) return NextResponse.json({ error: 'Revisá tu email.' }, { status: 400, headers })
   const phone = normalizeWhatsapp(typeof body.phone === 'string' ? body.phone : '')
   if (!phone) {
     return NextResponse.json({ error: 'Revisá tu WhatsApp: código de área + número, ej. 11 2345 6789.' }, { status: 400, headers })
@@ -75,6 +77,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    if (!pasitoClubMockMode()) await recordCheckoutLead(getTomateSupabase(), { email, source: 'pasito_club' })
     const store = pasitoClubStore()
     const inventory = await store.inventory()
     const tierIds = positions.map((position) => inventory.find((tier) => tier.position === position)?.tierId)
