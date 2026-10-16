@@ -26,7 +26,13 @@ function resultCopy(result: CheckinResult) {
   return { title: 'No pudimos validarla', detail: result.error || 'Revisá la conexión e intentá nuevamente.' }
 }
 
-export function CheckinClient() {
+type CheckinClientProps = {
+  eventSlug: string
+  title?: string
+  label?: string
+}
+
+export function CheckinClient({ eventSlug, title = 'Pasito × TOMATE', label = 'Check-in' }: CheckinClientProps) {
   const [auth, setAuth] = useState<AuthState>('loading')
   const [operator, setOperator] = useState('')
   const [password, setPassword] = useState('')
@@ -76,7 +82,7 @@ export function CheckinClient() {
       const response = await fetch('/api/events/tomate/check-in/redeem', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value }),
+        body: JSON.stringify({ value, eventSlug }),
       })
       const payload = await response.json().catch(() => ({})) as CheckinResult
       if (response.status === 401) {
@@ -199,7 +205,7 @@ export function CheckinClient() {
     <main className={styles.page}>
       <section className={styles.scannerCard}>
         <header>
-          <div><p>Pasito × TOMATE</p><h1>Check-in</h1><span>Operador: {operator}</span></div>
+          <div><p>{title}</p><h1>{label}</h1><span>Operador: {operator}</span></div>
           <button type="button" onClick={() => void logout()} aria-label="Cerrar sesión"><LogOut size={20} /></button>
         </header>
 
