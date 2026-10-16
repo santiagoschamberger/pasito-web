@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 
+import { TOMATE_EVENT } from '@/lib/tomate-event'
 import { CheckinClient } from './CheckinClient'
 
 export const metadata: Metadata = {
@@ -8,5 +9,5 @@ export const metadata: Metadata = {
 }
 
 export default function TomateCheckinPage() {
-  return <CheckinClient />
+  return <CheckinClient eventSlug={TOMATE_EVENT.slug} />
 }

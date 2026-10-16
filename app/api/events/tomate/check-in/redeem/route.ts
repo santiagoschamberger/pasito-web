@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { TOMATE_EVENT } from '@/lib/tomate-event'
+import { SILVER_EVENT } from '@/lib/silver-event'
 import { getTomateSupabase } from '@/lib/tomate-server'
 import { extractTicketToken, readCheckinSession, readTicketToken, TOMATE_CHECKIN_COOKIE } from '@/lib/tomate-ticket-security'
+
+const ALLOWED_EVENT_SLUGS = [TOMATE_EVENT.slug, SILVER_EVENT.slug] as const
 
 export async function POST(request: NextRequest) {
   const session = readCheckinSession(request.cookies.get(TOMATE_CHECKIN_COOKIE)?.value)
   if (!session) return NextResponse.json({ error: 'La sesión venció.' }, { status: 401 })
 
-  let body: { value?: unknown }
+  let body: { value?: unknown; eventSlug?: unknown }
   try {
     body = await request.json()
   } catch {
@@ -17,6 +20,11 @@ export async function POST(request: NextRequest) {
   const value = typeof body.value === 'string' ? body.value.trim() : ''
   if (!value || value.length > 500) {
     return NextResponse.json({ status: 'invalid', error: 'QR o código inválido.' }, { status: 400 })
+  }
+
+  const eventSlug = typeof body.eventSlug === 'string' ? body.eventSlug : TOMATE_EVENT.slug
+  if (eventSlug !== TOMATE_EVENT.slug && eventSlug !== SILVER_EVENT.slug) {
+    return NextResponse.json({ status: 'invalid', error: 'Evento no válido.' }, { status: 400 })
   }
 
   const token = extractTicketToken(value)
@@ -28,7 +36,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const { data, error } = await getTomateSupabase().rpc('event_redeem_ticket', {
-      p_event_slug: TOMATE_EVENT.slug,
+      p_event_slug: eventSlug,
       p_ticket_id: ticketId,
       p_short_code: shortCode,
       p_operator_id: session.operator,
