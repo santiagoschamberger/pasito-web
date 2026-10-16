@@ -84,9 +84,10 @@ function loadRebillSDK(): Promise<void> {
   return rebillSDKPromise
 }
 
-function RebillFrame({ product, email, onSuccess, onError }: {
+function RebillFrame({ product, email, phone, onSuccess, onError }: {
   product: Record<string, unknown>
   email?: string
+  phone?: string
   onSuccess: (detail: unknown) => void
   onError: (detail: unknown) => void
 }) {
@@ -123,7 +124,7 @@ function RebillFrame({ product, email, onSuccess, onError }: {
       checkout.setAttribute('public-key', REBILL_PUBLIC_KEY)
       checkout.setAttribute('instant-product', key)
       checkout.setAttribute('css', CHECKOUT_CSS)
-      applyRebillCheckoutDefaults(checkout, email)
+      applyRebillCheckoutDefaults(checkout, { email, phone })
       checkout.addEventListener('success', success)
       checkout.addEventListener('error', error)
       checkout.addEventListener('ready', markReady)
@@ -138,7 +139,7 @@ function RebillFrame({ product, email, onSuccess, onError }: {
       checkout?.removeEventListener('ready', markReady)
       checkout?.remove()
     }
-  }, [key, email])
+  }, [key, email, phone])
 
   if (loadError) {
     return <div className={styles.formError} role="alert">No pudimos cargar el pago seguro. Recargá la página e intentá nuevamente.</div>
@@ -501,7 +502,7 @@ export function PasitoClubCheckout({ mockCheckout = false }: { mockCheckout?: bo
             <button type="button" className={styles.primaryButton} onClick={simulatePayment}>Simular pago aprobado</button>
           </div>
         ) : (
-          <RebillFrame product={product} email={quote.email} onSuccess={handleSuccess} onError={(detail) => setError(paymentErrorMessage(detail))} />
+          <RebillFrame product={product} email={quote.email} phone={quote.phone} onSuccess={handleSuccess} onError={(detail) => setError(paymentErrorMessage(detail))} />
         )}
         <p className={styles.finePrint}><ShieldCheck aria-hidden="true" /> Pago seguro con Rebill. Tus cupos quedan guardados mientras corre el reloj.</p>
       </div>

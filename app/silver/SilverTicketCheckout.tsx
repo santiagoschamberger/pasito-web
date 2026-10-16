@@ -123,7 +123,7 @@ function CheckoutFrame({
       checkout.setAttribute('public-key', REBILL_PUBLIC_KEY)
       checkout.setAttribute('instant-product', key)
       checkout.setAttribute('css', CHECKOUT_CSS)
-      applyRebillCheckoutDefaults(checkout, email)
+      applyRebillCheckoutDefaults(checkout, { email })
       checkout.addEventListener('success', success)
       checkout.addEventListener('error', error)
       checkout.addEventListener('ready', markReady)

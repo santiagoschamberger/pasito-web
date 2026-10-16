@@ -9,6 +9,7 @@ import {
   type ShippingAddress,
 } from '@/lib/store-shipping'
 import { normalizeCheckoutEmail } from '@/lib/checkout-leads'
+import { normalizeWhatsapp } from '@/lib/pasito-club-event'
 import { applyRebillCheckoutDefaults, getClientRebillAccount } from '@/lib/rebill-client'
 import styles from './tienda.module.css'
 
@@ -246,6 +247,7 @@ function ShirtVisual({ base, src }: { base: Base; src?: string }) {
 function CheckoutFrame({
   instantProduct,
   email,
+  phone,
   onSuccess,
   onError,
   onReady,
@@ -253,6 +255,7 @@ function CheckoutFrame({
 }: {
   instantProduct: Record<string, unknown>
   email?: string | null
+  phone?: string | null
   onSuccess: (detail: unknown) => void
   onError: (detail: unknown) => void
   onReady: () => void
@@ -283,7 +286,7 @@ function CheckoutFrame({
         el.setAttribute('public-key', REBILL_PUBLIC_KEY)
         el.setAttribute('instant-product', key)
         el.setAttribute('css', CHECKOUT_CSS)
-        applyRebillCheckoutDefaults(el, email)
+        applyRebillCheckoutDefaults(el, { email, phone })
 
         handleSuccess = (e: Event) => onSuccess((e as CustomEvent).detail)
         handleError = (e: Event) => onError((e as CustomEvent).detail)
@@ -315,7 +318,7 @@ function CheckoutFrame({
       if (readyFallback) window.clearTimeout(readyFallback)
       el?.remove()
     }
-  }, [key, email, onSuccess, onError, onReady])
+  }, [key, email, phone, onSuccess, onError, onReady])
 
   if (loadError) {
     return <p className="rounded-2xl px-4 py-3 text-sm" style={{ background: '#FDECEC', color: '#B42318' }}>No pudimos cargar el checkout seguro. Probá de nuevo en unos segundos.</p>
@@ -386,6 +389,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
   const [preparingCheckout, setPreparingCheckout] = useState(false)
   const [checkoutIntentId, setCheckoutIntentId] = useState<string | null>(null)
   const [checkoutEmail, setCheckoutEmail] = useState<string | null>(null)
+  const [checkoutPhone, setCheckoutPhone] = useState<string | null>(null)
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>(() => ({ ...EMPTY_SHIPPING_ADDRESS }))
   const [shippingAddressError, setShippingAddressError] = useState<string | null>(null)
   const [buyerEmail, setBuyerEmail] = useState('')
@@ -463,6 +467,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
 
       setCheckoutIntentId(nextIntentId)
       setCheckoutEmail(email)
+      setCheckoutPhone(normalizeWhatsapp(address.phone))
       setDone(null)
       setCheckoutReady(false)
       setCheckoutError(null)
@@ -649,7 +654,7 @@ export function StoreClient({ stock }: { stock?: StockMap }) {
               </div>
             )}
             {registeringOrder && <div className="mb-4 rounded-xl px-4 py-3 text-sm" style={{ background: '#F4EFE9', color: '#006D42' }}>Confirmando pago y reservando tu talle…</div>}
-            <CheckoutFrame instantProduct={instantProduct} email={checkoutEmail} onSuccess={handleSuccess} onError={handleError} onReady={handleCheckoutReady} isReady={checkoutReady} />
+            <CheckoutFrame instantProduct={instantProduct} email={checkoutEmail} phone={checkoutPhone} onSuccess={handleSuccess} onError={handleError} onReady={handleCheckoutReady} isReady={checkoutReady} />
           </div>
         )}
       </div>

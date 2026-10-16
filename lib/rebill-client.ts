@@ -91,13 +91,29 @@ export const REBILL_CHECKOUT_DISPLAY = JSON.stringify({
   footer: false,
 })
 
+export type RebillCustomerPrefill = {
+  email?: string | null
+  /** Celular en E.164 (+549…). Otros formatos o países se ignoran. */
+  phone?: string | null
+}
+
 /**
  * Datos que ya pedimos en nuestro formulario, para que Rebill no los vuelva
- * a pedir (se usa como valor inicial del campo; el usuario puede editarlo).
+ * a pedir (se usan como valor inicial de cada campo; el usuario puede editarlos).
+ *
+ * El selector de teléfono de Rebill para Argentina usa el prefijo "+54 9",
+ * así que le pasamos el número nacional sin el 9 (código de área + número).
  */
-export function rebillCustomerInformation(email?: string | null): string | null {
-  const trimmed = email?.trim()
-  return trimmed ? JSON.stringify({ email: trimmed }) : null
+export function rebillCustomerInformation({ email, phone }: RebillCustomerPrefill): string | null {
+  const info: Record<string, unknown> = {}
+  const trimmedEmail = email?.trim()
+  if (trimmedEmail) info.email = trimmedEmail
+  const arMobile = phone?.trim().match(/^\+549(\d{10})$/)
+  if (arMobile) {
+    info.countryCode = 'AR'
+    info.phoneNumber = { number: arMobile[1], countryCode: '+54 9' }
+  }
+  return Object.keys(info).length ? JSON.stringify(info) : null
 }
 
 /**
@@ -105,10 +121,10 @@ export function rebillCustomerInformation(email?: string | null): string | null 
  * `one-click-checkout` en false saca el botón "tengo cuenta Rebill" y su
  * paso de código por email.
  */
-export function applyRebillCheckoutDefaults(el: HTMLElement, email?: string | null): void {
+export function applyRebillCheckoutDefaults(el: HTMLElement, prefill: RebillCustomerPrefill = {}): void {
   el.setAttribute('display', REBILL_CHECKOUT_DISPLAY)
   el.setAttribute('language', 'es')
   el.setAttribute('one-click-checkout', 'false')
-  const customer = rebillCustomerInformation(email)
+  const customer = rebillCustomerInformation(prefill)
   if (customer) el.setAttribute('customer-information', customer)
 }
