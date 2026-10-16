@@ -1,5 +1,5 @@
-import { permanentRedirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
 
-export default function LegacyTomateCheckinPage() {
-  permanentRedirect('/evento-pasito/check-in')
+export default function TomateCheckinRedirect() {
+  redirect('/check-in')
 }
