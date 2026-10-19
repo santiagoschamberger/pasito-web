@@ -31,13 +31,16 @@ Agenda interna del equipo: cada persona conecta su Google Calendar, tiene su pá
 | `EMAIL_SERVER_HOST` / `PORT` / `USER` | `smtp.resend.com` / `465` / `resend` |
 | `NEXTAUTH_SECRET`, `CALENDSO_ENCRYPTION_KEY`, `DATABASE_*` | Generados por Railway (no tocar) |
 
-- [x] Custom domain `agenda.pasito.app` agregado al servicio (puerto 3000)
+- [x] Custom domain `agenda.pasito.app` agregado al servicio (puerto 3000), DNS en Cloudflare (CNAME en DNS only + TXT), SSL emitido
+- [x] Fixes sobre el template:
+  - `NEXT_PUBLIC_SINGLE_ORG_SLUG` vacío. El template lo trae en `"false"`, Cal.com lo toma como si estuviera activado y prende "Single-Org-Mode".
+  - **Sin healthcheck HTTP.** Cal.com responde 307 en `/` y `/auth/*` (redirige al login o al setup) y Railway exige 200, así que el deploy fallaba. Si se agrega un healthcheck, tiene que ser una ruta que devuelva 200.
 
 ---
 
 ## 2. Pendiente
 
-### 2.1 DNS en Cloudflare (zona `pasito.app`)
+### 2.1 DNS en Cloudflare (zona `pasito.app`) — ✅ hecho
 
 | Tipo | Nombre | Valor | Proxy |
 |---|---|---|---|
