@@ -51,7 +51,7 @@ test('alerts flag overdue tasks, unsigned sponsors and late permits', () => {
     row('task', { titulo: 'Vencida', due: '2026-11-01', owner: 'a@pasito.app' }),
     row('task', { titulo: 'Hecha', due: '2026-11-01', estado: 'hecha' }),
     row('task', { titulo: 'Sin dueño' }),
-    row('sponsor', { marca: 'Marca B', etapa: 'confirmado', contrato: 'enviado' }),
+    row('sponsor', { marca: 'Marca B', etapa: 'confirmado', contrato: 'enviado', dinero: 1000 }),
     row('permit', { tramite: 'Municipio', estado: 'pendiente' }),
   ], '2026-11-12')
   const texts = alerts.map((a) => a.text)
@@ -80,7 +80,7 @@ test('duplicating keeps structure, drops real amounts and turns "a mejorar" into
   assert.deepEqual(seeds.find((s) => s.kind === 'budget')?.data, { tipo: 'egreso', categoria: undefined, concepto: 'Sonido', presupuestado: 100, responsable: undefined, estado: 'pendiente' })
   assert.equal(seeds.find((s) => s.data.titulo === 'Flyer')?.data.due, undefined)
   assert.ok(seeds.some((s) => s.kind === 'task' && s.data.titulo === 'Mejorar: Llegar antes'))
-  assert.equal(seeds.filter((s) => s.kind === 'sponsor').length, 0)
+  assert.deepEqual(seeds.find((s) => s.kind === 'sponsor')?.data.etapa, 'contacto')
 })
 
 test('values are validated per column', () => {

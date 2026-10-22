@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     if (error) throw error
 
     const next = typeof body.next === 'string' && body.next.startsWith('/gestion') ? body.next : '/gestion'
-    const link = `${publicOrigin(request)}/api/gestion/auth/verify?token=${encodeURIComponent(token)}&next=${encodeURIComponent(next)}`
+    const link = `${publicOrigin(request)}/gestion/login?token=${encodeURIComponent(token)}&next=${encodeURIComponent(next)}`
     if (!process.env.RESEND_API_KEY && process.env.NODE_ENV !== 'production') {
       return NextResponse.json({ ok: true, devLink: link })
     }

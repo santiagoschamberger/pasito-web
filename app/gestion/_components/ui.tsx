@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { CalendarDays, CheckSquare, Home, LayoutGrid, LogOut, Users } from 'lucide-react'
 
 import { STATUS_LABEL, type EffectiveStatus } from '@/lib/gestion/schema'
@@ -68,11 +69,49 @@ export function Avatar({ name, email, size = 28, className }: { name?: string | 
   )
 }
 
+// Mide si un logo es casi todo blanco (pensado para fondo oscuro). Si la imagen
+// no permite leerse (CORS), queda el fondo claro por defecto.
+function useIsLightImage(src?: string | null) {
+  const [light, setLight] = useState(false)
+  useEffect(() => {
+    setLight(false)
+    if (!src) return
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      try {
+        const size = 32
+        const canvas = document.createElement('canvas')
+        canvas.width = size
+        canvas.height = size
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return
+        ctx.drawImage(img, 0, 0, size, size)
+        const { data } = ctx.getImageData(0, 0, size, size)
+        let sum = 0
+        let count = 0
+        for (let i = 0; i < data.length; i += 4) {
+          if (data[i + 3] < 40) continue
+          sum += (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255
+          count += 1
+        }
+        // Mayormente transparente y lo visible es claro: necesita fondo oscuro.
+        setLight(count > 0 && count < size * size * 0.9 && sum / count > 0.82)
+      } catch {
+        // Canvas bloqueado por CORS.
+      }
+    }
+    img.src = src
+  }, [src])
+  return light
+}
+
 // Logo de marca o portada; si no hay imagen, iniciales sobre color.
 export function Logo({ src, name, size = 40, rounded = 'rounded-lg', className }: { src?: string | null; name: string; size?: number; rounded?: string; className?: string }) {
+  const light = useIsLightImage(src)
   if (src) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={src} alt={name} width={size} height={size} className={cn('shrink-0 border border-[#E3E8DF] bg-white object-contain p-0.5', rounded, className)} style={{ width: size, height: size }} />
+    return <img src={src} alt={name} width={size} height={size} className={cn('shrink-0 border object-contain p-1', light ? 'border-[#00402E] bg-[#00402E]' : 'border-[#E3E8DF] bg-white', rounded, className)} style={{ width: size, height: size }} />
   }
   return (
     <span className={cn('grid shrink-0 place-items-center bg-[#EDF2EA] font-bold text-[#006D42]', rounded, className)} style={{ width: size, height: size, fontSize: size * 0.38 }}>

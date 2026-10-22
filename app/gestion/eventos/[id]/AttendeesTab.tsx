@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
-import { DoorOpen, Download, KeyRound, Mail, QrCode, RefreshCw, Trash2, Upload, UserPlus, X } from 'lucide-react'
+import { DoorOpen, Download, KeyRound, Mail, QrCode, RefreshCw, Ticket, Trash2, Upload, UserPlus, X } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { ATTENDEE_KINDS, ORIGIN_LABEL, type Attendee, type AttendeeOrigin, type GestionEvent } from '@/lib/gestion/schema'
@@ -10,7 +10,7 @@ import { arrivalsBy15Min, attendanceStats } from '@/lib/gestion/summary'
 import { mapAttendeeRows, parseCsv } from '@/lib/gestion/csv'
 import { api } from '../../_components/api'
 import { btnGhost, btnPrimary, btnSecondary, card, Empty, input, label } from '../../_components/ui'
-import { Section, type PasitoEventLite, type SessionUser } from './EventClient'
+import { Section, type PasitoEventLite, type SessionUser, type WebSalesLite } from './EventClient'
 
 type DoorPin = { id: string; label: string; valid_from: string; valid_until: string; revoked_at: string | null; created_by: string | null }
 
@@ -18,15 +18,17 @@ const SHOW = 200
 
 const when = (iso: string) => new Date(iso).toLocaleString('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false })
 
-export function AttendeesTab({ event, user, pasitoEvents, onAttendanceToKpi }: {
+export function AttendeesTab({ event, user, pasitoEvents, onAttendanceToKpi, onGoTo }: {
   event: GestionEvent
   user: SessionUser
   pasitoEvents: PasitoEventLite[]
   onAttendanceToKpi: (inside: number) => void
+  onGoTo: (tab: string) => void
 }) {
   const [attendees, setAttendees] = useState<Attendee[] | null>(null)
   const [arrivals, setArrivals] = useState<string[]>([])
   const [duplicates, setDuplicates] = useState(0)
+  const [web, setWeb] = useState<WebSalesLite | null>(null)
   const [query, setQuery] = useState('')
   const [origin, setOrigin] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -35,7 +37,8 @@ export function AttendeesTab({ event, user, pasitoEvents, onAttendanceToKpi }: {
   const canEdit = user.canEdit && event.status !== 'cerrado'
 
   const load = useCallback(async () => {
-    const result = await api<{ attendees: Attendee[]; arrivals: string[]; duplicates: number }>(`/api/gestion/events/${event.id}/attendees`)
+    const result = await api<{ attendees: Attendee[]; arrivals: string[]; duplicates: number; web: WebSalesLite }>(`/api/gestion/events/${event.id}/attendees`)
+    setWeb(result.web)
     setAttendees(result.attendees)
     setArrivals(result.arrivals)
     setDuplicates(result.duplicates)
@@ -70,15 +73,17 @@ export function AttendeesTab({ event, user, pasitoEvents, onAttendanceToKpi }: {
   }
 
   async function sendQr() {
-    const targets = (attendees ?? []).filter((a) => a.email && a.status === 'anotado' && a.origin !== 'app')
-    if (!targets.length) return toast('No hay personas con mail pendientes de ingreso (los de la app usan su código).')
-    if (!window.confirm(`¿Mandar el QR por mail a ${targets.length} persona(s)?`)) return
+    // Las entradas web ya recibieron su QR al comprar; los de la app usan su código.
+    const targets = (attendees ?? []).filter((a) => a.email && a.status === 'anotado' && a.origin !== 'app' && !a.origin_ref?.startsWith('web:') && !a.qr_sent_at)
+    if (!targets.length) return toast('No hay invitados con mail que falten recibir el QR. Las entradas web ya tienen el suyo.')
+    if (!window.confirm(`¿Mandar el QR por mail a ${targets.length} persona(s) que todavía no lo recibieron?`)) return
     let sent = 0
-    for (let i = 0; i < targets.length; i += 300) {
-      const result = await api<{ sent: number }>(`/api/gestion/events/${event.id}/send-qr`, { body: { attendeeIds: targets.slice(i, i + 300).map((a) => a.id) } })
+    for (let i = 0; i < targets.length; i += 500) {
+      const result = await api<{ sent: number }>(`/api/gestion/events/${event.id}/send-qr`, { body: { attendeeIds: targets.slice(i, i + 500).map((a) => a.id) } })
       sent += result.sent
     }
     toast.success(`${sent} mail(s) enviados`)
+    void load()
   }
 
   async function toggleStatus(a: Attendee) {
@@ -109,7 +114,7 @@ export function AttendeesTab({ event, user, pasitoEvents, onAttendanceToKpi }: {
 
       <div className="flex flex-wrap gap-2">
         <Link href={`/gestion/puerta/${event.id}`} className={btnPrimary}><DoorOpen className="size-4" />Modo puerta</Link>
-        {canEdit && <button className={btnSecondary} onClick={sync} disabled={syncing}><RefreshCw className={`size-4 ${syncing ? 'animate-spin' : ''}`} />Sincronizar app + staff</button>}
+        {canEdit && <button className={btnSecondary} onClick={sync} disabled={syncing}><RefreshCw className={`size-4 ${syncing ? 'animate-spin' : ''}`} />Sincronizar</button>}
         {canEdit && <button className={btnSecondary} onClick={() => setPanel(panel === 'add' ? null : 'add')}><UserPlus className="size-4" />Agregar</button>}
         {canEdit && <button className={btnSecondary} onClick={() => setPanel(panel === 'import' ? null : 'import')}><Upload className="size-4" />Importar CSV</button>}
         {canEdit && <button className={btnSecondary} onClick={sendQr}><Mail className="size-4" />Mandar QR por mail</button>}
@@ -118,7 +123,18 @@ export function AttendeesTab({ event, user, pasitoEvents, onAttendanceToKpi }: {
         {canEdit && stats.inside > 0 && <button className={btnGhost} onClick={() => onAttendanceToKpi(insideTotal)}>Cargar asistencia en Objetivos</button>}
       </div>
 
-      {pasitoEvents.length === 0 && <p className="text-sm text-[#5F6761]">Tip: vinculá el evento de la app en la pestaña Ficha para traer a quienes canjearon su entrada.</p>}
+      {web && (web.tickets > 0 || (event.web_tiers ?? []).length > 0) && (
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[#CFE3D6] bg-[#F2F6F1] px-4 py-3 text-sm">
+          <Ticket className="size-5 text-[#006D42]" />
+          <span><strong>{web.tickets}</strong> entradas web vendidas{web.refunded ? ` · ${web.refunded} reembolsadas` : ''} · se suman solas a la lista (Rebill). En la puerta se escanea el mismo QR que les llegó al comprar.</span>
+        </div>
+      )}
+      {pasitoEvents.length === 0 && !(event.web_tiers ?? []).length && (
+        <button onClick={() => onGoTo('ficha')} className="flex w-full items-center gap-3 rounded-xl border border-dashed border-[#C3CCC5] bg-white px-4 py-3 text-left text-sm text-[#5F6761] hover:border-[#006D42]">
+          <Ticket className="size-5 text-[#006D42]" />
+          <span><strong className="text-[#171D1A]">Conectá las entradas.</strong> En la Ficha vinculá la tanda de entradas web o el evento de la app y la lista se arma sola.</span>
+        </button>
+      )}
 
       {panel === 'add' && <AddForm eventId={event.id} onDone={() => { setPanel(null); void load() }} />}
       {panel === 'import' && <ImportForm eventId={event.id} onDone={() => { setPanel(null); void load() }} />}

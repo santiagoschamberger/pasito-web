@@ -24,17 +24,21 @@ export async function POST(request: NextRequest, { params }: Params) {
     if (rateError) throw rateError
     if (!allowed) throw new HttpError(429, 'Demasiados intentos. Esperá 15 minutos.')
 
-    const now = new Date().toISOString()
-    const { data } = await db()
+    const { data: pins } = await db()
       .from('gestion_door_pins')
-      .select('id, valid_until, label')
+      .select('id, valid_from, valid_until, label, revoked_at')
       .eq('event_id', eventId)
       .eq('pin_hash', pinHash(eventId, pin))
-      .is('revoked_at', null)
-      .lte('valid_from', now)
-      .gte('valid_until', now)
-      .maybeSingle()
-    if (!data) throw new HttpError(401, 'PIN incorrecto o fuera de horario.')
+    const now = Date.now()
+    const data = (pins ?? []).find((p) => !p.revoked_at && Date.parse(p.valid_from) <= now && Date.parse(p.valid_until) >= now)
+    if (!data) {
+      const early = (pins ?? []).find((p) => !p.revoked_at && Date.parse(p.valid_from) > now)
+      const when = (iso: string) => new Date(iso).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', weekday: 'long', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false })
+      if (early) throw new HttpError(401, `Este PIN se activa el ${when(early.valid_from)}.`)
+      if ((pins ?? []).some((p) => p.revoked_at)) throw new HttpError(401, 'Este PIN fue revocado. Pedile uno nuevo al responsable.')
+      if ((pins ?? []).length) throw new HttpError(401, 'Este PIN ya venció. Pedile uno nuevo al responsable.')
+      throw new HttpError(401, 'PIN incorrecto.')
+    }
 
     const cookie = createDoorCookie({ ev: eventId, pin: data.id, dev: device || 'sin-id', op: operator || data.label }, new Date(data.valid_until))
     const response = NextResponse.json({ ok: true, label: data.label })

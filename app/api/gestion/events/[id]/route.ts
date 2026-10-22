@@ -16,7 +16,7 @@ export async function GET(_request: NextRequest, { params }: Params) {
       getRows([id]),
       db().from('gestion_activity').select('id, event_id, actor, action, entity, summary, created_at').eq('event_id', id).order('created_at', { ascending: false }).limit(60),
       event.pasito_event_ids.length
-        ? db().from('partner_events').select('id, title, start_at, max_participants, participant_count').in('id', event.pasito_event_ids)
+        ? db().from('partner_events').select('id, title, start_at, max_participants, participant_count, photo_url').in('id', event.pasito_event_ids)
         : Promise.resolve({ data: [] }),
       webSales(event),
     ])
@@ -57,7 +57,7 @@ function cleanField(field: string, value: unknown): unknown {
     case 'series':
       return typeof value === 'string' && value.trim() ? value.trim().slice(0, 80) : null
     case 'cover_url':
-      if (value !== null && !(typeof value === 'string' && /^https:\/\//.test(value) && value.length < 2000)) throw new HttpError(400, 'Imagen inválida.')
+      if (value !== null && !(typeof value === 'string' && (/^https:\/\//.test(value) || /^\/[A-Za-z0-9/_.-]+$/.test(value)) && value.length < 2000)) throw new HttpError(400, 'Imagen inválida.')
       return value
     case 'drive_url':
       if (value !== null && !(typeof value === 'string' && /^https:\/\//.test(value))) throw new HttpError(400, 'El link tiene que empezar con https://')

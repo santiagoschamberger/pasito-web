@@ -6,7 +6,7 @@ import { EVENT_TYPES, STATUS_LABEL, type EffectiveStatus, type TeamUser } from '
 import { api } from '../_components/api'
 import { EventCard, type EventCardData } from '../_components/EventCard'
 import { NewEventButton } from '../_components/NewEventButton'
-import { btnGhost, Empty, input, Shell } from '../_components/ui'
+import { btnGhost, Empty, input, PageHeader, Shell, STATUS_DOT } from '../_components/ui'
 
 const ORDER: EffectiveStatus[] = ['en_curso', 'produccion', 'confirmado', 'planificacion', 'idea', 'realizado', 'cerrado', 'cancelado']
 
@@ -22,19 +22,20 @@ export function EventsClient({ user, users }: { user: TeamUser & { canEdit: bool
   }, [archived])
 
   const groups = useMemo(() => {
-    const filtered = (events ?? []).filter((e) => (!type || e.type === type) && (!query || e.name.toLowerCase().includes(query.toLowerCase())))
+    const filtered = (events ?? []).filter((e) => (!type || e.type === type) && (!query || `${e.name} ${e.series ?? ''} ${e.venue ?? ''}`.toLowerCase().includes(query.toLowerCase())))
     return ORDER.map((status) => ({ status, items: filtered.filter((e) => e.effective_status === status) })).filter((g) => g.items.length)
   }, [events, query, type])
 
   return (
     <Shell user={user}>
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-        <h1 className="text-[28px] leading-[34px] font-extrabold">{archived ? 'Eventos archivados' : 'Eventos'}</h1>
-        <div className="flex gap-2">
+      <PageHeader
+        title={archived ? 'Eventos archivados' : 'Eventos'}
+        subtitle="Agrupados por estado. Las fechas pasadas se marcan solas como realizadas."
+        actions={<>
           <button className={btnGhost} onClick={() => setArchived(!archived)}>{archived ? 'Ver activos' : 'Ver archivados'}</button>
           <NewEventButton disabled={!user.canEdit} />
-        </div>
-      </div>
+        </>}
+      />
       <div className="mb-5 flex flex-wrap gap-2">
         <input className={`${input} max-w-xs`} placeholder="Buscar…" value={query} onChange={(e) => setQuery(e.target.value)} />
         <select className={`${input} max-w-[220px]`} value={type} onChange={(e) => setType(e.target.value)}>
@@ -46,7 +47,7 @@ export function EventsClient({ user, users }: { user: TeamUser & { canEdit: bool
         <div className="space-y-6">
           {groups.map((group) => (
             <section key={group.status}>
-              <h2 className="mb-2 text-sm font-bold text-[#5F6761] uppercase">{STATUS_LABEL[group.status]} · {group.items.length}</h2>
+              <h2 className="mb-3 flex items-center gap-2 text-sm font-bold text-[#5F6761] uppercase"><span className="size-2 rounded-full" style={{ background: STATUS_DOT[group.status] }} />{STATUS_LABEL[group.status]} · {group.items.length}</h2>
               <div className="grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
                 {group.items.map((event) => <EventCard key={event.id} event={event} users={users} />)}
               </div>

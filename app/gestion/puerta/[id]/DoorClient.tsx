@@ -375,14 +375,14 @@ export function DoorClient({ eventId }: { eventId: string }) {
       .slice(0, 30)
   }, [query, snapshot])
 
-  if (phase === 'loading') return <div className="grid min-h-dvh place-items-center bg-[#0E1411] text-white">Cargando lista…</div>
+  if (phase === 'loading') return <div className="grid min-h-dvh place-items-center bg-[#00261B] text-white">Cargando lista…</div>
   if (phase === 'pin') return <PinForm eventId={eventId} onDone={() => loadList().then((ok) => ok && setPhase('ready'))} />
   if (!snapshot) return null
 
   const tone = result?.tone
   return (
-    <div className="min-h-dvh bg-[#0E1411] text-white select-none">
-      <header className="sticky top-0 z-20 bg-[#0E1411]/95 px-4 pt-3 pb-2 backdrop-blur">
+    <div className="min-h-dvh bg-[#00261B] text-white select-none">
+      <header className="sticky top-0 z-20 bg-[#00261B]/95 px-4 pt-3 pb-2 backdrop-blur">
         <div className="flex items-center justify-between gap-2">
           <p className="truncate text-sm text-white/70">{snapshot.event.name}</p>
           <div className="flex items-center gap-3 text-xs">
@@ -513,9 +513,11 @@ function PinForm({ eventId, onDone }: { eventId: string; onDone: () => void }) {
     }
   }
   return (
-    <div className="grid min-h-dvh place-items-center bg-[#0E1411] p-6 text-white">
+    <div className="grid min-h-dvh place-items-center bg-[#00261B] p-6 text-white">
       <form onSubmit={submit} className="w-full max-w-sm space-y-4">
-        <p className="text-sm font-semibold text-[#EBFA61]">Eventos Pasito · Puerta</p>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/brand/logo-white.svg" alt="Pasito" className="h-6 w-auto" />
+        <p className="text-sm font-semibold text-[#EBFA61]">Puerta</p>
         <h1 className="text-3xl font-black">Ingresá el PIN</h1>
         <input value={operator} onChange={(e) => setOperator(e.target.value)} placeholder="Tu nombre" className="h-14 w-full rounded-xl bg-white/10 px-4 text-lg outline-none" />
         <input value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" placeholder="••••••" className="h-16 w-full rounded-xl bg-white/10 px-4 text-center font-mono text-3xl tracking-[0.4em] outline-none" />

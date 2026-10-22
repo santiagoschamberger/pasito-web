@@ -56,7 +56,7 @@ as $$
   )
   select t.id, t.short_code, t.ticket_number::int, t.quantity::int, t.customer_name, t.customer_email,
          t.checked_in_at, t.status, t.payment_status = 'approved', t.key,
-         case when w.list_total > 0 then round(t.amount * t.unit_price / w.list_total) else 0 end,
+         case when w.list_total > 0 then round(t.amount::numeric * t.unit_price / w.list_total) else 0 end,
          t.ordered_at
     from tickets t
     join order_weights w on w.order_id = t.order_id;

@@ -150,7 +150,7 @@ export function eventAlerts(event: GestionEvent, rows: GestionRow[], today = tod
     }
     if (row.kind === 'sponsor') {
       const brand = String(d.marca || 'Sponsor')
-      if (status !== 'realizado' && (d.etapa === 'confirmado' || d.etapa === 'cobrado') && d.contrato !== 'firmado') push('warning', 'sponsor', `${brand}: confirmado sin contrato firmado`, row.id)
+      if (status !== 'realizado' && num(d.dinero) > 0 && (d.etapa === 'confirmado' || d.etapa === 'cobrado') && d.contrato !== 'firmado') push('warning', 'sponsor', `${brand}: confirmado sin contrato firmado`, row.id)
       if (d.etapa === 'confirmado' && typeof d.fecha_cobro === 'string' && d.fecha_cobro < today) push('critical', 'sponsor', `${brand}: cobro vencido`, row.id)
     }
     if (row.kind === 'vendor' && !d.saldo_pagado && typeof d.fecha_pago === 'string' && d.fecha_pago < today) {
@@ -275,6 +275,10 @@ export function duplicateSeeds(rows: GestionRow[]): Seed[] {
         break
       case 'kpi':
         seeds.push({ kind: 'kpi', data: { nombre: d.nombre, objetivo: d.objetivo, unidad: d.unidad } })
+        break
+      case 'sponsor':
+        // Los sponsors vuelven al inicio del pipeline para recontactarlos.
+        seeds.push({ kind: 'sponsor', data: { marca: d.marca, logo: d.logo, nivel: d.nivel, contacto: d.contacto, responsable: d.responsable, etapa: 'contacto', contrato: 'no' } })
         break
       case 'learning':
         if (d.tipo === 'mejorar' && d.texto) seeds.push({ kind: 'task', data: { titulo: `Mejorar: ${String(d.texto)}`, estado: 'pendiente', prioridad: 'alta' } })

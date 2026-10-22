@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Link2, Search, X } from 'lucide-react'
+import { Link2, Search, Ticket, X } from 'lucide-react'
 
 import { EVENT_TYPES, type EventType, type GestionEvent, type TeamUser } from '@/lib/gestion/schema'
 import { api } from '../../_components/api'
@@ -18,6 +18,7 @@ const FIELDS: Field[] = [
   { key: 'capacity', label: 'Cupo / capacidad', type: 'number' },
   { key: 'venue', label: 'Lugar', placeholder: 'Nombre del venue' },
   { key: 'city', label: 'Ciudad / barrio' },
+  { key: 'series', label: 'Serie o ciclo (agrupa eventos)', placeholder: 'Ej: Pasito Club 2026' },
   { key: 'drive_url', label: 'Carpeta de Drive', type: 'url', placeholder: 'https://drive.google.com/…', wide: true },
   { key: 'objective', label: 'Objetivo del evento', type: 'textarea', wide: true },
   { key: 'notes', label: 'Notas', type: 'textarea', wide: true },
@@ -64,6 +65,10 @@ export function FichaTab({ event, users, user, canEdit, tableProps, pasitoEvents
 
       <Section title="Contactos">
         <SectionTable {...tableProps} kind="contact" />
+      </Section>
+
+      <Section title="Entradas vendidas en la web" hint="Vinculá la tanda de entradas de pasito.app: ventas, ingresos y lista se actualizan solos con Rebill, y el check-in marca la entrada original.">
+        <WebTiersLink event={event} disabled={!canEdit} onUpdate={async (keys) => { if (await onUpdate({ web_tiers: keys })) onReload() }} />
       </Section>
 
       <Section title="Evento en la app Pasito" hint="Vinculalo para traer a la lista quienes se anotaron o canjearon su entrada.">
@@ -156,6 +161,47 @@ function PasitoLink({ event, linked, disabled, onUpdate }: { event: GestionEvent
             ))}
           </ul>
         </div>
+      )}
+    </div>
+  )
+}
+
+type TierOption = { tier_key: string; event_slug: string; tier_position: number; name: string; unit_price: number; capacity: number | null }
+
+function WebTiersLink({ event, disabled, onUpdate }: { event: GestionEvent; disabled: boolean; onUpdate: (keys: string[]) => void }) {
+  const [options, setOptions] = useState<TierOption[]>([])
+  useEffect(() => {
+    api<{ tiers: TierOption[] }>('/api/gestion/web-tiers', { quiet: true }).then((r) => setOptions(r.tiers)).catch(() => null)
+  }, [])
+  const linked = event.web_tiers ?? []
+  const bySlug = options.reduce<Record<string, TierOption[]>>((acc, o) => ((acc[o.event_slug] ||= []).push(o), acc), {})
+  return (
+    <div className={`${card} space-y-3 p-4`}>
+      {linked.length === 0 ? <p className="text-sm text-[#5F6761]">Sin entradas web vinculadas.</p> : (
+        <ul className="flex flex-wrap gap-2">
+          {linked.map((key) => {
+            const option = options.find((o) => o.tier_key === key)
+            return (
+              <li key={key} className="flex items-center gap-2 rounded-full border border-[#CFE3D6] bg-[#F2F6F1] py-1 pr-1 pl-3 text-sm">
+                <Ticket className="size-3.5 text-[#006D42]" />
+                <span className="font-semibold">{option?.name ?? key}</span>
+                {!disabled && <button className="grid size-6 place-items-center rounded-full hover:bg-white" onClick={() => onUpdate(linked.filter((k) => k !== key))}><X className="size-3.5" /></button>}
+              </li>
+            )
+          })}
+        </ul>
+      )}
+      {!disabled && options.length > 0 && (
+        <select className={input} value="" onChange={(e) => e.target.value && onUpdate([...linked, e.target.value])}>
+          <option value="">+ Vincular una tanda de entradas…</option>
+          {Object.entries(bySlug).map(([slug, tiers]) => (
+            <optgroup key={slug} label={slug}>
+              {tiers.filter((t) => !linked.includes(t.tier_key)).map((t) => (
+                <option key={t.tier_key} value={t.tier_key}>{t.name}{t.unit_price ? ` · $${t.unit_price.toLocaleString('es-AR')}` : ' · sin cargo'}{t.capacity ? ` · cupo ${t.capacity}` : ''}</option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
       )}
     </div>
   )

@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 
 import type { TeamUser } from '@/lib/gestion/schema'
 import { api } from '../_components/api'
-import { btnPrimary, card, input, label, Shell } from '../_components/ui'
+import { Avatar, btnPrimary, card, input, label, PageHeader, Shell } from '../_components/ui'
 
 const ROLES = [
   { value: 'admin', label: 'Admin', hint: 'Todo, incluido exportar datos personales y dar permisos' },
@@ -35,7 +35,7 @@ export function TeamClient({ user, initialUsers }: { user: TeamUser & { isAdmin:
 
   return (
     <Shell user={user}>
-      <h1 className="mb-6 text-[28px] leading-[34px] font-extrabold">Equipo</h1>
+      <PageHeader title="Equipo" subtitle="Quién entra al sistema y con qué permisos. Cargá tu teléfono para que la puerta te pueda llamar." />
       <div className="grid gap-[18px] lg:grid-cols-[1fr_2fr]">
         <div className="space-y-[18px]">
           <form onSubmit={saveMe} className={`${card} space-y-3 p-4`}>
@@ -63,7 +63,7 @@ export function TeamClient({ user, initialUsers }: { user: TeamUser & { isAdmin:
             <tbody>
               {users.map((u) => (
                 <tr key={u.email} className="border-b border-[#E8EDE9] last:border-0">
-                  <td className="px-4 py-2.5"><p className="font-semibold">{u.name || u.email}</p><p className="text-xs text-[#5F6761]">{u.email}</p></td>
+                  <td className="px-4 py-2.5"><div className="flex items-center gap-3"><Avatar name={u.name} email={u.email} size={32} /><div><p className="font-semibold">{u.name || u.email}</p><p className="text-xs text-[#5F6761]">{u.email}</p></div></div></td>
                   <td className="px-4 py-2.5 text-[#5F6761]">{u.phone || '—'}</td>
                   <td className="px-4 py-2.5">
                     {user.isAdmin && u.email !== user.email ? (

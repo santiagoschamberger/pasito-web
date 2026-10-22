@@ -322,8 +322,10 @@ export function normalizeValue(column: Column, value: unknown): string | number 
     case 'select':
       return typeof value === 'string' && column.options?.some((o) => o.value === value) ? value : undefined
     case 'url':
-    case 'image':
       return typeof value === 'string' && /^https?:\/\//i.test(value.trim()) && value.length < 2000 ? value.trim() : undefined
+    case 'image':
+      // Link https o un archivo del propio sitio (/pasito-club/sponsors/x.webp).
+      return typeof value === 'string' && (/^https?:\/\//i.test(value.trim()) || /^\/[A-Za-z0-9/_.-]+$/.test(value.trim())) && value.length < 2000 ? value.trim() : undefined
     case 'person':
       return typeof value === 'string' && value.length < 200 ? value.trim().toLowerCase() : undefined
     default:
