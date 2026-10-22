@@ -10,6 +10,7 @@ import { daysBetween, type Alert } from '@/lib/gestion/summary'
 import { api } from './_components/api'
 import { EventCard, eventEmoji, type EventCardData } from './_components/EventCard'
 import { NewEventButton } from './_components/NewEventButton'
+import { groupBySeries, isGroup, SeriesCard, seriesStats } from './_components/SeriesCard'
 import { card, Empty, formatDate, Shell } from './_components/ui'
 
 type HomeData = { today: string; myTasks: (GestionRow & { eventName: string })[]; alerts: Alert[]; upcoming: EventCardData[] }
@@ -38,6 +39,10 @@ export function HomeClient({ user, users }: { user: TeamUser & { canEdit: boolea
   const alerts = data?.alerts ?? []
   const upcoming = useMemo(() => (data?.upcoming ?? []).filter((e) => !e.start_date || (e.end_date ?? e.start_date) >= data!.today), [data])
   const past = useMemo(() => (data?.upcoming ?? []).filter((e) => e.start_date && (e.end_date ?? e.start_date) < data!.today), [data])
+  // Las series (Pasito Club, etc.) van como una sola tarjeta.
+  const grouped = useMemo(() => groupBySeries(data?.upcoming ?? []), [data])
+  const upcomingItems = grouped.filter((item) => (isGroup(item) ? seriesStats(item, data?.today).next !== null : upcoming.includes(item)))
+  const pastItems = grouped.filter((item) => (isGroup(item) ? seriesStats(item, data?.today).next === null : past.includes(item)))
   // Lo próximo que arranca (un ciclo de varias semanas ya en curso no tapa la fecha de esta semana).
   const next = upcoming.find((e) => e.start_date && e.start_date >= (data?.today ?? '')) ?? upcoming.find((e) => e.start_date)
   const ticketsSold = (data?.upcoming ?? []).reduce((sum, e) => sum + (e.web && e.start_date && e.start_date >= (data?.today ?? '') ? e.web.tickets : 0), 0)
@@ -61,7 +66,7 @@ export function HomeClient({ user, users }: { user: TeamUser & { canEdit: boolea
         )}
         <div className="mt-5 flex flex-wrap gap-2">
           <NewEventButton disabled={!user.canEdit} />
-          {next && <Link href={`/gestion/eventos/${next.id}`} className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-white/10 px-3.5 text-sm font-semibold hover:bg-white/20">Abrir {eventEmoji(next.type)}<ArrowRight className="size-4" /></Link>}
+          {next && <Link href={`/gestion/eventos/${next.id}`} className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-white/10 px-3.5 text-sm font-semibold hover:bg-white/20">Abrir evento<ArrowRight className="size-4" /></Link>}
           {next && next.effective_status === 'en_curso' && <Link href={`/gestion/puerta/${next.id}`} className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#EBFA61] px-3.5 text-sm font-bold text-[#00402E]"><DoorOpen className="size-4" />Modo puerta</Link>}
         </div>
         <div className="relative mt-6 grid max-w-2xl grid-cols-3 gap-3">
@@ -74,12 +79,12 @@ export function HomeClient({ user, users }: { user: TeamUser & { canEdit: boolea
       {!data ? (
         <div className="grid gap-4 lg:grid-cols-2">{[0, 1].map((i) => <div key={i} className={`${card} h-48 animate-pulse`} />)}</div>
       ) : (
-        <div className="grid grid-cols-1 gap-[18px] lg:grid-cols-2">
+        <div className="grid grid-cols-1 items-start gap-[18px] lg:grid-cols-2">
           <section className={`${card} min-w-0 p-4 sm:p-5`}>
             <h2 className="g-display mb-3 text-lg font-bold">Mis pendientes</h2>
             {data.myTasks.length === 0 ? <Empty icon={<PartyPopper className="size-6 text-[#006D42]" />}>No tenés tareas pendientes.</Empty> : (
               <ul className="divide-y divide-[#EDF1EB]">
-                {data.myTasks.slice(0, 12).map((task) => {
+                {data.myTasks.slice(0, 8).map((task) => {
                   const overdue = typeof task.data.due === 'string' && task.data.due < data.today
                   return (
                     <li key={task.id} className="flex items-center gap-3 py-2.5">
@@ -98,12 +103,12 @@ export function HomeClient({ user, users }: { user: TeamUser & { canEdit: boolea
                 })}
               </ul>
             )}
-            <Link href="/gestion/tareas" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[#006D42]">Ver todas las tareas<ArrowRight className="size-4" /></Link>
+            <Link href="/gestion/tareas" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[#006D42]">{data.myTasks.length > 8 ? `Ver las ${data.myTasks.length}` : 'Ver todas las tareas'}<ArrowRight className="size-4" /></Link>
           </section>
 
           <section className={`${card} min-w-0 p-4 sm:p-5`}>
             <h2 className="g-display mb-3 text-lg font-bold">Qué está en riesgo</h2>
-            {alerts.length === 0 ? <Empty icon={<CheckCircle2 className="size-6 text-[#006D42]" />}>Nada en riesgo.</Empty> : (
+            {alerts.length === 0 ? <p className="flex items-center gap-2 rounded-lg bg-[#F2F6F1] px-3 py-2.5 text-sm font-semibold text-[#006D42]"><CheckCircle2 className="size-4" />Nada en riesgo por ahora.</p> : (
               <ul className="divide-y divide-[#EDF1EB]">
                 {alerts.slice(0, 12).map((alert, index) => (
                   <li key={index}>
@@ -127,19 +132,19 @@ export function HomeClient({ user, users }: { user: TeamUser & { canEdit: boolea
               <h2 className="g-display text-2xl font-bold">Próximos eventos</h2>
               <Link href="/gestion/calendario" className="text-sm font-semibold text-[#006D42]">Ver calendario</Link>
             </div>
-            {upcoming.length === 0 ? <Empty icon={<span className="text-3xl">🗓️</span>}>No hay eventos próximos. Creá uno con el botón de arriba.</Empty> : (
+            {upcomingItems.length === 0 ? <Empty icon={<span className="text-3xl">🗓️</span>}>No hay eventos próximos. Creá uno con el botón de arriba.</Empty> : (
               <div className="grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
-                {upcoming.map((event) => <EventCard key={event.id} event={event} users={users} />)}
+                {upcomingItems.map((item) => (isGroup(item) ? <SeriesCard key={item.name} group={item} /> : <EventCard key={item.id} event={item} users={users} />))}
               </div>
             )}
           </section>
 
-          {past.length > 0 && (
+          {pastItems.length > 0 && (
             <section className="min-w-0 lg:col-span-2">
               <h2 className="g-display mb-1 text-xl font-bold">Para cerrar</h2>
               <p className="mb-3 text-sm text-[#5F6761]">Ya pasaron: cargá gastos reales, cobros y aprendizajes.</p>
               <div className="grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
-                {past.map((event) => <EventCard key={event.id} event={event} users={users} />)}
+                {pastItems.map((item) => (isGroup(item) ? <SeriesCard key={item.name} group={item} /> : <EventCard key={item.id} event={item} users={users} />))}
               </div>
             </section>
           )}

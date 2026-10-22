@@ -397,3 +397,7 @@ export function personLabel(email: string | null | undefined, users: TeamUser[])
   const user = users.find((u) => u.email === email)
   return user?.name || email.split('@')[0]
 }
+
+export function seriesSlug(series: string): string {
+  return series.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+}

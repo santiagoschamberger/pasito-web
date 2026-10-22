@@ -1,0 +1,93 @@
+'use client'
+
+import Link from 'next/link'
+import { ArrowRight, CalendarRange, Ticket } from 'lucide-react'
+
+import { formatMoney, seriesSlug } from '@/lib/gestion/schema'
+import { todayISO } from '@/lib/gestion/summary'
+import { cn } from '@/lib/utils'
+import type { EventCardData } from './EventCard'
+import { card, formatDate } from './ui'
+
+export type SeriesGroup = { name: string; events: EventCardData[] }
+
+// Agrupa por serie: un evento suelto queda solo; dos o más de la misma serie, una tarjeta.
+export function groupBySeries(events: EventCardData[]): (EventCardData | SeriesGroup)[] {
+  const out: (EventCardData | SeriesGroup)[] = []
+  const groups = new Map<string, SeriesGroup>()
+  for (const event of events) {
+    if (!event.series) {
+      out.push(event)
+      continue
+    }
+    let group = groups.get(event.series)
+    if (!group) {
+      group = { name: event.series, events: [] }
+      groups.set(event.series, group)
+      out.push(group)
+    }
+    group.events.push(event)
+  }
+  return out.map((item) => ('events' in item && item.events.length === 1 ? item.events[0] : item))
+}
+
+export function isGroup(item: EventCardData | SeriesGroup): item is SeriesGroup {
+  return 'events' in item
+}
+
+export function seriesStats(group: SeriesGroup, today = todayISO()) {
+  // La ficha madre (rango de fechas que abarca al resto) no se cuenta como una fecha más.
+  const dates = group.events.filter((e) => !(e.end_date && e.start_date && e.end_date > e.start_date))
+  const parent = group.events.find((e) => e.end_date && e.start_date && e.end_date > e.start_date) ?? null
+  const sorted = [...dates].sort((a, b) => String(a.start_date).localeCompare(String(b.start_date)))
+  const next = sorted.find((e) => e.start_date && e.start_date >= today) ?? null
+  const done = sorted.filter((e) => e.start_date && e.start_date < today).length
+  const tickets = dates.reduce((sum, e) => sum + (e.web?.tickets ?? 0), 0)
+  const revenue = parent?.web?.revenue ?? dates.reduce((sum, e) => sum + (e.web?.revenue ?? 0), 0)
+  const result = parent ? parent.result_projected : dates.reduce((sum, e) => sum + e.result_projected, 0)
+  const cover = parent?.cover_url ?? sorted.find((e) => e.cover_url)?.cover_url ?? null
+  const first = sorted[0]?.start_date ?? parent?.start_date ?? null
+  const last = sorted[sorted.length - 1]?.start_date ?? parent?.end_date ?? null
+  return { dates: sorted, parent, next, done, tickets, revenue, result, cover, first, last }
+}
+
+export function SeriesCard({ group }: { group: SeriesGroup }) {
+  const stats = seriesStats(group)
+  const progress = stats.dates.length ? (stats.done / stats.dates.length) * 100 : 0
+  return (
+    <Link href={`/gestion/series/${seriesSlug(group.name)}`} className={cn(card, 'group flex flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md sm:col-span-2')}>
+      <div className="relative h-28 overflow-hidden bg-[#00402E]">
+        {stats.cover && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={stats.cover} alt="" className="size-full object-cover opacity-80 transition duration-500 group-hover:scale-105" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#00402E]/90 via-[#00402E]/30 to-transparent" />
+        <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between gap-2 text-white">
+          <div className="min-w-0">
+            <p className="flex items-center gap-1.5 text-xs font-bold text-[#EBFA61] uppercase"><CalendarRange className="size-3.5" />Serie · {stats.dates.length} fechas</p>
+            <h3 className="g-display truncate text-2xl leading-7 font-extrabold">{group.name}</h3>
+          </div>
+          <ArrowRight className="size-5 shrink-0 opacity-80 transition group-hover:translate-x-1" />
+        </div>
+      </div>
+      <div className="grid flex-1 grid-cols-3 gap-3 p-4 text-sm">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold text-[#7A837D] uppercase">Próxima</p>
+          <p className="truncate font-bold">{stats.next ? formatDate(stats.next.start_date, { weekday: 'short', day: 'numeric', month: 'short' }) : 'Terminó'}</p>
+        </div>
+        <div>
+          <p className="text-[11px] font-semibold text-[#7A837D] uppercase">Entradas</p>
+          <p className="flex items-center gap-1 font-bold tabular-nums"><Ticket className="size-3.5 text-[#006D42]" />{stats.tickets}</p>
+        </div>
+        <div>
+          <p className="text-[11px] font-semibold text-[#7A837D] uppercase">Ingresos</p>
+          <p className="font-bold tabular-nums">{formatMoney(stats.revenue)}</p>
+        </div>
+        <div className="col-span-3">
+          <div className="flex justify-between text-xs text-[#5F6761]"><span>{stats.done} de {stats.dates.length} fechas hechas</span><span>{formatDate(stats.first)} → {formatDate(stats.last)}</span></div>
+          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#E8EDE9]"><div className="h-full rounded-full bg-[#006D42]" style={{ width: `${progress}%` }} /></div>
+        </div>
+      </div>
+    </Link>
+  )
+}

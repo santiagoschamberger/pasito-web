@@ -5,7 +5,7 @@ import { AlertTriangle, ArrowRight, CheckCircle2, OctagonAlert, Ticket } from 'l
 import { BUDGET_CATEGORIES, formatMoney, personLabel, SPONSOR_STAGES, type GestionEvent, type GestionRow, type TeamUser } from '@/lib/gestion/schema'
 import { checklistProgress, eventAlerts, moneySummary, todayISO } from '@/lib/gestion/summary'
 import { cn } from '@/lib/utils'
-import { Avatar, card, Empty, formatDate, Logo } from '../../_components/ui'
+import { Avatar, card, formatDate, Logo } from '../../_components/ui'
 import type { WebSalesLite } from './EventClient'
 
 function Kpi({ label, value, tone, sub, dark }: { label: string; value: string; tone?: 'bad' | 'good' | 'warn'; sub?: string; dark?: boolean }) {
@@ -64,10 +64,10 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
         </button>
       )}
 
-      <div className="grid gap-[18px] lg:grid-cols-3">
+      <div className="grid items-start gap-[18px] lg:grid-cols-3">
         <section className={`${card} p-4 sm:p-5 lg:col-span-2`}>
           <h3 className="g-display mb-2 text-lg font-bold">Qué está en riesgo</h3>
-          {alerts.length === 0 ? <Empty icon={<CheckCircle2 className="size-6 text-[#006D42]" />}>Nada en riesgo.</Empty> : (
+          {alerts.length === 0 ? <p className="flex items-center gap-2 rounded-lg bg-[#F2F6F1] px-3 py-2.5 text-sm font-semibold text-[#006D42]"><CheckCircle2 className="size-4" />Nada en riesgo por ahora.</p> : (
             <ul className="divide-y divide-[#EDF1EB]">
               {alerts.map((alert, i) => (
                 <li key={i}>
@@ -158,7 +158,7 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
           <button onClick={() => onGoTo('task')} className="mt-3 text-sm font-semibold text-[#006D42]">Ver todas</button>
         </section>
 
-        <section className={`${card} p-4 sm:p-5`}>
+        {money.byCategory.length > 0 && <section className={`${card} p-4 sm:p-5`}>
           <h3 className="g-display mb-3 text-lg font-bold">Gastos por categoría</h3>
           {money.byCategory.length === 0 ? <p className="text-sm text-[#5F6761]">Sin gastos cargados.</p> : (
             <ul className="space-y-3">
@@ -174,9 +174,9 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
             </ul>
           )}
           <p className="mt-3 text-xs text-[#5F6761]">Claro: presupuestado · Oscuro: pagado</p>
-        </section>
+        </section>}
 
-        <section className={`${card} p-4 sm:p-5`}>
+        {money.sponsorPipeline.length > 0 && <section className={`${card} p-4 sm:p-5`}>
           <h3 className="g-display mb-3 text-lg font-bold">Pipeline de sponsors</h3>
           {money.sponsorPipeline.length === 0 ? <p className="text-sm text-[#5F6761]">Sin sponsors cargados.</p> : (
             <ul className="space-y-2">
@@ -192,7 +192,7 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
               })}
             </ul>
           )}
-        </section>
+        </section>}
       </div>
     </div>
   )

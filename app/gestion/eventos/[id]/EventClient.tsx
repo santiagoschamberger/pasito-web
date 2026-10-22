@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Archive, ArrowLeft, CalendarDays, Check, CloudOff, Copy, DoorOpen, ExternalLink, FileBarChart, FolderOpen, ImagePlus, Loader2, MapPin, Plus } from 'lucide-react'
+import { Archive, ArrowLeft, CalendarDays, Check, CheckSquare, CloudOff, Copy, DoorOpen, ExternalLink, FileBarChart, FileText, FolderOpen, Handshake, History, ImagePlus, LayoutDashboard, ListChecks, Loader2, MapPin, Plus, Ticket, Truck, Users, Wallet } from 'lucide-react'
 import { toast } from 'sonner'
 
 import {
@@ -15,6 +15,7 @@ import {
   type GestionRow,
   type RowKind,
   type TeamUser,
+  seriesSlug,
 } from '@/lib/gestion/schema'
 import { cn } from '@/lib/utils'
 import { daysBetween, effectiveStatus, todayISO } from '@/lib/gestion/summary'
@@ -23,7 +24,7 @@ import { api, ApiError } from '../../_components/api'
 import { eventEmoji } from '../../_components/EventCard'
 import { uploadImage } from '../../_components/ImagePicker'
 import { SectionTable, useRowActions, type SaveState } from '../../_components/SectionTable'
-import { Avatar, btnSecondary, card, formatDate, input, StatusPill, timeAgo } from '../../_components/ui'
+import { Avatar, btnSecondary, card, formatDate, input, timeAgo } from '../../_components/ui'
 import { SummaryTab } from './SummaryTab'
 import { FichaTab } from './FichaTab'
 import { AttendeesTab } from './AttendeesTab'
@@ -33,17 +34,17 @@ export type WebSalesLite = { tickets: number; revenue: number; checkedIn: number
 
 type EventPayload = { event: GestionEvent; rows: GestionRow[]; activity: ActivityEntry[]; pasitoEvents: PasitoEventLite[]; web: WebSalesLite }
 
-const TABS: { key: string; label: string; emoji: string }[] = [
-  { key: 'resumen', label: 'Resumen', emoji: '📊' },
-  { key: 'task', label: 'Tareas', emoji: '✅' },
-  { key: 'budget', label: 'Presupuesto', emoji: '💰' },
-  { key: 'sponsor', label: 'Sponsors', emoji: '🤝' },
-  { key: 'vendor', label: 'Proveedores', emoji: '🚚' },
-  { key: 'team', label: 'Equipo', emoji: '👥' },
-  { key: 'checklist', label: 'Checklist', emoji: '📋' },
-  { key: 'asistentes', label: 'Asistentes', emoji: '🎟️' },
-  { key: 'ficha', label: 'Ficha', emoji: '📁' },
-  { key: 'historial', label: 'Historial', emoji: '🕓' },
+const TABS: { key: string; label: string; icon: typeof LayoutDashboard }[] = [
+  { key: 'resumen', label: 'Resumen', icon: LayoutDashboard },
+  { key: 'task', label: 'Tareas', icon: CheckSquare },
+  { key: 'budget', label: 'Presupuesto', icon: Wallet },
+  { key: 'sponsor', label: 'Sponsors', icon: Handshake },
+  { key: 'vendor', label: 'Proveedores', icon: Truck },
+  { key: 'team', label: 'Equipo', icon: Users },
+  { key: 'checklist', label: 'Checklist', icon: ListChecks },
+  { key: 'asistentes', label: 'Asistentes', icon: Ticket },
+  { key: 'ficha', label: 'Ficha', icon: FileText },
+  { key: 'historial', label: 'Historial', icon: History },
 ]
 
 const TAB_ALIAS: Record<string, string> = { permit: 'ficha', kpi: 'ficha', contact: 'ficha', learning: 'team' }
@@ -184,7 +185,7 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
         {!cover && <span className="pointer-events-none absolute -right-2 -bottom-6 text-[150px] leading-none opacity-15">{eventEmoji(event.type)}</span>}
         <div className="relative mx-auto max-w-[1344px] px-4 pt-4 pb-5 sm:px-6 sm:pt-5">
           <div className="flex items-center justify-between gap-2">
-            <Link href="/gestion/eventos" className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-semibold text-white/80 hover:bg-white/10 hover:text-white"><ArrowLeft className="size-4" />Eventos</Link>
+            <Link href={event.series ? `/gestion/series/${seriesSlug(event.series)}` : '/gestion/eventos'} className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-semibold text-white/80 hover:bg-white/10 hover:text-white"><ArrowLeft className="size-4" />{event.series || 'Eventos'}</Link>
             <div className="flex items-center gap-1">
               <SaveIndicator state={saveState} />
               {canEdit && (
@@ -195,10 +196,9 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
               )}
             </div>
           </div>
-          {event.series && <p className="mt-3 px-1 text-xs font-bold tracking-wider text-[#EBFA61] uppercase">{event.series}</p>}
           <input
             key={event.updated_at}
-            className={cn('g-display w-full truncate rounded-lg border border-transparent bg-transparent px-1 text-[28px] leading-tight font-extrabold text-white outline-none hover:border-white/20 focus:border-[#EBFA61] sm:text-4xl', !event.series && 'mt-3')}
+            className="g-display mt-3 w-full truncate rounded-lg border border-transparent bg-transparent px-1 text-[28px] leading-tight font-extrabold text-white outline-none hover:border-white/20 focus:border-[#EBFA61] sm:text-4xl"
             defaultValue={event.name}
             disabled={!canEdit}
             onBlur={(e) => e.target.value.trim() && e.target.value !== event.name && updateEvent({ name: e.target.value.trim() })}
@@ -213,15 +213,14 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
             {owner && <span className="flex items-center gap-1.5"><Avatar name={owner.name} email={owner.email} size={22} />{owner.name}</span>}
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-2 px-1">
-            <StatusPill status={status} />
             <select
-              className="h-8 rounded-lg border border-white/25 bg-white/10 px-2 text-xs font-semibold text-white [&>option]:text-[#171D1A]"
+              className={cn('h-8 cursor-pointer rounded-full border-0 pr-7 pl-3 text-xs font-bold [&>option]:bg-white [&>option]:text-[#171D1A]', status === 'en_curso' ? 'bg-[#EBFA61] text-[#00402E]' : 'bg-white text-[#00402E]')}
               value={event.status}
               disabled={!user.canEdit || (closed && !user.isAdmin)}
               onChange={(e) => updateEvent({ status: e.target.value as EventStatus })}
               title="Cambiar estado"
             >
-              {EVENT_STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+              {EVENT_STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}{status === 'en_curso' && s.value === event.status ? ' · en curso hoy' : ''}</option>)}
             </select>
             {event.drive_url ? (
               <a href={event.drive_url} target="_blank" rel="noreferrer" className={pillButton}><FolderOpen className="size-4" />Drive<ExternalLink className="size-3" /></a>
@@ -246,7 +245,7 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
               onClick={() => selectTab(t.key)}
               className={cn('flex items-center gap-1.5 border-b-[3px] px-3 py-3 text-sm font-semibold whitespace-nowrap transition', tab === t.key ? 'border-[#006D42] text-[#006D42]' : 'border-transparent text-[#5F6761] hover:text-[#171D1A]')}
             >
-              <span className="text-base">{t.emoji}</span>{t.label}
+              <t.icon className="size-4" />{t.label}
               {t.key === 'task' && openTasks > 0 && <span className="rounded-full bg-[#EDF2EA] px-1.5 text-[11px] font-bold text-[#006D42]">{openTasks}</span>}
             </button>
           ))}
