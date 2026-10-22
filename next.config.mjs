@@ -36,7 +36,8 @@ const nextConfig = {
           destination: '/gestion',
         },
         {
-          source: '/:path((?!gestion(?:/|$)|api/|_next/|fonts/|icon\\.png$|favicon).*)',
+          // Todo lo que no sea gestion, la API, Next o un archivo (logos, fuentes, imágenes).
+          source: '/:path((?!gestion(?:/|$)|api/|_next/)(?!.*\\.[A-Za-z0-9]+$).*)',
           has: [{ type: 'host', value: 'eventos.pasito.app' }],
           destination: '/gestion/:path',
         },

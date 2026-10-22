@@ -84,23 +84,25 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
         </section>
 
         <section className={`${card} p-4 sm:p-5`}>
-          <h3 className="g-display mb-2 text-lg font-bold">Checklist</h3>
-          <div className="flex items-center gap-4">
-            <div className="relative size-20 shrink-0">
-              <svg viewBox="0 0 36 36" className="size-20 -rotate-90">
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#E8EDE9" strokeWidth="3.5" />
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#006D42" strokeWidth="3.5" strokeLinecap="round" strokeDasharray={`${pct} 100`} />
-              </svg>
-              <span className="g-display absolute inset-0 grid place-items-center text-lg font-extrabold">{pct}%</span>
+          <h3 className="g-display mb-2 text-lg font-bold">{checklist.total ? 'Checklist' : 'Objetivos'}</h3>
+          {checklist.total > 0 && (
+            <div className="flex items-center gap-4">
+              <div className="relative size-20 shrink-0">
+                <svg viewBox="0 0 36 36" className="size-20 -rotate-90">
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="#E8EDE9" strokeWidth="3.5" />
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="#006D42" strokeWidth="3.5" strokeLinecap="round" strokeDasharray={`${pct} 100`} />
+                </svg>
+                <span className="g-display absolute inset-0 grid place-items-center text-lg font-extrabold">{pct}%</span>
+              </div>
+              <div className="text-sm text-[#5F6761]">
+                <p>{checklist.done} de {checklist.total} ítems</p>
+                <button onClick={() => onGoTo('checklist')} className="mt-1 font-semibold text-[#006D42]">Ver checklist</button>
+              </div>
             </div>
-            <div className="text-sm text-[#5F6761]">
-              <p>{checklist.done} de {checklist.total} ítems</p>
-              <button onClick={() => onGoTo('checklist')} className="mt-1 font-semibold text-[#006D42]">Ver checklist</button>
-            </div>
-          </div>
+          )}
           {kpis.length > 0 && (
-            <div className="mt-4 space-y-2 border-t border-[#EDF1EB] pt-3">
-              <p className="text-xs font-bold text-[#7A837D] uppercase">Objetivos</p>
+            <div className={cn('space-y-2', checklist.total > 0 && 'mt-4 border-t border-[#EDF1EB] pt-3')}>
+              {checklist.total > 0 && <p className="text-xs font-bold text-[#7A837D] uppercase">Objetivos</p>}
               {kpis.map((k) => {
                 const goal = Number(k.data.objetivo) || 0
                 const real = Number(k.data.real) || 0
