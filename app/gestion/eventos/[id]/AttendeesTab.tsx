@@ -16,6 +16,8 @@ type DoorPin = { id: string; label: string; valid_from: string; valid_until: str
 
 const SHOW = 200
 
+const when = (iso: string) => new Date(iso).toLocaleString('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false })
+
 export function AttendeesTab({ event, user, pasitoEvents, onAttendanceToKpi }: {
   event: GestionEvent
   user: SessionUser
@@ -286,14 +288,14 @@ function ImportForm({ eventId, onDone }: { eventId: string; onDone: () => void }
 
 function PinsPanel({ eventId }: { eventId: string }) {
   const [pins, setPins] = useState<DoorPin[]>([])
-  const [newPin, setNewPin] = useState<{ pin: string; label: string } | null>(null)
+  const [newPin, setNewPin] = useState<{ pin: string; label: string; from: string; until: string } | null>(null)
   const [pinLabel, setPinLabel] = useState('')
   const load = useCallback(() => api<{ pins: DoorPin[] }>(`/api/gestion/events/${eventId}/door-pins`).then((r) => setPins(r.pins)).catch(() => null), [eventId])
   useEffect(() => { void load() }, [load])
   async function create(e: FormEvent) {
     e.preventDefault()
     const result = await api<{ pin: string; record: DoorPin }>(`/api/gestion/events/${eventId}/door-pins`, { body: { label: pinLabel || 'Puerta' } })
-    setNewPin({ pin: result.pin, label: result.record.label })
+    setNewPin({ pin: result.pin, label: result.record.label, from: result.record.valid_from, until: result.record.valid_until })
     setPinLabel('')
     void load()
   }
@@ -318,6 +320,7 @@ function PinsPanel({ eventId }: { eventId: string }) {
             <button onClick={() => setNewPin(null)}><X className="size-4" /></button>
           </div>
           <p className="mt-1 font-mono text-3xl font-extrabold tracking-[0.3em] text-[#0B6B43]">{newPin.pin}</p>
+          <p className="mt-1 text-xs text-[#5F6761]">Válido {when(newPin.from)} → {when(newPin.until)}</p>
         </div>
       )}
       <form onSubmit={create} className="flex gap-2">
@@ -328,7 +331,7 @@ function PinsPanel({ eventId }: { eventId: string }) {
         <ul className="divide-y divide-[#E8EDE9] text-sm">
           {active.map((p) => (
             <li key={p.id} className="flex items-center justify-between py-2">
-              <span><strong>{p.label}</strong> <span className="text-xs text-[#5F6761]">vence {new Date(p.valid_until).toLocaleString('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span></span>
+              <span><strong>{p.label}</strong> <span className="text-xs text-[#5F6761]">{when(p.valid_from)} → {when(p.valid_until)}</span></span>
               <button className="text-sm font-semibold text-[#B14D3B]" onClick={() => revoke(p.id)}>Revocar</button>
             </li>
           ))}

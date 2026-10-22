@@ -17,12 +17,16 @@ export async function GET(_request: NextRequest, { params }: Params) {
   }
 }
 
-// Ventana por defecto: desde ahora hasta las 6 AM del día siguiente al fin del evento.
-function defaultUntil(endDate: string | null): Date {
-  if (!endDate) return new Date(Date.now() + 24 * 3600 * 1000)
-  const end = new Date(`${endDate}T06:00:00-03:00`)
-  end.setUTCDate(end.getUTCDate() + 1)
-  return end
+const DAY = 24 * 3600 * 1000
+
+// Ventana por defecto: desde el día anterior al evento (para la prueba de puerta)
+// hasta las 6 AM del día siguiente al fin. Sin fecha: 24 horas desde ahora.
+function defaultWindow(startDate: string | null, endDate: string | null): { from: Date; until: Date } {
+  const now = Date.now()
+  if (!startDate) return { from: new Date(now), until: new Date(now + DAY) }
+  const from = Math.max(now, Date.parse(`${startDate}T00:00:00-03:00`) - DAY)
+  const until = Date.parse(`${endDate || startDate}T06:00:00-03:00`) + DAY
+  return { from: new Date(from), until: new Date(Math.max(until, from + 6 * 3600 * 1000)) }
 }
 
 export async function POST(request: NextRequest, { params }: Params) {
@@ -32,8 +36,9 @@ export async function POST(request: NextRequest, { params }: Params) {
     const event = await getEvent(id)
     const body = await readJson<{ label?: string; valid_from?: string; valid_until?: string }>(request)
     const label = (body.label ?? '').trim().slice(0, 60) || 'Puerta'
-    const validFrom = body.valid_from ? new Date(body.valid_from) : new Date()
-    const validUntil = body.valid_until ? new Date(body.valid_until) : defaultUntil(event.end_date || event.start_date)
+    const fallback = defaultWindow(event.start_date, event.end_date)
+    const validFrom = body.valid_from ? new Date(body.valid_from) : fallback.from
+    const validUntil = body.valid_until ? new Date(body.valid_until) : fallback.until
     if (Number.isNaN(validFrom.getTime()) || Number.isNaN(validUntil.getTime()) || validUntil <= validFrom) throw new HttpError(400, 'Ventana horaria inválida.')
     if (validUntil.getTime() - validFrom.getTime() > 7 * 24 * 3600 * 1000) throw new HttpError(400, 'Un PIN dura como máximo 7 días.')
     const pin = String(randomInt(0, 1_000_000)).padStart(6, '0')
