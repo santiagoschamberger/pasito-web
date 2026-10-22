@@ -55,36 +55,38 @@ export function SeriesCard({ group }: { group: SeriesGroup }) {
   const stats = seriesStats(group)
   const progress = stats.dates.length ? (stats.done / stats.dates.length) * 100 : 0
   return (
-    <Link href={`/gestion/series/${seriesSlug(group.name)}`} className={cn(card, 'group flex flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md sm:col-span-2')}>
-      <div className="relative h-28 overflow-hidden bg-[#00402E]">
+    <Link href={`/gestion/series/${seriesSlug(group.name)}`} className={cn(card, 'group flex h-full flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md')}>
+      <div className="relative h-28 shrink-0 overflow-hidden bg-[#00402E]">
         {stats.cover && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={stats.cover} alt="" className="size-full object-cover opacity-80 transition duration-500 group-hover:scale-105" />
+          <img src={stats.cover} alt="" className="size-full object-cover transition duration-500 group-hover:scale-105" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#00402E]/90 via-[#00402E]/30 to-transparent" />
-        <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between gap-2 text-white">
-          <div className="min-w-0">
-            <p className="flex items-center gap-1.5 text-xs font-bold text-[#EBFA61] uppercase"><CalendarRange className="size-3.5" />Serie · {stats.dates.length} fechas</p>
-            <h3 className="g-display truncate text-2xl leading-7 font-extrabold">{group.name}</h3>
-          </div>
-          <ArrowRight className="size-5 shrink-0 opacity-80 transition group-hover:translate-x-1" />
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
+        <span className="absolute top-3 left-3 flex h-12 min-w-12 flex-col items-center justify-center rounded-xl bg-white/95 px-2 leading-none shadow-sm">
+          <span className="g-display text-xl font-extrabold text-[#171D1A]">{stats.dates.length}</span>
+          <span className="text-[10px] font-bold text-[#B14D3B] uppercase">fechas</span>
+        </span>
+        <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-[#EBFA61] px-2.5 py-0.5 text-xs font-bold text-[#00402E] shadow-sm"><CalendarRange className="size-3.5" />Serie</span>
       </div>
-      <div className="grid flex-1 grid-cols-3 gap-3 p-4 text-sm">
-        <div className="min-w-0">
-          <p className="text-[11px] font-semibold text-[#7A837D] uppercase">Próxima</p>
-          <p className="truncate font-bold">{stats.next ? formatDate(stats.next.start_date, { weekday: 'short', day: 'numeric', month: 'short' }) : 'Terminó'}</p>
+      <div className="flex flex-1 flex-col p-4">
+        <p className="text-[11px] font-bold tracking-wide text-[#006D42] uppercase">{formatDate(stats.first)} → {formatDate(stats.last)}</p>
+        <h3 className="g-display truncate text-lg leading-6 font-bold">{group.name}</h3>
+        <p className="mt-0.5 truncate text-sm text-[#5F6761]">Próxima: {stats.next ? formatDate(stats.next.start_date, { weekday: 'short', day: 'numeric', month: 'short' }) : 'terminó'}</p>
+        <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <p className="text-[11px] font-semibold text-[#7A837D] uppercase">Ingresos</p>
+            <p className="font-bold tabular-nums">{formatMoney(stats.revenue)}</p>
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold text-[#7A837D] uppercase">Entradas</p>
+            <p className="flex items-center gap-1 font-bold tabular-nums"><Ticket className="size-3.5 text-[#006D42]" />{stats.tickets}</p>
+          </div>
         </div>
-        <div>
-          <p className="text-[11px] font-semibold text-[#7A837D] uppercase">Entradas</p>
-          <p className="flex items-center gap-1 font-bold tabular-nums"><Ticket className="size-3.5 text-[#006D42]" />{stats.tickets}</p>
-        </div>
-        <div>
-          <p className="text-[11px] font-semibold text-[#7A837D] uppercase">Ingresos</p>
-          <p className="font-bold tabular-nums">{formatMoney(stats.revenue)}</p>
-        </div>
-        <div className="col-span-3">
-          <div className="flex justify-between text-xs text-[#5F6761]"><span>{stats.done} de {stats.dates.length} fechas hechas</span><span>{formatDate(stats.first)} → {formatDate(stats.last)}</span></div>
+        <div className="mt-auto border-t border-[#EDF1EB] pt-3">
+          <div className="mt-0 flex items-center justify-between text-xs text-[#5F6761]">
+            <span>{stats.done} de {stats.dates.length} hechas</span>
+            <ArrowRight className="size-4 text-[#9AA39D] transition group-hover:translate-x-0.5" />
+          </div>
           <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#E8EDE9]"><div className="h-full rounded-full bg-[#006D42]" style={{ width: `${progress}%` }} /></div>
         </div>
       </div>

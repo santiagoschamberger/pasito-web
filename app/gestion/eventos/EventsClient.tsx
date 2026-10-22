@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { Search } from 'lucide-react'
 
 import { EVENT_TYPES, STATUS_LABEL, type EffectiveStatus, type TeamUser } from '@/lib/gestion/schema'
 import { api } from '../_components/api'
@@ -43,8 +44,11 @@ export function EventsClient({ user, users }: { user: TeamUser & { canEdit: bool
         </>}
       />
       <div className="mb-5 flex flex-wrap gap-2">
-        <input className={`${input} max-w-xs`} placeholder="Buscar…" value={query} onChange={(e) => setQuery(e.target.value)} />
-        <select className={`${input} max-w-[220px]`} value={type} onChange={(e) => setType(e.target.value)}>
+        <div className="relative w-full sm:w-80">
+          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#9AA39D]" />
+          <input className={`${input} pl-9`} placeholder="Buscar evento, serie o lugar" value={query} onChange={(e) => setQuery(e.target.value)} />
+        </div>
+        <select className={`${input} w-full sm:w-60`} value={type} onChange={(e) => setType(e.target.value)}>
           <option value="">Todos los tipos</option>
           {EVENT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>

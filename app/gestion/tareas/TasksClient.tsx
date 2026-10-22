@@ -9,7 +9,6 @@ import { personLabel, type GestionEvent, type GestionRow, type TeamUser } from '
 import { todayISO } from '@/lib/gestion/summary'
 import { cn } from '@/lib/utils'
 import { api } from '../_components/api'
-import { eventEmoji } from '../_components/EventCard'
 import { Avatar, card, Empty, formatDate, PageHeader, Shell } from '../_components/ui'
 
 type EventLite = Pick<GestionEvent, 'id' | 'name' | 'start_date' | 'status' | 'type'>
@@ -95,7 +94,7 @@ export function TasksClient({ user, users }: { user: TeamUser & { canEdit: boole
                         </button>
                         <Link href={`/gestion/eventos/${task.event_id}?tab=task`} className="min-w-0 flex-1">
                           <p className={cn('truncate text-sm font-semibold', done && 'line-through')}>{String(task.data.titulo || 'Tarea')}</p>
-                          <p className="truncate text-xs text-[#5F6761]">{event ? `${eventEmoji(event.type)} ${event.name}` : ''}{task.data.prioridad === 'alta' ? ' · 🔥 Alta' : ''}</p>
+                          <p className="truncate text-xs text-[#5F6761]">{event?.name ?? ''}{task.data.prioridad === 'alta' ? ' · Prioridad alta' : ''}</p>
                         </Link>
                         {owner === '' && (task.data.owner ? <span title={personLabel(String(task.data.owner), users)}><Avatar name={users.find((u) => u.email === task.data.owner)?.name} email={String(task.data.owner)} size={26} /></span> : <span className="text-xs text-[#9AA39D]">Sin asignar</span>)}
                         <span className={cn('w-16 shrink-0 text-right text-xs font-bold', g.key === 'vencidas' ? 'text-[#B14D3B]' : 'text-[#5F6761]')}>{task.data.due ? formatDate(String(task.data.due)) : ''}</span>

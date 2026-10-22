@@ -38,8 +38,8 @@ export function EventCard({ event, users }: { event: EventCardData; users: TeamU
   const owner = event.owner_email ? users.find((u) => u.email === event.owner_email) : null
   const alerts = (event.alerts_critical ?? 0) + (event.alerts_warning ?? 0)
   return (
-    <Link href={`/gestion/eventos/${event.id}`} className={cn(card, 'group block overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md')}>
-      <div className="relative h-28 overflow-hidden bg-gradient-to-br from-[#006D42] to-[#00402E]">
+    <Link href={`/gestion/eventos/${event.id}`} className={cn(card, 'group flex h-full flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md')}>
+      <div className="relative h-28 shrink-0 overflow-hidden bg-gradient-to-br from-[#006D42] to-[#00402E]">
         {event.cover_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={event.cover_url} alt="" className="size-full object-cover transition duration-500 group-hover:scale-105" />
@@ -50,7 +50,7 @@ export function EventCard({ event, users }: { event: EventCardData; users: TeamU
         <div className="absolute top-3 left-3"><DateBadge iso={event.start_date} /></div>
         <div className="absolute top-3 right-3"><StatusPill status={event.effective_status} className="shadow-sm" /></div>
       </div>
-      <div className="p-4">
+      <div className="flex flex-1 flex-col p-4">
         {event.series && <p className="text-[11px] font-bold tracking-wide text-[#006D42] uppercase">{event.series}</p>}
         <h3 className="g-display truncate text-lg leading-6 font-bold">{event.name}</h3>
         <p className="mt-0.5 flex items-center gap-1 truncate text-sm text-[#5F6761]">
@@ -58,7 +58,7 @@ export function EventCard({ event, users }: { event: EventCardData; users: TeamU
           {[event.venue, event.city].filter(Boolean).join(', ') || EVENT_TYPES.find((t) => t.value === event.type)?.label}
           {event.start_time ? ` · ${event.start_time}` : ''}
         </p>
-        <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+        <div className="mt-3 mb-3 grid grid-cols-2 gap-3 text-sm">
           <div>
             <p className="text-[11px] font-semibold text-[#7A837D] uppercase">Resultado</p>
             <p className={`font-bold tabular-nums ${event.result_projected < 0 ? 'text-[#B14D3B]' : 'text-[#171D1A]'}`}>{formatMoney(event.result_projected)}</p>
@@ -75,7 +75,7 @@ export function EventCard({ event, users }: { event: EventCardData; users: TeamU
             </div>
           )}
         </div>
-        <div className="mt-3 flex items-center justify-between border-t border-[#EDF1EB] pt-3 text-xs text-[#5F6761]">
+        <div className="mt-auto flex items-center justify-between border-t border-[#EDF1EB] pt-3 text-xs text-[#5F6761]">
           <span className="flex items-center gap-1.5">
             {event.owner_email ? <><Avatar name={owner?.name} email={event.owner_email} size={22} />{personLabel(event.owner_email, users)}</> : 'Sin responsable'}
           </span>
