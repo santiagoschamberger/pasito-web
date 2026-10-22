@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Archive, ArrowLeft, CalendarDays, Check, CheckSquare, CloudOff, Copy, DoorOpen, ExternalLink, FileBarChart, FileText, FolderOpen, Handshake, History, ImagePlus, LayoutDashboard, ListChecks, Loader2, MapPin, Plus, Ticket, Truck, Users, Wallet } from 'lucide-react'
+import { Archive, ArrowLeft, CalendarDays, Check, CloudOff, Copy, DoorOpen, ExternalLink, FileBarChart, FolderOpen, ImagePlus, Loader2, MapPin, MoreHorizontal, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 
 import {
@@ -24,7 +24,7 @@ import { api, ApiError } from '../../_components/api'
 import { eventEmoji } from '../../_components/EventCard'
 import { uploadImage } from '../../_components/ImagePicker'
 import { SectionTable, useRowActions, type SaveState } from '../../_components/SectionTable'
-import { Avatar, btnSecondary, card, formatDate, input, timeAgo } from '../../_components/ui'
+import { Avatar, btnSecondary, card, formatDate, input, Shell, timeAgo } from '../../_components/ui'
 import { SummaryTab } from './SummaryTab'
 import { FichaTab } from './FichaTab'
 import { AttendeesTab } from './AttendeesTab'
@@ -34,17 +34,14 @@ export type WebSalesLite = { tickets: number; revenue: number; checkedIn: number
 
 type EventPayload = { event: GestionEvent; rows: GestionRow[]; activity: ActivityEntry[]; pasitoEvents: PasitoEventLite[]; web: WebSalesLite }
 
-const TABS: { key: string; label: string; icon: typeof LayoutDashboard }[] = [
-  { key: 'resumen', label: 'Resumen', icon: LayoutDashboard },
-  { key: 'task', label: 'Tareas', icon: CheckSquare },
-  { key: 'budget', label: 'Presupuesto', icon: Wallet },
-  { key: 'sponsor', label: 'Sponsors', icon: Handshake },
-  { key: 'vendor', label: 'Proveedores', icon: Truck },
-  { key: 'team', label: 'Equipo', icon: Users },
-  { key: 'checklist', label: 'Checklist', icon: ListChecks },
-  { key: 'asistentes', label: 'Asistentes', icon: Ticket },
-  { key: 'ficha', label: 'Ficha', icon: FileText },
-  { key: 'historial', label: 'Historial', icon: History },
+// Seis pestañas; las que agrupan varias cosas muestran sub-pestañas adentro.
+const TAB_GROUPS: { key: string; label: string; subs: { key: string; label: string }[] }[] = [
+  { key: 'resumen', label: 'Resumen', subs: [{ key: 'resumen', label: 'Resumen' }] },
+  { key: 'tareas', label: 'Tareas', subs: [{ key: 'task', label: 'Tareas' }, { key: 'checklist', label: 'Checklist' }] },
+  { key: 'plata', label: 'Plata', subs: [{ key: 'budget', label: 'Presupuesto' }, { key: 'sponsor', label: 'Sponsors' }, { key: 'vendor', label: 'Proveedores' }] },
+  { key: 'asistentes', label: 'Asistentes', subs: [{ key: 'asistentes', label: 'Asistentes' }] },
+  { key: 'equipo', label: 'Equipo', subs: [{ key: 'team', label: 'Equipo y aprendizajes' }] },
+  { key: 'ficha', label: 'Ficha', subs: [{ key: 'ficha', label: 'Datos' }, { key: 'historial', label: 'Historial' }] },
 ]
 
 const TAB_ALIAS: Record<string, string> = { permit: 'ficha', kpi: 'ficha', contact: 'ficha', learning: 'team' }
@@ -60,6 +57,7 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
   const [notFound, setNotFound] = useState(false)
   const [saveState, setSaveState] = useState<SaveState>('idle')
   const [blockers, setBlockers] = useState<string[]>([])
+  const [menuOpen, setMenuOpen] = useState(false)
   const saveRef = useRef(saveState)
   saveRef.current = saveState
 
@@ -139,8 +137,7 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
   const days = event.start_date ? daysBetween(todayISO(), event.start_date) : null
   const owner = users.find((u) => u.email === event.owner_email)
   const openTasks = rows.filter((r) => r.kind === 'task' && r.data.estado !== 'hecha').length
-  const pillButton = 'flex h-8 items-center gap-1.5 rounded-lg bg-white/10 px-2.5 text-xs font-semibold hover:bg-white/20'
-
+  
   async function attendanceToKpi(inside: number) {
     const kpi = rows.find((r) => r.kind === 'kpi' && String(r.data.nombre || '').toLowerCase().startsWith('asistentes'))
     if (kpi) {
@@ -172,87 +169,104 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
     if (url) void updateEvent({ cover_url: url })
   }
 
+  const group = TAB_GROUPS.find((g) => g.subs.some((sub) => sub.key === tab)) ?? TAB_GROUPS[0]
+  const menuItem = 'flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-[#F2F6F1]'
+
   return (
-    <div className="min-h-dvh">
-      <header className="no-print relative overflow-hidden bg-[#00402E] text-white">
-        {cover && (
-          <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={cover} alt="" className="absolute inset-0 size-full object-cover opacity-45" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#00402E] via-[#00402E]/70 to-transparent" />
-          </>
-        )}
-        {!cover && <span className="pointer-events-none absolute -right-2 -bottom-6 text-[150px] leading-none opacity-15">{eventEmoji(event.type)}</span>}
-        <div className="relative mx-auto max-w-[1344px] px-4 pt-4 pb-5 sm:px-6 sm:pt-5">
-          <div className="flex items-center justify-between gap-2">
-            <Link href={event.series ? `/gestion/series/${seriesSlug(event.series)}` : '/gestion/eventos'} className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-semibold text-white/80 hover:bg-white/10 hover:text-white"><ArrowLeft className="size-4" />{event.series || 'Eventos'}</Link>
-            <div className="flex items-center gap-1">
-              <SaveIndicator state={saveState} />
-              {canEdit && (
-                <label className="flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-white/80 hover:bg-white/10" title="Cambiar portada">
-                  <ImagePlus className="size-4" /><span className="hidden sm:inline">Portada</span>
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => { void changeCover(e.target.files?.[0]); e.target.value = '' }} />
-                </label>
+    <Shell user={user} bare>
+      <header className="no-print border-b border-[#E3E8DF] bg-white">
+        <div className="mx-auto max-w-[1200px] px-4 pt-5 sm:px-8">
+          <Link href={event.series ? `/gestion/series/${seriesSlug(event.series)}` : '/gestion/eventos'} className="inline-flex items-center gap-1 text-sm font-semibold text-[#5F6761] hover:text-[#171D1A]">
+            <ArrowLeft className="size-4" />{event.series || 'Eventos'}
+          </Link>
+          <div className="mt-3 flex items-start gap-4">
+            <span className="relative hidden size-16 shrink-0 overflow-hidden rounded-2xl bg-[#00402E] sm:block">
+              {cover ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={cover} alt="" className="size-full object-cover" />
+              ) : (
+                <span className="grid size-full place-items-center text-2xl">{eventEmoji(event.type)}</span>
               )}
+            </span>
+            <div className="min-w-0 flex-1">
+              <input
+                key={event.updated_at}
+                className="g-display -ml-1 w-full truncate rounded-lg border border-transparent bg-transparent px-1 text-2xl leading-tight font-extrabold outline-none hover:border-[#DDE6DF] focus:border-[#006D42] sm:text-[30px]"
+                defaultValue={event.name}
+                disabled={!canEdit}
+                onBlur={(e) => e.target.value.trim() && e.target.value !== event.name && updateEvent({ name: e.target.value.trim() })}
+                onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+              />
+              <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#5F6761]">
+                <span className="flex items-center gap-1.5"><CalendarDays className="size-4" />{event.start_date ? formatDate(event.start_date, { weekday: 'short', day: 'numeric', month: 'short' }) : 'Sin fecha'}{event.start_time ? ` · ${event.start_time}` : ''}</span>
+                {(event.venue || event.city) && <span className="flex items-center gap-1.5"><MapPin className="size-4" />{[event.venue, event.city].filter(Boolean).join(', ')}</span>}
+                {owner && <span className="flex items-center gap-1.5"><Avatar name={owner.name} email={owner.email} size={20} />{owner.name}</span>}
+                {days !== null && days >= 0 && status !== 'cerrado' && status !== 'cancelado' && (
+                  <span className="font-semibold text-[#006D42]">{days > 1 ? `Faltan ${days} días` : days === 1 ? 'Es mañana' : 'Es hoy'}</span>
+                )}
+              </div>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <SaveIndicator state={saveState} />
+              <select
+                className={cn('hidden h-9 rounded-lg border border-[#DDE6DF] bg-white pl-3 text-sm font-semibold sm:block', status === 'en_curso' && 'border-[#C9D84A] bg-[#F6FBD0]')}
+                value={event.status}
+                disabled={!user.canEdit || (closed && !user.isAdmin)}
+                onChange={(e) => updateEvent({ status: e.target.value as EventStatus })}
+                title="Estado"
+              >
+                {EVENT_STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+              </select>
+              <Link href={`/gestion/puerta/${event.id}`} className="flex h-9 items-center gap-1.5 rounded-lg bg-[#006D42] px-3 text-sm font-semibold text-white hover:bg-[#00573A]"><DoorOpen className="size-4" /><span className="hidden sm:inline">Puerta</span></Link>
+              <div className="relative">
+                <button onClick={() => setMenuOpen(!menuOpen)} className="grid size-9 place-items-center rounded-lg border border-[#DDE6DF] bg-white text-[#5F6761] hover:bg-[#F2F6F1]" title="Más acciones"><MoreHorizontal className="size-4" /></button>
+                {menuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+                    <div className="absolute top-full right-0 z-50 mt-1 w-52 overflow-hidden rounded-xl border border-[#E3E8DF] bg-white py-1 shadow-lg" onClick={() => setMenuOpen(false)}>
+                      <select
+                        className="mx-3 my-1 h-9 w-[calc(100%-1.5rem)] rounded-lg border border-[#DDE6DF] bg-white pl-3 text-sm font-semibold sm:hidden"
+                        value={event.status}
+                        disabled={!user.canEdit || (closed && !user.isAdmin)}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => updateEvent({ status: e.target.value as EventStatus })}
+                      >
+                        {EVENT_STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                      </select>
+                      {event.drive_url
+                        ? <a href={event.drive_url} target="_blank" rel="noreferrer" className={menuItem}><FolderOpen className="size-4" />Abrir Drive<ExternalLink className="ml-auto size-3.5" /></a>
+                        : <button className={menuItem} onClick={() => selectTab('ficha')}><FolderOpen className="size-4" />Agregar Drive</button>}
+                      <Link href={`/gestion/eventos/${event.id}/reporte`} className={menuItem}><FileBarChart className="size-4" />Reporte para sponsors</Link>
+                      {canEdit && (
+                        <label className={cn(menuItem, 'cursor-pointer')} onClick={(e) => e.stopPropagation()}>
+                          <ImagePlus className="size-4" />Cambiar portada
+                          <input type="file" accept="image/*" className="hidden" onChange={(e) => { setMenuOpen(false); void changeCover(e.target.files?.[0]); e.target.value = '' }} />
+                        </label>
+                      )}
+                      {user.canEdit && <button className={menuItem} onClick={duplicate}><Copy className="size-4" />Duplicar</button>}
+                      {user.canEdit && <button className={cn(menuItem, 'text-[#B14D3B]')} onClick={archive}><Archive className="size-4" />{event.archived_at ? 'Restaurar' : 'Archivar'}</button>}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-          <input
-            key={event.updated_at}
-            className="g-display mt-3 w-full truncate rounded-lg border border-transparent bg-transparent px-1 text-[28px] leading-tight font-extrabold text-white outline-none hover:border-white/20 focus:border-[#EBFA61] sm:text-4xl"
-            defaultValue={event.name}
-            disabled={!canEdit}
-            onBlur={(e) => e.target.value.trim() && e.target.value !== event.name && updateEvent({ name: e.target.value.trim() })}
-            onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
-          />
-          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 px-1 text-sm text-white/85">
-            <span className="flex items-center gap-1.5"><CalendarDays className="size-4" />{event.start_date ? formatDate(event.start_date, { weekday: 'short', day: 'numeric', month: 'short' }) : 'Sin fecha'}{event.start_time ? ` · ${event.start_time}` : ''}</span>
-            {(event.venue || event.city) && <span className="flex items-center gap-1.5"><MapPin className="size-4" />{[event.venue, event.city].filter(Boolean).join(', ')}</span>}
-            {days !== null && status !== 'cerrado' && status !== 'cancelado' && (
-              <span className="rounded-full bg-white/15 px-2.5 py-0.5 text-xs font-bold">{days > 1 ? `Faltan ${days} días` : days === 1 ? 'Mañana' : days === 0 ? '¡Hoy!' : `Pasó hace ${-days} días`}</span>
-            )}
-            {owner && <span className="flex items-center gap-1.5"><Avatar name={owner.name} email={owner.email} size={22} />{owner.name}</span>}
-          </div>
-          <div className="mt-4 flex flex-wrap items-center gap-2 px-1">
-            <select
-              className={cn('h-8 cursor-pointer rounded-full border-0 pr-7 pl-3 text-xs font-bold [&>option]:bg-white [&>option]:text-[#171D1A]', status === 'en_curso' ? 'bg-[#EBFA61] text-[#00402E]' : 'bg-white text-[#00402E]')}
-              value={event.status}
-              disabled={!user.canEdit || (closed && !user.isAdmin)}
-              onChange={(e) => updateEvent({ status: e.target.value as EventStatus })}
-              title="Cambiar estado"
-            >
-              {EVENT_STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}{status === 'en_curso' && s.value === event.status ? ' · en curso hoy' : ''}</option>)}
-            </select>
-            {event.drive_url ? (
-              <a href={event.drive_url} target="_blank" rel="noreferrer" className={pillButton}><FolderOpen className="size-4" />Drive<ExternalLink className="size-3" /></a>
-            ) : (
-              <button className="flex h-8 items-center gap-1.5 rounded-lg border border-dashed border-white/40 px-2.5 text-xs font-semibold text-white/80" onClick={() => selectTab('ficha')}><FolderOpen className="size-4" />Agregar Drive</button>
-            )}
-            <span className="ml-auto flex flex-wrap gap-1.5">
-              <Link href={`/gestion/puerta/${event.id}`} className="flex h-8 items-center gap-1.5 rounded-lg bg-[#EBFA61] px-3 text-xs font-bold text-[#00402E]"><DoorOpen className="size-4" />Puerta</Link>
-              <Link href={`/gestion/eventos/${event.id}/reporte`} className={pillButton}><FileBarChart className="size-4" />Reporte</Link>
-              {user.canEdit && <button className={pillButton} onClick={duplicate}><Copy className="size-3.5" />Duplicar</button>}
-              {user.canEdit && <button className={pillButton} onClick={archive}><Archive className="size-3.5" />{event.archived_at ? 'Restaurar' : 'Archivar'}</button>}
-            </span>
-          </div>
+          <nav className="-mb-px mt-4 flex gap-1 overflow-x-auto">
+            {TAB_GROUPS.map((g) => (
+              <button
+                key={g.key}
+                onClick={() => selectTab(g.subs[0].key)}
+                className={cn('flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-semibold whitespace-nowrap transition', group.key === g.key ? 'border-[#006D42] text-[#006D42]' : 'border-transparent text-[#5F6761] hover:text-[#171D1A]')}
+              >
+                {g.label}
+                {g.key === 'tareas' && openTasks > 0 && <span className="rounded-full bg-[#EDF2EA] px-1.5 text-[11px] font-bold text-[#006D42]">{openTasks}</span>}
+              </button>
+            ))}
+          </nav>
         </div>
       </header>
 
-      <nav className="no-print sticky top-0 z-30 border-b border-[#E3E8DF] bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-[1344px] gap-1 overflow-x-auto px-3 sm:px-5">
-          {TABS.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => selectTab(t.key)}
-              className={cn('flex items-center gap-1.5 border-b-[3px] px-3 py-3 text-sm font-semibold whitespace-nowrap transition', tab === t.key ? 'border-[#006D42] text-[#006D42]' : 'border-transparent text-[#5F6761] hover:text-[#171D1A]')}
-            >
-              <t.icon className="size-4" />{t.label}
-              {t.key === 'task' && openTasks > 0 && <span className="rounded-full bg-[#EDF2EA] px-1.5 text-[11px] font-bold text-[#006D42]">{openTasks}</span>}
-            </button>
-          ))}
-        </div>
-      </nav>
-
-      <main className="mx-auto max-w-[1344px] px-4 py-6 pb-24 sm:px-6">
+      <main className="mx-auto max-w-[1200px] px-4 py-6 sm:px-8">
         {blockers.length > 0 && (
           <div className="mb-4 rounded-xl border border-[#F2D6CF] bg-[#FDECE8] p-4 text-sm text-[#B14D3B]">
             <p className="font-bold">Para cerrar el evento falta:</p>
@@ -260,6 +274,14 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
           </div>
         )}
         {closed && <p className="mb-4 rounded-xl bg-[#E9E9E9] px-4 py-3 text-sm">Evento cerrado: queda en solo lectura.{user.isAdmin ? ' Como admin podés reabrirlo cambiando el estado.' : ''}</p>}
+
+        {group.subs.length > 1 && (
+          <div className="mb-5 inline-flex gap-1 rounded-xl bg-[#EDF1EA] p-1">
+            {group.subs.map((sub) => (
+              <button key={sub.key} onClick={() => selectTab(sub.key)} className={cn('rounded-lg px-3 py-1.5 text-sm font-semibold transition', tab === sub.key ? 'bg-white text-[#171D1A] shadow-sm' : 'text-[#5F6761] hover:text-[#171D1A]')}>{sub.label}</button>
+            ))}
+          </div>
+        )}
 
         {tab === 'resumen' && <SummaryTab event={event} rows={rows} users={users} web={data.web} onGoTo={selectTab} />}
 
@@ -307,13 +329,13 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
 
         {tab === 'historial' && <HistoryTab eventId={eventId} users={users} initial={data.activity} />}
       </main>
-    </div>
+    </Shell>
   )
 }
 
 function SaveIndicator({ state }: { state: SaveState }) {
-  if (state === 'saving') return <span className="flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-xs text-white/80"><Loader2 className="size-3.5 animate-spin" />Guardando</span>
-  if (state === 'saved') return <span className="flex items-center gap-1 rounded-full bg-[#EBFA61] px-2.5 py-1 text-xs font-bold text-[#00402E]"><Check className="size-3.5" />Guardado</span>
+  if (state === 'saving') return <span className="flex items-center gap-1 rounded-full bg-[#F2F6F1] px-2.5 py-1 text-xs text-[#5F6761]"><Loader2 className="size-3.5 animate-spin" />Guardando</span>
+  if (state === 'saved') return <span className="flex items-center gap-1 rounded-full bg-[#E3F2E8] px-2.5 py-1 text-xs font-bold text-[#006D42]"><Check className="size-3.5" />Guardado</span>
   if (state === 'error') return <span className="flex items-center gap-1 rounded-full bg-[#FDECE8] px-2.5 py-1 text-xs font-bold text-[#B14D3B]"><CloudOff className="size-3.5" />No se guardó</span>
   return null
 }

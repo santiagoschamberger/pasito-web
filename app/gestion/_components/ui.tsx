@@ -144,11 +144,11 @@ export function PasitoMark({ className }: { className?: string }) {
   )
 }
 
-export function Shell({ user, children, wide }: { user: { name: string | null; email: string; role: string }; children: React.ReactNode; wide?: boolean }) {
+export function Shell({ user, children, bare }: { user: { name: string | null; email: string; role: string }; children: React.ReactNode; wide?: boolean; bare?: boolean }) {
   const pathname = usePathname()
   const nav = [
     { href: '/gestion', label: 'Inicio', icon: Home, active: pathname === '/gestion' },
-    { href: '/gestion/eventos', label: 'Eventos', icon: LayoutGrid, active: pathname.startsWith('/gestion/eventos') },
+    { href: '/gestion/eventos', label: 'Eventos', icon: LayoutGrid, active: pathname.startsWith('/gestion/eventos') || pathname.startsWith('/gestion/series') },
     { href: '/gestion/calendario', label: 'Calendario', icon: CalendarDays, active: pathname.startsWith('/gestion/calendario') },
     { href: '/gestion/tareas', label: 'Tareas', icon: CheckSquare, active: pathname.startsWith('/gestion/tareas') },
     { href: '/gestion/equipo', label: 'Equipo', icon: Users, active: pathname.startsWith('/gestion/equipo') },
@@ -158,30 +158,37 @@ export function Shell({ user, children, wide }: { user: { name: string | null; e
     window.location.href = '/gestion/login'
   }
   return (
-    <div className="min-h-dvh pb-20 sm:pb-0">
-      <header className="no-print sticky top-0 z-30 border-b border-[#E3E8DF] bg-white/90 backdrop-blur">
-        <div className={cn('mx-auto flex h-16 items-center gap-3 px-4 sm:px-6', wide ? 'max-w-[1600px]' : 'max-w-[1344px]')}>
-          <Link href="/gestion" className="mr-3"><PasitoMark /></Link>
-          <nav className="hidden flex-1 items-center gap-1 sm:flex">
-            {nav.map((item) => (
-              <Link key={item.href} href={item.href} className={cn('flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold transition', item.active ? 'bg-[#00402E] text-white' : 'text-[#5F6761] hover:bg-[#EDF2EA] hover:text-[#171D1A]')}>
-                <item.icon className="size-4" />
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="ml-auto flex items-center gap-2">
-            <Link href="/gestion/equipo" className="flex items-center gap-2 rounded-full py-1 pr-1 pl-3 text-sm font-semibold text-[#171D1A] hover:bg-[#EDF2EA]">
-              <span className="hidden md:inline">{user.name || user.email}</span>
-              <Avatar name={user.name} email={user.email} size={30} />
+    <div className="min-h-dvh pb-20 lg:pb-0 lg:pl-[236px]">
+      {/* Barra lateral (escritorio) */}
+      <aside className="no-print fixed inset-y-0 left-0 z-30 hidden w-[236px] flex-col border-r border-[#E3E8DF] bg-white lg:flex">
+        <Link href="/gestion" className="px-5 pt-6 pb-7"><PasitoMark /></Link>
+        <nav className="flex-1 space-y-0.5 px-3">
+          {nav.map((item) => (
+            <Link key={item.href} href={item.href} className={cn('flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition', item.active ? 'bg-[#EDF5EE] text-[#006D42]' : 'text-[#5F6761] hover:bg-[#F6F7EF] hover:text-[#171D1A]')}>
+              <item.icon className="size-[18px]" />
+              {item.label}
             </Link>
-            <button onClick={logout} className={cn(btnGhost, 'size-9 px-0')} title="Salir"><LogOut className="size-4" /></button>
+          ))}
+        </nav>
+        <div className="border-t border-[#EDF1EB] p-3">
+          <div className="flex items-center gap-2.5 rounded-lg px-2 py-2">
+            <Avatar name={user.name} email={user.email} size={32} />
+            <Link href="/gestion/equipo" className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-semibold">{user.name || user.email}</span>
+              <span className="block truncate text-xs text-[#7A837D]">{user.role === 'admin' ? 'Admin' : user.role === 'lectura' ? 'Solo lectura' : 'Equipo'}</span>
+            </Link>
+            <button onClick={logout} className="grid size-8 place-items-center rounded-md text-[#7A837D] hover:bg-[#F2F6F1] hover:text-[#171D1A]" title="Salir"><LogOut className="size-4" /></button>
           </div>
         </div>
+      </aside>
+      {/* Barra superior (celular) */}
+      <header className="no-print sticky top-0 z-30 flex h-14 items-center justify-between border-b border-[#E3E8DF] bg-white/95 px-4 backdrop-blur lg:hidden">
+        <Link href="/gestion"><PasitoMark /></Link>
+        <Link href="/gestion/equipo"><Avatar name={user.name} email={user.email} size={30} /></Link>
       </header>
-      <main className={cn('mx-auto px-4 py-6 sm:px-6 sm:py-8', wide ? 'max-w-[1600px]' : 'max-w-[1344px]')}>{children}</main>
+      {bare ? children : <main className="mx-auto max-w-[1200px] px-4 py-6 sm:px-8 sm:py-8">{children}</main>}
       {/* Navegación inferior en el celular */}
-      <nav className="no-print fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-[#E3E8DF] bg-white pb-[env(safe-area-inset-bottom)] sm:hidden">
+      <nav className="no-print fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-[#E3E8DF] bg-white pb-[env(safe-area-inset-bottom)] lg:hidden">
         {nav.map((item) => (
           <Link key={item.href} href={item.href} className={cn('flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold', item.active ? 'text-[#006D42]' : 'text-[#7A837D]')}>
             <item.icon className="size-5" />
