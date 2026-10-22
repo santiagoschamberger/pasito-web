@@ -46,7 +46,7 @@ export function SeriesClient({ slug, user }: { slug: string; user: TeamUser & { 
             {[
               { label: 'Fechas hechas', value: `${stats.done} / ${stats.dates.length}` },
               { label: 'Entradas vendidas', value: `${stats.tickets}${capacity ? ` / ${capacity}` : ''}` },
-              { label: 'Ingresos entradas', value: formatMoney(stats.revenue) },
+              { label: 'Ingresos entradas', value: formatMoney(stats.revenue, group.events[0].currency) },
               { label: 'Próxima', value: stats.next ? formatDate(stats.next.start_date, { weekday: 'short', day: 'numeric', month: 'short' }) : '—' },
             ].map((s) => (
               <div key={s.label} className="rounded-xl bg-white/10 px-3 py-2.5 backdrop-blur-sm">
@@ -65,7 +65,7 @@ export function SeriesClient({ slug, user }: { slug: string; user: TeamUser & { 
             <p className="font-bold">Ficha general de la serie</p>
             <p className="text-sm text-[#5F6761]">Sponsors, plata total, tareas y presupuesto de toda la temporada.</p>
           </div>
-          <span className="hidden text-sm font-bold tabular-nums sm:block">{formatMoney(stats.result)}</span>
+          <span className="hidden text-sm font-bold tabular-nums sm:block">{formatMoney(stats.result, group.events[0].currency)}</span>
           <ArrowRight className="size-5 text-[#9AA39D]" />
         </Link>
       )}

@@ -76,7 +76,7 @@ export function SeriesCard({ group }: { group: SeriesGroup }) {
         <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
           <div>
             <p className="text-[11px] font-semibold text-[#7A837D] uppercase">Ingresos</p>
-            <p className="font-bold tabular-nums">{formatMoney(stats.revenue)}</p>
+            <p className="font-bold tabular-nums">{formatMoney(stats.revenue, group.events[0]?.currency)}</p>
           </div>
           <div>
             <p className="text-[11px] font-semibold text-[#7A837D] uppercase">Entradas</p>

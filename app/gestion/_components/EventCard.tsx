@@ -73,7 +73,7 @@ export function EventCard({ event, users }: { event: EventCardData; users: TeamU
         <div className="mt-3 mb-3 grid grid-cols-2 gap-3 text-sm">
           <div>
             <p className="text-[11px] font-semibold text-[#7A837D] uppercase">Resultado</p>
-            <p className={`font-bold tabular-nums ${event.result_projected < 0 ? 'text-[#B14D3B]' : 'text-[#171D1A]'}`}>{formatMoney(event.result_projected)}</p>
+            <p className={`font-bold tabular-nums ${event.result_projected < 0 ? 'text-[#B14D3B]' : 'text-[#171D1A]'}`}>{formatMoney(event.result_projected, event.currency)}</p>
           </div>
           {event.web ? (
             <div>

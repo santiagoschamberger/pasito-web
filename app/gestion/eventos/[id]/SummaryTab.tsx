@@ -31,7 +31,7 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
   const stat = (label: string, value: number, tone?: 'warn' | 'bad' | 'good') => (
     <div>
       <p className="text-xs font-semibold text-[#7A837D]">{label}</p>
-      <p className={cn('g-display text-lg font-extrabold tabular-nums', tone === 'warn' && value ? 'text-[#806113]' : tone === 'bad' && value < 0 ? 'text-[#B14D3B]' : '')}>{formatMoney(value)}</p>
+      <p className={cn('g-display text-lg font-extrabold tabular-nums', tone === 'warn' && value ? 'text-[#806113]' : tone === 'bad' && value < 0 ? 'text-[#B14D3B]' : '')}>{formatMoney(value, event.currency)}</p>
     </div>
   )
 
@@ -42,8 +42,8 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-xs font-bold text-[#7A837D] uppercase">Resultado proyectado</p>
-              <p className={cn('g-display text-4xl font-extrabold tabular-nums', money.resultProjected < 0 ? 'text-[#B14D3B]' : 'text-[#006D42]')}>{formatMoney(money.resultProjected)}</p>
-              <p className="mt-0.5 text-sm text-[#5F6761]">{formatMoney(money.incomeProjected)} de ingresos − {formatMoney(money.expenseProjected)} de gastos{money.inKind ? ` · ${formatMoney(money.inKind)} en canjes` : ''}</p>
+              <p className={cn('g-display text-4xl font-extrabold tabular-nums', money.resultProjected < 0 ? 'text-[#B14D3B]' : 'text-[#006D42]')}>{formatMoney(money.resultProjected, event.currency)}</p>
+              <p className="mt-0.5 text-sm text-[#5F6761]">{formatMoney(money.incomeProjected, event.currency)} de ingresos − {formatMoney(money.expenseProjected, event.currency)} de gastos{money.inKind ? ` · ${formatMoney(money.inKind, event.currency)} en canjes` : ''}</p>
             </div>
             <button onClick={() => onGoTo('budget')} className="text-sm font-semibold text-[#006D42]">Ver presupuesto</button>
           </div>
@@ -60,10 +60,10 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <p className="g-display text-lg font-extrabold">{web.tickets}{capacity ? <span className="font-bold text-[#9AA39D]"> / {capacity}</span> : null} entradas vendidas</p>
-                <p className="text-sm text-[#5F6761]">{formatMoney(web.revenue)} · {web.checkedIn} entraron{web.refunded ? ` · ${web.refunded} reembolsadas` : ''}</p>
+                <p className="text-sm text-[#5F6761]">{formatMoney(web.revenue, event.currency)} · {web.checkedIn} entraron{web.refunded ? ` · ${web.refunded} reembolsadas` : ''}</p>
               </div>
               {capacity ? <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#E8EDE9]"><div className="h-full rounded-full bg-[#006D42]" style={{ width: `${Math.min(100, (web.tickets / capacity) * 100)}%` }} /></div> : null}
-              <p className="mt-1.5 text-xs text-[#7A837D]">Se actualiza solo con Rebill</p>
+              <p className="mt-1.5 text-xs text-[#7A837D]">Se actualiza solo con Rebill / dLocal</p>
             </div>
           </button>
         )}
@@ -131,7 +131,7 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
                 <ul className="space-y-3">
                   {money.byCategory.map((c) => (
                     <li key={c.category} className="text-sm">
-                      <div className="flex justify-between"><span>{categoryLabel(c.category)}</span><span className="font-bold tabular-nums">{formatMoney(c.projected)}</span></div>
+                      <div className="flex justify-between"><span>{categoryLabel(c.category)}</span><span className="font-bold tabular-nums">{formatMoney(c.projected, event.currency)}</span></div>
                       <div className="relative mt-1 h-2 rounded-full bg-[#E8EDE9]">
                         <div className="absolute inset-y-0 left-0 rounded-full bg-[#006D42]/30" style={{ width: `${(c.projected / maxCategory) * 100}%` }} />
                         <div className="absolute inset-y-0 left-0 rounded-full bg-[#006D42]" style={{ width: `${(c.real / maxCategory) * 100}%` }} />
@@ -152,7 +152,7 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
                     return (
                       <li key={stage.value} className="flex justify-between text-sm">
                         <span className={stage.value === 'caido' ? 'text-[#9AA39D] line-through' : ''}>{stage.label} · {entry.count}</span>
-                        <span className="font-bold tabular-nums">{formatMoney(entry.amount)}</span>
+                        <span className="font-bold tabular-nums">{formatMoney(entry.amount, event.currency)}</span>
                       </li>
                     )
                   })}

@@ -132,7 +132,7 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
   const closed = event.status === 'cerrado'
   const canEdit = user.canEdit && !closed
   const status = effectiveStatus(event)
-  const tableProps = { eventId, rows, users, canEdit, onRowsChange, onSaveState: setSaveState }
+  const tableProps = { eventId, rows, users, canEdit, onRowsChange, onSaveState: setSaveState, currency: event.currency }
   const cover = event.cover_url || data.pasitoEvents.find((p) => p.photo_url)?.photo_url || null
   const days = event.start_date ? daysBetween(todayISO(), event.start_date) : null
   const owner = users.find((u) => u.email === event.owner_email)
@@ -293,8 +293,8 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
         )}
 
         {tab === 'budget' && (
-          <Section title="Presupuesto" hint="Montos en pesos, con IVA incluido. Las filas grises se calculan solas: entradas web (Rebill), sponsors confirmados y proveedores.">
-            <SectionTable {...tableProps} kind="budget" defaults={{ tipo: 'egreso', estado: 'pendiente' }} extraRows={derivedBudgetRows(rows, data.web)} />
+          <Section title="Presupuesto" hint="Montos en la moneda del evento, con IVA incluido. Las filas grises se calculan solas: entradas web, sponsors confirmados y proveedores.">
+            <SectionTable {...tableProps} kind="budget" defaults={{ tipo: 'egreso', estado: 'pendiente' }} extraRows={derivedBudgetRows(rows, data.web, event.currency)} />
           </Section>
         )}
 
@@ -380,13 +380,13 @@ function QuickAdd(props: TableProps) {
   )
 }
 
-function derivedBudgetRows(rows: GestionRow[], web: WebSalesLite) {
+function derivedBudgetRows(rows: GestionRow[], web: WebSalesLite, currency: string) {
   const stage = (v: unknown) => SPONSOR_STAGES.find((s) => s.value === v)?.label ?? ''
   const tickets = web.tickets || web.revenue
     ? [{
         key: 'web',
-        note: 'Entradas vendidas en la web: se actualiza sola con Rebill',
-        cells: { tipo: 'Ingreso', categoria: 'Entradas web', concepto: `${web.tickets} entradas (Rebill)`, presupuestado: formatMoneySafe(web.revenue), real: formatMoneySafe(web.revenue), estado: 'Cobrado' },
+        note: 'Entradas vendidas en la web: se actualiza sola con Rebill / dLocal',
+        cells: { tipo: 'Ingreso', categoria: 'Entradas web', concepto: `${web.tickets} entradas (web)`, presupuestado: formatMoneySafe(web.revenue, currency), real: formatMoneySafe(web.revenue, currency), estado: 'Cobrado' },
       }]
     : []
   const sponsors = rows
@@ -398,8 +398,8 @@ function derivedBudgetRows(rows: GestionRow[], web: WebSalesLite) {
         tipo: 'Ingreso',
         categoria: 'Sponsor',
         concepto: String(r.data.marca || 'Sponsor'),
-        presupuestado: formatMoneySafe(r.data.dinero),
-        real: r.data.etapa === 'cobrado' ? formatMoneySafe(r.data.dinero) : '',
+        presupuestado: formatMoneySafe(r.data.dinero, currency),
+        real: r.data.etapa === 'cobrado' ? formatMoneySafe(r.data.dinero, currency) : '',
         estado: stage(r.data.etapa),
         vence: r.data.fecha_cobro ? String(r.data.fecha_cobro) : '',
       },
@@ -416,8 +416,8 @@ function derivedBudgetRows(rows: GestionRow[], web: WebSalesLite) {
           tipo: 'Gasto',
           categoria: 'Proveedor',
           concepto: `${String(r.data.proveedor || 'Proveedor')}${r.data.servicio ? ` · ${String(r.data.servicio)}` : ''}`,
-          presupuestado: formatMoneySafe(total),
-          real: paid ? formatMoneySafe(paid) : '',
+          presupuestado: formatMoneySafe(total, currency),
+          real: paid ? formatMoneySafe(paid, currency) : '',
           estado: r.data.saldo_pagado ? 'Pagado' : r.data.sena_pagada ? 'Señado' : 'Pendiente',
           vence: r.data.fecha_pago ? String(r.data.fecha_pago) : '',
         },
@@ -479,6 +479,7 @@ export type TableProps = {
   canEdit: boolean
   onRowsChange: (u: (rows: GestionRow[]) => GestionRow[]) => void
   onSaveState: (s: SaveState) => void
+  currency?: string
 }
 
 export type { RowKind }

@@ -43,7 +43,9 @@ export function HomeClient({ user, users }: { user: TeamUser & { canEdit: boolea
   const overdueTasks = activeEvents.reduce((sum, e) => sum + (e.tasks?.overdue ?? 0), 0)
   const critical = activeEvents.reduce((sum, e) => sum + (e.alerts_critical ?? 0), 0)
   const ticketsUpcoming = datedUpcoming.reduce((sum, e) => sum + (e.web?.tickets ?? 0), 0)
-  const revenueUpcoming = datedUpcoming.reduce((sum, e) => sum + (e.web?.revenue ?? 0), 0)
+  const revenueBy = (currency: string) => datedUpcoming.filter((e) => (e.currency ?? 'ARS') === currency).reduce((sum, e) => sum + (e.web?.revenue ?? 0), 0)
+  const revenueUpcoming = revenueBy('ARS')
+  const revenueUy = revenueBy('UYU')
 
 
   return (
@@ -57,7 +59,7 @@ export function HomeClient({ user, users }: { user: TeamUser & { canEdit: boolea
       {data && (
         <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
           <Metric label="Entradas vendidas" value={ticketsUpcoming.toLocaleString('es-AR')} hint="próximas fechas" />
-          <Metric label="Recaudado web" value={formatMoney(revenueUpcoming)} hint="próximas fechas" />
+          <Metric label="Recaudado web" value={formatMoney(revenueUpcoming)} hint={revenueUy ? `+ ${formatMoney(revenueUy, 'UYU')} en Uruguay` : 'próximas fechas'} />
           <Metric label="Eventos activos" value={activeCount.toLocaleString('es-AR')} hint={`${datedUpcoming.length} fechas por delante`} href="/gestion/eventos" />
           <Metric label="Pendientes" value={openTasks.toLocaleString('es-AR')} hint={overdueTasks ? `${overdueTasks} vencidas` : openTasks ? 'en los eventos' : 'todo al día'} tone={overdueTasks || critical ? 'bad' : undefined} href="/gestion/tareas" />
         </div>

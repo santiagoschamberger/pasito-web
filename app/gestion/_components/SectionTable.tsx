@@ -27,6 +27,7 @@ type Props = {
   extraRows?: { key: string; cells: Record<string, React.ReactNode>; note: string }[]
   emptyText?: string
   addLabel?: string
+  currency?: string
 }
 
 const cellBase = 'h-9 w-full min-w-0 rounded-md border border-transparent bg-transparent px-2 text-sm outline-none hover:border-[#DDE6DF] focus:border-[#006D42] focus:bg-white focus:ring-2 focus:ring-[#006D42]/15 disabled:hover:border-transparent'
@@ -332,7 +333,7 @@ export function SectionTable(props: Props) {
                 {isTask && <td />}
                 {columns.map((c, i) => {
                   const total = totals.find(([key]) => key === c.key)
-                  return <td key={c.key} className={cn('h-10 px-3 whitespace-nowrap', total && 'text-right tabular-nums')}>{total ? formatMoney(total[1]) : i === 0 ? 'Total cargado' : ''}</td>
+                  return <td key={c.key} className={cn('h-10 px-3 whitespace-nowrap', total && 'text-right tabular-nums')}>{total ? formatMoney(total[1], props.currency) : i === 0 ? 'Total cargado' : ''}</td>
                 })}
                 {canEdit && <td />}
               </tr>

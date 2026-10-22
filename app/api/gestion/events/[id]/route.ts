@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { db, getEvent, getRows, handleError, HttpError, logActivity, readJson, requireUser } from '@/lib/gestion/server'
-import { EVENT_EDITABLE_FIELDS, EVENT_STATUSES, EVENT_TYPES, STATUS_LABEL, type GestionEvent } from '@/lib/gestion/schema'
+import { EVENT_EDITABLE_FIELDS, EVENT_STATUSES, EVENT_TYPES, STATUS_LABEL, type GestionEvent, CURRENCIES } from '@/lib/gestion/schema'
 import { closeBlockers } from '@/lib/gestion/summary'
 import { webSales } from '@/lib/gestion/sources'
 
@@ -54,6 +54,9 @@ function cleanField(field: string, value: unknown): unknown {
     case 'web_tiers':
       if (!Array.isArray(value) || value.some((v) => typeof v !== 'string' || !/^[a-z0-9-]+:\d+$/.test(v))) throw new HttpError(400, 'Tandas inválidas.')
       return [...new Set(value)]
+    case 'currency':
+      if (!CURRENCIES.some((c) => c.value === value)) throw new HttpError(400, 'Moneda inválida.')
+      return value
     case 'series':
       return typeof value === 'string' && value.trim() ? value.trim().slice(0, 80) : null
     case 'cover_url':
@@ -78,7 +81,7 @@ const FIELD_LABEL: Record<string, string> = {
   name: 'el nombre', type: 'el tipo', status: 'el estado', start_date: 'la fecha', end_date: 'la fecha de fin', start_time: 'el horario',
   venue: 'el lugar', city: 'la ciudad', capacity: 'la capacidad', owner_email: 'el responsable', drive_url: 'el link de Drive',
   objective: 'el objetivo', notes: 'las notas', pasito_event_ids: 'los eventos vinculados de la app',
-  web_tiers: 'las entradas web vinculadas', series: 'la serie', cover_url: 'la portada',
+  web_tiers: 'las entradas web vinculadas', series: 'la serie', currency: 'la moneda', cover_url: 'la portada',
   door_allow_walkins: 'las altas en puerta', door_allow_reentry: 'los reingresos',
 }
 

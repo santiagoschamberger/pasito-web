@@ -13,7 +13,7 @@ const row = (kind: RowKind, data: RowData): GestionRow => ({
 
 const event = (over: Partial<GestionEvent> = {}): GestionEvent => ({
   id: 'e1', name: 'Test', type: 'otro', status: 'confirmado', start_date: '2026-11-20', start_time: null, end_date: null,
-  venue: null, city: null, capacity: null, owner_email: 'a@pasito.app', drive_url: null, objective: null, notes: null,
+  venue: null, city: null, capacity: null, currency: 'ARS', owner_email: 'a@pasito.app', drive_url: null, objective: null, notes: null,
   pasito_event_ids: [], web_tiers: [], series: null, cover_url: null, door_allow_walkins: false, door_allow_reentry: false, archived_at: null, created_by: null,
   created_at: '', updated_at: '', ...over,
 })

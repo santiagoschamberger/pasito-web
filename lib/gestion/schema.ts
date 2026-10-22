@@ -56,6 +56,7 @@ export type GestionEvent = {
   pasito_event_ids: string[]
   web_tiers: string[]
   series: string | null
+  currency: Currency
   cover_url: string | null
   door_allow_walkins: boolean
   door_allow_reentry: boolean
@@ -82,6 +83,7 @@ export const EVENT_EDITABLE_FIELDS = [
   'pasito_event_ids',
   'web_tiers',
   'series',
+  'currency',
   'cover_url',
   'door_allow_walkins',
   'door_allow_reentry',
@@ -387,9 +389,17 @@ export type ActivityEntry = {
 
 export type TeamUser = { email: string; name: string | null; role: 'admin' | 'equipo' | 'lectura'; phone: string | null }
 
-export function formatMoney(value: number | null | undefined): string {
+export const CURRENCIES = [
+  { value: 'ARS', label: 'Pesos argentinos', symbol: '$' },
+  { value: 'UYU', label: 'Pesos uruguayos', symbol: '$U ' },
+  { value: 'USD', label: 'Dólares', symbol: 'US$ ' },
+] as const
+export type Currency = (typeof CURRENCIES)[number]['value']
+
+export function formatMoney(value: number | null | undefined, currency: string = 'ARS'): string {
   if (value === null || value === undefined || !Number.isFinite(value)) return '—'
-  return `$${Math.round(value).toLocaleString('es-AR')}`
+  const symbol = CURRENCIES.find((c) => c.value === currency)?.symbol ?? '$'
+  return `${value < 0 ? '-' : ''}${symbol}${Math.abs(Math.round(value)).toLocaleString('es-AR')}`
 }
 
 export function personLabel(email: string | null | undefined, users: TeamUser[]): string {

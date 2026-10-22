@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Link2, Search, Ticket, X } from 'lucide-react'
 
-import { EVENT_TYPES, type EventType, type GestionEvent, type TeamUser } from '@/lib/gestion/schema'
+import { CURRENCIES, EVENT_TYPES, type Currency, type EventType, type GestionEvent, type TeamUser } from '@/lib/gestion/schema'
 import { api } from '../../_components/api'
 import { SectionTable } from '../../_components/SectionTable'
 import { card, input, label } from '../../_components/ui'
@@ -51,6 +51,12 @@ export function FichaTab({ event, users, user, canEdit, tableProps, pasitoEvents
               {users.map((u) => <option key={u.email} value={u.email}>{u.name || u.email}</option>)}
             </select>
           </label>
+          <label className="space-y-1.5">
+            <span className={label}>Moneda</span>
+            <select className={input} value={event.currency} disabled={!canEdit} onChange={(e) => onUpdate({ currency: e.target.value as Currency })}>
+              {CURRENCIES.map((c) => <option key={c.value} value={c.value}>{c.label} ({c.value})</option>)}
+            </select>
+          </label>
           {FIELDS.map((field) => <FichaField key={`${field.key}-${event.updated_at}`} field={field} event={event} disabled={!canEdit} onUpdate={onUpdate} />)}
         </div>
       </Section>
@@ -67,7 +73,7 @@ export function FichaTab({ event, users, user, canEdit, tableProps, pasitoEvents
         <SectionTable {...tableProps} kind="contact" />
       </Section>
 
-      <Section title="Entradas vendidas en la web" hint="Vinculá la tanda de entradas de pasito.app: ventas, ingresos y lista se actualizan solos con Rebill, y el check-in marca la entrada original.">
+      <Section title="Entradas vendidas en la web" hint="Vinculá la tanda de entradas de pasito.app: ventas, ingresos y lista se actualizan solos (Rebill en Argentina, dLocal en Uruguay), y el check-in marca la entrada original.">
         <WebTiersLink event={event} disabled={!canEdit} onUpdate={async (keys) => { if (await onUpdate({ web_tiers: keys })) onReload() }} />
       </Section>
 

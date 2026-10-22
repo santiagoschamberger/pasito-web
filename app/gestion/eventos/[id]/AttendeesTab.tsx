@@ -126,7 +126,7 @@ export function AttendeesTab({ event, user, pasitoEvents, onAttendanceToKpi, onG
       {web && (web.tickets > 0 || (event.web_tiers ?? []).length > 0) && (
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[#CFE3D6] bg-[#F2F6F1] px-4 py-3 text-sm">
           <Ticket className="size-5 text-[#006D42]" />
-          <span><strong>{web.tickets}</strong> entradas web vendidas{web.refunded ? ` · ${web.refunded} reembolsadas` : ''} · se suman solas a la lista (Rebill). En la puerta se escanea el mismo QR que les llegó al comprar.</span>
+          <span><strong>{web.tickets}</strong> entradas web vendidas{web.refunded ? ` · ${web.refunded} reembolsadas` : ''} · se suman solas a la lista (Rebill / dLocal). En la puerta se escanea el mismo QR que les llegó al comprar.</span>
         </div>
       )}
       {pasitoEvents.length === 0 && !(event.web_tiers ?? []).length && (
