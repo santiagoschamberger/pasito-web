@@ -26,6 +26,23 @@ const nextConfig = {
       })),
     ]
   },
+  // eventos.pasito.app sirve el sistema interno de gestión de eventos (/gestion).
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: '/',
+          has: [{ type: 'host', value: 'eventos.pasito.app' }],
+          destination: '/gestion',
+        },
+        {
+          source: '/:path((?!gestion(?:/|$)|api/|_next/|fonts/|icon\\.png$|favicon).*)',
+          has: [{ type: 'host', value: 'eventos.pasito.app' }],
+          destination: '/gestion/:path',
+        },
+      ],
+    }
+  },
   async headers() {
     return [
       {
@@ -37,6 +54,13 @@ const nextConfig = {
         source: '/datos/:path*',
         headers: [
           { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive, nosnippet' },
+          { key: 'Cache-Control', value: 'private, no-store, max-age=0' },
+        ],
+      },
+      {
+        source: '/gestion/:path*',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
           { key: 'Cache-Control', value: 'private, no-store, max-age=0' },
         ],
       },
