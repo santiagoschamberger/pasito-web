@@ -54,7 +54,7 @@ export function HomeClient({ user, users }: { user: TeamUser & { canEdit: boolea
                   const overdue = typeof task.data.due === 'string' && task.data.due < data.today
                   return (
                     <li key={task.id} className="flex items-center gap-3 py-2.5">
-                      <button onClick={() => completeTask(task)} disabled={!user.canEdit} className="text-[#66706B] hover:text-[#0B6B43]" title="Marcar hecha">
+                      <button onClick={() => completeTask(task)} disabled={!user.canEdit} className="text-[#66706B] hover:text-[#006D42]" title="Marcar hecha">
                         <Circle className="size-5" />
                       </button>
                       <Link href={`/gestion/eventos/${task.event_id}?tab=task`} className="min-w-0 flex-1">
@@ -73,7 +73,7 @@ export function HomeClient({ user, users }: { user: TeamUser & { canEdit: boolea
 
           <section className={`${card} p-4`}>
             <h2 className="mb-3 text-base font-bold">Alertas <span className="font-medium text-[#66706B]">· {alerts.length}</span></h2>
-            {alerts.length === 0 ? <Empty><CheckCircle2 className="mx-auto mb-1 size-5 text-[#0B6B43]" />Nada en riesgo.</Empty> : (
+            {alerts.length === 0 ? <Empty><CheckCircle2 className="mx-auto mb-1 size-5 text-[#006D42]" />Nada en riesgo.</Empty> : (
               <ul className="divide-y divide-[#E8EDE9]">
                 {alerts.slice(0, 15).map((alert, index) => (
                   <li key={index}>

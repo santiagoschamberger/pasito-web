@@ -54,6 +54,9 @@ export type GestionEvent = {
   objective: string | null
   notes: string | null
   pasito_event_ids: string[]
+  web_tiers: string[]
+  series: string | null
+  cover_url: string | null
   door_allow_walkins: boolean
   door_allow_reentry: boolean
   archived_at: string | null
@@ -77,6 +80,9 @@ export const EVENT_EDITABLE_FIELDS = [
   'objective',
   'notes',
   'pasito_event_ids',
+  'web_tiers',
+  'series',
+  'cover_url',
   'door_allow_walkins',
   'door_allow_reentry',
 ] as const
@@ -107,7 +113,7 @@ export type GestionRow = {
   updated_at: string
 }
 
-export type ColumnType = 'text' | 'longtext' | 'money' | 'number' | 'date' | 'select' | 'person' | 'bool' | 'url'
+export type ColumnType = 'text' | 'longtext' | 'money' | 'number' | 'date' | 'select' | 'person' | 'bool' | 'url' | 'image'
 
 export type Column = {
   key: string
@@ -177,6 +183,7 @@ export const SECTIONS: Record<RowKind, { title: string; singular: string; column
     title: 'Sponsors',
     singular: 'sponsor',
     columns: [
+      { key: 'logo', label: 'Logo', type: 'image', width: 64 },
       { key: 'marca', label: 'Marca', type: 'text', width: 180 },
       { key: 'etapa', label: 'Etapa', type: 'select', options: SPONSOR_STAGES, width: 160 },
       { key: 'nivel', label: 'Nivel', type: 'select', options: opts(['principal', 'Principal'], ['oro', 'Oro'], ['plata', 'Plata'], ['apoyo', 'Apoyo']), width: 110 },
@@ -290,13 +297,21 @@ export function isRowKind(value: unknown): value is RowKind {
   return typeof value === 'string' && (ROW_KINDS as string[]).includes(value)
 }
 
+// "1.500.000" y "1.500,5" usan punto de miles; "2.75" y "2,75" son decimales.
+export function parseLocaleNumber(raw: string): number {
+  const text = raw.trim().replace(/[$\s]/g, '')
+  if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(text)) return Number(text.replace(/\./g, '').replace(',', '.'))
+  if (/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(text) && text.includes('.')) return Number(text.replace(/,/g, ''))
+  return Number(text.replace(',', '.'))
+}
+
 // Valida y normaliza un valor según la columna. Devuelve undefined si no es válido.
 export function normalizeValue(column: Column, value: unknown): string | number | boolean | null | undefined {
   if (value === null || value === '' || value === undefined) return null
   switch (column.type) {
     case 'money':
     case 'number': {
-      const n = typeof value === 'number' ? value : Number(String(value).replace(/\./g, '').replace(',', '.'))
+      const n = typeof value === 'number' ? value : parseLocaleNumber(String(value))
       if (!Number.isFinite(n)) return undefined
       return column.type === 'money' ? Math.round(n) : n
     }
@@ -307,6 +322,7 @@ export function normalizeValue(column: Column, value: unknown): string | number 
     case 'select':
       return typeof value === 'string' && column.options?.some((o) => o.value === value) ? value : undefined
     case 'url':
+    case 'image':
       return typeof value === 'string' && /^https?:\/\//i.test(value.trim()) && value.length < 2000 ? value.trim() : undefined
     case 'person':
       return typeof value === 'string' && value.length < 200 ? value.trim().toLowerCase() : undefined
@@ -350,6 +366,7 @@ export type Attendee = {
   companions_in: number
   notes: string | null
   qr_token: string
+  qr_sent_at?: string | null
   status: 'anotado' | 'ingreso' | 'salio'
   checked_in_at: string | null
   checked_in_device: string | null

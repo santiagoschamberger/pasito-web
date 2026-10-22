@@ -23,16 +23,16 @@ export default async function TicketPage({ params }: { params: Promise<{ token: 
     ? new Date(`${event.start_date}T12:00:00-03:00`).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })
     : null
   return (
-    <main className="grid min-h-dvh place-items-center bg-[#0B6B43] p-5">
+    <main className="grid min-h-dvh place-items-center bg-[#006D42] p-5">
       <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-xl">
-        <p className="text-sm font-bold text-[#0B6B43]">Pasito</p>
+        <p className="text-sm font-bold text-[#006D42]">Pasito</p>
         <h1 className="mt-1 text-2xl font-extrabold">{event.name}</h1>
         {when && <p className="mt-1 text-sm text-[#5F6761] capitalize">{when}{event.start_time ? ` · ${event.start_time}` : ''}</p>}
         {(event.venue || event.city) && <p className="text-sm text-[#5F6761]">{[event.venue, event.city].filter(Boolean).join(', ')}</p>}
         <div className="mx-auto my-5 w-full max-w-[260px]" dangerouslySetInnerHTML={{ __html: svg }} />
         <p className="text-xl font-bold">{data.name}</p>
         {data.companions > 0 && <p className="text-sm text-[#5F6761]">+{data.companions} acompañante(s)</p>}
-        {data.status !== 'anotado' && <p className="mt-2 text-sm font-semibold text-[#0B6B43]">Ingreso registrado</p>}
+        {data.status !== 'anotado' && <p className="mt-2 text-sm font-semibold text-[#006D42]">Ingreso registrado</p>}
         <p className="mt-4 text-xs text-[#66706B]">Mostralo en la puerta con el brillo alto. Sin batería, decí tu nombre y te buscamos en la lista.</p>
       </div>
     </main>

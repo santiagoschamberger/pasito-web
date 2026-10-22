@@ -54,7 +54,7 @@ export function mapAttendeeRows(rows: string[][]): { items: Mapped[]; columns: R
     dni: find(/dni|documento|doc\b/),
     companions: find(/acompa|\+1|invitados extra|plus/),
     notes: find(/nota|observ|comentario/),
-    ref: find(/ticket|entrada|orden|order|codigo|code|^id$/),
+    ref: find(/^(n(ro|ro\.|°|º|umero)? ?(de )?(ticket|entrada)|ticket( ?(id|#|nro|n°|code|codigo))?|codigo( de entrada)?|code|barcode|qr|id)$/),
     kind: find(/^tipo|categoria|kind/),
   }
   const hasHeader = idx.full >= 0 || idx.first >= 0 || idx.email >= 0

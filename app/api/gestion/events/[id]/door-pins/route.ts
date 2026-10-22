@@ -1,7 +1,7 @@
 import { randomInt } from 'node:crypto'
 import { NextRequest, NextResponse } from 'next/server'
 
-import { db, getEvent, handleError, HttpError, logActivity, pinHash, readJson, requireUser } from '@/lib/gestion/server'
+import { assertOpen, db, getEvent, handleError, HttpError, logActivity, pinHash, readJson, requireUser } from '@/lib/gestion/server'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -34,6 +34,7 @@ export async function POST(request: NextRequest, { params }: Params) {
     const user = await requireUser({ edit: true })
     const { id } = await params
     const event = await getEvent(id)
+    assertOpen(event)
     const body = await readJson<{ label?: string; valid_from?: string; valid_until?: string }>(request)
     const label = (body.label ?? '').trim().slice(0, 60) || 'Puerta'
     const fallback = defaultWindow(event.start_date, event.end_date)

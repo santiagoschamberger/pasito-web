@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { createDoorCookie, db, DOOR_COOKIE, getEvent, handleError, HttpError, pinHash, readJson } from '@/lib/gestion/server'
+import { assertOpen, createDoorCookie, db, DOOR_COOKIE, getEvent, handleError, HttpError, pinHash, readJson } from '@/lib/gestion/server'
 import { requestIpHash } from '@/lib/tomate-server'
 
 type Params = { params: Promise<{ eventId: string }> }
@@ -8,7 +8,7 @@ type Params = { params: Promise<{ eventId: string }> }
 export async function POST(request: NextRequest, { params }: Params) {
   try {
     const { eventId } = await params
-    await getEvent(eventId)
+    assertOpen(await getEvent(eventId))
     const body = await readJson<{ pin?: unknown; operator?: unknown; device?: unknown }>(request)
     const pin = typeof body.pin === 'string' ? body.pin.replace(/\D/g, '') : ''
     const operator = typeof body.operator === 'string' ? body.operator.trim().slice(0, 60) : ''

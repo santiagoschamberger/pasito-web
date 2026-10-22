@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db, getEvent, getRows, handleError, HttpError, logActivity, readJson, requireUser } from '@/lib/gestion/server'
 import { EVENT_EDITABLE_FIELDS, EVENT_STATUSES, EVENT_TYPES, STATUS_LABEL, type GestionEvent } from '@/lib/gestion/schema'
 import { closeBlockers } from '@/lib/gestion/summary'
+import { webSales } from '@/lib/gestion/sources'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -11,15 +12,16 @@ export async function GET(_request: NextRequest, { params }: Params) {
     await requireUser()
     const { id } = await params
     const event = await getEvent(id)
-    const [rows, activity, pasitoEvents] = await Promise.all([
+    const [rows, activity, pasitoEvents, web] = await Promise.all([
       getRows([id]),
       db().from('gestion_activity').select('id, event_id, actor, action, entity, summary, created_at').eq('event_id', id).order('created_at', { ascending: false }).limit(60),
       event.pasito_event_ids.length
         ? db().from('partner_events').select('id, title, start_at, max_participants, participant_count').in('id', event.pasito_event_ids)
         : Promise.resolve({ data: [] }),
+      webSales(event),
     ])
     return NextResponse.json(
-      { event, rows, activity: activity.data ?? [], pasitoEvents: pasitoEvents.data ?? [] },
+      { event, rows, activity: activity.data ?? [], pasitoEvents: pasitoEvents.data ?? [], web },
       { headers: { 'Cache-Control': 'no-store' } },
     )
   } catch (error) {
@@ -49,6 +51,14 @@ function cleanField(field: string, value: unknown): unknown {
       if (!Number.isInteger(n) || n < 0 || n > 1_000_000) throw new HttpError(400, 'Capacidad inválida.')
       return n
     }
+    case 'web_tiers':
+      if (!Array.isArray(value) || value.some((v) => typeof v !== 'string' || !/^[a-z0-9-]+:\d+$/.test(v))) throw new HttpError(400, 'Tandas inválidas.')
+      return [...new Set(value)]
+    case 'series':
+      return typeof value === 'string' && value.trim() ? value.trim().slice(0, 80) : null
+    case 'cover_url':
+      if (value !== null && !(typeof value === 'string' && /^https:\/\//.test(value) && value.length < 2000)) throw new HttpError(400, 'Imagen inválida.')
+      return value
     case 'drive_url':
       if (value !== null && !(typeof value === 'string' && /^https:\/\//.test(value))) throw new HttpError(400, 'El link tiene que empezar con https://')
       return value
@@ -68,6 +78,7 @@ const FIELD_LABEL: Record<string, string> = {
   name: 'el nombre', type: 'el tipo', status: 'el estado', start_date: 'la fecha', end_date: 'la fecha de fin', start_time: 'el horario',
   venue: 'el lugar', city: 'la ciudad', capacity: 'la capacidad', owner_email: 'el responsable', drive_url: 'el link de Drive',
   objective: 'el objetivo', notes: 'las notas', pasito_event_ids: 'los eventos vinculados de la app',
+  web_tiers: 'las entradas web vinculadas', series: 'la serie', cover_url: 'la portada',
   door_allow_walkins: 'las altas en puerta', door_allow_reentry: 'los reingresos',
 }
 

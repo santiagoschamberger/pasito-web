@@ -133,7 +133,7 @@ export function AttendeesTab({ event, user, pasitoEvents, onAttendanceToKpi }: {
                 {slots.map((s) => (
                   <div key={s.slot} className="flex min-w-7 flex-1 flex-col items-center gap-1" title={`${s.slot}: ${s.count}`}>
                     <span className="text-[10px] text-[#5F6761]">{s.count}</span>
-                    <div className="w-full rounded-t bg-[#0B6B43]" style={{ height: `${(s.count / maxSlot) * 90}px` }} />
+                    <div className="w-full rounded-t bg-[#006D42]" style={{ height: `${(s.count / maxSlot) * 90}px` }} />
                     <span className="text-[10px] text-[#5F6761]">{s.slot}</span>
                   </div>
                 ))}
@@ -183,14 +183,14 @@ export function AttendeesTab({ event, user, pasitoEvents, onAttendanceToKpi }: {
                     <td className="px-3 py-2 text-[#5F6761]">{ORIGIN_LABEL[a.origin]}</td>
                     <td className="px-3 py-2 tabular-nums">{a.companions ? `${a.companions_in}/${a.companions}` : ''}</td>
                     <td className="px-3 py-2">
-                      <button disabled={!canEdit} onClick={() => toggleStatus(a)} className={`rounded-full px-2 py-0.5 text-xs font-semibold ${a.status === 'anotado' ? 'bg-[#F8FAF8] text-[#5F6761]' : 'bg-[#F2F6F1] text-[#0B6B43]'}`} title="Corregir estado">
+                      <button disabled={!canEdit} onClick={() => toggleStatus(a)} className={`rounded-full px-2 py-0.5 text-xs font-semibold ${a.status === 'anotado' ? 'bg-[#F8FAF8] text-[#5F6761]' : 'bg-[#F2F6F1] text-[#006D42]'}`} title="Corregir estado">
                         {a.status === 'anotado' ? 'Anotado' : `Ingresó ${a.checked_in_at ? new Date(a.checked_in_at).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false }) : ''}`}
                       </button>
                     </td>
                     <td className="max-w-48 truncate px-3 py-2 text-[#5F6761]">{a.email || a.phone || ''}</td>
                     <td className="max-w-56 truncate px-3 py-2 text-[#5F6761]">{a.notes || ''}</td>
                     <td className="px-2 py-1 whitespace-nowrap">
-                      <a href={`/gestion/entrada/${a.qr_token}`} target="_blank" rel="noreferrer" className="inline-grid size-8 place-items-center text-[#5F6761] hover:text-[#0B6B43]" title="Ver QR"><QrCode className="size-4" /></a>
+                      <a href={`/gestion/entrada/${a.qr_token}`} target="_blank" rel="noreferrer" className="inline-grid size-8 place-items-center text-[#5F6761] hover:text-[#006D42]" title="Ver QR"><QrCode className="size-4" /></a>
                       {canEdit && <button onClick={() => remove(a)} className="inline-grid size-8 place-items-center text-[#9AA39D] hover:text-[#B14D3B]" title="Quitar"><Trash2 className="size-4" /></button>}
                     </td>
                   </tr>
@@ -319,7 +319,7 @@ function PinsPanel({ eventId }: { eventId: string }) {
             <p className="text-sm">PIN para <strong>{newPin.label}</strong> (anotalo, no se vuelve a mostrar):</p>
             <button onClick={() => setNewPin(null)}><X className="size-4" /></button>
           </div>
-          <p className="mt-1 font-mono text-3xl font-extrabold tracking-[0.3em] text-[#0B6B43]">{newPin.pin}</p>
+          <p className="mt-1 font-mono text-3xl font-extrabold tracking-[0.3em] text-[#006D42]">{newPin.pin}</p>
           <p className="mt-1 text-xs text-[#5F6761]">Válido {when(newPin.from)} → {when(newPin.until)}</p>
         </div>
       )}

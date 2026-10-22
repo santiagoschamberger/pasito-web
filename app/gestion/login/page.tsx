@@ -15,8 +15,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <main className="grid min-h-dvh place-items-center px-4">
       <div className="w-full max-w-sm">
-        <div className="mb-6 flex items-center gap-2 text-xl font-extrabold text-[#0B6B43]">
-          <span className="grid size-9 place-items-center rounded-lg bg-[#0B6B43] text-[#EBFA61]">P</span>
+        <div className="mb-6 flex items-center gap-2 text-xl font-extrabold text-[#006D42]">
+          <span className="grid size-9 place-items-center rounded-lg bg-[#006D42] text-[#EBFA61]">P</span>
           Eventos Pasito
         </div>
         <LoginForm next={next?.startsWith('/gestion') ? next : '/gestion'} initialError={error ? ERRORS[error] ?? null : null} />

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { db, handleError, HttpError, readJson, requireDoor } from '@/lib/gestion/server'
+import { db, getEvent, handleError, HttpError, readJson, requireDoor } from '@/lib/gestion/server'
 import { doorAttendees } from '@/lib/gestion/door'
+import { syncSources } from '@/lib/gestion/sources'
 
 type PendingCheckin = { id?: unknown; attendee_id?: unknown; action?: unknown; scanned_at?: unknown }
 
@@ -12,6 +13,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   try {
     const { eventId } = await params
     const door = await requireDoor(request, eventId)
+    const event = await getEvent(eventId)
     const body = await readJson<{ checkins?: PendingCheckin[]; since?: string; lookup?: string }>(request)
     const checkins = Array.isArray(body.checkins) ? body.checkins.slice(0, 500) : []
     const results: { id: string; status: string }[] = []
@@ -34,15 +36,33 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // QR que no está en la lista local: ¿es de otro evento?
-    let lookup: { eventName: string } | null = null
-    if (typeof body.lookup === 'string' && body.lookup.length <= 200) {
-      const value = body.lookup.trim()
-      const { data } = await db().from('gestion_attendees').select('event_id, gestion_events(name)').or(`qr_token.eq.${value.replace(/[^A-Za-z0-9_-]/g, '')},app_code.eq.${value.replace(/[^A-Za-z0-9_-]/g, '')}`).neq('event_id', eventId).limit(1).maybeSingle()
+    let lookup: { eventName: string; retry?: boolean } | null = null
+    if (typeof body.lookup === 'string' && body.lookup.length <= 300) {
+      const raw = body.lookup.trim()
+      const webId = raw.match(/pt1\.([0-9a-f-]{36})\./i)?.[1]
+      const value = raw.replace(/[^A-Za-z0-9_-]/g, '')
+      const filter = webId ? `origin_ref.eq.web:${webId.toLowerCase()}` : `qr_token.eq.${value},app_code.eq.${value.toUpperCase()}`
+      const { data } = await db().from('gestion_attendees').select('event_id, gestion_events(name)').or(filter).neq('event_id', eventId).limit(1).maybeSingle()
       if (data) lookup = { eventName: (data.gestion_events as unknown as { name: string } | null)?.name ?? 'otro evento' }
+      else if (webId || /^[A-F0-9]{10}$/i.test(value)) {
+        // Entrada web de un evento que todavía no está cargado acá.
+        const { data: ticket } = await db().from('event_tickets').select('event_ticket_orders(event_slug)').or(webId ? `id.eq.${webId.toLowerCase()}` : `short_code.eq.${value.toUpperCase()}`).limit(1).maybeSingle()
+        const slug = (ticket?.event_ticket_orders as unknown as { event_slug: string } | null)?.event_slug
+        if (slug && event.web_tiers.some((key) => key.startsWith(`${slug}:`))) {
+          // Comprada recién: se trae ya y el celular vuelve a evaluar el QR.
+          await syncSources(event).catch((e) => console.error('[gestion] sync', e))
+          lookup = { eventName: event.name, retry: true }
+        } else if (slug) lookup = { eventName: slug }
+      }
     }
 
-    const since = typeof body.since === 'string' && !Number.isNaN(Date.parse(body.since)) ? body.since : undefined
-    if (!since) throw new HttpError(400, 'Falta la marca de sincronización.')
+    const sinceRaw = typeof body.since === 'string' && !Number.isNaN(Date.parse(body.since)) ? body.since : undefined
+    if (!sinceRaw) throw new HttpError(400, 'Falta la marca de sincronización.')
+    // Ventas web nuevas e ingresos del escáner viejo, como mucho una vez por minuto.
+    if (event.status !== 'cerrado') await syncSources(event, { minIntervalMs: 60_000 }).catch((e) => console.error('[gestion] sync', e))
+    // Se relee con 30 s de solapamiento: una transacción de otra puerta que empezó antes
+    // de esta marca pero terminó después no se pierde. Aplicar dos veces es inocuo.
+    const since = new Date(Date.parse(sinceRaw) - 30_000).toISOString()
     const syncedAt = new Date().toISOString()
     return NextResponse.json({ results, changes: await doorAttendees(eventId, since), syncedAt, lookup }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {

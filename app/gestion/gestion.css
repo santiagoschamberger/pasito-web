@@ -1,0 +1,44 @@
+/* Eventos Pasito: tipografías y tokens de marca (manual Pasito). */
+@font-face {
+  font-family: "Pasito Bricolage";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("/fonts/pasito-bricolage.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Pasito Google Sans Flex";
+  font-style: normal;
+  font-weight: 1 1000;
+  font-display: swap;
+  src: url("/fonts/pasito-google-sans-flex.woff2") format("woff2");
+}
+
+.gestion {
+  --g-green: #006d42;
+  --g-green-dark: #00402e;
+  --g-lime: #ebfa61;
+  --g-cream: #f6f7ef;
+  font-family: "Pasito Google Sans Flex", system-ui, sans-serif;
+  background: var(--g-cream);
+  color: #171d1a;
+}
+
+.gestion .g-display {
+  font-family: "Pasito Bricolage", "Pasito Google Sans Flex", system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.gestion input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.45;
+}
+
+@media print {
+  .gestion .no-print {
+    display: none !important;
+  }
+  .gestion {
+    background: #fff;
+  }
+}

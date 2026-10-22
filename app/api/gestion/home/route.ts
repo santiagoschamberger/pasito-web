@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 
 import { db, getRows, handleError, requireUser } from '@/lib/gestion/server'
 import type { GestionEvent } from '@/lib/gestion/schema'
+import { webSalesFor } from '@/lib/gestion/sources'
 import { checklistProgress, effectiveStatus, eventAlerts, moneySummary, todayISO } from '@/lib/gestion/summary'
 
 export async function GET() {
@@ -10,7 +11,7 @@ export async function GET() {
     const { data, error } = await db().from('gestion_events').select('*').is('archived_at', null).order('start_date', { ascending: true, nullsFirst: false })
     if (error) throw error
     const events = ((data ?? []) as GestionEvent[]).filter((e) => e.status !== 'cerrado' && e.status !== 'cancelado')
-    const rows = await getRows(events.map((e) => e.id))
+    const [rows, sales] = await Promise.all([getRows(events.map((e) => e.id)), webSalesFor(events)])
     const today = todayISO()
 
     const myTasks = rows
@@ -25,7 +26,8 @@ export async function GET() {
       return {
         ...event,
         effective_status: effectiveStatus(event, today),
-        result_projected: moneySummary(own).resultProjected,
+        result_projected: moneySummary(own, sales.get(event.id)).resultProjected,
+        web: sales.get(event.id) ?? null,
         checklist: checklistProgress(own),
       }
     })

@@ -108,7 +108,7 @@ function FichaField({ field, event, disabled, onUpdate }: { field: Field; event:
 function Toggle({ checked, disabled, onChange, label: text, hint }: { checked: boolean; disabled: boolean; onChange: (v: boolean) => void; label: string; hint: string }) {
   return (
     <label className="flex items-start gap-3">
-      <input type="checkbox" className="mt-1 size-4 accent-[#0B6B43]" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
+      <input type="checkbox" className="mt-1 size-4 accent-[#006D42]" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
       <span><span className="block text-sm font-semibold">{text}</span><span className="text-xs text-[#5F6761]">{hint}</span></span>
     </label>
   )
@@ -131,7 +131,7 @@ function PasitoLink({ event, linked, disabled, onUpdate }: { event: GestionEvent
         <ul className="flex flex-wrap gap-2">
           {linked.map((p) => (
             <li key={p.id} className="flex items-center gap-2 rounded-full border border-[#CFE3D6] bg-[#F2F6F1] py-1 pr-1 pl-3 text-sm">
-              <Link2 className="size-3.5 text-[#0B6B43]" />
+              <Link2 className="size-3.5 text-[#006D42]" />
               <span className="font-semibold">{p.title}</span>
               <span className="text-xs text-[#5F6761]">{new Date(p.start_at).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })} · {p.participant_count ?? 0}{p.max_participants ? `/${p.max_participants}` : ''}</span>
               {!disabled && <button className="grid size-6 place-items-center rounded-full hover:bg-white" onClick={() => onUpdate(event.pasito_event_ids.filter((id) => id !== p.id))}><X className="size-3.5" /></button>}

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { db, handleError, HttpError, logActivity, readJson, requireUser } from '@/lib/gestion/server'
+import { assertOpen, db, getEvent, handleError, HttpError, logActivity, readJson, requireUser } from '@/lib/gestion/server'
 import { ATTENDEE_COLUMNS, cleanAttendee } from '@/lib/gestion/attendees'
 
 type Params = { params: Promise<{ id: string }> }
@@ -17,6 +17,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     const user = await requireUser({ edit: true })
     const { id } = await params
     const current = await load(id)
+    assertOpen(await getEvent(current.event_id))
     const body = await readJson<Record<string, unknown>>(request)
     if (body.restore) {
       await db().from('gestion_attendees').update({ deleted_at: null }).eq('id', id)
@@ -49,6 +50,7 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     const user = await requireUser({ edit: true })
     const { id } = await params
     const current = await load(id)
+    assertOpen(await getEvent(current.event_id))
     await db().from('gestion_attendees').update({ deleted_at: new Date().toISOString() }).eq('id', id)
     await logActivity({ eventId: current.event_id, actor: user.email, action: 'delete', entity: 'attendee', entityId: id, summary: `sacó a ${current.name} de la lista` })
     return NextResponse.json({ ok: true })

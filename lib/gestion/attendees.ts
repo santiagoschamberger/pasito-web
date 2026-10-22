@@ -4,7 +4,7 @@ import { db, newQrToken } from './server'
 import { ATTENDEE_KINDS, type Attendee, type AttendeeKind, type AttendeeOrigin } from './schema'
 
 export const ATTENDEE_COLUMNS =
-  'id, event_id, name, email, phone, dni_last3, kind, origin, origin_ref, app_code, companions, companions_in, notes, qr_token, status, checked_in_at, checked_in_device, created_at'
+  'id, event_id, name, email, phone, dni_last3, kind, origin, origin_ref, app_code, companions, companions_in, notes, qr_token, qr_sent_at, status, checked_in_at, checked_in_device, created_at'
 
 export type AttendeeInput = {
   name?: unknown
@@ -42,17 +42,27 @@ export function cleanAttendee(input: AttendeeInput, fallbackOrigin: AttendeeOrig
 }
 
 // Inserta asistentes salteando los que ya existen con el mismo origen + referencia.
-export async function insertAttendees(eventId: string, items: NonNullable<ReturnType<typeof cleanAttendee>>[]) {
+export async function insertAttendees(eventId: string, all: NonNullable<ReturnType<typeof cleanAttendee>>[]) {
+  // Una misma referencia repetida en la carga entra una sola vez.
+  const seen = new Set<string>()
+  const items = all.filter((i) => {
+    if (!i.origin_ref) return true
+    const key = `${i.origin}:${i.origin_ref}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
   const withRef = items.filter((i) => i.origin_ref)
   const existing = new Set<string>()
   if (withRef.length) {
     for (let i = 0; i < withRef.length; i += 500) {
       const chunk = withRef.slice(i, i + 500)
-      const { data } = await db()
+      const { data, error } = await db()
         .from('gestion_attendees')
         .select('origin, origin_ref')
         .eq('event_id', eventId)
         .in('origin_ref', chunk.map((c) => c.origin_ref as string))
+      if (error) throw error
       for (const row of data ?? []) existing.add(`${row.origin}:${row.origin_ref}`)
     }
   }
@@ -64,5 +74,5 @@ export async function insertAttendees(eventId: string, items: NonNullable<Return
     if (error) throw error
     inserted.push(...((data ?? []) as Attendee[]))
   }
-  return { inserted, skipped: items.length - fresh.length }
+  return { inserted, skipped: all.length - fresh.length }
 }

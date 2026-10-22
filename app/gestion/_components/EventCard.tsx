@@ -17,7 +17,7 @@ export type EventCardData = GestionEvent & {
 export function EventCard({ event, users }: { event: EventCardData; users: TeamUser[] }) {
   const pct = event.checklist.total ? Math.round((event.checklist.done / event.checklist.total) * 100) : 0
   return (
-    <Link href={`/gestion/eventos/${event.id}`} className={`${card} block p-4 transition hover:border-[#0B6B43]/40 hover:shadow-sm`}>
+    <Link href={`/gestion/eventos/${event.id}`} className={`${card} block p-4 transition hover:border-[#006D42]/40 hover:shadow-sm`}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase text-[#66706B]">{formatDate(event.start_date, { weekday: 'short', day: 'numeric', month: 'short' })}{event.start_time ? ` · ${event.start_time}` : ''}</p>
@@ -33,7 +33,7 @@ export function EventCard({ event, users }: { event: EventCardData; users: TeamU
         </div>
         <div>
           <p className="text-xs text-[#66706B]">Checklist</p>
-          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#E8EDE9]"><div className="h-full bg-[#0B6B43]" style={{ width: `${pct}%` }} /></div>
+          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#E8EDE9]"><div className="h-full bg-[#006D42]" style={{ width: `${pct}%` }} /></div>
           <p className="mt-0.5 text-xs text-[#5F6761]">{event.checklist.done}/{event.checklist.total}</p>
         </div>
       </div>

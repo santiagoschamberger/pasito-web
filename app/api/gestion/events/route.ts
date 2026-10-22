@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { db, getRows, handleError, HttpError, logActivity, readJson, requireUser } from '@/lib/gestion/server'
 import { EVENT_TYPES, type EventType, type GestionEvent, type RowData, type RowKind } from '@/lib/gestion/schema'
+import { webSalesFor } from '@/lib/gestion/sources'
 import { checklistProgress, duplicateSeeds, effectiveStatus, eventAlerts, moneySummary, TEMPLATES } from '@/lib/gestion/summary'
 
 export async function GET(request: NextRequest) {
@@ -13,15 +14,17 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query
     if (error) throw error
     const events = (data ?? []) as GestionEvent[]
-    const rows = await getRows(events.map((e) => e.id))
+    const [rows, sales] = await Promise.all([getRows(events.map((e) => e.id)), webSalesFor(events)])
     const cards = events.map((event) => {
       const own = rows.filter((r) => r.event_id === event.id)
-      const money = moneySummary(own)
+      const web = sales.get(event.id) ?? null
+      const money = moneySummary(own, web)
       const alerts = eventAlerts(event, own)
       return {
         ...event,
         effective_status: effectiveStatus(event),
         result_projected: money.resultProjected,
+        web,
         checklist: checklistProgress(own),
         alerts_critical: alerts.filter((a) => a.level === 'critical').length,
         alerts_warning: alerts.filter((a) => a.level === 'warning').length,

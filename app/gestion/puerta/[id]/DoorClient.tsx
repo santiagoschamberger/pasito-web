@@ -6,6 +6,7 @@ import { Camera, CameraOff, LogOut, Phone, Search, UserPlus, Wifi, WifiOff } fro
 
 type DoorAttendee = {
   id: string
+  origin_ref: string | null
   name: string
   kind: string
   origin: string
@@ -76,9 +77,13 @@ function beep(ok: boolean) {
   navigator.vibrate?.(ok ? 120 : [120, 80, 120, 80, 120])
 }
 
-// Del QR puede venir el token pelado o el link a /gestion/entrada/<token>.
+// Del QR puede venir: el token de este sistema (o su link /entrada/<token>),
+// la entrada web vendida con Rebill (pt1.<id>.<firma>, sola o en un link)
+// o el código corto de 10 caracteres / el código de la app.
 function extractToken(raw: string) {
   const value = raw.trim()
+  const web = value.match(/pt1\.([0-9a-f-]{36})\./i)
+  if (web) return `web:${web[1].toLowerCase()}`
   const match = value.match(/\/entrada\/([A-Za-z0-9_-]+)/)
   return match ? match[1] : value
 }
@@ -164,11 +169,17 @@ export function DoorClient({ eventId }: { eventId: string }) {
         body: JSON.stringify({ checkins: sending, since: snap.syncedAt, lookup }),
       })
       if (response.status === 401) {
+        // PIN revocado o vencido: la lista no queda guardada en el celular.
         setRevoked(true)
+        try {
+          window.localStorage.removeItem(listKey)
+        } catch {
+          // Nada que limpiar.
+        }
         return null
       }
       if (!response.ok) throw new Error('sync')
-      const data = (await response.json()) as { results: { id: string; status: string }[]; changes: DoorAttendee[]; syncedAt: string; lookup: { eventName: string } | null }
+      const data = (await response.json()) as { results: { id: string; status: string }[]; changes: DoorAttendee[]; syncedAt: string; lookup: { eventName: string; retry?: boolean } | null }
       setOnline(true)
       const done = new Set(data.results.map((r) => r.id))
       setDuplicates((d) => d + data.results.filter((r) => r.status === 'duplicate').length)
@@ -178,7 +189,10 @@ export function DoorClient({ eventId }: { eventId: string }) {
       save(queueKey, remaining)
       const current = snapshotRef.current ?? snap
       const byId = new Map(current.attendees.map((a) => [a.id, a]))
+      // Lo que este celular todavía no subió manda sobre lo que llega del servidor.
+      const stillPending = new Set(remaining.map((q) => q.attendee_id))
       for (const change of data.changes) {
+        if (stillPending.has(change.id)) continue
         if (change.deleted_at) byId.delete(change.id)
         else byId.set(change.id, change)
       }
@@ -190,7 +204,7 @@ export function DoorClient({ eventId }: { eventId: string }) {
     } finally {
       syncing.current = false
     }
-  }, [eventId, persist, queueKey])
+  }, [eventId, listKey, persist, queueKey])
 
   useEffect(() => {
     if (phase !== 'ready') return
@@ -208,6 +222,7 @@ export function DoorClient({ eventId }: { eventId: string }) {
     for (const a of snapshot?.attendees ?? []) {
       map.set(a.qr_token, a)
       if (a.app_code) map.set(a.app_code.trim().toUpperCase(), a)
+      if (a.origin_ref?.startsWith('web:')) map.set(a.origin_ref, a)
     }
     return map
   }, [snapshot])
@@ -256,8 +271,16 @@ export function DoorClient({ eventId }: { eventId: string }) {
     beep(false)
     const snap = snapshotRef.current
     setResult({ tone: 'bad', title: 'No está en la lista', detail: 'Buscalo por nombre o DNI por si el QR falló.', canAdd: snap?.event.allowWalkins })
-    const lookup = await sync(value)
-    if (lookup) setResult({ tone: 'bad', title: 'Es de otro evento', detail: `Esta entrada es para “${lookup.eventName}”.` })
+    const lookup = await sync(raw)
+    if (lookup?.retry) {
+      // Entrada comprada recién: ya está en la lista, se vuelve a evaluar.
+      const fresh = snapshotRef.current?.attendees.find((a) => a.origin_ref === value || a.qr_token === value || a.app_code?.toUpperCase() === value.toUpperCase())
+      if (fresh) {
+        setResult(null)
+        resultRef.current = null
+        return evaluate(fresh)
+      }
+    } else if (lookup) setResult({ tone: 'bad', title: 'Es de otro evento', detail: `Esta entrada es para “${lookup.eventName}”.` })
   }, [evaluate, index, sync])
 
   // El lector queda abierto: su callback tiene que usar siempre el índice actual.
@@ -328,8 +351,19 @@ export function DoorClient({ eventId }: { eventId: string }) {
   }
 
   async function logout() {
+    if (queueRef.current.length && !window.confirm(`Hay ${queueRef.current.length} ingreso(s) sin sincronizar. Si salís ahora se pierden. ¿Salir igual?`)) return
     await fetch(`/api/gestion/door/${eventId}/session`, { method: 'DELETE' }).catch(() => null)
     stopCamera()
+    // La lista tiene datos personales: no queda en el celular del staff.
+    try {
+      window.localStorage.removeItem(listKey)
+      window.localStorage.removeItem(queueKey)
+    } catch {
+      // Sin acceso al storage no hay nada que limpiar.
+    }
+    setSnapshot(null)
+    setQueue([])
+    queueRef.current = []
     setPhase('pin')
   }
 
@@ -392,7 +426,7 @@ export function DoorClient({ eventId }: { eventId: string }) {
                     ? <button onClick={() => checkout(a)} className="rounded-xl bg-white/10 px-3 py-2 text-sm font-bold">Salió</button>
                     : <span className="text-sm font-semibold text-[#EBFA61]">Ingresó {hhmm(a.checked_in_at)}</span>
                 ) : (
-                  <button onClick={() => { setQuery(''); evaluate(a) }} className="rounded-xl bg-[#0B6B43] px-4 py-2 font-bold">Ingresar</button>
+                  <button onClick={() => { setQuery(''); evaluate(a) }} className="rounded-xl bg-[#006D42] px-4 py-2 font-bold">Ingresar</button>
                 )}
               </li>
             ))}

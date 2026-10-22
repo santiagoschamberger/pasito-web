@@ -3,7 +3,7 @@ import 'server-only'
 import { db } from './server'
 
 // Lo mínimo que ve la puerta: sin emails, teléfonos ni plata.
-export const DOOR_ATTENDEE_COLUMNS = 'id, name, kind, origin, companions, companions_in, notes, qr_token, app_code, dni_last3, status, checked_in_at, checked_in_device, updated_at'
+export const DOOR_ATTENDEE_COLUMNS = 'id, origin_ref, name, kind, origin, companions, companions_in, notes, qr_token, app_code, dni_last3, status, checked_in_at, checked_in_device, updated_at'
 
 export async function doorAttendees(eventId: string, since?: string) {
   const all = []

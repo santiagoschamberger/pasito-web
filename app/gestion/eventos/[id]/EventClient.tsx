@@ -108,7 +108,7 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
   if (notFound) {
     return <div className="p-10 text-center"><p className="mb-3">Este evento no existe.</p><Link className={btnSecondary} href="/gestion">Volver</Link></div>
   }
-  if (!data) return <div className="grid min-h-dvh place-items-center"><Loader2 className="size-6 animate-spin text-[#0B6B43]" /></div>
+  if (!data) return <div className="grid min-h-dvh place-items-center"><Loader2 className="size-6 animate-spin text-[#006D42]" /></div>
 
   const { event, rows } = data
   const closed = event.status === 'cerrado'
@@ -149,7 +149,7 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
             <Link href="/gestion" className="grid size-8 place-items-center rounded-md text-[#5F6761] hover:bg-[#F2F6F1]"><ArrowLeft className="size-4" /></Link>
             <input
               key={event.updated_at}
-              className="min-w-0 flex-1 truncate rounded-md border border-transparent bg-transparent px-1 text-xl font-extrabold outline-none hover:border-[#DDE6DF] focus:border-[#0B6B43] sm:text-2xl"
+              className="min-w-0 flex-1 truncate rounded-md border border-transparent bg-transparent px-1 text-xl font-extrabold outline-none hover:border-[#DDE6DF] focus:border-[#006D42] sm:text-2xl"
               defaultValue={event.name}
               disabled={!canEdit}
               onBlur={(e) => e.target.value.trim() && e.target.value !== event.name && updateEvent({ name: e.target.value.trim() })}
@@ -169,7 +169,7 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
               {EVENT_STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
             {event.drive_url ? (
-              <a href={event.drive_url} target="_blank" rel="noreferrer" className="flex items-center gap-1 font-semibold text-[#0B6B43]"><FolderOpen className="size-4" />Drive<ExternalLink className="size-3" /></a>
+              <a href={event.drive_url} target="_blank" rel="noreferrer" className="flex items-center gap-1 font-semibold text-[#006D42]"><FolderOpen className="size-4" />Drive<ExternalLink className="size-3" /></a>
             ) : (
               <button className="flex items-center gap-1 text-[#806113]" onClick={() => selectTab('ficha')}><FolderOpen className="size-4" />Sin carpeta de Drive</button>
             )}
@@ -190,7 +190,7 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
               <button
                 key={t.key}
                 onClick={() => selectTab(t.key)}
-                className={`border-b-2 px-2.5 py-2 text-sm font-semibold whitespace-nowrap ${tab === t.key ? 'border-[#0B6B43] text-[#0B6B43]' : 'border-transparent text-[#5F6761] hover:text-[#171D1A]'}`}
+                className={`border-b-2 px-2.5 py-2 text-sm font-semibold whitespace-nowrap ${tab === t.key ? 'border-[#006D42] text-[#006D42]' : 'border-transparent text-[#5F6761] hover:text-[#171D1A]'}`}
               >
                 {t.label}
               </button>
@@ -258,7 +258,7 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
 
 function SaveIndicator({ state }: { state: SaveState }) {
   if (state === 'saving') return <span className="flex items-center gap-1 text-xs text-[#5F6761]"><Loader2 className="size-3.5 animate-spin" />Guardando</span>
-  if (state === 'saved') return <span className="flex items-center gap-1 text-xs font-semibold text-[#0B6B43]"><Check className="size-3.5" />Guardado</span>
+  if (state === 'saved') return <span className="flex items-center gap-1 text-xs font-semibold text-[#006D42]"><Check className="size-3.5" />Guardado</span>
   if (state === 'error') return <span className="flex items-center gap-1 text-xs font-semibold text-[#B14D3B]"><CloudOff className="size-3.5" />No se guardó</span>
   return null
 }

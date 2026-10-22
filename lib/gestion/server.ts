@@ -143,15 +143,26 @@ export async function getEvent(id: string): Promise<GestionEvent> {
 
 export async function getRows(eventIds: string[]): Promise<GestionRow[]> {
   if (!eventIds.length) return []
-  const { data, error } = await db()
-    .from('gestion_rows')
-    .select('id, event_id, kind, data, position, created_by, updated_by, created_at, updated_at')
-    .in('event_id', eventIds)
-    .is('deleted_at', null)
-    .order('position')
-    .order('created_at')
-  if (error) throw error
-  return (data ?? []) as GestionRow[]
+  const rows: GestionRow[] = []
+  // PostgREST corta en 1000 filas por request: paginamos con orden estable.
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await db()
+      .from('gestion_rows')
+      .select('id, event_id, kind, data, position, created_by, updated_by, created_at, updated_at')
+      .in('event_id', eventIds)
+      .is('deleted_at', null)
+      .order('position')
+      .order('id')
+      .range(from, from + 999)
+    if (error) throw error
+    rows.push(...((data ?? []) as GestionRow[]))
+    if (!data || data.length < 1000) break
+  }
+  return rows
+}
+
+export function assertOpen(event: Pick<GestionEvent, 'status'>) {
+  if (event.status === 'cerrado') throw new HttpError(409, 'El evento está cerrado.')
 }
 
 export async function listUsers(): Promise<TeamUser[]> {
@@ -194,6 +205,9 @@ export function pinHash(eventId: string, pin: string): string {
 
 // Valida la sesión de puerta contra la base (así un PIN revocado corta el acceso al sincronizar).
 export async function requireDoor(request: NextRequest, eventId: string): Promise<DoorSession & { viaTeam: boolean }> {
+  // El equipo logueado puede operar cualquier puerta, aunque quede una cookie de PIN vieja.
+  const user = await getSessionUser()
+  if (user?.canEdit) return { ev: eventId, pin: '', dev: 'equipo', op: user.email, viaTeam: true }
   const door = unseal<DoorSession>(request.cookies.get(DOOR_COOKIE)?.value)
   if (door && door.ev === eventId) {
     const { data } = await db().from('gestion_door_pins').select('revoked_at, valid_from, valid_until').eq('id', door.pin).maybeSingle()
@@ -203,8 +217,5 @@ export async function requireDoor(request: NextRequest, eventId: string): Promis
     }
     throw new HttpError(401, 'El PIN fue revocado o venció.')
   }
-  // El equipo logueado también puede operar la puerta.
-  const user = await getSessionUser()
-  if (user?.canEdit) return { ev: eventId, pin: '', dev: 'equipo', op: user.email, viaTeam: true }
   throw new HttpError(401, 'Ingresá el PIN de puerta.')
 }

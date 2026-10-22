@@ -7,7 +7,7 @@ import { checklistProgress, daysBetween, eventAlerts, moneySummary, todayISO } f
 import { card, Empty, formatDate } from '../../_components/ui'
 
 function Kpi({ label, value, tone, sub }: { label: string; value: string; tone?: 'bad' | 'good' | 'warn'; sub?: string }) {
-  const color = tone === 'bad' ? 'text-[#B14D3B]' : tone === 'good' ? 'text-[#0B6B43]' : tone === 'warn' ? 'text-[#806113]' : 'text-[#171D1A]'
+  const color = tone === 'bad' ? 'text-[#B14D3B]' : tone === 'good' ? 'text-[#006D42]' : tone === 'warn' ? 'text-[#806113]' : 'text-[#171D1A]'
   return (
     <div className={`${card} p-4`}>
       <p className="text-[13px] font-semibold text-[#66706B]">{label}</p>
@@ -45,7 +45,7 @@ export function SummaryTab({ event, rows, users, onGoTo }: { event: GestionEvent
       <div className="grid gap-[18px] lg:grid-cols-3">
         <section className={`${card} p-4 lg:col-span-2`}>
           <h3 className="mb-2 font-bold">Alertas</h3>
-          {alerts.length === 0 ? <Empty><CheckCircle2 className="mx-auto mb-1 size-5 text-[#0B6B43]" />Nada en riesgo.</Empty> : (
+          {alerts.length === 0 ? <Empty><CheckCircle2 className="mx-auto mb-1 size-5 text-[#006D42]" />Nada en riesgo.</Empty> : (
             <ul className="divide-y divide-[#E8EDE9]">
               {alerts.map((alert, i) => (
                 <li key={i}>
@@ -62,7 +62,7 @@ export function SummaryTab({ event, rows, users, onGoTo }: { event: GestionEvent
         <section className={`${card} p-4`}>
           <h3 className="mb-2 font-bold">Checklist</h3>
           <p className="text-3xl font-extrabold">{checklist.total ? Math.round((checklist.done / checklist.total) * 100) : 0}%</p>
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#E8EDE9]"><div className="h-full bg-[#0B6B43]" style={{ width: `${checklist.total ? (checklist.done / checklist.total) * 100 : 0}%` }} /></div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#E8EDE9]"><div className="h-full bg-[#006D42]" style={{ width: `${checklist.total ? (checklist.done / checklist.total) * 100 : 0}%` }} /></div>
           <p className="mt-1 text-sm text-[#5F6761]">{checklist.done} de {checklist.total} ítems</p>
           {kpis.length > 0 && (
             <div className="mt-4 space-y-1.5 border-t border-[#E8EDE9] pt-3">
@@ -91,7 +91,7 @@ export function SummaryTab({ event, rows, users, onGoTo }: { event: GestionEvent
               ))}
             </ul>
           )}
-          <button onClick={() => onGoTo('task')} className="mt-3 text-sm font-semibold text-[#0B6B43]">Ver todas</button>
+          <button onClick={() => onGoTo('task')} className="mt-3 text-sm font-semibold text-[#006D42]">Ver todas</button>
         </section>
 
         <section className={`${card} p-4`}>
@@ -102,8 +102,8 @@ export function SummaryTab({ event, rows, users, onGoTo }: { event: GestionEvent
                 <li key={c.category} className="text-sm">
                   <div className="flex justify-between"><span>{categoryLabel(c.category)}</span><span className="font-semibold tabular-nums">{formatMoney(c.projected)}</span></div>
                   <div className="relative mt-1 h-1.5 rounded-full bg-[#E8EDE9]">
-                    <div className="absolute inset-y-0 left-0 rounded-full bg-[#0B6B43]/30" style={{ width: `${(c.projected / maxCategory) * 100}%` }} />
-                    <div className="absolute inset-y-0 left-0 rounded-full bg-[#0B6B43]" style={{ width: `${(c.real / maxCategory) * 100}%` }} />
+                    <div className="absolute inset-y-0 left-0 rounded-full bg-[#006D42]/30" style={{ width: `${(c.projected / maxCategory) * 100}%` }} />
+                    <div className="absolute inset-y-0 left-0 rounded-full bg-[#006D42]" style={{ width: `${(c.real / maxCategory) * 100}%` }} />
                   </div>
                 </li>
               ))}
@@ -128,7 +128,7 @@ export function SummaryTab({ event, rows, users, onGoTo }: { event: GestionEvent
               })}
             </ul>
           )}
-          <button onClick={() => onGoTo('sponsor')} className="mt-3 text-sm font-semibold text-[#0B6B43]">Ver sponsors</button>
+          <button onClick={() => onGoTo('sponsor')} className="mt-3 text-sm font-semibold text-[#006D42]">Ver sponsors</button>
         </section>
       </div>
     </div>

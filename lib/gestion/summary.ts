@@ -41,7 +41,8 @@ export type MoneySummary = {
 
 const byKind = (rows: GestionRow[], kind: RowKind) => rows.filter((r) => r.kind === kind)
 
-export function moneySummary(rows: GestionRow[]): MoneySummary {
+// `web`: entradas vendidas en la web (Rebill), que entran solas como ingreso cobrado.
+export function moneySummary(rows: GestionRow[], web?: { revenue: number } | null): MoneySummary {
   let incomeProjected = 0
   let expenseProjected = 0
   let incomeReal = 0
@@ -87,6 +88,11 @@ export function moneySummary(rows: GestionRow[]): MoneySummary {
       if (stage === 'cobrado') incomeReal += money
       else toCollect += money
     }
+  }
+
+  if (web?.revenue) {
+    incomeProjected += web.revenue
+    incomeReal += web.revenue
   }
 
   for (const { data } of byKind(rows, 'vendor')) {
@@ -144,7 +150,7 @@ export function eventAlerts(event: GestionEvent, rows: GestionRow[], today = tod
     }
     if (row.kind === 'sponsor') {
       const brand = String(d.marca || 'Sponsor')
-      if ((d.etapa === 'confirmado' || d.etapa === 'cobrado') && d.contrato !== 'firmado') push('warning', 'sponsor', `${brand}: confirmado sin contrato firmado`, row.id)
+      if (status !== 'realizado' && (d.etapa === 'confirmado' || d.etapa === 'cobrado') && d.contrato !== 'firmado') push('warning', 'sponsor', `${brand}: confirmado sin contrato firmado`, row.id)
       if (d.etapa === 'confirmado' && typeof d.fecha_cobro === 'string' && d.fecha_cobro < today) push('critical', 'sponsor', `${brand}: cobro vencido`, row.id)
     }
     if (row.kind === 'vendor' && !d.saldo_pagado && typeof d.fecha_pago === 'string' && d.fecha_pago < today) {

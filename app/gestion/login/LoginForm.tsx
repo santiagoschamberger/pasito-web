@@ -31,10 +31,10 @@ export function LoginForm({ next, initialError }: { next: string; initialError: 
   if (sent) {
     return (
       <div className={`${card} p-6`}>
-        <MailCheck className="mb-3 size-8 text-[#0B6B43]" />
+        <MailCheck className="mb-3 size-8 text-[#006D42]" />
         <h1 className="text-lg font-bold">Revisá tu mail</h1>
         <p className="mt-1 text-sm text-[#5F6761]">Te mandamos un link a <strong>{email}</strong>. Vence en 20 minutos.</p>
-        {devLink && <a className="mt-3 block break-all text-sm text-[#0B6B43] underline" href={devLink}>{devLink}</a>}
+        {devLink && <a className="mt-3 block break-all text-sm text-[#006D42] underline" href={devLink}>{devLink}</a>}
       </div>
     )
   }
