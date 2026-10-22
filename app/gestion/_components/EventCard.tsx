@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { AlertTriangle, MapPin, Ticket } from 'lucide-react'
+import { AlertTriangle, Check, Clock, MapPin, Ticket } from 'lucide-react'
 
 import { EVENT_TYPES, formatMoney, personLabel, type EffectiveStatus, type GestionEvent, type TeamUser } from '@/lib/gestion/schema'
 import { cn } from '@/lib/utils'
@@ -14,6 +14,19 @@ export type EventCardData = GestionEvent & {
   alerts_critical?: number
   alerts_warning?: number
   web?: { tickets: number; revenue: number; checkedIn: number; capacity: number | null } | null
+  tasks?: { open: number; overdue: number }
+}
+
+// Estado de lo pendiente del evento, en una etiqueta.
+export function PendingBadge({ open = 0, overdue = 0, critical = 0, warning = 0 }: { open?: number; overdue?: number; critical?: number; warning?: number }) {
+  if (overdue || critical) {
+    const parts = [overdue ? `${overdue} vencida${overdue > 1 ? 's' : ''}` : '', critical ? `${critical} alerta${critical > 1 ? 's' : ''}` : ''].filter(Boolean)
+    return <span className="inline-flex items-center gap-1 rounded-full bg-[#FDECE8] px-2 py-0.5 text-xs font-bold text-[#B14D3B]"><AlertTriangle className="size-3" />{parts.join(' · ')}</span>
+  }
+  if (open || warning) {
+    return <span className="inline-flex items-center gap-1 rounded-full bg-[#FBF3DA] px-2 py-0.5 text-xs font-bold text-[#806113]"><Clock className="size-3" />{open ? `${open} pendiente${open > 1 ? 's' : ''}` : `${warning} aviso${warning > 1 ? 's' : ''}`}</span>
+  }
+  return <span className="inline-flex items-center gap-1 rounded-full bg-[#E3F2E8] px-2 py-0.5 text-xs font-bold text-[#006D42]"><Check className="size-3" />Al día</span>
 }
 
 const TYPE_EMOJI: Record<string, string> = { activacion: '🛍️', fiesta: '🎉', corporativo: '🏢', caminata: '👟', otro: '✨' }
@@ -36,7 +49,6 @@ function DateBadge({ iso }: { iso: string | null }) {
 export function EventCard({ event, users }: { event: EventCardData; users: TeamUser[] }) {
   const pct = event.checklist.total ? Math.round((event.checklist.done / event.checklist.total) * 100) : 0
   const owner = event.owner_email ? users.find((u) => u.email === event.owner_email) : null
-  const alerts = (event.alerts_critical ?? 0) + (event.alerts_warning ?? 0)
   return (
     <Link href={`/gestion/eventos/${event.id}`} className={cn(card, 'group flex h-full flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md')}>
       <div className="relative h-28 shrink-0 overflow-hidden bg-gradient-to-br from-[#006D42] to-[#00402E]">
@@ -79,11 +91,7 @@ export function EventCard({ event, users }: { event: EventCardData; users: TeamU
           <span className="flex items-center gap-1.5">
             {event.owner_email ? <><Avatar name={owner?.name} email={event.owner_email} size={22} />{personLabel(event.owner_email, users)}</> : 'Sin responsable'}
           </span>
-          {alerts > 0 && (
-            <span className={`flex items-center gap-1 font-bold ${event.alerts_critical ? 'text-[#B14D3B]' : 'text-[#806113]'}`}>
-              <AlertTriangle className="size-3.5" />{alerts}
-            </span>
-          )}
+          <PendingBadge open={event.tasks?.open} overdue={event.tasks?.overdue} critical={event.alerts_critical} warning={event.alerts_warning} />
         </div>
       </div>
     </Link>

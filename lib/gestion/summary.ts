@@ -331,3 +331,8 @@ export function arrivalsBy15Min(timestamps: string[]): { slot: string; count: nu
   const fmt = new Intl.DateTimeFormat('es-AR', { timeZone: TIMEZONE, hour: '2-digit', minute: '2-digit', hour12: false })
   return [...slots.entries()].sort((a, b) => a[0] - b[0]).map(([slot, count]) => ({ slot: fmt.format(new Date(slot)), count }))
 }
+
+export function taskCounts(rows: GestionRow[], today = todayISO()): { open: number; overdue: number } {
+  const open = rows.filter((r) => r.kind === 'task' && r.data.estado !== 'hecha')
+  return { open: open.length, overdue: open.filter((r) => typeof r.data.due === 'string' && r.data.due < today).length }
+}

@@ -45,14 +45,18 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       const { data } = await db().from('gestion_attendees').select('event_id, gestion_events(name)').or(filter).neq('event_id', eventId).limit(1).maybeSingle()
       if (data) lookup = { eventName: (data.gestion_events as unknown as { name: string } | null)?.name ?? 'otro evento' }
       else if (webId || /^[A-F0-9]{10}$/i.test(value)) {
-        // Entrada web de un evento que todavía no está cargado acá.
-        const { data: ticket } = await db().from('event_tickets').select('event_ticket_orders(event_slug)').or(webId ? `id.eq.${webId.toLowerCase()}` : `short_code.eq.${value.toUpperCase()}`).limit(1).maybeSingle()
-        const slug = (ticket?.event_ticket_orders as unknown as { event_slug: string } | null)?.event_slug
-        if (slug && event.web_tiers.some((key) => key.startsWith(`${slug}:`))) {
+        // Entrada web que todavía no está en la lista de ningún evento.
+        const { data: ticket } = await db().from('event_tickets').select('event_ticket_tiers(event_slug, position)').or(webId ? `id.eq.${webId.toLowerCase()}` : `short_code.eq.${value.toUpperCase()}`).limit(1).maybeSingle()
+        const tier = ticket?.event_ticket_tiers as unknown as { event_slug: string; position: number } | null
+        const key = tier ? `${tier.event_slug}:${tier.position}` : null
+        if (key && event.web_tiers.includes(key)) {
           // Comprada recién: se trae ya y el celular vuelve a evaluar el QR.
           await syncSources(event).catch((e) => console.error('[gestion] sync', e))
           lookup = { eventName: event.name, retry: true }
-        } else if (slug) lookup = { eventName: slug }
+        } else if (key) {
+          const { data: owner } = await db().from('gestion_events').select('name').contains('web_tiers', [key]).neq('id', eventId).order('start_date').limit(1).maybeSingle()
+          lookup = { eventName: owner?.name ?? tier!.event_slug }
+        }
       }
     }
 

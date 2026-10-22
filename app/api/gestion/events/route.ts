@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db, getRows, handleError, HttpError, logActivity, readJson, requireUser } from '@/lib/gestion/server'
 import { EVENT_TYPES, type EventType, type GestionEvent, type RowData, type RowKind } from '@/lib/gestion/schema'
 import { webSalesFor } from '@/lib/gestion/sources'
-import { checklistProgress, duplicateSeeds, effectiveStatus, eventAlerts, moneySummary, TEMPLATES } from '@/lib/gestion/summary'
+import { checklistProgress, duplicateSeeds, effectiveStatus, eventAlerts, moneySummary, taskCounts, TEMPLATES } from '@/lib/gestion/summary'
 
 export async function GET(request: NextRequest) {
   try {
@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
         effective_status: effectiveStatus(event),
         result_projected: money.resultProjected,
         web,
+        tasks: taskCounts(own),
         checklist: checklistProgress(own),
         alerts_critical: alerts.filter((a) => a.level === 'critical').length,
         alerts_warning: alerts.filter((a) => a.level === 'warning').length,
