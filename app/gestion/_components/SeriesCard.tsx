@@ -51,6 +51,16 @@ export function seriesStats(group: SeriesGroup, today = todayISO()) {
   return { dates: sorted, parent, next, done, tickets, revenue, result, cover, first, last }
 }
 
+// Fecha para ordenar una tarjeta: la próxima fecha de la serie (o la última si ya terminó).
+export function itemDate(item: EventCardData | SeriesGroup, today = todayISO()): string {
+  if (!isGroup(item)) return item.start_date ?? ''
+  const stats = seriesStats(item, today)
+  return stats.next?.start_date ?? stats.last ?? ''
+}
+
+export const byDateAsc = (today?: string) => (a: EventCardData | SeriesGroup, b: EventCardData | SeriesGroup) =>
+  (itemDate(a, today) || '9999').localeCompare(itemDate(b, today) || '9999')
+
 export function SeriesCard({ group }: { group: SeriesGroup }) {
   const stats = seriesStats(group)
   const progress = stats.dates.length ? (stats.done / stats.dates.length) * 100 : 0

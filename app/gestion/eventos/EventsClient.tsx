@@ -3,14 +3,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
 
-import { EVENT_TYPES, STATUS_LABEL, type EffectiveStatus, type TeamUser } from '@/lib/gestion/schema'
+import { EVENT_TYPES, type TeamUser } from '@/lib/gestion/schema'
+import { todayISO } from '@/lib/gestion/summary'
 import { api } from '../_components/api'
 import { EventCard, type EventCardData } from '../_components/EventCard'
 import { NewEventButton } from '../_components/NewEventButton'
-import { groupBySeries, isGroup, SeriesCard } from '../_components/SeriesCard'
-import { btnGhost, Empty, input, PageHeader, Shell, STATUS_DOT } from '../_components/ui'
-
-const ORDER: EffectiveStatus[] = ['en_curso', 'produccion', 'confirmado', 'planificacion', 'idea', 'realizado', 'cerrado', 'cancelado']
+import { groupBySeries, isGroup, SeriesCard, itemDate, seriesStats } from '../_components/SeriesCard'
+import { btnGhost, Empty, input, PageHeader, Shell } from '../_components/ui'
 
 export function EventsClient({ user, users }: { user: TeamUser & { canEdit: boolean }; users: TeamUser[] }) {
   const [events, setEvents] = useState<EventCardData[] | null>(null)
@@ -23,15 +22,26 @@ export function EventsClient({ user, users }: { user: TeamUser & { canEdit: bool
     api<{ events: EventCardData[] }>(`/api/gestion/events${archived ? '?archived=1' : ''}`).then((r) => setEvents(r.events)).catch(() => setEvents([]))
   }, [archived])
 
-  const { series, groups } = useMemo(() => {
+  // Una sola grilla, en orden: lo próximo primero (por fecha) y después lo que ya pasó (lo más reciente primero).
+  const { upcoming, past } = useMemo(() => {
+    const today = todayISO()
     const filtered = (events ?? []).filter((e) => (!type || e.type === type) && (!query || `${e.name} ${e.series ?? ''} ${e.venue ?? ''}`.toLowerCase().includes(query.toLowerCase())))
-    const grouped = groupBySeries(filtered)
-    const loose = grouped.filter((item): item is EventCardData => !isGroup(item))
+    const items = groupBySeries(filtered).map((item) => {
+      const end = isGroup(item) ? null : item.end_date ?? item.start_date
+      const upcoming = isGroup(item) ? seriesStats(item, today).next !== null : !end || end >= today
+      return { item, date: itemDate(item, today), upcoming }
+    })
     return {
-      series: grouped.filter(isGroup),
-      groups: ORDER.map((status) => ({ status, items: loose.filter((e) => e.effective_status === status) })).filter((g) => g.items.length),
+      upcoming: items.filter((i) => i.upcoming).sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999')),
+      past: items.filter((i) => !i.upcoming).sort((a, b) => b.date.localeCompare(a.date)),
     }
   }, [events, query, type])
+
+  const grid = (list: typeof upcoming) => (
+    <div className="grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
+      {list.map(({ item }) => (isGroup(item) ? <SeriesCard key={item.name} group={item} /> : <EventCard key={item.id} event={item} users={users} />))}
+    </div>
+  )
 
   return (
     <Shell user={user}>
@@ -53,24 +63,20 @@ export function EventsClient({ user, users }: { user: TeamUser & { canEdit: bool
           {EVENT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
       </div>
-      {!events ? <p className="text-sm text-[#5F6761]">Cargando…</p> : groups.length === 0 && series.length === 0 ? <Empty>No hay eventos.</Empty> : (
+      {!events ? <p className="text-sm text-[#5F6761]">Cargando…</p> : upcoming.length === 0 && past.length === 0 ? <Empty>No hay eventos.</Empty> : (
         <div className="space-y-8">
-          {series.length > 0 && (
+          {upcoming.length > 0 && (
             <section>
-              <h2 className="mb-3 text-sm font-bold text-[#5F6761] uppercase">Series y ciclos · {series.length}</h2>
-              <div className="grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
-                {series.map((group) => <SeriesCard key={group.name} group={group} />)}
-              </div>
+              <h2 className="mb-3 text-sm font-bold text-[#5F6761] uppercase">Próximos · {upcoming.length}</h2>
+              {grid(upcoming)}
             </section>
           )}
-          {groups.map((group) => (
-            <section key={group.status}>
-              <h2 className="mb-3 flex items-center gap-2 text-sm font-bold text-[#5F6761] uppercase"><span className="size-2 rounded-full" style={{ background: STATUS_DOT[group.status] }} />{STATUS_LABEL[group.status]} · {group.items.length}</h2>
-              <div className="grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
-                {group.items.map((event) => <EventCard key={event.id} event={event} users={users} />)}
-              </div>
+          {past.length > 0 && (
+            <section>
+              <h2 className="mb-3 text-sm font-bold text-[#5F6761] uppercase">Ya pasaron · {past.length}</h2>
+              {grid(past)}
             </section>
-          ))}
+          )}
         </div>
       )}
     </Shell>

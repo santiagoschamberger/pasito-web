@@ -9,7 +9,7 @@ import { daysBetween, type Alert } from '@/lib/gestion/summary'
 import { api } from './_components/api'
 import { EventCard, type EventCardData } from './_components/EventCard'
 import { NewEventButton } from './_components/NewEventButton'
-import { groupBySeries, isGroup, SeriesCard, seriesStats } from './_components/SeriesCard'
+import { byDateAsc, groupBySeries, isGroup, SeriesCard, seriesStats } from './_components/SeriesCard'
 import { card, Empty, formatDate, PageHeader, Shell } from './_components/ui'
 
 type HomeData = { today: string; myTasks: (GestionRow & { eventName: string })[]; alerts: Alert[]; upcoming: EventCardData[] }
@@ -29,7 +29,7 @@ export function HomeClient({ user, users }: { user: TeamUser & { canEdit: boolea
   const past = useMemo(() => (data?.upcoming ?? []).filter((e) => e.start_date && (e.end_date ?? e.start_date) < data!.today), [data])
   // Las series (Pasito Club, etc.) van como una sola tarjeta.
   const grouped = useMemo(() => groupBySeries(data?.upcoming ?? []), [data])
-  const upcomingItems = grouped.filter((item) => (isGroup(item) ? seriesStats(item, data?.today).next !== null : upcoming.includes(item)))
+  const upcomingItems = grouped.filter((item) => (isGroup(item) ? seriesStats(item, data?.today).next !== null : upcoming.includes(item))).sort(byDateAsc(data?.today))
   const pastItems = grouped.filter((item) => (isGroup(item) ? seriesStats(item, data?.today).next === null : past.includes(item)))
   // Lo próximo que arranca (un ciclo de varias semanas ya en curso no tapa la fecha de esta semana).
   const next = upcoming.find((e) => e.start_date && e.start_date >= (data?.today ?? '')) ?? upcoming.find((e) => e.start_date)
