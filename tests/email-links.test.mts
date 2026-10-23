@@ -19,3 +19,16 @@ test('iOS association keeps existing routes and includes email routes',()=>{
  const routes=j.applinks.details.flatMap((d:any)=>d.components.map((c:any)=>c['/']))
  for(const route of ['/abrir/*','/events/*','/g/*','/i/*','/challenges/*'])assert.ok(routes.includes(route))
 })
+
+test('iPhone opening never guesses that the app failed and launches the store',async()=>{
+ const {runInNewContext}=await import('node:vm')
+ const response=await GET(new Request('https://pasito.app/abrir/inicio'),{params:Promise.resolve({screen:'inicio'})})
+ const html=await response.text();const script=html.match(/<script>([\s\S]*?)<\/script>/)![1]
+ const location={href:'',replace(_url:string){assert.fail('iOS must not redirect to a store')}}
+ const button:{onclick?:Function}={}
+ runInNewContext(script,{navigator:{userAgent:'iPhone',maxTouchPoints:5},location,document:{getElementById:()=>button},setTimeout:()=>assert.fail('No store fallback timer is allowed')})
+ assert.ok(location.href.startsWith('ar.pasito.pasito://abrir/inicio'))
+ button.onclick!({preventDefault(){}})
+ assert.ok(location.href.startsWith('ar.pasito.pasito://abrir/inicio'))
+ assert.ok(html.includes('/brand/logo-green.svg'))
+})
