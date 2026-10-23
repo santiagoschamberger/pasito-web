@@ -3,7 +3,7 @@ export const PASITO_CLUB_EVENT = {
   name: 'Pasito Club',
   currency: 'ARS',
   timeLabel: '19:00 hs',
-  venueLabel: 'Thays Café, Buenos Aires',
+  venueLabel: 'Los Lagos de Palermo, Buenos Aires',
   capacityPerDate: 200,
   salesClosed: false,
 } as const
