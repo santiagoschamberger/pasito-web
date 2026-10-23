@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Check, ExternalLink, Plus, Trash2 } from 'lucide-react'
+import { Check, ChevronDown, ExternalLink, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { formatMoney, personLabel, SECTIONS, type Column, type GestionRow, type RowData, type RowKind, type TeamUser } from '@/lib/gestion/schema'
@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { api } from './api'
 import { ImagePicker } from './ImagePicker'
-import { btnSecondary, Empty } from './ui'
+import { btnSecondary, Empty, formatDate } from './ui'
 
 export type SaveState = 'idle' | 'saving' | 'saved' | 'error'
 
@@ -207,12 +207,27 @@ function DoneToggle({ done, disabled, onToggle }: { done: boolean; disabled: boo
   )
 }
 
+// Texto corto de un valor, para el resumen de la tarjeta en el celular.
+function displayValue(column: Column, value: unknown, users: TeamUser[], currency?: string): string {
+  if (value === null || value === undefined || value === '') return ''
+  switch (column.type) {
+    case 'select': return column.options?.find((o) => o.value === value)?.label ?? String(value)
+    case 'person': return personLabel(String(value), users)
+    case 'date': return formatDate(String(value))
+    case 'money': return typeof value === 'number' ? formatMoney(value, currency) : ''
+    case 'bool': return value === true ? column.label : ''
+    case 'image': case 'url': case 'longtext': return ''
+    default: return String(value)
+  }
+}
+
 export function SectionTable(props: Props) {
   const { kind, rows, users, canEdit, defaults, footer, extraRows, emptyText } = props
   const section = SECTIONS[kind]
   const columns = props.columns ? section.columns.filter((c) => props.columns!.includes(c.key)) : section.columns
   const { save, add, remove } = useRowActions(props)
   const [adding, setAdding] = useState(false)
+  const [open, setOpen] = useState<Set<string>>(new Set())
   const mobile = useIsMobile()
   const isTask = kind === 'task'
   const own = rows.filter((r) => r.kind === kind)
@@ -248,30 +263,49 @@ export function SectionTable(props: Props) {
 
   if (mobile) {
     // En el celular cada fila es una tarjeta: nada de scroll horizontal.
-    const [main, ...rest] = columns.filter((c) => c.type !== 'image' && !(isTask && c.key === 'estado'))
+    const visible = columns.filter((c) => c.type !== 'image' && !(isTask && c.key === 'estado'))
+    // El título de la tarjeta es el primer campo de texto (en Presupuesto, el concepto y no el tipo).
+    const main = visible.find((c) => c.type === 'text') ?? visible[0]
+    const rest = visible.filter((c) => c !== main)
     const image = columns.find((c) => c.type === 'image')
     return (
       <div id={`table-${kind}`} className="space-y-2">
         {ordered.map((row) => {
           const done = isTask && row.data.estado === 'hecha'
+          const expanded = open.has(row.id)
+          const summary = rest.map((c) => displayValue(c, row.data[c.key], users, props.currency)).filter(Boolean).slice(0, 4).join(' · ')
           return (
-            <div key={row.id} data-row className={cn('rounded-xl border border-[#E3E8DF] bg-white p-3', done && 'opacity-60')}>
+            <div key={row.id} data-row className={cn('rounded-xl border border-[#E3E8DF] bg-white px-2.5 pt-2 pb-1.5', done && 'opacity-60')}>
               <div className="flex items-start gap-2">
-                {isTask && <div className="pt-1.5"><DoneToggle done={done} disabled={!canEdit} onToggle={() => toggleDone(row)} /></div>}
+                {isTask && <div className="pt-1.5 pl-1"><DoneToggle done={done} disabled={!canEdit} onToggle={() => toggleDone(row)} /></div>}
                 {image && <Cell column={image} value={row.data[image.key]} users={users} disabled={!canEdit} rowName={rowName(row)} onSave={(v) => save(row, image.key, v)} />}
                 <div className={cn('min-w-0 flex-1 font-semibold', done && 'line-through')}>
                   <Cell column={main} value={row.data[main.key]} users={users} disabled={!canEdit} onSave={(v) => save(row, main.key, v)} />
                 </div>
                 {canEdit && <button onClick={() => remove(row)} className="grid size-9 place-items-center text-[#9AA39D]"><Trash2 className="size-4" /></button>}
               </div>
-              <dl className="mt-1 grid grid-cols-2 gap-x-2">
-                {rest.map((c) => (
-                  <div key={c.key} className={cn('min-w-0', c.type === 'longtext' && 'col-span-2')}>
-                    <dt className="px-2 pt-1 text-[11px] font-semibold text-[#7A837D]">{c.label}</dt>
-                    <dd><Cell column={c} value={row.data[c.key]} users={users} disabled={!canEdit} rowName={rowName(row)} onSave={(v) => save(row, c.key, v)} /></dd>
-                  </div>
-                ))}
-              </dl>
+              {expanded ? (
+                <dl className="mt-1 grid grid-cols-2 gap-x-2">
+                  {rest.map((c) => (
+                    <div key={c.key} className={cn('min-w-0', c.type === 'longtext' && 'col-span-2')}>
+                      <dt className="px-2 pt-1 text-[11px] font-semibold text-[#7A837D]">{c.label}</dt>
+                      <dd><Cell column={c} value={row.data[c.key]} users={users} disabled={!canEdit} rowName={rowName(row)} onSave={(v) => save(row, c.key, v)} /></dd>
+                    </div>
+                  ))}
+                </dl>
+              ) : null}
+              <button
+                className="mt-0.5 flex w-full items-center gap-2 rounded-lg px-2 py-1 text-left text-xs text-[#5F6761] active:bg-[#F2F6F1]"
+                onClick={() => setOpen((prev) => {
+                  const next = new Set(prev)
+                  if (next.has(row.id)) next.delete(row.id)
+                  else next.add(row.id)
+                  return next
+                })}
+              >
+                <span className="min-w-0 flex-1 truncate">{expanded ? 'Ocultar detalle' : summary || 'Completar datos'}</span>
+                <ChevronDown className={cn('size-4 shrink-0 transition', expanded && 'rotate-180')} />
+              </button>
             </div>
           )
         })}

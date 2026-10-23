@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { ATTENDEE_KINDS, ORIGIN_LABEL, type Attendee, type AttendeeOrigin, type GestionEvent } from '@/lib/gestion/schema'
 import { arrivalsBy15Min, attendanceStats } from '@/lib/gestion/summary'
 import { mapAttendeeRows, parseCsv } from '@/lib/gestion/csv'
+import { cn } from '@/lib/utils'
 import { api } from '../../_components/api'
 import { btnGhost, btnPrimary, btnSecondary, card, Empty, input, label } from '../../_components/ui'
 import { Section, type PasitoEventLite, type SessionUser, type WebSalesLite } from './EventClient'
@@ -104,23 +105,23 @@ export function AttendeesTab({ event, user, pasitoEvents, onAttendanceToKpi, onG
   const maxSlot = Math.max(1, ...slots.map((s) => s.count))
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-[14px] lg:grid-cols-4">
+    <div className="space-y-5 sm:space-y-6">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-[14px] lg:grid-cols-4">
         <Stat label="En la lista" value={stats.total.toLocaleString('es-AR')} />
         <Stat label="Adentro" value={`${insideTotal.toLocaleString('es-AR')}${capacity ? ` / ${capacity.toLocaleString('es-AR')}` : ''}`} sub={stats.companionsIn ? `incluye ${stats.companionsIn} acompañante(s)` : undefined} tone={capacity && insideTotal >= capacity * 0.9 ? 'warn' : undefined} />
         <Stat label="Presentismo" value={`${showRate}%`} sub="llegaron / anotados" />
         <Stat label="Duplicados para revisar" value={String(duplicates)} sub="mismo QR en dos puertas" tone={duplicates ? 'warn' : undefined} />
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <Link href={`/gestion/puerta/${event.id}`} className={btnPrimary}><DoorOpen className="size-4" />Modo puerta</Link>
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+        <Link href={`/gestion/puerta/${event.id}`} className={cn(btnPrimary, 'col-span-2')}><DoorOpen className="size-4" />Modo puerta</Link>
         {canEdit && <button className={btnSecondary} onClick={sync} disabled={syncing}><RefreshCw className={`size-4 ${syncing ? 'animate-spin' : ''}`} />Sincronizar</button>}
         {canEdit && <button className={btnSecondary} onClick={() => setPanel(panel === 'add' ? null : 'add')}><UserPlus className="size-4" />Agregar</button>}
         {canEdit && <button className={btnSecondary} onClick={() => setPanel(panel === 'import' ? null : 'import')}><Upload className="size-4" />Importar CSV</button>}
-        {canEdit && <button className={btnSecondary} onClick={sendQr}><Mail className="size-4" />Mandar QR por mail</button>}
+        {canEdit && <button className={btnSecondary} onClick={sendQr}><Mail className="size-4" />Mandar QR<span className="hidden sm:inline"> por mail</span></button>}
         {canEdit && <button className={btnSecondary} onClick={() => setPanel(panel === 'pins' ? null : 'pins')}><KeyRound className="size-4" />PIN de puerta</button>}
         {user.isAdmin && <a className={btnGhost} href={`/api/gestion/events/${event.id}/export`}><Download className="size-4" />Exportar</a>}
-        {canEdit && stats.inside > 0 && <button className={btnGhost} onClick={() => onAttendanceToKpi(insideTotal)}>Cargar asistencia en Objetivos</button>}
+        {canEdit && stats.inside > 0 && <button className={cn(btnGhost, 'col-span-2')} onClick={() => onAttendanceToKpi(insideTotal)}>Cargar asistencia en Objetivos</button>}
       </div>
 
       {web && (web.tickets > 0 || (event.web_tiers ?? []).length > 0) && (
@@ -223,9 +224,9 @@ export function AttendeesTab({ event, user, pasitoEvents, onAttendanceToKpi, onG
 
 function Stat({ label: text, value, sub, tone }: { label: string; value: string; sub?: string; tone?: 'warn' }) {
   return (
-    <div className={`${card} p-4`}>
-      <p className="text-[13px] font-semibold text-[#66706B]">{text}</p>
-      <p className={`mt-1 text-2xl font-extrabold tabular-nums ${tone === 'warn' ? 'text-[#806113]' : ''}`}>{value}</p>
+    <div className={`${card} p-3 sm:p-4`}>
+      <p className="text-xs font-semibold text-[#66706B] sm:text-[13px]">{text}</p>
+      <p className={`mt-0.5 text-xl font-extrabold sm:mt-1 sm:text-2xl tabular-nums ${tone === 'warn' ? 'text-[#806113]' : ''}`}>{value}</p>
       {sub && <p className="mt-0.5 text-xs text-[#5F6761]">{sub}</p>}
     </div>
   )

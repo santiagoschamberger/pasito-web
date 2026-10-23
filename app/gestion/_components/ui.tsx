@@ -186,7 +186,7 @@ export function Shell({ user, children, bare }: { user: { name: string | null; e
         <Link href="/gestion"><PasitoMark /></Link>
         <Link href="/gestion/equipo"><Avatar name={user.name} email={user.email} size={30} /></Link>
       </header>
-      {bare ? children : <main className="mx-auto max-w-[1200px] px-4 py-6 sm:px-8 sm:py-8">{children}</main>}
+      {bare ? children : <main className="mx-auto max-w-[1200px] px-4 py-4 sm:px-8 sm:py-8">{children}</main>}
       {/* Navegación inferior en el celular */}
       <nav className="no-print fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-[#E3E8DF] bg-white pb-[env(safe-area-inset-bottom)] lg:hidden">
         {nav.map((item) => (
@@ -202,12 +202,12 @@ export function Shell({ user, children, bare }: { user: { name: string | null; e
 
 export function PageHeader({ title, subtitle, actions }: { title: React.ReactNode; subtitle?: React.ReactNode; actions?: React.ReactNode }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <h1 className="g-display text-[30px] leading-[36px] font-extrabold">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-[#5F6761]">{subtitle}</p>}
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-3 sm:mb-6 sm:items-end">
+      <div className="min-w-0">
+        <h1 className="g-display text-2xl leading-8 font-extrabold sm:text-[30px] sm:leading-[36px]">{title}</h1>
+        {subtitle && <p className="mt-0.5 text-[13px] text-[#5F6761] sm:mt-1 sm:text-sm">{subtitle}</p>}
       </div>
-      {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
+      {actions && <div className="flex shrink-0 flex-wrap justify-end gap-2">{actions}</div>}
     </div>
   )
 }

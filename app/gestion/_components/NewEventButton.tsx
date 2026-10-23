@@ -51,7 +51,7 @@ export function NewEventButton({ disabled, label: text = 'Nuevo evento' }: { dis
 
   return (
     <>
-      <button className={btnPrimary} disabled={disabled} onClick={() => setOpen(true)}><Plus className="size-4" />{text}</button>
+      <button className={cn(btnPrimary, 'h-9 px-3 sm:h-10 sm:px-3.5')} disabled={disabled} onClick={() => setOpen(true)}><Plus className="size-4" /><span className="sm:hidden">{text.split(' ')[0]}</span><span className="hidden sm:inline">{text}</span></button>
       {open && (
         <div className="fixed inset-0 z-50 grid place-items-end bg-[#00402E]/40 backdrop-blur-[2px] sm:place-items-center" onClick={() => setOpen(false)}>
           <form onSubmit={submit} onClick={(e) => e.stopPropagation()} className="max-h-[92dvh] w-full max-w-lg space-y-5 overflow-y-auto rounded-t-2xl bg-white p-5 shadow-2xl sm:rounded-2xl sm:p-6">

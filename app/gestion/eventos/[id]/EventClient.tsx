@@ -175,11 +175,11 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
   return (
     <Shell user={user} bare>
       <header className="no-print border-b border-[#E3E8DF] bg-white">
-        <div className="mx-auto max-w-[1200px] px-4 pt-5 sm:px-8">
-          <Link href={event.series ? `/gestion/series/${seriesSlug(event.series)}` : '/gestion/eventos'} className="inline-flex items-center gap-1 text-sm font-semibold text-[#5F6761] hover:text-[#171D1A]">
+        <div className="mx-auto max-w-[1200px] px-4 pt-3 sm:px-8 sm:pt-5">
+          <Link href={event.series ? `/gestion/series/${seriesSlug(event.series)}` : '/gestion/eventos'} className="inline-flex items-center gap-1 text-[13px] font-semibold text-[#5F6761] hover:text-[#171D1A] sm:text-sm">
             <ArrowLeft className="size-4" />{event.series || 'Eventos'}
           </Link>
-          <div className="mt-3 flex items-start gap-4">
+          <div className="mt-2 flex items-start gap-3 sm:mt-3 sm:gap-4">
             <span className="relative hidden size-16 shrink-0 overflow-hidden rounded-2xl bg-[#00402E] sm:block">
               {cover ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -189,18 +189,11 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
               )}
             </span>
             <div className="min-w-0 flex-1">
-              <input
-                key={event.updated_at}
-                className="g-display -ml-1 w-full truncate rounded-lg border border-transparent bg-transparent px-1 text-2xl leading-tight font-extrabold outline-none hover:border-[#DDE6DF] focus:border-[#006D42] sm:text-[30px]"
-                defaultValue={event.name}
-                disabled={!canEdit}
-                onBlur={(e) => e.target.value.trim() && e.target.value !== event.name && updateEvent({ name: e.target.value.trim() })}
-                onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
-              />
-              <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#5F6761]">
-                <span className="flex items-center gap-1.5"><CalendarDays className="size-4" />{event.start_date ? formatDate(event.start_date, { weekday: 'short', day: 'numeric', month: 'short' }) : 'Sin fecha'}{event.start_time ? ` · ${event.start_time}` : ''}</span>
-                {(event.venue || event.city) && <span className="flex items-center gap-1.5"><MapPin className="size-4" />{[event.venue, event.city].filter(Boolean).join(', ')}</span>}
-                {owner && <span className="flex items-center gap-1.5"><Avatar name={owner.name} email={owner.email} size={20} />{owner.name}</span>}
+              <TitleField key={event.updated_at} value={event.name} disabled={!canEdit} onSave={(name) => updateEvent({ name })} />
+              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[13px] text-[#5F6761] sm:gap-x-4 sm:text-sm">
+                <span className="flex items-center gap-1.5"><CalendarDays className="size-3.5 sm:size-4" />{event.start_date ? formatDate(event.start_date, { weekday: 'short', day: 'numeric', month: 'short' }) : 'Sin fecha'}{event.start_time ? ` · ${event.start_time}` : ''}</span>
+                {(event.venue || event.city) && <span className="flex min-w-0 items-center gap-1.5"><MapPin className="size-3.5 shrink-0 sm:size-4" />{[event.venue, event.city].filter(Boolean).join(', ')}</span>}
+                {owner && <span className="hidden items-center gap-1.5 sm:flex"><Avatar name={owner.name} email={owner.email} size={20} />{owner.name}</span>}
                 {days !== null && days >= 0 && status !== 'cerrado' && status !== 'cancelado' && (
                   <span className="font-semibold text-[#006D42]">{days > 1 ? `Faltan ${days} días` : days === 1 ? 'Es mañana' : 'Es hoy'}</span>
                 )}
@@ -251,12 +244,12 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
               </div>
             </div>
           </div>
-          <nav className="-mb-px mt-4 flex gap-1 overflow-x-auto">
+          <nav className="-mx-4 -mb-px mt-3 flex overflow-x-auto px-2 [scrollbar-width:none] sm:mx-0 sm:mt-4 sm:gap-1 sm:px-0">
             {TAB_GROUPS.map((g) => (
               <button
                 key={g.key}
                 onClick={() => selectTab(g.subs[0].key)}
-                className={cn('flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-semibold whitespace-nowrap transition', group.key === g.key ? 'border-[#006D42] text-[#006D42]' : 'border-transparent text-[#5F6761] hover:text-[#171D1A]')}
+                className={cn('flex shrink-0 items-center gap-1 border-b-2 px-2.5 py-2.5 text-[13px] font-semibold whitespace-nowrap transition sm:gap-1.5 sm:px-3 sm:text-sm', group.key === g.key ? 'border-[#006D42] text-[#006D42]' : 'border-transparent text-[#5F6761] hover:text-[#171D1A]')}
               >
                 {g.label}
                 {g.key === 'tareas' && openTasks > 0 && <span className="rounded-full bg-[#EDF2EA] px-1.5 text-[11px] font-bold text-[#006D42]">{openTasks}</span>}
@@ -266,7 +259,7 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
         </div>
       </header>
 
-      <main className="mx-auto max-w-[1200px] px-4 py-6 sm:px-8">
+      <main className="mx-auto max-w-[1200px] px-4 py-4 sm:px-8 sm:py-6">
         {blockers.length > 0 && (
           <div className="mb-4 rounded-xl border border-[#F2D6CF] bg-[#FDECE8] p-4 text-sm text-[#B14D3B]">
             <p className="font-bold">Para cerrar el evento falta:</p>
@@ -276,9 +269,9 @@ export function EventClient({ eventId, user, users }: { eventId: string; user: S
         {closed && <p className="mb-4 rounded-xl bg-[#E9E9E9] px-4 py-3 text-sm">Evento cerrado: queda en solo lectura.{user.isAdmin ? ' Como admin podés reabrirlo cambiando el estado.' : ''}</p>}
 
         {group.subs.length > 1 && (
-          <div className="mb-5 inline-flex gap-1 rounded-xl bg-[#EDF1EA] p-1">
+          <div className="mb-4 flex max-w-full gap-1 overflow-x-auto rounded-xl bg-[#EDF1EA] p-1 [scrollbar-width:none] sm:mb-5 sm:inline-flex">
             {group.subs.map((sub) => (
-              <button key={sub.key} onClick={() => selectTab(sub.key)} className={cn('rounded-lg px-3 py-1.5 text-sm font-semibold transition', tab === sub.key ? 'bg-white text-[#171D1A] shadow-sm' : 'text-[#5F6761] hover:text-[#171D1A]')}>{sub.label}</button>
+              <button key={sub.key} onClick={() => selectTab(sub.key)} className={cn('shrink-0 rounded-lg px-3 py-1.5 text-[13px] font-semibold whitespace-nowrap transition sm:text-sm', tab === sub.key ? 'bg-white text-[#171D1A] shadow-sm' : 'text-[#5F6761] hover:text-[#171D1A]')}>{sub.label}</button>
             ))}
           </div>
         )}
@@ -345,8 +338,8 @@ export function Section({ title, hint, children, action }: { title: string; hint
     <section>
       <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
         <div>
-          <h2 className="g-display text-2xl leading-7 font-bold">{title}</h2>
-          {hint && <p className="mt-1 text-sm text-[#5F6761]">{hint}</p>}
+          <h2 className="g-display text-lg leading-6 font-bold sm:text-2xl sm:leading-7">{title}</h2>
+          {hint && <p className="mt-0.5 text-[13px] leading-snug text-[#5F6761] sm:mt-1 sm:text-sm">{hint}</p>}
         </div>
         {action}
       </div>
@@ -469,6 +462,35 @@ function HistoryTab({ eventId, users, initial }: { eventId: string; users: TeamU
         ))}
       </ul>
     </Section>
+  )
+}
+
+// Nombre editable que ocupa las líneas que necesite (en el celular no se corta).
+function TitleField({ value, disabled, onSave }: { value: string; disabled: boolean; onSave: (name: string) => void }) {
+  const fit = (el: HTMLTextAreaElement | null) => {
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${el.scrollHeight}px`
+  }
+  return (
+    <textarea
+      ref={fit}
+      rows={1}
+      className="g-display -ml-1 block w-full resize-none overflow-hidden rounded-lg border border-transparent bg-transparent px-1 text-xl leading-tight font-extrabold outline-none hover:border-[#DDE6DF] focus:border-[#006D42] sm:text-[30px]"
+      defaultValue={value}
+      disabled={disabled}
+      onInput={(e) => fit(e.currentTarget)}
+      onBlur={(e) => {
+        const name = e.target.value.replace(/\s+/g, ' ').trim()
+        if (name && name !== value) onSave(name)
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          e.currentTarget.blur()
+        }
+      }}
+    />
   )
 }
 

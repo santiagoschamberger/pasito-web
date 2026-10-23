@@ -21,12 +21,59 @@ export type EventCardData = GestionEvent & {
 export function PendingBadge({ open = 0, overdue = 0, critical = 0, warning = 0 }: { open?: number; overdue?: number; critical?: number; warning?: number }) {
   if (overdue || critical) {
     const parts = [overdue ? `${overdue} vencida${overdue > 1 ? 's' : ''}` : '', critical ? `${critical} alerta${critical > 1 ? 's' : ''}` : ''].filter(Boolean)
-    return <span className="inline-flex items-center gap-1 rounded-full bg-[#FDECE8] px-2 py-0.5 text-xs font-bold text-[#B14D3B]"><AlertTriangle className="size-3" />{parts.join(' · ')}</span>
+    return <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-[#FDECE8] px-2 py-0.5 text-xs font-bold text-[#B14D3B]"><AlertTriangle className="size-3" />{parts.join(' · ')}</span>
   }
   if (open || warning) {
-    return <span className="inline-flex items-center gap-1 rounded-full bg-[#FBF3DA] px-2 py-0.5 text-xs font-bold text-[#806113]"><Clock className="size-3" />{open ? `${open} pendiente${open > 1 ? 's' : ''}` : `${warning} aviso${warning > 1 ? 's' : ''}`}</span>
+    return <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-[#FBF3DA] px-2 py-0.5 text-xs font-bold text-[#806113]"><Clock className="size-3" />{open ? `${open} pendiente${open > 1 ? 's' : ''}` : `${warning} aviso${warning > 1 ? 's' : ''}`}</span>
   }
-  return <span className="inline-flex items-center gap-1 rounded-full bg-[#E3F2E8] px-2 py-0.5 text-xs font-bold text-[#006D42]"><Check className="size-3" />Al día</span>
+  return <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-[#E3F2E8] px-2 py-0.5 text-xs font-bold text-[#006D42]"><Check className="size-3" />Al día</span>
+}
+
+// Versión compacta para el celular: foto chica a la izquierda y los datos al lado.
+export function CompactCard({ href, cover, fallback, badge, kicker, title, sub, stats, pending }: {
+  href: string
+  cover: string | null
+  fallback?: React.ReactNode
+  badge: React.ReactNode
+  kicker?: React.ReactNode
+  title: string
+  sub: React.ReactNode
+  stats: React.ReactNode
+  pending: React.ReactNode
+}) {
+  return (
+    <Link href={href} className={cn(card, 'flex min-w-0 gap-3 p-2.5 active:bg-[#F6F7EF] sm:hidden')}>
+      <span className="relative w-[84px] shrink-0 self-stretch overflow-hidden rounded-lg bg-gradient-to-br from-[#006D42] to-[#00402E]">
+        {cover ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={cover} alt="" className="absolute inset-0 size-full object-cover" />
+        ) : (
+          <span className="absolute inset-0 grid place-items-center text-3xl">{fallback}</span>
+        )}
+        <span className="absolute top-1.5 left-1.5">{badge}</span>
+      </span>
+      <span className="flex min-w-0 flex-1 flex-col py-0.5">
+        {kicker && <span className="truncate text-[10px] font-bold tracking-wide text-[#006D42] uppercase">{kicker}</span>}
+        <span className="g-display line-clamp-2 text-[15px] leading-5 font-bold break-words">{title}</span>
+        <span className="mt-0.5 block truncate text-xs text-[#5F6761]">{sub}</span>
+        <span className="mt-auto flex items-center justify-between gap-2 pt-2">
+          <span className="flex min-w-0 items-center gap-2.5 text-xs font-bold tabular-nums">{stats}</span>
+          {pending}
+        </span>
+      </span>
+    </Link>
+  )
+}
+
+function MiniDate({ iso }: { iso: string | null }) {
+  if (!iso) return null
+  const date = new Date(`${iso}T12:00:00-03:00`)
+  return (
+    <span className="flex size-9 flex-col items-center justify-center rounded-md bg-white/95 leading-none shadow-sm">
+      <span className="text-[8px] font-bold text-[#B14D3B] uppercase">{date.toLocaleDateString('es-AR', { month: 'short' }).replace('.', '')}</span>
+      <span className="g-display text-sm font-extrabold text-[#171D1A]">{date.getDate()}</span>
+    </span>
+  )
 }
 
 const TYPE_EMOJI: Record<string, string> = { activacion: '🛍️', fiesta: '🎉', corporativo: '🏢', caminata: '👟', otro: '✨' }
@@ -49,8 +96,24 @@ function DateBadge({ iso }: { iso: string | null }) {
 export function EventCard({ event, users }: { event: EventCardData; users: TeamUser[] }) {
   const pct = event.checklist.total ? Math.round((event.checklist.done / event.checklist.total) * 100) : 0
   const owner = event.owner_email ? users.find((u) => u.email === event.owner_email) : null
+  const pending = <PendingBadge open={event.tasks?.open} overdue={event.tasks?.overdue} critical={event.alerts_critical} warning={event.alerts_warning} />
   return (
-    <Link href={`/gestion/eventos/${event.id}`} className={cn(card, 'group flex h-full flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md')}>
+    <>
+    <CompactCard
+      href={`/gestion/eventos/${event.id}`}
+      cover={event.cover_url}
+      fallback={eventEmoji(event.type)}
+      badge={<MiniDate iso={event.start_date} />}
+      kicker={event.series}
+      title={event.name}
+      sub={<><StatusPill status={event.effective_status} className="mr-1.5 px-1.5 py-0 text-[10px]" />{[event.venue, event.city].filter(Boolean).join(', ') || EVENT_TYPES.find((t) => t.value === event.type)?.label}</>}
+      stats={<>
+        <span className={event.result_projected < 0 ? 'text-[#B14D3B]' : ''}>{formatMoney(event.result_projected, event.currency)}</span>
+        {event.web && <span className="flex items-center gap-1"><Ticket className="size-3 text-[#006D42]" />{event.web.tickets}</span>}
+      </>}
+      pending={pending}
+    />
+    <Link href={`/gestion/eventos/${event.id}`} className={cn(card, 'group hidden h-full flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md sm:flex')}>
       <div className="relative h-28 shrink-0 overflow-hidden bg-gradient-to-br from-[#006D42] to-[#00402E]">
         {event.cover_url ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -91,9 +154,10 @@ export function EventCard({ event, users }: { event: EventCardData; users: TeamU
           <span className="flex items-center gap-1.5">
             {event.owner_email ? <><Avatar name={owner?.name} email={event.owner_email} size={22} />{personLabel(event.owner_email, users)}</> : 'Sin responsable'}
           </span>
-          <PendingBadge open={event.tasks?.open} overdue={event.tasks?.overdue} critical={event.alerts_critical} warning={event.alerts_warning} />
+          {pending}
         </div>
       </div>
     </Link>
+    </>
   )
 }

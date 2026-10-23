@@ -57,7 +57,7 @@ export function HomeClient({ user, users }: { user: TeamUser & { canEdit: boolea
       />
 
       {data && (
-        <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="mb-5 grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4">
           <Metric label="Entradas vendidas" value={ticketsUpcoming.toLocaleString('es-AR')} hint="próximas fechas" />
           <Metric label="Recaudado web" value={formatMoney(revenueUpcoming)} hint={revenueUy ? `+ ${formatMoney(revenueUy, 'UYU')} en Uruguay` : 'próximas fechas'} />
           <Metric label="Eventos activos" value={activeCount.toLocaleString('es-AR')} hint={`${datedUpcoming.length} fechas por delante`} href="/gestion/eventos" />
@@ -66,7 +66,7 @@ export function HomeClient({ user, users }: { user: TeamUser & { canEdit: boolea
       )}
 
       {next && data && (
-        <Link href={`/gestion/eventos/${next.id}`} className={`${card} mb-5 flex items-center gap-4 p-3 pr-5 transition hover:shadow-md`}>
+        <Link href={`/gestion/eventos/${next.id}`} className={`${card} mb-5 hidden items-center gap-4 sm:flex p-3 pr-5 transition hover:shadow-md`}>
           <span className="relative size-20 shrink-0 overflow-hidden rounded-xl bg-[#00402E]">
             {next.cover_url && (
               // eslint-disable-next-line @next/next/no-img-element
@@ -96,14 +96,14 @@ export function HomeClient({ user, users }: { user: TeamUser & { canEdit: boolea
       {!data ? (
         <div className="grid gap-4 lg:grid-cols-2">{[0, 1].map((i) => <div key={i} className={`${card} h-48 animate-pulse`} />)}</div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           <section className="min-w-0">
             <div className="mb-3 flex items-end justify-between">
-              <h2 className="g-display text-2xl font-bold">Eventos activos</h2>
+              <h2 className="g-display text-lg font-bold sm:text-2xl">Eventos activos</h2>
               <Link href="/gestion/eventos" className="text-sm font-semibold text-[#006D42]">Ver todos</Link>
             </div>
             {upcomingItems.length === 0 ? <Empty icon={<span className="text-3xl">🗓️</span>}>No hay eventos próximos. Creá uno con el botón de arriba.</Empty> : (
-              <div className="grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
+              <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-[14px] xl:grid-cols-4">
                 {upcomingItems.map((item) => (isGroup(item) ? <SeriesCard key={item.name} group={item} /> : <EventCard key={item.id} event={item} users={users} />))}
               </div>
             )}
@@ -111,9 +111,9 @@ export function HomeClient({ user, users }: { user: TeamUser & { canEdit: boolea
 
           {pastItems.length > 0 && (
             <section className="min-w-0">
-              <h2 className="g-display mb-1 text-xl font-bold">Para cerrar</h2>
+              <h2 className="g-display mb-1 text-lg font-bold sm:text-xl">Para cerrar</h2>
               <p className="mb-3 text-sm text-[#5F6761]">Ya pasaron: cargá gastos reales, cobros y aprendizajes.</p>
-              <div className="grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
+              <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-[14px] xl:grid-cols-4">
                 {pastItems.map((item) => (isGroup(item) ? <SeriesCard key={item.name} group={item} /> : <EventCard key={item.id} event={item} users={users} />))}
               </div>
             </section>
@@ -128,9 +128,9 @@ function Metric({ label, value, hint, tone, href }: { label: string; value: stri
   const body = (
     <>
       <p className="text-xs font-semibold text-[#7A837D]">{label}</p>
-      <p className={`g-display mt-1 text-3xl font-extrabold tabular-nums ${tone === 'bad' ? 'text-[#B14D3B]' : tone === 'warn' ? 'text-[#806113]' : 'text-[#171D1A]'}`}>{value}</p>
+      <p className={`g-display mt-0.5 truncate text-[22px] leading-8 sm:mt-1 sm:text-3xl font-extrabold tabular-nums ${tone === 'bad' ? 'text-[#B14D3B]' : tone === 'warn' ? 'text-[#806113]' : 'text-[#171D1A]'}`}>{value}</p>
       <p className="mt-0.5 text-xs text-[#7A837D]">{hint}</p>
     </>
   )
-  return href ? <Link href={href} className={`${card} block p-4 transition hover:shadow-md`}>{body}</Link> : <div className={`${card} p-4`}>{body}</div>
+  return href ? <Link href={href} className={`${card} block min-w-0 p-3 transition hover:shadow-md sm:p-4`}>{body}</Link> : <div className={`${card} min-w-0 p-3 sm:p-4`}>{body}</div>
 }

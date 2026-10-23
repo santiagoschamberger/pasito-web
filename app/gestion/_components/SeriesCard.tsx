@@ -6,7 +6,7 @@ import { CalendarRange, Ticket } from 'lucide-react'
 import { formatMoney, seriesSlug } from '@/lib/gestion/schema'
 import { todayISO } from '@/lib/gestion/summary'
 import { cn } from '@/lib/utils'
-import { PendingBadge, type EventCardData } from './EventCard'
+import { CompactCard, PendingBadge, type EventCardData } from './EventCard'
 import { card, formatDate } from './ui'
 
 export type SeriesGroup = { name: string; events: EventCardData[] }
@@ -65,8 +65,23 @@ export function SeriesCard({ group }: { group: SeriesGroup }) {
   const stats = seriesStats(group)
   const progress = stats.dates.length ? (stats.done / stats.dates.length) * 100 : 0
   const sum = (pick: (e: EventCardData) => number | undefined) => group.events.reduce((total, e) => total + (pick(e) ?? 0), 0)
+  const pending = <PendingBadge open={sum((e) => e.tasks?.open)} overdue={sum((e) => e.tasks?.overdue)} critical={sum((e) => e.alerts_critical)} warning={sum((e) => e.alerts_warning)} />
   return (
-    <Link href={`/gestion/series/${seriesSlug(group.name)}`} className={cn(card, 'group flex h-full flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md')}>
+    <>
+    <CompactCard
+      href={`/gestion/series/${seriesSlug(group.name)}`}
+      cover={stats.cover}
+      badge={<span className="inline-flex items-center gap-0.5 rounded-md bg-[#EBFA61] px-1.5 py-0.5 text-[10px] font-extrabold text-[#00402E] shadow-sm"><CalendarRange className="size-3" />{stats.dates.length}</span>}
+      kicker={`Serie · ${stats.done} de ${stats.dates.length} hechas`}
+      title={group.name}
+      sub={`Próxima: ${stats.next ? formatDate(stats.next.start_date, { weekday: 'short', day: 'numeric', month: 'short' }) : 'terminó'}`}
+      stats={<>
+        <span>{formatMoney(stats.revenue, group.events[0]?.currency)}</span>
+        <span className="flex items-center gap-1"><Ticket className="size-3 text-[#006D42]" />{stats.tickets}</span>
+      </>}
+      pending={pending}
+    />
+    <Link href={`/gestion/series/${seriesSlug(group.name)}`} className={cn(card, 'group hidden h-full flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md sm:flex')}>
       <div className="relative h-28 shrink-0 overflow-hidden bg-[#00402E]">
         {stats.cover && (
           // eslint-disable-next-line @next/next/no-img-element
@@ -96,11 +111,12 @@ export function SeriesCard({ group }: { group: SeriesGroup }) {
         <div className="mt-auto border-t border-[#EDF1EB] pt-3">
           <div className="mt-0 flex items-center justify-between gap-2 text-xs text-[#5F6761]">
             <span>{stats.done} de {stats.dates.length} hechas</span>
-            <PendingBadge open={sum((e) => e.tasks?.open)} overdue={sum((e) => e.tasks?.overdue)} critical={sum((e) => e.alerts_critical)} warning={sum((e) => e.alerts_warning)} />
+            {pending}
           </div>
           <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#E8EDE9]"><div className="h-full rounded-full bg-[#006D42]" style={{ width: `${progress}%` }} /></div>
         </div>
       </div>
     </Link>
+    </>
   )
 }

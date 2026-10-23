@@ -38,7 +38,7 @@ export function EventsClient({ user, users }: { user: TeamUser & { canEdit: bool
   }, [events, query, type])
 
   const grid = (list: typeof upcoming) => (
-    <div className="grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-[14px] xl:grid-cols-4">
       {list.map(({ item }) => (isGroup(item) ? <SeriesCard key={item.name} group={item} /> : <EventCard key={item.id} event={item} users={users} />))}
     </div>
   )
@@ -47,18 +47,18 @@ export function EventsClient({ user, users }: { user: TeamUser & { canEdit: bool
     <Shell user={user}>
       <PageHeader
         title={archived ? 'Eventos archivados' : 'Eventos'}
-        subtitle="Las series (como Pasito Club) se ven como una tarjeta; adentro están todas sus fechas."
+        subtitle={<span className="hidden sm:inline">Ordenados por fecha. Las series agrupan todas sus fechas.</span>}
         actions={<>
-          <button className={btnGhost} onClick={() => setArchived(!archived)}>{archived ? 'Ver activos' : 'Ver archivados'}</button>
+          <button className={btnGhost} onClick={() => setArchived(!archived)}>{archived ? 'Activos' : 'Archivados'}</button>
           <NewEventButton disabled={!user.canEdit} />
         </>}
       />
-      <div className="mb-5 flex flex-wrap gap-2">
-        <div className="relative w-full sm:w-80">
+      <div className="mb-4 grid grid-cols-[1fr_auto] gap-2 sm:mb-5 sm:flex sm:flex-wrap">
+        <div className="relative min-w-0 sm:w-80">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#9AA39D]" />
-          <input className={`${input} pl-9`} placeholder="Buscar evento, serie o lugar" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <input className={`${input} pl-9`} placeholder="Buscar" value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
-        <select className={`${input} w-full sm:w-60`} value={type} onChange={(e) => setType(e.target.value)}>
+        <select className={`${input} w-32 sm:w-60`} value={type} onChange={(e) => setType(e.target.value)}>
           <option value="">Todos los tipos</option>
           {EVENT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>

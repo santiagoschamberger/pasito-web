@@ -31,23 +31,23 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
   const stat = (label: string, value: number, tone?: 'warn' | 'bad' | 'good') => (
     <div>
       <p className="text-xs font-semibold text-[#7A837D]">{label}</p>
-      <p className={cn('g-display text-lg font-extrabold tabular-nums', tone === 'warn' && value ? 'text-[#806113]' : tone === 'bad' && value < 0 ? 'text-[#B14D3B]' : '')}>{formatMoney(value, event.currency)}</p>
+      <p className={cn('g-display text-[15px] font-extrabold tabular-nums sm:text-lg', tone === 'warn' && value ? 'text-[#806113]' : tone === 'bad' && value < 0 ? 'text-[#B14D3B]' : '')}>{formatMoney(value, event.currency)}</p>
     </div>
   )
 
   return (
-    <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-3">
-      <div className="min-w-0 space-y-5 lg:col-span-2">
-        <section className={`${card} p-5`}>
+    <div className="grid grid-cols-1 items-start gap-4 sm:gap-5 lg:grid-cols-3">
+      <div className="min-w-0 space-y-4 sm:space-y-5 lg:col-span-2">
+        <section className={`${card} p-4 sm:p-5`}>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-xs font-bold text-[#7A837D] uppercase">Resultado proyectado</p>
-              <p className={cn('g-display text-4xl font-extrabold tabular-nums', money.resultProjected < 0 ? 'text-[#B14D3B]' : 'text-[#006D42]')}>{formatMoney(money.resultProjected, event.currency)}</p>
+              <p className={cn('g-display text-3xl font-extrabold tabular-nums sm:text-4xl', money.resultProjected < 0 ? 'text-[#B14D3B]' : 'text-[#006D42]')}>{formatMoney(money.resultProjected, event.currency)}</p>
               <p className="mt-0.5 text-sm text-[#5F6761]">{formatMoney(money.incomeProjected, event.currency)} de ingresos − {formatMoney(money.expenseProjected, event.currency)} de gastos{money.inKind ? ` · ${formatMoney(money.inKind, event.currency)} en canjes` : ''}</p>
             </div>
             <button onClick={() => onGoTo('budget')} className="text-sm font-semibold text-[#006D42]">Ver presupuesto</button>
           </div>
-          <div className="mt-4 grid grid-cols-3 gap-4 border-t border-[#EDF1EB] pt-4">
+          <div className="mt-4 grid grid-cols-3 gap-2 border-t border-[#EDF1EB] pt-4 sm:gap-4">
             {stat('Resultado a hoy', money.resultReal, 'bad')}
             {stat('Falta cobrar', money.toCollect, 'warn')}
             {stat('Falta pagar', money.toPay, 'warn')}
@@ -55,7 +55,7 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
         </section>
 
         {(web.tickets > 0 || web.revenue > 0) && (
-          <button onClick={() => onGoTo('asistentes')} className={cn(card, 'flex w-full items-center gap-4 p-5 text-left transition hover:shadow-md')}>
+          <button onClick={() => onGoTo('asistentes')} className={cn(card, 'flex w-full items-center gap-3 p-4 text-left sm:gap-4 sm:p-5 transition hover:shadow-md')}>
             <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#EBFA61] text-[#00402E]"><Ticket className="size-5" /></span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -68,7 +68,7 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
           </button>
         )}
 
-        <section className={`${card} p-5`}>
+        <section className={`${card} p-4 sm:p-5`}>
           <div className="mb-3 flex items-center justify-between">
             <h3 className="g-display text-lg font-bold">Para hacer</h3>
             <button onClick={() => onGoTo('task')} className="text-sm font-semibold text-[#006D42]">Ver tareas</button>
@@ -104,7 +104,7 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
         </section>
 
         {sponsors.length > 0 && (
-          <section className={`${card} p-5`}>
+          <section className={`${card} p-4 sm:p-5`}>
             <div className="mb-3 flex items-center justify-between">
               <h3 className="g-display text-lg font-bold">Sponsors</h3>
               <button onClick={() => onGoTo('sponsor')} className="text-sm font-semibold text-[#006D42]">Gestionar</button>
@@ -124,9 +124,9 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
         )}
 
         {(money.byCategory.length > 0 || money.sponsorPipeline.length > 0) && (
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
             {money.byCategory.length > 0 && (
-              <section className={`${card} p-5`}>
+              <section className={`${card} p-4 sm:p-5`}>
                 <h3 className="g-display mb-3 text-lg font-bold">Gastos por categoría</h3>
                 <ul className="space-y-3">
                   {money.byCategory.map((c) => (
@@ -143,7 +143,7 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
               </section>
             )}
             {money.sponsorPipeline.length > 0 && (
-              <section className={`${card} p-5`}>
+              <section className={`${card} p-4 sm:p-5`}>
                 <h3 className="g-display mb-3 text-lg font-bold">Pipeline de sponsors</h3>
                 <ul className="space-y-2">
                   {SPONSOR_STAGES.map((stage) => {
@@ -163,8 +163,8 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
         )}
       </div>
 
-      <aside className="min-w-0 space-y-5">
-        <section className={`${card} p-5`}>
+      <aside className="min-w-0 space-y-4 sm:space-y-5">
+        <section className={`${card} p-4 sm:p-5`}>
           <div className="mb-3 flex items-center justify-between">
             <h3 className="g-display text-lg font-bold">Checklist</h3>
             <button onClick={() => onGoTo('checklist')} className="text-sm font-semibold text-[#006D42]">Abrir</button>
@@ -183,7 +183,7 @@ export function SummaryTab({ event, rows, users, web, onGoTo }: { event: Gestion
           )}
         </section>
         {kpis.length > 0 && (
-          <section className={`${card} p-5`}>
+          <section className={`${card} p-4 sm:p-5`}>
             <h3 className="g-display mb-3 text-lg font-bold">Objetivos</h3>
             <div className="space-y-3">
               {kpis.map((k) => {

@@ -38,9 +38,9 @@ export function SeriesClient({ slug, user }: { slug: string; user: TeamUser & { 
           <img src={stats.cover} alt="" className="absolute inset-0 size-full object-cover opacity-40" />
         )}
         <div className="absolute inset-0 bg-gradient-to-r from-[#00402E] via-[#00402E]/80 to-transparent" />
-        <div className="relative p-6 sm:p-8">
+        <div className="relative p-5 sm:p-8">
           <p className="text-xs font-bold tracking-wider text-[#EBFA61] uppercase">Serie · {stats.dates.length} fechas</p>
-          <h1 className="g-display mt-1 text-4xl font-extrabold">{group.name}</h1>
+          <h1 className="g-display mt-1 text-[28px] leading-tight font-extrabold sm:text-4xl">{group.name}</h1>
           <p className="mt-1 text-white/80">{formatDate(stats.first, { day: 'numeric', month: 'long' })} → {formatDate(stats.last, { day: 'numeric', month: 'long' })}</p>
           <div className="mt-6 grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4">
             {[
@@ -51,7 +51,7 @@ export function SeriesClient({ slug, user }: { slug: string; user: TeamUser & { 
             ].map((s) => (
               <div key={s.label} className="rounded-xl bg-white/10 px-3 py-2.5 backdrop-blur-sm">
                 <p className="text-[11px] font-semibold text-white/70 uppercase">{s.label}</p>
-                <p className="g-display text-xl font-extrabold tabular-nums">{s.value}</p>
+                <p className="g-display text-lg font-extrabold tabular-nums sm:text-xl">{s.value}</p>
               </div>
             ))}
           </div>
@@ -70,7 +70,7 @@ export function SeriesClient({ slug, user }: { slug: string; user: TeamUser & { 
         </Link>
       )}
 
-      <h2 className="g-display mb-3 text-2xl font-bold">Fechas</h2>
+      <h2 className="g-display mb-3 text-lg font-bold sm:text-2xl">Fechas</h2>
       <ol className="space-y-2">
         {stats.dates.map((e) => {
           const cap = e.web?.capacity ?? e.capacity
