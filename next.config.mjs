@@ -12,7 +12,7 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/:path((?!\\.well-known(?:/|$)|app-ads\\.txt$|api/dlocalgo/webhook(?:/|$)).*)',
+        source: '/:path((?!\\.well-known(?:/|$)|app-ads\\.txt$|abrir(?:/|$)|api/dlocalgo/webhook(?:/|$)).*)',
         has: [{ type: 'host', value: 'pasito.app' }],
         destination: 'https://www.pasito.app/:path',
         permanent: false,

@@ -2,7 +2,9 @@
   "applinks": {
     "details": [
       {
-        "appIDs": ["U8G7MYY9X8.ar.pasito.pasito"],
+        "appIDs": [
+          "U8G7MYY9X8.ar.pasito.pasito"
+        ],
         "components": [
           {
             "/": "/events/*",
@@ -23,6 +25,10 @@
           {
             "/": "/challenges/*",
             "comment": "Challenge detail + winners"
+          },
+          {
+            "/": "/abrir/*",
+            "comment": "PAS-260 email links"
           }
         ]
       }

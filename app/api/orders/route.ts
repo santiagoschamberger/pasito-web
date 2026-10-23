@@ -1,3 +1,4 @@
+import { orderConfirmationEmail } from '@/lib/web-email-templates'
 import { rebillRoutingEnabled, assertIntentAccount, checkOrderAccount, bindNewOrderAccount } from '@/lib/rebill-routing'
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
@@ -56,73 +57,6 @@ function getSupabase() {
 
 function expectedAmount(qty: number) {
   return PRICE * qty + SHIPPING
-}
-
-function escapeHtml(value: string) {
-  return value.replace(/[&<>'"]/g, (character) => {
-    const entities: Record<string, string> = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      "'": '&#39;',
-      '"': '&quot;',
-    }
-    return entities[character]
-  })
-}
-
-function orderConfirmationHtml(params: {
-  name?: string
-  customerName?: string | null
-  variant: string
-  size: string
-  qty: number
-  amount: number
-  shippingAddress: ShippingAddress
-}): string {
-  const deliveryText = 'Envío a domicilio'
-  const shippingAddress = params.shippingAddress
-  const shippingDetails = `
-      <p style="font-size:14px;color:#555;margin:0 0 6px;">Dirección: ${escapeHtml(formatShippingAddress(shippingAddress))}</p>
-      <p style="font-size:14px;color:#555;margin:0 0 6px;">Teléfono: ${escapeHtml(shippingAddress.phone)}</p>
-      ${shippingAddress.notes ? `<p style="font-size:14px;color:#555;margin:0 0 6px;">Indicaciones: ${escapeHtml(shippingAddress.notes)}</p>` : ''}
-    `
-  const deliveryInstructions = `<p style="font-size:14px;color:#555;margin:0 0 8px;line-height:1.6;">Tu dirección quedó guardada. Vamos a despachar el pedido dentro de <strong>5–6 días hábiles</strong>.</p>`
-  const money = new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: CURRENCY,
-    maximumFractionDigits: 0,
-  }).format(params.amount)
-  return `
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8" /></head>
-<body style="margin:0;padding:0;background:#fafafa;">
-  <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:520px;margin:0 auto;padding:48px 28px;background:#ffffff;">
-    <div style="text-align:center;margin-bottom:36px;">
-      <img src="https://pasito.app/pasitohorizontal.png" alt="Pasito" width="100" style="display:inline-block;" />
-    </div>
-    <h2 style="font-size:22px;color:#111;margin:0 0 16px;font-weight:600;">¡Gracias por tu compra! 🎉</h2>
-    <p style="font-size:15px;color:#555;margin:0 0 20px;line-height:1.6;">
-      ${params.name ? `${escapeHtml(params.name)}, ` : ''}confirmamos tu pedido de la <strong>Remera Pasito</strong>.
-    </p>
-    <div style="background:#f7f7f4;border-radius:12px;padding:18px 20px;margin:0 0 24px;">
-      <p style="font-size:14px;color:#333;margin:0 0 6px;"><strong>${escapeHtml(params.variant)}</strong></p>
-      <p style="font-size:14px;color:#555;margin:0 0 6px;">Talle ${escapeHtml(params.size)} · ${params.qty} ${params.qty === 1 ? 'unidad' : 'unidades'}</p>
-      <p style="font-size:14px;color:#555;margin:0 0 6px;">Entrega: ${deliveryText}</p>
-      ${shippingDetails}
-      <p style="font-size:14px;color:#111;margin:8px 0 0;"><strong>Total: ${money}</strong></p>
-    </div>
-    ${deliveryInstructions}
-    <div style="margin-top:36px;padding-top:24px;border-top:1px solid #f0f0f0;">
-      <p style="font-size:14px;color:#333;margin:0;">Nos vemos en la calle,<br/><strong>Pasito</strong></p>
-    </div>
-    <div style="margin-top:40px;text-align:center;">
-      <p style="font-size:11px;color:#bbb;margin:0;letter-spacing:0.03em;">pasito.app</p>
-    </div>
-  </div>
-</body>
-</html>`
 }
 
 export async function POST(req: NextRequest) {
@@ -300,8 +234,7 @@ export async function POST(req: NextRequest) {
           {
             from: 'Pasito <noreply@pasito.app>',
             to: targetEmail,
-            subject: 'Confirmamos tu Remera Pasito',
-            html: orderConfirmationHtml({
+            ...orderConfirmationEmail({
               name: pay.customer?.firstName,
               customerName: confirmedOrder.customer_name,
               variant,

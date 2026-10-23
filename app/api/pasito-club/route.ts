@@ -1,3 +1,4 @@
+import { clubWaitlistEmail } from '@/lib/web-email-templates'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
@@ -12,27 +13,6 @@ function getSupabase(): SupabaseClient | null {
   if (!url || !key) return null
   if (!supabase) supabase = createClient(url, key)
   return supabase
-}
-
-function confirmationHtml(notifyTickets: boolean): string {
-  return `
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8" /></head>
-<body style="margin: 0; padding: 0; background: #004027;">
-  <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 520px; margin: 0 auto; padding: 48px 28px; background: #006d42; color: #ffffff;">
-    <p style="font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; margin: 0 0 24px; opacity: 0.7;">× Pasito Club · Temporada 2026</p>
-    <h2 style="font-size: 30px; line-height: 1.05; margin: 0 0 18px; font-weight: 800;">Ya tenés tu lugar en la largada.</h2>
-    <p style="font-size: 15px; margin: 0 0 12px; line-height: 1.6;">
-      No hace falta ser runner. De caminar tus primeros metros a correr tus primeros 3K: te vamos a avisar por acá cuando arranque el club.
-    </p>${notifyTickets ? `
-    <p style="font-size: 15px; margin: 0 0 12px; line-height: 1.6;">
-      Y como pediste, te escribimos apenas salgan las entradas.
-    </p>` : ''}
-    <p style="font-size: 15px; margin: 28px 0 0; line-height: 1.6;">Todo empieza con un Pasito.<br/><strong>El equipo de Pasito Club</strong></p>
-  </div>
-</body>
-</html>`
 }
 
 export async function POST(req: NextRequest) {
@@ -91,8 +71,7 @@ export async function POST(req: NextRequest) {
       .send({
         from: 'Pasito Club <noreply@pasito.app>',
         to: email,
-        subject: 'Estás en la lista de Pasito Club',
-        html: confirmationHtml(notifyTickets),
+        ...clubWaitlistEmail(notifyTickets),
       })
       .catch((err) => console.error('[pasito-club] Confirmation email error:', err))
 

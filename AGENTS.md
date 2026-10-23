@@ -1,0 +1,3 @@
+# Email work in pasito-web
+
+All future Pasito mails use lib/email-layout.ts and the builders in lib/web-email-templates.ts. The shared design is mirrored from pasito-email/templates/email-layout.ts; scripts/email/design-lock.json records its reviewed SHA-256. Read ../pasito-email/REGLAS.md for PAS-261. Run npm run check:emails, npm test, type checking and a production build for email changes. Preserve signed/private URLs and delivery idempotency keys; attach ticket QR files normally instead of adding visual cards. Email destinations /abrir/* need real iOS/Android verification. Do not treat preview renderings as proof of a delivered mail or a working reward.

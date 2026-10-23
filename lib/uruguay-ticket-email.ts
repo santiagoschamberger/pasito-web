@@ -1,3 +1,4 @@
+import { buildPasitoLetter } from './email-layout.ts'
 import 'server-only'
 import QRCode from 'qrcode'
 import { Resend } from 'resend'
@@ -25,7 +26,8 @@ export async function sendWalkingClubUyTicketsEmail(params: {
   ].join('\n')
   const { data, error } = await new Resend(process.env.RESEND_API_KEY).emails.send({
     from: 'Pasito <noreply@pasito.app>', to: params.order.customer_email,
-    subject: 'Tus entradas · Pasito Walking Club Uruguay', text, attachments,
+    ...buildPasitoLetter({ subject: 'Tus entradas · Pasito Walking Club Uruguay', preview: 'Tus entradas y los QR adjuntos para el evento.', campaign: 'uruguay-entradas',
+      paragraphs: ['Hola 👋', ...text.split('\n').filter(p => p.trim())], footer: 'Te llega este mail por tus entradas para Pasito Walking Club Uruguay.' }), attachments,
   }, { idempotencyKey: `walking-club-uy-confirmation-${params.order.id}` })
   if (error || !data?.id) throw new Error(error?.message || 'No se pudo enviar el email.')
   return { id: data.id }

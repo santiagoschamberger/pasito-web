@@ -10,7 +10,7 @@ test('confirmation email includes the event, capacity message and safe withdrawa
   })
 
   assert.equal(email.subject, 'Inscripción confirmada · Todos a Decathlon')
-  assert.match(email.html, /¡Tu inscripción está confirmada!/)
+  assert.match(email.html, /Tu inscripción está confirmada/)
   assert.match(email.html, /Los 460 cupos se completaron y mucha gente quedó afuera/)
   assert.match(email.html, /No puedo asistir, quiero liberar mi cupo/)
   assert.match(email.html, /te devolvemos los 20 Pasitos/)
@@ -49,7 +49,7 @@ test('reminder email keeps the confirmed place and withdrawal CTA clear', () => 
 
   assert.equal(email.subject, 'Recordatorio · Todos a Decathlon')
   assert.match(email.html, /Tu lugar sigue confirmado/)
-  assert.match(email.html, /Te recordamos que tenés tu lugar/)
+  assert.match(email.html, /Te recuerdo que tenés tu lugar/)
   assert.match(email.html, /No puedo asistir, quiero liberar mi cupo/)
   assert.match(email.text, /reminder123/)
 })

@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
-import { pickupInstructionsEmailHtml } from '../lib/store-pickup-email.ts'
+import { pickupInstructionsEmail } from '../lib/store-pickup-email.ts'
 import { isPickupLocation } from '../lib/store-fulfillment.ts'
 
 type PickupOrder = {
@@ -58,8 +58,7 @@ for (const order of orders) {
     {
       from: 'Pasito <noreply@pasito.app>',
       to: order.email,
-      subject: 'Coordiná el retiro de tu Remera Pasito',
-      html: pickupInstructionsEmailHtml({
+      ...pickupInstructionsEmail({
         customerName: order.customer_name,
         variant,
         size: order.size,

@@ -21,7 +21,7 @@ function emailHarness(response = { data: { id: 'email-test' }, error: null }) {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
     }).outputText
     runInNewContext(code, {
-      module, exports: module.exports, Buffer, process: { env },
+      module, exports: module.exports, Buffer, TextEncoder, URL, process: { env },
       require(name) {
         if (name === 'server-only') return {}
         if (name === 'resend') return { Resend: class {
@@ -32,6 +32,7 @@ function emailHarness(response = { data: { id: 'email-test' }, error: null }) {
           return QRCode.toBuffer(url, options)
         } }
         if (name.startsWith('@/')) return load(name.slice(2) + '.ts')
+        if (name.startsWith('.')) return load(path.relative(path.resolve(__dirname, '..'), path.resolve(path.dirname(filename), name)))
         return require(name)
       },
     }, { filename })
@@ -52,7 +53,7 @@ function order(quantity = 2) {
   }
 }
 
-test('Silver email sends a unique signed QR per ticket, inline images and text fallback to the buyer', async () => {
+test('Silver email sends a unique signed QR per ticket, attachments and text fallback to the buyer', async () => {
   const h = emailHarness()
   const purchase = order()
   const input = { origin: 'https://www.pasito.app', kind: 'confirmation', orders: [purchase] }
@@ -69,7 +70,9 @@ test('Silver email sends a unique signed QR per ticket, inline images and text f
     assert.equal(url.origin, 'https://www.pasito.app')
     assert.match(url.pathname, /^\/silver\/ticket\//)
     assert.equal(h.readToken(url.pathname.split('/').at(-1)), purchase.tickets[i].id)
-    assert.match(email.html, new RegExp(`cid:${attachment.contentId}`))
+    assert.equal(attachment.contentId, undefined)
+    assert.equal((email.html.match(/<img\b/g) ?? []).length, 1)
+    assert.match(email.html, /pasito-logo-blanco.png/)
     assert.ok(email.text.includes(url.href))
     assert.ok(email.text.includes(purchase.tickets[i].code))
     assert.ok(Buffer.isBuffer(attachment.content))

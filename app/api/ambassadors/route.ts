@@ -1,3 +1,4 @@
+import { ambassadorNotificationEmail } from '@/lib/web-email-templates'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
@@ -33,43 +34,6 @@ function getSupabase() {
 function readString(body: Record<string, unknown>, key: keyof AmbassadorLead) {
   const value = body[key]
   return typeof value === 'string' ? value.trim() : ''
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;')
-}
-
-function leadHtml(lead: AmbassadorLead) {
-  const rows = [
-    ['Nombre y apellido', lead.fullName],
-    ['Instagram', lead.instagram],
-    ['Dónde quiere representar a Pasito', lead.location],
-    ['Mail', lead.email],
-    ['WhatsApp', lead.whatsapp],
-    ['Por qué te gusta Pasito', lead.pasitoReason],
-  ]
-
-  return `
-    <div style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 640px; margin: 0 auto; background: #FBF8E8;">
-      <div style="background: #0C6B45; padding: 32px; border-radius: 12px 12px 0 0;">
-        <p style="margin: 0 0 8px; color: #EEFA7A; font-size: 12px; font-weight: 700; text-transform: uppercase;">Embajadores Pasito</p>
-        <h1 style="margin: 0; color: #ffffff; font-size: 28px; line-height: 1.1;">Nuevo lead de Embajador</h1>
-      </div>
-      <div style="padding: 28px; border: 1px solid rgba(68,41,32,0.12); border-top: 0; border-radius: 0 0 12px 12px; background: #ffffff;">
-        ${rows.map(([label, value]) => `
-          <div style="padding: 14px 0; border-bottom: 1px solid rgba(68,41,32,0.1);">
-            <p style="margin: 0 0 4px; color: #0C6B45; font-size: 12px; font-weight: 700; text-transform: uppercase;">${escapeHtml(label)}</p>
-            <p style="margin: 0; color: #442920; font-size: 16px; line-height: 1.5;">${escapeHtml(value)}</p>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `
 }
 
 export async function POST(req: NextRequest) {
@@ -152,8 +116,7 @@ export async function POST(req: NextRequest) {
         from: 'Pasito Embajadores <contacto@pasito.app>',
         to: ['contacto@pasito.app'],
         reply_to: lead.email,
-        subject: `Nuevo Embajador Pasito: ${lead.fullName}`,
-        html: leadHtml(lead),
+        ...ambassadorNotificationEmail(lead),
         text: [
           'Nuevo lead de Embajador Pasito',
           `Nombre y apellido: ${lead.fullName}`,
