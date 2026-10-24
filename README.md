@@ -2,6 +2,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+Para trabajar en el catálogo de `pasito.app/beneficios`, ver la [guía de desarrollo y deploy](docs/beneficios.md) y el [handoff del catálogo](docs/catalogo-online-handoff.md).
+
 First, run the development server:
 
 ```bash

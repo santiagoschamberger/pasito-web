@@ -1,0 +1,74 @@
+.main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 80px 32px 64px;
+}
+
+.hero { max-width: 780px; margin-bottom: 48px; }
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 20px;
+  color: var(--brand-primary);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.hero h1 {
+  margin: 0;
+  color: var(--brand-dark);
+  font-family: var(--font-bricolage), system-ui, sans-serif;
+  font-size: clamp(40px, 6vw, 76px);
+  font-weight: 750;
+  line-height: 1.06;
+  letter-spacing: -.04em;
+  text-wrap: balance;
+}
+
+.hero h1 span { color: var(--brand-primary); }
+.intro { margin-top: 24px; font-size: 20px; line-height: 1.6; color: var(--neutral-700); }
+.catalog {
+  padding: 48px;
+  border: 1px solid var(--surface-stroke);
+  border-radius: 28px;
+  background: var(--surface-warm);
+  scroll-margin-top: 90px;
+}
+
+.gift {
+  display: inline-flex;
+  padding: 18px;
+  margin-bottom: 28px;
+  border-radius: 22px;
+  color: var(--brand-dark);
+  background: var(--brand-accent);
+}
+
+.catalog h2 {
+  max-width: 650px;
+  margin: 0;
+  color: var(--brand-dark);
+  font-family: var(--font-bricolage), system-ui, sans-serif;
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -.025em;
+}
+
+.catalog > p:not(.eyebrow) { max-width: 550px; margin: 20px 0 28px; color: var(--neutral-700); font-size: 17px; line-height: 1.7; }
+.catalog a { border-color: var(--brand-dark); background: var(--brand-dark); }
+.catalog a:hover { border-color: var(--brand-primary); background: var(--brand-primary); }
+.catalog a small { color: rgb(255 255 255 / 85%); }
+.commerce { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 32px; font-size: 15px; }
+.commerce p { margin: 0; color: var(--neutral-700); }
+.commerce a { color: var(--brand-primary); font-weight: 650; }
+.commerce a:hover { text-decoration: underline; }
+.main a:focus-visible { outline: 3px solid var(--brand-primary); outline-offset: 5px; }
+
+@media (max-width: 640px) {
+  .main { padding: 48px 20px; }
+  .hero { margin-bottom: 32px; }
+  .intro { font-size: 18px; }
+  .catalog { padding: 28px 22px; border-radius: 22px; }
+}
