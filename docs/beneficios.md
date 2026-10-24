@@ -10,7 +10,7 @@
 
 Verificado el 23/10/2026: Vercel tiene conectado este repositorio de GitHub, la rama de producción es `main`, la raíz es `.` y el proyecto usa Next.js con Node.js 24.x.
 
-La base incluye una página estática con la identidad y navegación de Pasito, enlaces a las tiendas y un aviso de catálogo en preparación. **Todavía no consulta ni muestra beneficios reales.** No requiere variables adicionales, migraciones ni servicios nuevos. El resto de la aplicación mantiene sus requisitos de entorno existentes.
+La rama incluye el catálogo online, login, canje web, historial, comercio y detalle de Pasitos. Todo vive bajo `/beneficios`. Sin `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, se conserva la página de preparación original en `app/beneficios/preparation.tsx`. Para continuar el trabajo y levantar datos ficticios, consultar [el handoff](catalogo-online-handoff.md). El resto de la aplicación mantiene sus requisitos de entorno existentes.
 
 ## Empezar
 
@@ -27,12 +27,14 @@ Si ya tenés la rama local, usá `git switch codex/catalogo-online` y `git pull 
 
 ## Dónde desarrollar
 
-- `app/beneficios/page.tsx`: entrada de la ruta y metadatos.
-- `app/beneficios/beneficios.module.css`: estilos específicos, con versión móvil.
-- `components/marketing/Marketing.tsx`: navegación, descargas y pie compartidos.
-- `app/marketing.module.css`: fuentes y colores de la web.
+- `app/beneficios/page.tsx`: catálogo y metadatos; conserva el canonical y noindex originales.
+- `app/beneficios/layout.tsx` y `catalogo.css`: shell y estilos limitados a `.online-storefront`.
+- `app/beneficios/[id]`, `comercios/[id]`, `canjes`, `pasitos`, `ingresar` y `auth/callback`: detalle y cuenta.
+- `components/catalogo-online` y `lib/catalogo-online`: componentes, dominio y acceso autenticado.
+- `proxy.ts`: renovación de sesión exclusivamente para `/beneficios/:path*`.
+- `components/marketing/Marketing.tsx`, `app/marketing.module.css` y `beneficios.module.css`: se conservan para la página de preparación.
 
-Reemplazar el bloque `#catalogo` por el catálogo real. Definir la fuente de datos y los campos públicos antes de conectarlo; no exponer credenciales privadas ni datos internos al navegador. Agregar búsqueda, filtros, detalle y estados de carga/error según el alcance que acuerde el equipo. El canje sigue ocurriendo en la app salvo que se implemente explícitamente otro flujo.
+La consulta pública usa `get_online_store_catalog`, definida en la nueva migración, aún no aplicada en remoto. La web reutiliza la Edge Function `redeem-external-code` y los controles existentes de saldo, disponibilidad, rollout e idempotencia. Solo se permite una clave pública en el navegador; nunca una service key.
 
 La página inicial tiene `robots.index: false` para evitar indexar una pantalla en preparación. Quitar esa restricción al lanzar el catálogo terminado. No se agregó un enlace nuevo al menú global para promocionar una funcionalidad aún en desarrollo.
 
@@ -40,6 +42,7 @@ La página inicial tiene `robots.index: false` para evitar indexar una pantalla 
 
 ```sh
 npm test
+npm run test:catalogo
 npm run build
 ```
 

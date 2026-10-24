@@ -1,0 +1,8 @@
+{
+  "name": "pasito-online-store-fixture",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "embedded-postgres": "17.6.0-beta.15"
+  }
+}
